@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.16.0]
+- **One question at a time.** The notes pane has a question picker at the top: choose a question from the drop-down (✓ marks answered ones) or step with ‹ and ›, and only that question is shown. Next unanswered and the question list on the left jump straight to a question. The app remembers which question you were on for each paper. **Show all** switches back to the full list.
+- **Hide the formatting toolbar.** Click the ▴ at the end of a note's toolbar, or **Aa Toolbar** in the picker bar, to hide or show the formatting toolbars. Ctrl+B, Ctrl+I and Ctrl+U still work while it is hidden.
+- **Hide the hints.** The 💡 **Hints** button hides or shows the "Where to look", "How to answer" and example cards.
+
 ## [1.15.0]
 - **Example answers.** Every reading question now shows a third hint, 💡 Example answer, next to "Where to look" and "How to answer". The examples are short model answers drawn from different social-science topics (health, education, transport, labour, governance).
 - You can write your own example for any question in Settings → Reading questions → Customise questions.

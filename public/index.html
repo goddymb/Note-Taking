@@ -323,6 +323,29 @@ select.inp{appearance:auto}
 .sect.open>.shead .chev,.q.open>.qhead .chev{transform:rotate(90deg)}
 .sbody{display:none;border-top:1px solid var(--line)}
 .sect.open>.sbody{display:block}
+.qnav{position:sticky;top:122px;z-index:8;display:flex;gap:6px;align-items:center;flex-wrap:wrap;padding:8px;margin:0 0 12px;border:1px solid var(--line);border-radius:var(--r);background:var(--panel-solid,var(--panel));box-shadow:var(--shadow)}
+body.focus .qnav{top:0}
+.qnav #qsel{flex:1;min-width:180px;font-weight:600;padding:8px 10px}
+.qnav [data-v="-1"] .i{transform:rotate(180deg)}
+.qnav .btn:disabled{opacity:.35;pointer-events:none}
+.qnav-tools{display:flex;gap:4px;margin-left:auto}
+.qnav .tg{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--line);background:none;border-radius:999px;padding:5px 10px;font:inherit;font-size:12.5px;font-weight:600;color:var(--muted);cursor:pointer}
+.qnav .tg.on{color:var(--ink);background:var(--panel-2)}
+.qnav .tg:hover{border-color:var(--accent)}
+.notescol.single .sect{display:none}
+.notescol.single .sect.cur{display:block}
+.notescol.single .sect.cur>.sbody{display:block}
+.notescol.single .sect.cur>.shead{pointer-events:none}.notescol.single .sect.cur>.shead .chev{display:none}
+.notescol.single .q{display:none}
+.notescol.single .q.cur{display:block;border-top:0}
+.notescol.single .q.cur>.qbody{display:block}
+.notescol.single .q.cur>.qhead{cursor:default}.notescol.single .q.cur>.qhead:hover{background:none}.notescol.single .q.cur>.qhead .chev{display:none}
+.notescol.single .q.cur>.qhead .prev{display:none}
+.notescol.single .q.cur .rte{min-height:180px}
+.notescol.nobar .rtebar{display:none}
+.notescol.nobar .rte{border-radius:var(--r-sm)}
+.notescol.nohints .hints{display:none}
+.outline button.on{background:color-mix(in srgb,var(--accent) 12%,transparent);color:var(--ink);font-weight:600}
 .sect.dim .sbody .q{opacity:.55}
 .snote{margin:12px 18px 0;font-size:13px;color:var(--muted);background:var(--panel-2);border-radius:10px;padding:9px 12px}
 .q{border-top:1px solid var(--line);scroll-margin-top:150px}
@@ -1555,7 +1578,7 @@ function paperView(){
   return `<div id="paperEditor">
   <div class="crumbs"><button data-act="nav" data-v="projects">Projects</button>${ico('chev')}<button data-act="openProject" data-id="${x.projectId}">${esc(p?p.name:'Project')}</button>${ico('chev')}<span>Notes</span></div>
   <div class="paperhead"><h1 id="pTitle">${esc(paperTitle(x))}</h1><div class="row"><div style="position:relative;width:52px;height:52px" title="${g.n} of ${g.total} answered"><span id="pRing">${ring(g.pct,52,5)}</span><span id="pPct" style="position:absolute;inset:0;display:grid;place-items:center;font-size:12px;font-weight:800">${g.pct}%</span></div></div></div>
-  <div class="ptoolbar"><span class="ftitle" title="${esc(paperTitle(x))}"><span>${esc(paperTitle(x))}</span></span><button class="btn sm ${V.focus?'pri':''}" data-act="focus" title="${V.focus?'Exit focus mode (Esc)':'Focus mode: hide everything except the paper and your notes'}">${ico(V.focus?'minimize':'maximize')}${V.focus?'Exit focus':'Focus mode'}</button><button class="btn sm" data-act="nextEmpty">${ico('next')}Next unanswered</button><span class="spacer"></span><span class="save" id="saveNote"></span><span id="pdfTool">${pdfToolHTML(x)}</span><button class="btn sm pri" data-act="paperReport">${ico('report')}Report</button><span class="mwrap"><button class="btn sm icon" data-act="moreMenu" aria-haspopup="menu" aria-expanded="false" title="More" aria-label="More actions"><svg class="i" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.4" fill="currentColor"/><circle cx="12" cy="12" r="1.4" fill="currentColor"/><circle cx="19" cy="12" r="1.4" fill="currentColor"/></svg></button><div class="menu" role="menu" hidden>${V.split&&x.pdf?`<button role="menuitem" data-act="swap">${ico('swap')}Swap PDF and notes sides</button>`:''}<button role="menuitem" data-act="expandAll">${ico('expand')}Expand all questions</button><button role="menuitem" data-act="collapseAll">${ico('collapse')}Collapse all questions</button><hr><button role="menuitem" class="danger" data-act="deletePaper">${ico('trash')}Delete paper</button></div></span></div>
+  <div class="ptoolbar"><span class="ftitle" title="${esc(paperTitle(x))}"><span>${esc(paperTitle(x))}</span></span><button class="btn sm ${V.focus?'pri':''}" data-act="focus" title="${V.focus?'Exit focus mode (Esc)':'Focus mode: hide everything except the paper and your notes'}">${ico(V.focus?'minimize':'maximize')}${V.focus?'Exit focus':'Focus mode'}</button><button class="btn sm" data-act="nextEmpty">${ico('next')}Next unanswered</button><span class="spacer"></span><span class="save" id="saveNote"></span><span id="pdfTool">${pdfToolHTML(x)}</span><button class="btn sm pri" data-act="paperReport">${ico('report')}Report</button><span class="mwrap"><button class="btn sm icon" data-act="moreMenu" aria-haspopup="menu" aria-expanded="false" title="More" aria-label="More actions"><svg class="i" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.4" fill="currentColor"/><circle cx="12" cy="12" r="1.4" fill="currentColor"/><circle cx="19" cy="12" r="1.4" fill="currentColor"/></svg></button><div class="menu" role="menu" hidden>${V.split&&x.pdf?`<button role="menuitem" data-act="swap">${ico('swap')}Swap PDF and notes sides</button>`:''}${NQ.single?'':`<button role="menuitem" data-act="expandAll">${ico('expand')}Expand all questions</button><button role="menuitem" data-act="collapseAll">${ico('collapse')}Collapse all questions</button>`}<hr><button role="menuitem" class="danger" data-act="deletePaper">${ico('trash')}Delete paper</button></div></span></div>
   <div class="pe ${V.split&&x.pdf?'split':''} ${V.swap?'swap':''}" id="pe" style="--lw:${paneWidth()}%">
     ${V.split&&x.pdf?readerHTML(x)+`<div class="gutter" id="gutter" role="separator" aria-orientation="vertical" aria-label="Drag to resize the PDF and notes" aria-valuemin="20" aria-valuemax="80" aria-valuenow="${paneWidth()}" tabindex="0" title="Drag to resize · double-click to reset"></div>`:`<nav class="outline" aria-label="Questions">${outline}</nav>`}
     <div class="notescol">
@@ -1568,6 +1591,7 @@ function paperView(){
         ${x.oldCitation?`<div class="hint" style="margin-top:10px"><b>Citation you typed earlier</b>${esc(x.oldCitation)}</div>`:''}
         <div class="grid2" style="margin-top:14px"><div class="field" style="margin:0"><label>Date read</label><input type="date" class="inp" data-f="dateRead" value="${esc(x.dateRead||'')}"></div><div class="field" style="margin:0"><label>How far you got</label><select class="inp" data-f="status">${STATUSES.map(s=>`<option ${ (x.status||'Not started')===s?'selected':''}>${s}</option>`).join('')}</select></div></div>
       </div>
+      ${qnavHTML(x,t)}
       ${secs}
     </div>
   </div></div>`;
@@ -1588,9 +1612,11 @@ function bindPaper(){
   document.body.classList.toggle('focus',!!V.focus);
   bindGutter();
   if(V.split&&x.pdf){mountReader(x);bindAsk(x)}
+  applyQnav();
 }
 function flashSave(idle){const n=$('#saveNote');if(!n)return;const done=()=>{n.innerHTML=`<span class="dot ${S.mode==='db'?'':'warn'}"></span>${S.mode==='db'?'All changes saved':'Saved in this browser'}`};if(idle){done();return}n.innerHTML=`<span class="dot warn"></span>Saving…`;clearTimeout(flashSave._t);flashSave._t=setTimeout(done,1100)}
 function updateQState(qid){
+  clearTimeout(updateQState._t); updateQState._t=setTimeout(refreshQnavLabels,400);
   const x=S.docs[V.paperId], t=tpl(x.projectId), q=t.questions.find(z=>z.id===qid); if(!q)return;
   const ok=answered(x,q);
   const dot=document.querySelector(`[data-dot="${qid}"]`); if(dot) dot.classList.toggle('done',ok);
@@ -1622,6 +1648,7 @@ function runSearch(q){
   box.innerHTML=html;box.classList.add('show');
 }
 function openToQuestion(qid){
+  if(NQ.single&&document.querySelector('#paperEditor .notescol.single')){setCurQ(qid,true);return}
   const el=document.querySelector(`.q[data-q="${qid}"]`); if(!el)return;
   const sec=el.closest('.sect'); sec.classList.add('open'); V.openSec[sec.dataset.sec]=true;
   el.classList.add('open'); V.openQ[V.paperId+':'+qid]=true;
@@ -2326,7 +2353,7 @@ function rteToolbar(qid,opts){
     <span style="flex:1"></span>
     ${opts.headings?'':`<button type="button" class="chk" data-tagq="${qid}" title="Tag the selected passage (or the whole answer) with a theme, debate or other dimension" aria-label="Tag"><svg class="i" viewBox="0 0 24 24" style="width:15px;height:15px"><path d="M20.6 13.4 12 22l-9-9V4a1 1 0 0 1 1-1h9z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg><span>Tag</span></button>`}
     <button type="button" class="chk" data-abbr="${qid}" title="Abbreviation: select it (e.g. WHO) and give its full form, for the list of abbreviations" aria-label="Abbreviation"><span style="font-weight:800;font-size:11px;letter-spacing:.02em">A.B.</span><span>Abbr.</span></button>
-    <button type="button" class="chk" data-check="${qid}" title="Check spelling and grammar — suggestions to accept or ignore" aria-label="Check spelling and grammar"><svg class="i" viewBox="0 0 24 24" style="width:16px;height:16px"><path d="M4 16 8 6l4 10M5.5 12.5h5M14 14l2.5 2.5L21 11"/></svg><span>Check</span></button>
+    <button type="button" class="chk" data-check="${qid}" title="Check spelling and grammar — suggestions to accept or ignore" aria-label="Check spelling and grammar"><svg class="i" viewBox="0 0 24 24" style="width:16px;height:16px"><path d="M4 16 8 6l4 10M5.5 12.5h5M14 14l2.5 2.5L21 11"/></svg><span>Check</span></button>${opts.headings?'':`<button type="button" class="chk" data-act="nqToggle" data-v="bar" title="Hide the formatting toolbars (bring them back with Toolbar at the top)" aria-label="Hide toolbar" style="padding:0 6px"><svg class="i" viewBox="0 0 24 24" style="width:15px;height:15px"><path d="m6 15 6-6 6 6"/></svg></button>`}
   </div>`;
 }
 /* ---------- writing assistant ---------- */
@@ -3754,6 +3781,60 @@ function updateScanHint(){
 }
 
 /* ============================================================
+   NOTES PANE: one question at a time + hideable toolbars and hints
+   ============================================================ */
+const NQ={single:true,bar:true,hints:true,cur:{}};
+try{Object.assign(NQ,JSON.parse(localStorage.getItem('litnotes.nq')||'{}'))}catch(e){}
+const saveNQ=()=>{try{const cur=Object.fromEntries(Object.entries(NQ.cur).slice(-200));localStorage.setItem('litnotes.nq',JSON.stringify({...NQ,cur}))}catch(e){}};
+function curQid(x,t){
+  const c=NQ.cur[V.paperId]; if(c&&t.questions.some(q=>q.id===c))return c;
+  const s=nextStage(x,t); const q=s?t.questions.find(z=>z.section===s.id&&!answered(x,z)):null;
+  return (q||t.questions[0]||{}).id;
+}
+function qnavOptions(x,t,cur){
+  return t.sections.map(s=>`<optgroup label="${esc(s.title)}">${t.questions.filter(q=>q.section===s.id).map(q=>`<option value="${q.id}" ${q.id===cur?'selected':''}>${answered(x,q)?'✓ ':'○ '}${t.questions.indexOf(q)+1}. ${esc(q.text.length>70?q.text.slice(0,68)+'…':q.text)}</option>`).join('')}</optgroup>`).join('');
+}
+function qnavHTML(x,t){
+  const cur=curQid(x,t), g=progress(x,t);
+  return `<div class="qnav" id="qnav">
+    ${NQ.single?`<button class="btn sm icon" data-act="qstep" data-v="-1" title="Previous question" aria-label="Previous question">${ico('chev')}</button>
+    <select class="inp" id="qsel" aria-label="Choose the question to work on">${qnavOptions(x,t,cur)}</select>
+    <button class="btn sm icon" data-act="qstep" data-v="1" title="Next question" aria-label="Next question">${ico('chev')}</button>`:`<span class="muted" style="font-size:13px;flex:1">All ${t.questions.length} questions · <span id="qnavCount">${g.n}</span> answered</span>`}
+    <span class="qnav-tools">
+      <button class="tg ${NQ.hints?'on':''}" data-act="nqToggle" data-v="hints" aria-pressed="${NQ.hints}" title="${NQ.hints?'Hide':'Show'} the hints (where to look, how to answer, example)">💡<span>Hints</span></button>
+      <button class="tg ${NQ.bar?'on':''}" data-act="nqToggle" data-v="bar" aria-pressed="${NQ.bar}" title="${NQ.bar?'Hide':'Show'} the formatting toolbar above each note (Ctrl+B, Ctrl+I, Ctrl+U still work)"><b style="font-family:Georgia,serif">Aa</b><span>Toolbar</span></button>
+      <button class="tg" data-act="nqToggle" data-v="single" title="${NQ.single?'Show all questions in one long list':'Show one question at a time'}">${NQ.single?'<span>Show all</span>':'<span>One at a time</span>'}</button>
+    </span>
+  </div>`;
+}
+function applyQnav(){
+  const col=document.querySelector('#paperEditor .notescol'); if(!col)return;
+  col.classList.toggle('single',!!NQ.single); col.classList.toggle('nobar',!NQ.bar); col.classList.toggle('nohints',!NQ.hints);
+  if(!NQ.single){col.querySelectorAll('.sect.cur,.q.cur').forEach(e=>e.classList.remove('cur'));document.querySelectorAll('.outline button.on').forEach(b=>b.classList.remove('on'));return}
+  const x=S.docs[V.paperId], t=tpl(x.projectId), qid=curQid(x,t);
+  setCurQ(qid,false);
+}
+function setCurQ(qid,focus){
+  const x=S.docs[V.paperId]; if(!x)return; const t=tpl(x.projectId); const q=t.questions.find(z=>z.id===qid); if(!q)return;
+  NQ.cur[V.paperId]=qid; saveNQ();
+  document.querySelectorAll('#paperEditor .sect').forEach(s=>s.classList.toggle('cur',s.dataset.sec===q.section));
+  document.querySelectorAll('#paperEditor div.q').forEach(e=>e.classList.toggle('cur',e.dataset.q===qid));
+  document.querySelectorAll('.outline button[data-q]').forEach(b=>b.classList.toggle('on',b.dataset.q===qid));
+  const sel=$('#qsel'); if(sel)sel.value=qid;
+  const i=t.questions.indexOf(q);
+  const pv=document.querySelector('[data-act="qstep"][data-v="-1"]'), nx=document.querySelector('[data-act="qstep"][data-v="1"]');
+  if(pv)pv.disabled=i===0; if(nx)nx.disabled=i===t.questions.length-1;
+  const el=document.querySelector(`#paperEditor div.q[data-q="${qid}"]`);
+  if(el&&focus){const nav=$('#qnav');const r=nav&&nav.getBoundingClientRect();if(r&&(r.top<60||r.top>window.innerHeight*.6))nav.scrollIntoView({block:'start',behavior:'smooth'});const ed=el.querySelector('.rte');if(ed)setTimeout(()=>ed.focus({preventScroll:true}),60)}
+}
+function refreshQnavLabels(){
+  const x=S.docs[V.paperId]; if(!x)return; const t=tpl(x.projectId);
+  const sel=$('#qsel'); if(sel){const v=sel.value;sel.innerHTML=qnavOptions(x,t,v);sel.value=v}
+  const c=$('#qnavCount'); if(c)c.textContent=progress(x,t).n;
+}
+document.addEventListener('change',e=>{if(e.target.id==='qsel')setCurQ(e.target.value,true)});
+
+/* ============================================================
    REPORTS
    ============================================================ */
 function paperReportBody(x,t,showEmpty,level){
@@ -4014,10 +4095,13 @@ document.addEventListener('click',e=>{
       let qid=b.dataset.q; if(!qid&&b.dataset.stage){const q=tpl(x.projectId).questions.find(z=>z.section===b.dataset.stage&&!answered(x,z));qid=q&&q.id}
       if(qid)setTimeout(()=>openToQuestion(qid),60);break}
     case 'toggleSec': {const s=b.closest('.sect');s.classList.toggle('open');V.openSec[id]=s.classList.contains('open');break}
-    case 'toggleQ': {const q=b.closest('.q');q.classList.toggle('open');V.openQ[V.paperId+':'+id]=q.classList.contains('open');if(q.classList.contains('open')){const ta=q.querySelector('.rte');if(ta)ta.focus()}break}
+    case 'qstep': {const x=S.docs[V.paperId],t=tpl(x.projectId);const i=t.questions.findIndex(z=>z.id===NQ.cur[V.paperId]);const q=t.questions[i+(+b.dataset.v)];if(q)setCurQ(q.id,true);break}
+    case 'nqToggle': {const k=b.dataset.v;NQ[k]=!NQ[k];saveNQ();const nav=$('#qnav');if(nav){const x=S.docs[V.paperId];nav.outerHTML=qnavHTML(x,tpl(x.projectId))}applyQnav();if(k==='single'&&!NQ.single){const qid=NQ.cur[V.paperId];if(qid)openToQuestion(qid)}break}
+    case 'toggleQ': {if(NQ.single&&b.closest('.notescol.single'))break;const q=b.closest('.q');q.classList.toggle('open');V.openQ[V.paperId+':'+id]=q.classList.contains('open');if(q.classList.contains('open')){const ta=q.querySelector('.rte');if(ta)ta.focus()}break}
     case 'expandAll': document.querySelectorAll('#paperEditor .sect, #paperEditor .q').forEach(el=>el.classList.add('open'));tpl(S.docs[V.paperId].projectId).questions.forEach(q=>V.openQ[V.paperId+':'+q.id]=true);V.openSec={};document.querySelectorAll('#paperEditor textarea').forEach(autosize);break;
     case 'collapseAll': document.querySelectorAll('#paperEditor .q').forEach(el=>el.classList.remove('open'));Object.keys(V.openQ).forEach(k=>{if(k.startsWith(V.paperId+':'))delete V.openQ[k]});break;
-    case 'nextEmpty': {const x=S.docs[V.paperId],t=tpl(x.projectId);const q=t.questions.find(z=>!answered(x,z));if(!q){toast('Every question is answered 🎉');break}
+    case 'nextEmpty': {const x=S.docs[V.paperId],t=tpl(x.projectId);const cq=NQ.single?NQ.cur[V.paperId]:null;const ci=t.questions.findIndex(z=>z.id===cq);const q=t.questions.slice(ci+1).concat(t.questions.slice(0,ci+1)).find(z=>!answered(x,z)&&z.id!==cq)||t.questions.find(z=>!answered(x,z));if(!q){toast('Every question is answered 🎉');break}
+      if(NQ.single){setCurQ(q.id,true);break}
       const sec=document.querySelector(`[data-sec="${q.section}"]`);sec.classList.add('open');V.openSec[q.section]=true;const el=document.querySelector(`[data-q="${q.id}"]`);el.classList.add('open');V.openQ[V.paperId+':'+q.id]=true;el.scrollIntoView({behavior:'smooth',block:'center'});const ta=el.querySelector('.rte');if(ta)setTimeout(()=>ta.focus({preventScroll:true}),300);break}
     case 'choose': {const x=S.docs[V.paperId];const k=b.dataset.key;x[k]=x[k]===b.dataset.v?'':b.dataset.v;b.parentElement.querySelectorAll('button').forEach(z=>z.classList.toggle('on',z.dataset.v===x[k]));updateQState(b.dataset.q);
       // Q5 verdict changes dim state of passes 2-3
