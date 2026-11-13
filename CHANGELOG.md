@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.4.0]
+- **Lists in notes**: bulleted and numbered lists from the toolbar, with Ctrl+Shift+8 / Ctrl+Shift+7, or by typing "- " or "1. " at the start of a line.
+- Press Tab inside a list to indent a point (nested list) and Shift+Tab to move it back out.
+- Lists appear in reports, Compare and exports (Markdown uses "-" and "1.").
+
 ## [1.3.0]
 - **Formatted notes**: make text **bold**, *italic* or underlined, and highlight it in yellow, green, blue, pink or orange. A small toolbar sits above every note; Ctrl+B, Ctrl+I and Ctrl+U work too.
 - Formatting appears in paper and project reports, in Compare, and in exported Word/PDF files; Markdown exports keep bold and italics.
