@@ -1,5 +1,8 @@
 # Changelog
 
+## [1.17.2]
+- A paper's own report now ends with the ideas you jotted down while reading that paper, with their tags and page numbers. Project reports already list all ideas grouped by tag.
+
 ## [1.17.1]
 - **Name your concepts, themes, methods and gaps.** When you tick Theme, Concept, Method or Gap on an idea, the pop-up asks which one, e.g. "Which concept? Risk compensation". Names you have used before, and the themes, concepts and methods you tagged in your notes, appear as buttons to pick with one click.
 - On the Ideas page, choosing a type (e.g. Concept) shows its names as a second row of filters, so you can see every idea about "Risk compensation" together. Reports and the Write panel group ideas the same way.

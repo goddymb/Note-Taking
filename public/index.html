@@ -4041,8 +4041,11 @@ function paperReportView(){
   const x=S.docs[V.paperId], p=S.docs[x.projectId], t=tpl(x.projectId);
   return `<div class="crumbs"><button data-act="nav" data-v="projects">Projects</button>${ico('chev')}<button data-act="openProject" data-id="${x.projectId}">${esc(p?p.name:'Project')}</button>${ico('chev')}<button data-act="openPaper" data-id="${x.id}">Notes</button>${ico('chev')}<span>Report</span></div>
   ${reportToolbar('paper')}
-  <article class="report" id="reportDoc"><h1>${esc(paperTitle(x))}</h1><p class="meta">${esc(paperMeta(x))}</p>${paperReportBody(x,t,V.showEmpty,1)}</article>`;
+  <article class="report" id="reportDoc"><h1>${esc(paperTitle(x))}</h1><p class="meta">${esc(paperMeta(x))}</p>${paperReportBody(x,t,V.showEmpty,1)}${paperIdeasHTML(V.paperId)}</article>`;
 }
+function paperIdeas(pid){return ideasAll().filter(i=>i.paperId===pid)}
+function paperIdeasHTML(pid){const l=paperIdeas(pid);if(!l.length)return '';return `<h2>Ideas</h2>`+l.map(i=>`<p>${(i.tags||[]).length?`<b>${esc(i.tags.map(t=>ideaLabel(i,t)).join(' · '))}:</b> `:''}${esc(i.text).replace(/\n/g,'<br>')}${i.page?` (${esc(pageStr(i.page))})`:''}</p>`).join('')}
+function paperIdeasMd(pid){const l=paperIdeas(pid);if(!l.length)return '';return '## Ideas\n\n'+l.map(i=>'- '+((i.tags||[]).length?`**${i.tags.map(t=>ideaLabel(i,t)).join(' · ')}:** `:'')+i.text.replace(/\n+/g,' ')+(i.page?` (${pageStr(i.page)})`:'')).join('\n')+'\n'}
 function sortedRefs(pp){
   const key=x=>{const r=x.ref;if(!r)return (x.title||'').toLowerCase();const a=validPeople(r.authors);const lead=a.length?a.map(z=>trim(z.family)+' '+initials(z.given)).join(' '):trim(r.title);return (lead+' '+(trim(r.year)||'0000')).toLowerCase().replace(/^(the|a|an)\s+/,'')};
   return pp.slice().sort((a,b)=>key(a).localeCompare(key(b)));
@@ -4132,7 +4135,7 @@ function mdProject(p,pp,t){
   return s;
 }
 function currentReport(kind){
-  if(kind==='paper'){const x=S.docs[V.paperId],t=tpl(x.projectId);return {name:paperTitle(x),md:mdPaper(x,t,V.showEmpty,1),html:$('#reportDoc').innerHTML}}
+  if(kind==='paper'){const x=S.docs[V.paperId],t=tpl(x.projectId);return {name:paperTitle(x),md:mdPaper(x,t,V.showEmpty,1)+paperIdeasMd(V.paperId),html:$('#reportDoc').innerHTML}}
   const p=S.docs[V.pid],pp=papersOf(V.pid),t=tpl(V.pid);
   return {name:p.name||'project',md:mdProject(p,pp,t),html:$('#reportDoc').innerHTML};
 }
