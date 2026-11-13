@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.16.3]
+- **Hints open on click.** Each question now shows three small buttons: 📍 Where to look, ✎ How to answer and 💡 Example. A card opens only when you click its button and closes when you click again, so the note box gets the space.
+- **Less padding around the note box.** The current question no longer sits inside an extra padded box; that came from a style clash with the side menu's project card.
+
 ## [1.16.2]
 - **Fold the reference card.** The arrow at the top left of the reference card folds it to a single line showing the reference (and a PDF tag), with Edit details still at hand. Click the arrow again to unfold it. The app remembers your choice.
 
