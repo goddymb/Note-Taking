@@ -531,6 +531,17 @@ body.focus .wr>.gutter,body.focus .nbrowse{position:relative;top:0;height:100%;m
 .abbrsug{margin-top:8px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:12.5px}.abbrsug[hidden]{display:none}
 .abchip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--panel-2);border-radius:999px;padding:3px 4px 3px 10px}
 .abchip button{border:0;background:none;color:var(--accent);font-weight:700;cursor:pointer;padding:2px 6px;border-radius:999px;font:inherit}.abchip button:hover{background:var(--panel)}
+.hlLayer{position:absolute;inset:0;z-index:0;pointer-events:none;mix-blend-mode:multiply}
+.hlLayer i{position:absolute;display:block;border-radius:2px;opacity:.85}
+.selpop{position:fixed;z-index:400;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:12px;box-shadow:0 12px 36px rgba(0,0,0,.25);padding:10px 12px;display:grid;gap:8px;width:min(400px,calc(100vw - 20px));font-size:13px}
+.selpop .sprow{display:flex;align-items:center;gap:8px}
+.selpop .spl{font-weight:700;font-size:12px;min-width:62px;color:var(--muted)}
+.selpop select.inp{flex:1;min-width:0;padding:6px 8px;font-size:13px}.selpop input.inp{padding:6px 8px;font-size:13px}
+.hlc{width:24px;height:24px;border-radius:50%;border:2px solid rgba(0,0,0,.15);cursor:pointer;padding:0}.hlc:hover{transform:scale(1.12)}.hlc.on{outline:2px solid var(--accent);outline-offset:2px}
+.hlsave{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:8px 12px;background:color-mix(in srgb,var(--accent) 10%,var(--panel));border-bottom:1px solid var(--line);font-size:13px}
+.hlsave[hidden]{display:none}.hlsave .i{width:15px;height:15px;vertical-align:-3px;margin-right:4px}
+.hlsave.pulse{animation:hlp 1.2s ease}@keyframes hlp{0%{background:color-mix(in srgb,var(--accent) 35%,var(--panel))}100%{}}
+.q.flash{animation:qflash 1.6s ease}@keyframes qflash{0%,30%{box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 45%,transparent)}100%{box-shadow:none}}
 .gsug{margin-top:8px;border:1px solid var(--line);border-radius:var(--r-sm);background:var(--panel-2);overflow:hidden}
 .gs-head{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:9px 12px;font-size:13px}
 .gs-head svg{width:16px;height:16px}.gs-head.ok svg{color:var(--success)}.gs-head.warn svg{color:var(--warn)}
@@ -906,16 +917,18 @@ async function attachPdf(id,file){
     catch(e){if(e&&e.code==='store_unavailable'){await new Promise(r=>setTimeout(r,1200));res=await a.upload(file,{type:'application/pdf'})}else throw e}
     const x=S.docs[id]; if(!x){a.delete(res.id).catch(()=>{});return}
     const old=x.pdf;
+    if(x.pdfOrig){a.delete(x.pdfOrig.id).catch(()=>{});delete x.pdfOrig}
+    if((x.highlights||[]).length){x.highlights=[];x.hlDirty=false}
     x.pdf={id:res.id,name:file.name,size:res.sizeBytes||file.size,addedAt:Date.now()};
     save(id); toast(old?'PDF replaced':'PDF attached');
     if(old&&old.id&&old.id!==res.id) a.delete(old.id).catch(()=>{}); // replaced by the user's own action
   }catch(e){toast(assetErr(e))}
   finally{UP.delete(id);refreshPdfUI(id);if(V.view!=='paper')renderMain()}
 }
-async function removePdfAsset(x){ if(!x||!x.pdf)return; const a=await getAssets(); if(a){try{await a.delete(x.pdf.id)}catch(e){}} }
+async function removePdfAsset(x){ if(!x||!x.pdf)return; const a=await getAssets(); if(a){try{await a.delete(x.pdf.id)}catch(e){}if(x.pdfOrig){try{await a.delete(x.pdfOrig.id)}catch(e){}}} }
 function pdfBoxHTML(x){
   if(UP.has(V.paperId)) return `<div class="pdfrow"><span class="spin"></span><div class="nm"><b>Uploading PDF…</b><span>Keep this page open until it finishes.</span></div></div>`;
-  if(x.pdf) return `<div class="pdfrow"><span class="pdfic">PDF</span><div class="nm"><b title="${esc(x.pdf.name)}">${esc(x.pdf.name)}</b><span>${fmtSize(x.pdf.size)} · added ${esc(ago(x.pdf.addedAt))}</span></div>
+  if(x.pdf) return `<div class="pdfrow"><span class="pdfic">PDF</span><div class="nm"><b title="${esc(x.pdf.name)}">${esc(x.pdf.name)}</b><span>${fmtSize(x.pdf.size)} · ${x.pdfOrig?`saved with ${x.pdf.highlights||0} highlight${x.pdf.highlights===1?'':'s'} ${esc(ago(x.pdf.addedAt))}`:'added '+esc(ago(x.pdf.addedAt))}</span></div>
     <a class="btn sm pri" href="${esc(pdfUrl(x.pdf))}" target="_blank" rel="noopener">${ico('doc')}Open PDF</a><button class="btn sm" data-act="pickPdf">${ico('upload')}Replace</button><button class="btn sm ghost danger" data-act="removePdf">${ico('trash')}</button></div>`;
   if(PDF_OK===false) return `<div class="help">${unavailable('pdf')}</div>`;
   return `<button class="drop" data-act="pickPdf" data-drop="1"><span class="di">${ico('upload')}</span><span><b>Attach the PDF</b><span>Drag it here or click to choose · up to ${Math.round(PDF_MAX/1048576)} MB</span></span></button>`;
@@ -1625,11 +1638,12 @@ function readerHTML(x){
       <div class="seg"><button class="${R.tab==='pdf'?'on':''}" data-act="rtab" data-v="pdf">${ico('doc')}PDF</button><button class="${R.tab==='ask'?'on':''}" data-act="rtab" data-v="ask">${ico('spark')}Ask ${AIN}</button></div>
       <span class="spacer"></span>
       <span class="rpdf ${R.tab==='pdf'?'':'hide'}"><span class="pgn" id="pgn">…</span>
-        <span class="seg tools" role="group" aria-label="Mouse tool"><button class="${R.tool==='hand'?'on':''}" data-act="rtool" data-v="hand" title="Hand tool: click and drag to move around the page" aria-label="Hand tool"><svg class="i" viewBox="0 0 24 24"><path d="M8 13V5.5a1.5 1.5 0 0 1 3 0V12M11 11.5v-8a1.5 1.5 0 0 1 3 0V12M14 11.5V5a1.5 1.5 0 0 1 3 0v7.5M17 9.5a1.5 1.5 0 0 1 3 0V15a6 6 0 0 1-6 6h-1.5a6 6 0 0 1-4.6-2.2L4.6 15.6a1.6 1.6 0 0 1 2.4-2.1L8 14.7"/></svg></button><button class="${R.tool==='select'?'on':''}" data-act="rtool" data-v="select" title="Text tool: select and copy text" aria-label="Text tool"><svg class="i" viewBox="0 0 24 24"><path d="M9 4h6M9 20h6M12 4v16"/></svg></button></span>
+        <span class="seg tools" role="group" aria-label="Mouse tool"><button class="${R.tool==='hand'?'on':''}" data-act="rtool" data-v="hand" title="Hand tool: click and drag to move around the page" aria-label="Hand tool"><svg class="i" viewBox="0 0 24 24"><path d="M8 13V5.5a1.5 1.5 0 0 1 3 0V12M11 11.5v-8a1.5 1.5 0 0 1 3 0V12M14 11.5V5a1.5 1.5 0 0 1 3 0v7.5M17 9.5a1.5 1.5 0 0 1 3 0V15a6 6 0 0 1-6 6h-1.5a6 6 0 0 1-4.6-2.2L4.6 15.6a1.6 1.6 0 0 1 2.4-2.1L8 14.7"/></svg></button><button class="${R.tool==='select'?'on':''}" data-act="rtool" data-v="select" title="Text tool: select text to highlight it, quote it into your notes, or copy it" aria-label="Text tool"><svg class="i" viewBox="0 0 24 24"><path d="M9 4h6M9 20h6M12 4v16"/></svg></button></span>
         <span class="zoomctl"><button class="btn icon sm" data-act="zoom" data-v="-" title="Zoom out (Ctrl + scroll down)" aria-label="Zoom out">−</button><select class="zsel" id="zoomSel" data-act="zoomSel" aria-label="Zoom level"></select><button class="btn icon sm" data-act="zoom" data-v="+" title="Zoom in (Ctrl + scroll up)" aria-label="Zoom in">+</button></span></span>
       <a class="btn icon sm" href="${esc(pdfUrl(x.pdf))}" target="_blank" rel="noopener" title="Open in new tab" aria-label="Open PDF in new tab">${ico('external')}</a>
       <button class="btn icon sm" data-act="closeSplit" title="Close reader" aria-label="Close reader">${ico('x')}</button>
     </div>
+    <div class="hlsave ${R.tab==='pdf'?'':'hide'}" id="hlsave" hidden></div>
     <div class="rbody ${R.tab==='pdf'?'':'hide'}" id="rpages"><div class="rload"><span class="spin"></span>Opening PDF…</div></div>
     <div class="rask ${R.tab==='ask'?'':'hide'}" id="rask">${askPaneHTML(x)}</div>
   </aside>`;
@@ -1637,12 +1651,12 @@ function readerHTML(x){
 async function mountReader(x){
   const token=++R.token, box=$('#rpages'); if(!box)return;
   let doc;
-  try{doc=await openPdfDoc(x.pdf)}catch(e){if(token!==R.token)return;box.innerHTML=`<div class="rload">${ico('warn')}<span>The PDF could not be displayed here. <a class="link" href="${esc(pdfUrl(x.pdf))}" target="_blank" rel="noopener">Open it in a new tab</a> instead.</span></div>`;return}
+  try{doc=await openPdfDoc(x.pdfOrig||x.pdf)}catch(e){if(token!==R.token)return;box.innerHTML=`<div class="rload">${ico('warn')}<span>The PDF could not be displayed here. <a class="link" href="${esc(pdfUrl(x.pdf))}" target="_blank" rel="noopener">Open it in a new tab</a> instead.</span></div>`;return}
   if(token!==R.token||!$('#rpages'))return;
   await loadPdfjs();
-  R.doc=doc; R.pages=[];
+  R.doc=doc; R.pages=[]; hidePop(); try{R.labels=await doc.getPageLabels()}catch(e){R.labels=null}
   // page sizes at scale 1 (pages can differ in size)
-  for(let i=1;i<=doc.numPages;i++){const pg=await doc.getPage(i);const vp=pg.getViewport({scale:1});R.pages.push({n:i,w:vp.width,h:vp.height});if(token!==R.token)return}
+  for(let i=1;i<=doc.numPages;i++){const pg=await doc.getPage(i);const vp=pg.getViewport({scale:1});R.pages.push({n:i,w:vp.width,h:vp.height,vp1:vp});if(token!==R.token)return}
   box.innerHTML='';
   if(R.obs)R.obs.disconnect();
   R.vis=new Set();
@@ -1656,7 +1670,8 @@ async function mountReader(x){
   box.classList.toggle('pan',R.tool==='hand');
   layoutPages(R.mode==='custom'?R.scale:fitScale(R.mode),null,true);
   const g=$('#pgn'); if(g)g.textContent=`1 / ${doc.numPages}`;
-  bindViewerGestures(box);
+  bindViewerGestures(box); bindQuotes(box); drawHighlights(); updateHlBar();
+  if(R.tool==='hand'){let seen=false;try{seen=localStorage.getItem('litnotes.quoteTip')}catch(e){}if(!seen){toast('Tip: pick the Text tool (I) in the reader to highlight text or quote it into your notes');try{localStorage.setItem('litnotes.quoteTip','1')}catch(e){}}}
 }
 function fitScale(mode){
   const box=$('#rpages'); if(!box||!R.pages.length)return R.scale||1;
@@ -2702,14 +2717,16 @@ function draftView(){
 function writerWidth(){let v=60;try{v=parseFloat(localStorage.getItem('litnotes.ww'))||60}catch(e){}return Math.min(80,Math.max(30,v))}
 function browserHTML(){
   const pid=S.docs[V.draftId].projectId, t=tpl(pid), pp=papersOf(pid);
-  const modes=[['question','Questions'],['paper','Papers'],...dimsOf(pid).map(d=>['dim:'+d.id,d.name]),['search','Search']];
+  const modes=[['question','Questions'],['paper','Papers'],['quotes','Quotes'],...dimsOf(pid).map(d=>['dim:'+d.id,d.name]),['search','Search']];
   let items=[], list='';
   if(BR.mode==='question') items=t.questions.map(q=>({v:q.id,l:`Q${t.questions.indexOf(q)+1} · ${q.text}`,n:pp.filter(x=>answered(x,q)).length}));
   else if(BR.mode==='paper') items=pp.map(x=>({v:x.id,l:`${cite(x)} · ${paperTitle(x)}`,n:progress(x,t).n}));
+  else if(BR.mode==='quotes') items=[{v:'__all',l:'All papers',n:pp.reduce((s,x)=>s+quotesOf(x).length,0)},...pp.map(x=>({v:x.id,l:`${cite(x)} · ${paperTitle(x)}`,n:quotesOf(x).length}))];
   else if(BR.mode.startsWith('dim:')) items=sortedTags(pid,BR.mode.slice(4)).map(o=>({v:o.t.id,l:o.t.name,n:o.n}));
   if(BR.mode!=='search'&&!items.some(i=>i.v===BR.item)) BR.item=(items.find(i=>i.n)||items[0]||{}).v||null;
   const card=(x,head,bodyHTML,plain)=>`<div class="ncard"><div class="nh"><b>${esc(cite(x))}</b><span>${esc(head)}</span></div><div class="nb">${bodyHTML}</div><div class="na-row"><button class="btn sm" data-ins="${x.id}" data-txt="${esc(plain)}">${ico('plus')}Insert</button><button class="btn sm ghost" data-cite="${x.id}">Cite</button></div></div>`;
   if(BR.mode==='question'&&BR.item){const q=t.questions.find(z=>z.id===BR.item);list=pp.filter(x=>answered(x,q)).map(x=>card(x,paperTitle(x),answerHTML(x,q)||esc(x[q.choiceKey]||''),(x.answers||{})[q.id]||x[q.choiceKey]||'')).join('')}
+  else if(BR.mode==='quotes'&&BR.item){list=pp.filter(x=>BR.item==='__all'||x.id===BR.item).flatMap(x=>quotesOf(x).map(qu=>`<div class="ncard"><div class="nh"><b>${esc(cite(x))}</b><span>${esc(qu.page)} · ${esc(qLabel(pid,qu.qid))}</span></div><div class="nb">“${esc(qu.text)}”</div><div class="na-row"><button class="btn sm" data-ins="${x.id}" data-txt="${esc(qu.full)}">${ico('plus')}Insert quote</button></div></div>`)).join('')||'<p class="help">No quotes yet. In the PDF reader, select text with the Text tool and choose <b>Add quote</b>.</p>'}
   else if(BR.mode==='paper'&&BR.item){const x=S.docs[BR.item];if(x){const xx={id:BR.item,...x};list=t.questions.filter(q=>answered(xx,q)).map(q=>card(xx,`Q${t.questions.indexOf(q)+1} ${q.text}`,answerHTML(xx,q)||esc(xx[q.choiceKey]||''),(xx.answers||{})[q.id]||xx[q.choiceKey]||'')).join('')}}
   else if(BR.mode.startsWith('dim:')&&BR.item){const d=dimById(pid,BR.mode.slice(4));const rows=codingsFor(pid,BR.item);
     const one=({x,c})=>card(x,qLabel(pid,c.qid),codeBodyHTML(x,c,pid),codeBodyText(x,c,pid));
@@ -2739,10 +2756,11 @@ function bindDraft(){
     const b=e.target.closest('[data-ins],[data-cite]'); if(!b)return;
     const x=S.docs[b.dataset.ins||b.dataset.cite]; if(!x)return;
     const c='('+cite(x).replace(/^\(|\)$/g,'')+')';
-    const txt=b.dataset.ins?(b.dataset.txt.trim().replace(/\s*\n\s*/g,' ')+' '+c):c;
+    const body=b.dataset.ins?b.dataset.txt.trim().replace(/\s*\n\s*/g,' '):'';
+    const txt=b.dataset.ins?(endsWithOwnCite(x,body)?body:body+' '+c):c;
     insertIntoDraft(ed,(b.dataset.ins?'':' ')+txt+' ');
     d.cites=[...new Set([...(d.cites||[]),b.dataset.ins||b.dataset.cite])]; draftCommit(ed);
-    toast(b.dataset.ins?'Note inserted — now rewrite it in your own words':'Citation inserted');
+    toast(b.dataset.ins?(BR.mode==='quotes'?'Quote inserted with its citation and page':'Note inserted — now rewrite it in your own words'):'Citation inserted');
   });
   // resizable split
   const g=$('#wgut'),wr=$('#wr');
@@ -3337,6 +3355,247 @@ document.addEventListener('click',e=>{
 });
 
 /* ============================================================
+   PDF HIGHLIGHTS & QUOTES
+   paper.highlights : [{id, page, color, rects:[[x1,y1,x2,y2] in PDF points], text, at}]
+   paper.hlDirty    : highlights changed since they were last written into the PDF file
+   paper.pdfOrig    : the untouched PDF once a highlighted copy has been saved (paper.pdf is then the copy)
+   Quotes live in the notes as  “text” (Author, Year, p. 5)
+   ============================================================ */
+const HLC=[['yellow','#ffe14d',[1,0.88,0.3]],['green','#8ee68e',[0.56,0.9,0.56]],['blue','#8cc8ff',[0.55,0.78,1]],['pink','#ff9cc9',[1,0.61,0.79]]];
+const vpPt=(vp,x,y)=>{const [a,b,c,d,e,f]=vp.transform;return [a*x+c*y+e,b*x+d*y+f]};
+const pdfPt=(vp,x,y)=>{const [a,b,c,d,e,f]=vp.transform,det=a*d-b*c;return [(d*(x-e)-c*(y-f))/det,(a*(y-f)-b*(x-e))/det]};
+const hlHex=c=>(HLC.find(z=>z[0]===c)||HLC[0])[1];
+const PDFLIB_URL=(LOCAL&&LOCAL.pdflibUrl)||'https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js';
+let _pdflib=null;
+function loadPdfLib(){
+  if(window.PDFLib)return Promise.resolve(window.PDFLib);
+  if(_pdflib)return _pdflib;
+  _pdflib=new Promise((res,rej)=>{const s=document.createElement('script');s.src=PDFLIB_URL;s.onload=()=>window.PDFLib?res(window.PDFLib):rej(new Error('pdf-lib'));s.onerror=()=>{_pdflib=null;rej(new Error('pdf-lib'))};document.head.appendChild(s)});
+  return _pdflib;
+}
+const curPaper=()=>V.view==='paper'&&S.docs[V.paperId]?S.docs[V.paperId]:null;
+const citeCore=x=>cite(x).replace(/^\(|\)$/g,'');
+const pageStr=pg=>/[–-]/.test(String(pg))?'pp. '+String(pg).replace(/\s*[-–]\s*/,'–'):'p. '+pg;
+const quoteText=(x,text,pg)=>`“${text}” (${citeCore(x)}, ${pageStr(pg)})`;
+
+/* printed page number: the PDF's own page labels, else the first page in the reference */
+function printedPage(x,n){
+  const lab=R.labels&&R.labels[n-1];
+  if(lab&&/^[0-9ivxlcdm]+$/i.test(lab.trim()))return lab.trim();
+  const m=String((x.ref||{}).pages||'').match(/(\d+)\s*[-–]\s*(\d+)/);
+  if(m&&R.doc){const a=+m[1],b=+m[2],len=b-a+1;if(len===R.doc.numPages)return String(a+n-1);if(len===R.doc.numPages-1&&n>1)return String(a+n-2)}
+  return String(n);
+}
+function cleanSelText(t){
+  return String(t||'').replace(/([a-z])-\s*\n\s*([a-z])/g,'$1$2').replace(/\s+/g,' ').replace(/^[\s“"']+|[\s”"']+$/g,'').trim();
+}
+
+/* ---------- drawing highlights over the pages ---------- */
+function hlLayer(p){let l=p.el.querySelector('.hlLayer');if(!l){l=document.createElement('div');l.className='hlLayer';p.el.appendChild(l)}return l}
+function drawHighlights(n){
+  const x=curPaper(); if(!x||!R.pages.length)return;
+  const pages=n?[R.pages[n-1]]:R.pages;
+  pages.forEach(p=>{
+    if(!p||!p.vp1)return;
+    const l=hlLayer(p);
+    l.innerHTML=(x.highlights||[]).filter(h=>h.page===p.n).map(h=>h.rects.map(r=>{
+      const [a,b]=vpPt(p.vp1,r[0],r[1]),[c,d]=vpPt(p.vp1,r[2],r[3]); const L=Math.min(a,c),T=Math.min(b,d),W=Math.abs(c-a),H=Math.abs(d-b);
+      return `<i data-hl="${h.id}" style="left:${L/p.w*100}%;top:${T/p.h*100}%;width:${W/p.w*100}%;height:${H/p.h*100}%;background:${hlHex(h.color)}"></i>`}).join('')).join('');
+  });
+}
+
+/* ---------- reading the selection ---------- */
+function selectionInPdf(){
+  const s=getSelection(); if(!s||s.isCollapsed||!s.rangeCount)return null;
+  const r=s.getRangeAt(0), box=$('#rpages'); if(!box||!box.contains(r.commonAncestorContainer))return null;
+  const text=cleanSelText(s.toString()); if(text.length<2)return null;
+  const byPage={};
+  const all=[...r.getClientRects()].filter(c=>c.width>1&&c.height>2);
+  const hs=all.map(c=>c.height).sort((a,b)=>a-b), med=hs[Math.floor(hs.length/2)]||12;
+  all.filter(c=>c.height<med*2.6).forEach(c=>{
+    const el=document.elementsFromPoint(c.left+c.width/2,c.top+c.height/2).find(e=>e.classList&&e.classList.contains('pg'))
+      ||R.pages.map(p=>p.el).find(pe=>{const b=pe.getBoundingClientRect();return c.top+c.height/2>=b.top&&c.top+c.height/2<=b.bottom});
+    if(!el)return; const p=R.pages[+el.dataset.n-1]; if(!p||!p.vp1)return;
+    const b=el.getBoundingClientRect(), k=b.width/p.w;
+    const x1=(c.left-b.left)/k, x2=(c.right-b.left)/k, y1=(c.top-b.top)/k, y2=(c.bottom-b.top)/k;
+    (byPage[p.n]=byPage[p.n]||[]).push([x1,y1,x2,y2]);
+  });
+  const pages=Object.keys(byPage).map(Number).sort((a,b)=>a-b); if(!pages.length)return null;
+  // merge rectangles on the same line, then convert to PDF points
+  const out={};
+  pages.forEach(n=>{
+    const rs=byPage[n].sort((a,b)=>a[1]-b[1]||a[0]-b[0]), lines=[];
+    rs.forEach(q=>{const L=lines.find(l=>Math.abs((l[1]+l[3])/2-(q[1]+q[3])/2)<Math.min(l[3]-l[1],q[3]-q[1])*.5&&q[0]<=l[2]+6&&q[2]>=l[0]-6);
+      if(L){L[0]=Math.min(L[0],q[0]);L[1]=Math.min(L[1],q[1]);L[2]=Math.max(L[2],q[2]);L[3]=Math.max(L[3],q[3])}else lines.push(q.slice())});
+    const vp=R.pages[n-1].vp1;
+    out[n]=lines.map(([a,b,c,d])=>{const [px1,py1]=pdfPt(vp,a,b),[px2,py2]=pdfPt(vp,c,d);return [Math.min(px1,px2),Math.min(py1,py2),Math.max(px1,px2),Math.max(py1,py2)].map(v=>Math.round(v*100)/100)});
+  });
+  const last=all[all.length-1]||r.getBoundingClientRect();
+  return {text,byPage:out,pages,anchor:{x:last.right,y:last.bottom,top:(all[0]||last).top}};
+}
+
+/* ---------- the pop-up ---------- */
+let POP=null, QUOTE_Q=null;
+try{QUOTE_Q=localStorage.getItem('litnotes.quoteQ')}catch(e){}
+function defaultQuoteQ(x){
+  const t=tpl(x.projectId), qs=t.questions;
+  if(QUOTE_Q&&qs.some(q=>q.id===QUOTE_Q))return QUOTE_Q;
+  return (qs.find(q=>/quot/i.test(q.text))||qs.find(q=>/finding|evidence|result|claim/i.test(q.text))||qs[0]||{}).id;
+}
+function hidePop(){const p=$('#selpop');if(p)p.remove();POP=null}
+function showPop(info,hl){
+  const x=curPaper(); if(!x)return;
+  hidePop(); POP={...info,hl};
+  const t=tpl(x.projectId), first=info.pages[0], lastP=info.pages[info.pages.length-1];
+  const pg=first===lastP?printedPage(x,first):`${printedPage(x,first)}–${printedPage(x,lastP)}`;
+  const qsel=defaultQuoteQ(x);
+  const el=document.createElement('div'); el.id='selpop'; el.className='selpop'; el.setAttribute('role','dialog'); el.setAttribute('aria-label','Selected text');
+  el.innerHTML=`<div class="sprow"><span class="spl">${hl?'Highlight':'Highlight'}</span>${HLC.map(([k,hex])=>`<button class="hlc ${hl&&hl.color===k?'on':''}" data-hlc="${k}" style="background:${hex}" title="${hl?'Change to':'Highlight in'} ${k}" aria-label="${k}"></button>`).join('')}${hl?`<button class="btn sm ghost danger" data-hldel title="Remove this highlight">${ico('trash')}Remove</button>`:''}</div>
+    <div class="sprow"><span class="spl">Quote to</span><select class="inp" id="spQ" aria-label="Question to add the quote to">${t.questions.map((q,i)=>`<option value="${q.id}" ${q.id===qsel?'selected':''}>Q${i+1} · ${esc(q.text.length>46?q.text.slice(0,44)+'…':q.text)}</option>`).join('')}</select></div>
+    <div class="sprow"><span class="spl">Page</span><input class="inp" id="spPg" value="${esc(pg)}" style="width:76px" aria-label="Page number for the citation" title="Printed page number used in the citation. PDF page ${first}${first!==lastP?'–'+lastP:''}."><span class="muted" style="font-size:12px;flex:1">${esc(citeCore(x))}, ${esc(pageStr(pg))}</span><button class="btn sm pri" data-spquote>${ico('plus')}Add quote</button></div>`;
+  document.body.appendChild(el);
+  const w=el.offsetWidth, h=el.offsetHeight;
+  let left=Math.min(window.innerWidth-w-10,Math.max(10,info.anchor.x-w/2)), top=info.anchor.y+10;
+  if(top+h>window.innerHeight-10)top=Math.max(10,info.anchor.top-h-10);
+  el.style.left=left+'px'; el.style.top=top+'px';
+  const pgI=el.querySelector('#spPg'), lab=el.querySelector('.sprow:last-child .muted');
+  pgI.addEventListener('input',()=>{lab.textContent=`${citeCore(x)}, ${pageStr(pgI.value.trim()||'?')}`});
+  el.addEventListener('mousedown',e=>{if(!e.target.closest('input,select'))e.preventDefault()});
+  el.addEventListener('keydown',e=>{if(e.key==='Escape'){hidePop();e.stopPropagation()}if(e.key==='Enter'&&e.target.id==='spPg'){e.preventDefault();el.querySelector('[data-spquote]').click()}});
+  el.querySelectorAll('[data-hlc]').forEach(b=>b.onclick=()=>{hl?recolorHighlight(hl.id,b.dataset.hlc):addHighlight(POP,b.dataset.hlc);hidePop();getSelection().removeAllRanges()});
+  const del=el.querySelector('[data-hldel]'); if(del)del.onclick=()=>{removeHighlight(hl.id);hidePop()};
+  el.querySelector('[data-spquote]').onclick=()=>{
+    const qid=el.querySelector('#spQ').value, page=pgI.value.trim()||String(first);
+    QUOTE_Q=qid; try{localStorage.setItem('litnotes.quoteQ',qid)}catch(e){}
+    addQuoteToNotes(x,qid,info.text,page); hidePop(); getSelection().removeAllRanges();
+  };
+}
+
+/* ---------- highlights ---------- */
+function addHighlight(info,color){
+  const x=curPaper(); if(!x)return;
+  x.highlights=x.highlights||[];
+  info.pages.forEach(n=>x.highlights.push({id:uid('hl_'),page:n,color,rects:info.byPage[n],text:info.text,at:Date.now()}));
+  x.hlDirty=true; save(V.paperId); info.pages.forEach(n=>drawHighlights(n)); updateHlBar(true);
+}
+function recolorHighlight(id,color){const x=curPaper();const h=(x.highlights||[]).find(z=>z.id===id);if(!h)return;h.color=color;x.hlDirty=true;save(V.paperId);drawHighlights(h.page);updateHlBar()}
+function removeHighlight(id){const x=curPaper();const h=(x.highlights||[]).find(z=>z.id===id);if(!h)return;x.highlights=x.highlights.filter(z=>z.id!==id);x.hlDirty=true;save(V.paperId);drawHighlights(h.page);updateHlBar();toast('Highlight removed')}
+function hlAt(clientX,clientY){
+  const el=document.elementsFromPoint(clientX,clientY).find(e=>e.classList&&e.classList.contains('pg')); if(!el)return null;
+  const p=R.pages[+el.dataset.n-1], x=curPaper(); if(!p||!p.vp1||!x)return null;
+  const b=el.getBoundingClientRect(), k=b.width/p.w; const [px,py]=pdfPt(p.vp1,(clientX-b.left)/k,(clientY-b.top)/k);
+  return (x.highlights||[]).find(h=>h.page===p.n&&h.rects.some(([a,c,d,e])=>px>=a-1&&px<=d+1&&py>=c-1&&py<=e+1))||null;
+}
+
+/* ---------- "save into the PDF" bar ---------- */
+function updateHlBar(justAdded){
+  const bar=$('#hlsave'), x=curPaper(); if(!bar||!x)return;
+  const n=(x.highlights||[]).length;
+  if(!x.hlDirty){bar.hidden=true;return}
+  bar.hidden=false;
+  bar.innerHTML=`<span>${ico('pen')}<b>Save highlights into the PDF?</b> <span class="muted">${n} highlight${n===1?'':'s'} — saving creates a new copy of the PDF with them, so they show in any PDF reader.</span></span><span class="spacer"></span><button class="btn sm ghost" data-hllater>Later</button><button class="btn sm pri" data-hlsavepdf>Save PDF</button>`;
+  bar.querySelector('[data-hllater]').onclick=()=>{bar.hidden=true};
+  bar.querySelector('[data-hlsavepdf]').onclick=()=>saveHighlightsToPdf(V.paperId);
+  if(justAdded)bar.classList.remove('pulse'),void bar.offsetWidth,bar.classList.add('pulse');
+}
+async function saveHighlightsToPdf(id){
+  const x=S.docs[id]; if(!x||!x.pdf)return;
+  const bar=$('#hlsave'); if(bar)bar.innerHTML=`<span class="spin"></span><span>Saving the highlighted PDF…</span>`;
+  try{
+    const a=await getAssets(); if(!a)throw new Error('assets');
+    const orig=x.pdfOrig||x.pdf;
+    const [PDFLib,buf]=await Promise.all([loadPdfLib(),fetch(pdfUrl(orig)).then(r=>{if(!r.ok)throw new Error('fetch');return r.arrayBuffer()})]);
+    const {PDFDocument,PDFName,PDFHexString,PDFString,PDFNumber}=PDFLib;
+    const doc=await PDFDocument.load(buf,{ignoreEncryption:true,updateMetadata:false});
+    const ctx=doc.context, pages=doc.getPages();
+    (x.highlights||[]).forEach(h=>{
+      const page=pages[h.page-1]; if(!page||!h.rects.length)return;
+      const col=(HLC.find(z=>z[0]===h.color)||HLC[0])[2];
+      const bb=[Math.min(...h.rects.map(r=>r[0])),Math.min(...h.rects.map(r=>r[1])),Math.max(...h.rects.map(r=>r[2])),Math.max(...h.rects.map(r=>r[3]))];
+      const quads=h.rects.flatMap(([x1,y1,x2,y2])=>[x1,y2,x2,y2,x1,y1,x2,y1]);
+      const ops=`/GS0 gs ${col.map(v=>v.toFixed(3)).join(' ')} rg `+h.rects.map(([x1,y1,x2,y2])=>`${(x1-bb[0]).toFixed(2)} ${(y1-bb[1]).toFixed(2)} ${(x2-x1).toFixed(2)} ${(y2-y1).toFixed(2)} re`).join(' ')+' f';
+      const gs=ctx.obj({Type:'ExtGState',BM:'Multiply',ca:1,CA:1});
+      const ap=ctx.stream(ops,{Type:'XObject',Subtype:'Form',BBox:[0,0,bb[2]-bb[0],bb[3]-bb[1]],Matrix:[1,0,0,1,bb[0],bb[1]],Resources:{ExtGState:{GS0:gs}}});
+      const annot=ctx.obj({Type:'Annot',Subtype:'Highlight',Rect:bb,QuadPoints:quads,C:col,CA:1,F:4,
+        Contents:PDFHexString.fromText(h.text.slice(0,2000)),T:PDFHexString.fromText('Literature Notes'),NM:PDFString.of(h.id),M:PDFString.fromDate(new Date(h.at||Date.now())),
+        AP:{N:ctx.register(ap)}});
+      page.node.addAnnot(ctx.register(annot));
+    });
+    const bytes=await doc.save();
+    const name=(orig.name||'paper.pdf').replace(/(\.pdf)?$/i,'')+'.pdf';
+    const file=new File([bytes],name,{type:'application/pdf'});
+    let res;
+    try{res=await a.upload(file,{type:'application/pdf'})}catch(e){if(e&&e.code==='store_unavailable'){await new Promise(r=>setTimeout(r,1200));res=await a.upload(file,{type:'application/pdf'})}else throw e}
+    const x2=S.docs[id]; if(!x2){a.delete(res.id).catch(()=>{});return}
+    const prev=x2.pdfOrig?x2.pdf:null;
+    if(!x2.pdfOrig)x2.pdfOrig=x2.pdf;
+    x2.pdf={id:res.id,name,size:res.sizeBytes||bytes.length,addedAt:Date.now(),highlights:(x2.highlights||[]).length};
+    x2.hlDirty=false; save(id);
+    if(prev&&prev.id&&prev.id!==res.id&&prev.id!==x2.pdfOrig.id)a.delete(prev.id).catch(()=>{});
+    delete TEXT[res.id];
+    updateHlBar(); refreshPdfBox(id);
+    const link=document.querySelector('#reader a[target="_blank"]'); if(link)link.href=pdfUrl(x2.pdf);
+    toast('Saved — the PDF now opens with your highlights');
+  }catch(e){
+    console.warn(e); toast(e&&e.code?assetErr(e):'Could not save the highlighted PDF — try again'); updateHlBar();
+  }
+}
+function refreshPdfBox(id){if(V.view==='paper'&&V.paperId===id){const b=$('#pdfBox');if(b)b.innerHTML=pdfBoxHTML(S.docs[id])}}
+
+/* ---------- quotes into notes ---------- */
+function addQuoteToNotes(x,qid,text,page){
+  const q=quoteText(x,text,page);
+  const ed=document.querySelector(`.rte[data-ans="${qid}"]`);
+  if(ed&&ed.closest('#app,body')){
+    if(ed.textContent.trim()){const d=document.createElement('div');d.textContent=q;ed.appendChild(d)}else ed.textContent=q;
+    rteCommit(ed);
+    const el=ed.closest('.q'), sec=el&&el.closest('.sect');
+    if(sec){sec.classList.add('open');V.openSec[sec.dataset.sec]=true}
+    if(el){el.classList.add('open');V.openQ[V.paperId+':'+qid]=true;el.scrollIntoView({behavior:'smooth',block:'nearest'});el.classList.remove('flash');void el.offsetWidth;el.classList.add('flash')}
+  }else{
+    x.answers=x.answers||{}; x.answers[qid]=((x.answers[qid]||'').trim()?x.answers[qid].replace(/\s+$/,'')+'\n':'')+q;
+    if(x.rich&&x.rich[qid])x.rich[qid]+=`<div>${esc(q)}</div>`;
+    save(V.paperId);
+  }
+  const t=tpl(x.projectId); toast(`Quote added to Q${t.questions.findIndex(z=>z.id===qid)+1} with ${citeCore(x)}, ${pageStr(page)}`);
+}
+/* quotes found in a paper's notes */
+function quotesOf(x){
+  const core=citeCore(x), out=[], seen=new Set();
+  const re=/“([^”]{2,})”\s*\(([^()]+?),\s*(pp?\.\s*[^)]+)\)/g;
+  Object.entries(x.answers||{}).forEach(([qid,a])=>{let m;while((m=re.exec(a||''))){if(m[2].trim()!==core)continue;const k=m[1]+'|'+m[3];if(seen.has(k))continue;seen.add(k);out.push({qid,text:m[1],page:m[3].trim(),full:m[0]})}});
+  return out;
+}
+const endsWithOwnCite=(x,txt)=>new RegExp(citeCore(x).replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+',\\s*pp?\\.\\s*[^)]+\\)\\s*\\.?\\s*$').test(txt);
+
+/* ---------- wiring into the reader ---------- */
+function bindQuotes(box){
+  if(box._qbound)return; box._qbound=true;
+  let down=null;
+  box.addEventListener('pointerdown',e=>{down={x:e.clientX,y:e.clientY};if(!e.target.closest('#selpop'))hidePop()});
+  box.addEventListener('pointerup',e=>{
+    const moved=down&&Math.hypot(e.clientX-down.x,e.clientY-down.y)>4;
+    setTimeout(()=>{
+      const info=selectionInPdf();
+      if(info){if(!(POP&&!POP.hl&&POP.text===info.text))showPop(info);return}
+      if(!moved){const h=hlAt(e.clientX,e.clientY);if(h){showPop({text:h.text,byPage:{[h.page]:h.rects},pages:[h.page],anchor:{x:e.clientX,y:e.clientY,top:e.clientY}},h)}}
+    },10);
+  });
+  box.addEventListener('scroll',()=>{if(POP&&!(document.activeElement&&document.activeElement.closest('#selpop')))hidePop()},{passive:true});
+}
+let _selT;
+document.addEventListener('selectionchange',()=>{
+  if(!$('#rpages')){if(POP)hidePop();return}
+  clearTimeout(_selT); _selT=setTimeout(()=>{
+    if(document.activeElement&&document.activeElement.closest&&document.activeElement.closest('#selpop'))return;
+    const info=selectionInPdf();
+    if(info){if(!POP||POP.text!==info.text||POP.hl)showPop(info)}
+    else if(POP&&!POP.hl)hidePop();
+  },350);
+});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&POP)hidePop()});
+
+/* ============================================================
    REPORTS
    ============================================================ */
 function paperReportBody(x,t,showEmpty,level){
@@ -3606,7 +3865,7 @@ document.addEventListener('click',e=>{
     case 'paperReport': go({view:'paperReport'});break;
     case 'editRef': {const id0=V.paperId,x=S.docs[id0];refEditor(x.ref||newRef(),{heading:'Edit reference',okLabel:'Save reference',pdf:{current:x.pdf},onSave:(ref,file)=>{x.ref=ref;delete x.oldCitation;syncFromRef(x);save(id0);renderMain();if(file)attachPdf(id0,file)}});break}
     case 'pickPdf': {const id0=V.paperId;pickFile(f=>attachPdf(id0,f));break}
-    case 'removePdf': {const id0=V.paperId;confirmBox('Remove the attached PDF? Your notes stay.','Remove PDF',async()=>{const x=S.docs[id0];await removePdfAsset(x);delete x.pdf;save(id0);refreshPdfUI(id0);toast('PDF removed')});break}
+    case 'removePdf': {const id0=V.paperId;confirmBox('Remove the attached PDF? Your notes stay.','Remove PDF',async()=>{const x=S.docs[id0];await removePdfAsset(x);delete x.pdf;delete x.pdfOrig;x.highlights=[];x.hlDirty=false;save(id0);refreshPdfUI(id0);toast('PDF removed')});break}
     case 'copyRef': {const r=S.docs[V.paperId].ref;copyRich(`<p style="padding-left:.5in;text-indent:-.5in">${apaHTML(r)}</p>`,apaText(r),'Reference copied');break}
     case 'copyInText': {const it=inText(S.docs[V.paperId].ref);const d=document.createElement('div');d.innerHTML=it.paren;copyRich(it.paren,d.textContent,'In-text citation copied');break}
     case 'copyRefs': {const pp=sortedRefs(papersOf(V.pid));copyRich(pp.map(x=>`<p style="padding-left:.5in;text-indent:-.5in">${apaHTML(x.ref)}</p>`).join(''),pp.map(x=>apaText(x.ref)).join('\n\n'),'Reference list copied');break}
@@ -3679,7 +3938,7 @@ function switchRTab(t){
   R.tab=t;
   document.querySelectorAll('.seg button').forEach(z=>z.classList.toggle('on',z.dataset.v===t));
   const pg=$('#rpages'),ak=$('#rask'),rp=document.querySelector('.rpdf');
-  if(pg)pg.classList.toggle('hide',t!=='pdf'); if(ak)ak.classList.toggle('hide',t!=='ask'); if(rp)rp.classList.toggle('hide',t!=='pdf');
+  if(pg)pg.classList.toggle('hide',t!=='pdf'); if(ak)ak.classList.toggle('hide',t!=='ask'); if(rp)rp.classList.toggle('hide',t!=='pdf'); const hb=$('#hlsave'); if(hb)hb.classList.toggle('hide',t!=='pdf'); if(t!=='pdf')hidePop();
   const tool=$('#pdfTool'); if(tool)tool.innerHTML=pdfToolHTML(S.docs[V.paperId]);
   if(t==='ask'){const i=$('#askIn');if(i)setTimeout(()=>i.focus(),50)}
   if(t==='pdf'&&R.pages.length)setTimeout(()=>{if(R.mode!=='custom')layoutPages(fitScale(R.mode));else updateZoomUI()},30);

@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.12.0]
+- **Quotes and highlights from the PDF.** With the Text tool (I) in the reader, select text and a small pop-up offers:
+  - **Highlight** in yellow, green, blue or pink. Click a highlight later to change its colour, quote it, or remove it.
+  - **Add quote** to the question you choose. The quote goes into your notes as “…” (Author, Year, p. 5). The page number is filled in from the PDF and can be corrected before adding.
+- **Save highlights into the PDF.** After highlighting, a bar asks whether to save a highlighted copy of the PDF, so the highlights show when you open the file in any PDF reader. The original is kept, so highlights can still be changed and saved again.
+- **Write → Your notes → Quotes** lists every quote by paper. Insert puts the quote in your document with its citation and page, and the paper is added to the reference list. Notes that already end with a citation and page are no longer given a second citation.
+
 ## [1.11.0]
 - **Abbreviations and acronyms** for each project.
   - In any note or document, select an abbreviation (for example WHO) and click **Abbr.** to give its full form.

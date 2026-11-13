@@ -26,6 +26,7 @@ const BACKUP_KEEP = Math.max(3, parseInt(env('BACKUP_KEEP', '30'), 10));
 const BACKUP_MIN_HOURS = Math.max(1, parseFloat(env('BACKUP_MIN_HOURS', '6')));
 const PUBLIC_DIR = path.join(__dirname, 'public');
 const PDFJS_DIR = path.resolve(env('PDFJS_DIR', path.join(__dirname, 'node_modules', 'pdfjs-dist', 'build')));
+const PDFLIB_DIR = path.resolve(env('PDFLIB_DIR', path.join(__dirname, 'node_modules', 'pdf-lib', 'dist')));
 const FONTS_DIR = path.resolve(env('FONTS_DIR', path.join(__dirname, 'vendor-fonts')));
 const MAX_UPLOAD = parseInt(env('MAX_UPLOAD_MB', '50'), 10) * 1024 * 1024;
 const APP_PASSWORD = env('APP_PASSWORD', '');
@@ -157,6 +158,7 @@ async function indexHtml() {
   const config = {
     version: 1,
     pdfjsBase: '/vendor/pdfjs/',
+    pdflibUrl: '/vendor/pdf-lib/pdf-lib.min.js',
     ai: AI ? { label: AI.label, provider: AI.provider, model: AI.model } : null,
     maxUploadMb: Math.round(MAX_UPLOAD / 1024 / 1024),
     lookup: CROSSREF_ENABLED,
@@ -450,6 +452,7 @@ async function handle(req, res) {
     return send(res, 200, "self.addEventListener('install',()=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil(self.clients.claim()));self.addEventListener('fetch',()=>{});", { 'Content-Type': 'text/javascript; charset=utf-8', 'Cache-Control': 'no-cache', 'Service-Worker-Allowed': '/' });
   }
   if (req.method === 'GET' && p === '/vendor/fonts.css') return send(res, 200, fontsCss(), { 'Content-Type': 'text/css; charset=utf-8', 'Cache-Control': 'public, max-age=86400' });
+  if (req.method === 'GET' && p.startsWith('/vendor/pdf-lib/')) return serveStatic(res, PDFLIB_DIR, p.slice('/vendor/pdf-lib/'.length), 'public, max-age=604800');
   if (req.method === 'GET' && p.startsWith('/vendor/pdfjs/')) return serveStatic(res, PDFJS_DIR, p.slice('/vendor/pdfjs/'.length), 'public, max-age=604800');
   if (req.method === 'GET' && p.startsWith('/vendor/fonts/')) {
     const [pkg, ...rest] = p.slice('/vendor/fonts/'.length).split('/');
