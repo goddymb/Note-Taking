@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.16.1]
+- **Saving no longer shakes the screen.** Saving used to redraw the side menu, and on some pages the whole page, after every keystroke. Now only what actually changed is redrawn, and nothing is redrawn while you are typing in a field.
+- The save indicator keeps a fixed size: only its dot turns amber briefly while saving. The toolbar buttons next to it no longer move.
+- Typing in project settings no longer loses your cursor when a save comes back.
+
 ## [1.16.0]
 - **One question at a time.** The notes pane has a question picker at the top: choose a question from the drop-down (✓ marks answered ones) or step with ‹ and ›, and only that question is shown. Next unanswered and the question list on the left jump straight to a question. The app remembers which question you were on for each paper. **Show all** switches back to the full list.
 - **Hide the formatting toolbar.** Click the ▴ at the end of a note's toolbar, or **Aa Toolbar** in the picker bar, to hide or show the formatting toolbars. Ctrl+B, Ctrl+I and Ctrl+U still work while it is hidden.

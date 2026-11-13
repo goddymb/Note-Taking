@@ -306,7 +306,8 @@ select.inp{appearance:auto}
 .outline .od.done{background:var(--x);border-color:var(--x)}
 .ptoolbar{position:sticky;top:73px;z-index:10;display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:10px 0;margin-bottom:6px;background:linear-gradient(var(--bg) 70%,transparent)}
 [data-theme="midnight"] .ptoolbar{background:linear-gradient(#0b0b1e 70%,transparent)}
-.save{font-size:12.5px;color:var(--muted);display:flex;align-items:center;gap:6px}
+.save{font-size:12.5px;color:var(--muted);display:inline-flex;align-items:center;gap:6px;min-width:140px;justify-content:flex-end;white-space:nowrap}
+.save .dot,.side-foot .dot{transition:background-color .3s}
 .refcard{margin-bottom:16px}
 .refcard .apa-big{font-family:var(--serif);font-size:17.5px;line-height:1.55;padding-left:2em;text-indent:-2em;margin:4px 0 8px}
 .intext{display:flex;gap:8px;flex-wrap:wrap;font-size:13px;color:var(--muted)}
@@ -1140,10 +1141,12 @@ const uid=p=>p+Date.now().toString(36)+Math.random().toString(36).slice(2,7);
 function setStatus(){
   const el=document.getElementById('storeStatus'); if(!el)return;
   const pend=S.pending.size;
-  if(S.mode==='db') el.innerHTML=`<span class="dot ${pend?'warn':''}"></span>${pend?'Saving…':(LOCAL?'Saved on your server':'Synced to your account')}`;
-  else if(S.mode==='local') el.innerHTML=`<span class="dot warn"></span>${pend?'Saving…':'Saved in this browser only'}`;
-  else if(S.mode==='loading') el.innerHTML=`<span class="dot warn"></span>Connecting…`;
-  else el.innerHTML=`<span class="dot off"></span>Offline — back up your data`;
+  let h;
+  if(S.mode==='db') h=`<span class="dot ${pend?'warn':''}"></span>${LOCAL?'Saved on your server':'Synced to your account'}`;
+  else if(S.mode==='local') h=`<span class="dot warn"></span>Saved in this browser only`;
+  else if(S.mode==='loading') h=`<span class="dot warn"></span>Connecting…`;
+  else h=`<span class="dot off"></span>Offline — back up your data`;
+  setHTML(el,h);
 }
 async function initStore(){
   let db=null,user=null;
@@ -1228,11 +1231,13 @@ function onData(){
   }
   if(V.view==='draft'){
     if(!S.docs[V.draftId]){go({view:V.pid&&S.docs[V.pid]?'project':'home'});return}
-    if(!document.getElementById('draftEditor')) renderMain(); else {const nb=$('#nbrowse');if(nb&&!nb.contains(document.activeElement))nb.innerHTML=browserHTML()}
+    if(!document.getElementById('draftEditor')) renderMain(); else {const nb=$('#nbrowse');if(nb&&!nb.contains(document.activeElement)){const h=browserHTML();if(nb._html!==h){const st=(nb.querySelector('.nlist')||{}).scrollTop;nb.innerHTML=h;nb._html=h;const l=nb.querySelector('.nlist');if(l&&st)l.scrollTop=st}}}
     return;
   }
   if(V.view==='project'&&!S.docs[V.pid]){go({view:'home'});return}
-  renderMain();
+  const m=$('#main'), a=document.activeElement;
+  if(m&&a&&m.contains(a)&&(a.matches('input,textarea,select')||a.isContentEditable))return;   // don't disturb typing
+  renderMain(true);
 }
 
 /* ============================================================
@@ -1240,6 +1245,11 @@ function onData(){
    ============================================================ */
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const $=s=>document.querySelector(s);
+document.addEventListener('focusout',e=>{
+  const m=$('#main'); if(!m||!m.contains(e.target)||V.view==='paper'||V.view==='draft'||!e.target.matches('input,textarea,select'))return;
+  setTimeout(()=>{const a=document.activeElement;if(a&&m.contains(a)&&(a.matches('input,textarea,select')||a.isContentEditable))return;if(!document.querySelector('.ov'))renderMain(true)},50);
+});
+function setHTML(el,html){if(!el)return false;if(el._html===html)return false;el.innerHTML=html;el._html=html;return true}
 function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(toast._t);toast._t=setTimeout(()=>t.classList.remove('show'),2600)}
 function paperTitle(p){return (p.title||'').trim()||'Untitled paper'}
 function paperMeta(p){return [p.authors,p.year].filter(Boolean).join(' · ')}
@@ -1316,7 +1326,7 @@ const SEC_SHORT={pass1:'Triage',pass2:'Argument',pass3:'Critique',research:'My r
 const SEC_NUM={pass1:'1',pass2:'2',pass3:'3',research:'R'};
 function ring(pct,size,stroke,light){
   const r=(size-stroke)/2,c=2*Math.PI*r,off=c*(1-pct/100);
-  const id='g'+Math.random().toString(36).slice(2,7);
+  const id='g'+[pct,size,stroke,light?1:0].join('_').replace(/\./g,'d');
   return `<svg viewBox="0 0 ${size} ${size}" width="${size}" height="${size}" aria-hidden="true"><defs><linearGradient id="${id}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${light?'#fff':'var(--accent)'}"/><stop offset="1" stop-color="${light?'rgba(255,255,255,.75)':'var(--c-research)'}"/></linearGradient></defs><circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="${light?'rgba(255,255,255,.22)':'var(--panel-2)'}" stroke-width="${stroke}"/><circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="url(#${id})" stroke-width="${stroke}" stroke-linecap="round" stroke-dasharray="${c}" stroke-dashoffset="${off}" style="transition:stroke-dashoffset .6s var(--ease)"/></svg>`;
 }
 function initialsOf(name){return (name||'?').split(/\s+/).filter(w=>/[A-Za-z0-9]/.test(w)).slice(0,2).map(w=>w[0].toUpperCase()).join('')||'?'}
@@ -1349,25 +1359,25 @@ function renderSide(){
   const n=activeNav(), all=allPapers();
   const updBadge=UPD.info&&UPD.info.newer;
   const items=[['home','home','Home'],['projects','folder','Projects',projects().length],['library','library','Library',all.length],['settings','settings','Settings',updBadge?'●':null]];
-  $('#nav').innerHTML=`<div class="slabel" style="margin-bottom:6px">Workspace</div>`+items.map(([k,i,l,c])=>`<button class="nv ${n===k?'on':''}" data-act="nav" data-v="${k}" ${n===k?'aria-current="page"':''}>${ico(i)}<span>${l}</span>${c!=null?`<span class="k" ${c==='●'?'style="color:var(--accent);font-size:14px" title="Update available"':''}>${c}</span>`:''}</button>`).join('');
+  setHTML($('#nav'),`<div class="slabel" style="margin-bottom:6px">Workspace</div>`+items.map(([k,i,l,c])=>`<button class="nv ${n===k?'on':''}" data-act="nav" data-v="${k}" ${n===k?'aria-current="page"':''}>${ico(i)}<span>${l}</span>${c!=null?`<span class="k" ${c==='●'?'style="color:var(--accent);font-size:14px" title="Update available"':''}>${c}</span>`:''}</button>`).join(''));
   // current project card
   const p=V.pid&&S.docs[V.pid]&&S.docs[V.pid].kind==='project'?{id:V.pid,...S.docs[V.pid]}:projects().slice(-1)[0];
-  if(!p){$('#curProj').innerHTML='';return}
+  if(!p){setHTML($('#curProj'),'');return}
   const t=tpl(p.id), pp=papersOf(p.id);
   const open=pp.filter(x=>nextStage(x,t)).sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0)).slice(0,5);
   const tot=pp.reduce((a,x)=>{const g=progress(x,t);return [a[0]+g.n,a[1]+g.total]},[0,0]);
   const pct=tot[1]?Math.round(tot[0]*100/tot[1]):0;
-  $('#curProj').innerHTML=`<div class="slabel" style="margin-bottom:8px">Current project</div><button class="cur curbtn" data-act="openProject" data-id="${p.id}" title="Open ${esc(p.name||'project')}">
+  setHTML($('#curProj'),`<div class="slabel" style="margin-bottom:8px">Current project</div><button class="cur curbtn" data-act="openProject" data-id="${p.id}" title="Open ${esc(p.name||'project')}">
     <div class="row" style="gap:10px;flex-wrap:nowrap"><div style="position:relative;width:38px;height:38px;flex:none">${ring(pct,38,4)}<span style="position:absolute;inset:0;display:grid;place-items:center;font-size:10px;font-weight:800">${pct}%</span></div>
     <div style="min-width:0"><div class="ttl">${esc(p.name||'Untitled project')}</div><div class="sm">${pp.length} paper${pp.length===1?'':'s'} · ${open.length?open.length+' in progress':'all caught up'}</div></div></div>
-    </button>`;
+    </button>`);
 }
 
 /* ============================================================
    RENDER: MAIN
    ============================================================ */
 function render(){renderSide();renderMain()}
-function renderMain(){
+function renderMain(soft){
   const m=$('#main');
   if(S.mode==='loading'){m.innerHTML=`<div class="card" style="display:flex;gap:12px;align-items:center"><span class="dot warn"></span>Loading your notes…</div>`;return}
   let html;
@@ -1379,7 +1389,8 @@ function renderMain(){
   else if(V.view==='library') html=libraryView();
   else if(V.view==='settings') html=appSettingsView();
   else {V.view='home';html=homeView()}
-  m.innerHTML=html;
+  if(soft&&m._html===html)return;
+  m.innerHTML=html; m._html=html;
   if(V.view!=='draft')hideFloat();
   if(V.view!=='paper'&&V.view!=='draft'){document.body.classList.remove('wide','focus');if(V.focus){V.focus=false;persistView();leaveFullscreen()}}
   if(V.view==='paper')bindPaper();
@@ -1614,7 +1625,16 @@ function bindPaper(){
   if(V.split&&x.pdf){mountReader(x);bindAsk(x)}
   applyQnav();
 }
-function flashSave(idle){const n=$('#saveNote');if(!n)return;const done=()=>{n.innerHTML=`<span class="dot ${S.mode==='db'?'':'warn'}"></span>${S.mode==='db'?'All changes saved':'Saved in this browser'}`};if(idle){done();return}n.innerHTML=`<span class="dot warn"></span>Saving…`;clearTimeout(flashSave._t);flashSave._t=setTimeout(done,1100)}
+function flashSave(idle){
+  const n=$('#saveNote'); if(!n)return;
+  const label=S.mode==='db'?'All changes saved':'Saved in this browser';
+  if(!n.querySelector('.dot')||n._label!==label){n.innerHTML=`<span class="dot ${S.mode==='db'?'':'warn'}"></span><span>${label}</span>`;n._label=label}
+  const dot=n.querySelector('.dot');
+  if(idle||S.mode!=='db'){clearTimeout(flashSave._t);if(S.mode==='db')dot.classList.remove('warn');n.title='';return}
+  // while saving only the dot turns amber — no text or layout change
+  dot.classList.add('warn'); n.title='Saving…';
+  clearTimeout(flashSave._t); flashSave._t=setTimeout(()=>{dot.classList.remove('warn');n.title=''},900);
+}
 function updateQState(qid){
   clearTimeout(updateQState._t); updateQState._t=setTimeout(refreshQnavLabels,400);
   const x=S.docs[V.paperId], t=tpl(x.projectId), q=t.questions.find(z=>z.id===qid); if(!q)return;
