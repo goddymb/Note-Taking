@@ -441,6 +441,47 @@ body.focus .sect,body.focus .q{scroll-margin-top:12px}
 .report p{margin:0 0 9px;white-space:pre-wrap}
 .report .meta{font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#6b6f76}
 .report .na{color:#a5a29a;font-style:italic}
+/* synthesis: tags */
+.codes{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:8px}
+.code-chip{--x:var(--accent);display:inline-flex;align-items:center;gap:6px;font-size:12.5px;padding:3px 4px 3px 9px;border-radius:999px;border:1px solid color-mix(in srgb,var(--x) 35%,transparent);background:color-mix(in srgb,var(--x) 10%,transparent);max-width:100%}
+.code-chip i{width:7px;height:7px;border-radius:50%;background:var(--x);flex:none}
+.code-chip b{font-weight:700;color:color-mix(in srgb,var(--x) 75%,var(--ink))}
+.code-chip em{font-style:normal;font-size:10.5px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:#fff;background:var(--s);border-radius:999px;padding:1px 7px}
+.code-chip .cx{color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:260px}
+.code-chip button{border:0;background:none;color:var(--muted);width:20px;height:20px;border-radius:50%;display:grid;place-items:center;font-size:14px;padding:0}
+.code-chip button:hover{background:var(--hover);color:var(--ink)}
+.tagbtn svg{width:15px;height:15px}
+.taglist{display:flex;flex-direction:column;gap:2px;max-height:230px;overflow:auto;margin-top:8px;border:1px solid var(--line);border-radius:var(--r-sm);padding:4px}
+.tagopt{display:flex;justify-content:space-between;align-items:center;gap:10px;border:0;background:none;text-align:left;padding:8px 10px;border-radius:8px;font-size:14px}
+.tagopt:hover{background:var(--hover)}.tagopt small{color:var(--muted)}
+.tagopt.new{color:var(--accent);font-weight:700;justify-content:flex-start}.tagopt.new svg{width:15px;height:15px}
+/* write */
+.wr{display:grid;grid-template-columns:minmax(0,var(--ww,60%)) 14px minmax(0,1fr);align-items:start}
+.wr>.gutter{display:flex;align-self:stretch;align-items:center;justify-content:center;cursor:col-resize;touch-action:none;position:sticky;top:130px;height:calc(100vh - 146px)}
+.wcol{min-width:0}
+.dtitle{width:100%;border:0;background:none;font-family:var(--font-head);font-weight:var(--head-w);letter-spacing:var(--head-ls);font-size:clamp(24px,2.6vw,32px);padding:4px 2px 12px;outline:0}
+.dtitle:focus{box-shadow:inset 0 -2px 0 var(--accent)}
+.rte.draft{min-height:62vh;font-family:var(--serif);font-size:17.5px;line-height:1.75;padding:22px 28px}
+.rte h2{font-family:var(--font-head);font-size:22px;margin:18px 0 6px;line-height:1.3}
+.rte h3{font-family:var(--font-head);font-size:18px;margin:14px 0 4px;line-height:1.3}
+.rte.draft h2:first-child{margin-top:0}
+.rte p{margin:0 0 10px}
+.report .ans p,.ncard p{margin:0 0 6px}
+.refs{margin-top:18px;padding:18px 22px;border:1px dashed var(--line-2);border-radius:var(--r)}
+.refs h3{font-size:16px;margin-bottom:8px}.refs .apa{font-family:var(--serif);font-size:15.5px;margin:0 0 6px}
+.nbrowse{position:sticky;top:130px;max-height:calc(100vh - 146px);display:flex;flex-direction:column;gap:8px;padding:14px;border:1px solid var(--line);border-radius:var(--r);background:var(--panel);box-shadow:var(--shadow);overflow:hidden}
+.nbhead{display:flex;gap:10px;align-items:center}.nbhead b{white-space:nowrap}.nbhead select{flex:1}
+.nlist{overflow:auto;display:flex;flex-direction:column;gap:8px;padding-right:2px;min-height:0}
+.ncard{border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:var(--panel-2)}
+.ncard .nh{display:flex;gap:6px;flex-wrap:wrap;font-size:12.5px;margin-bottom:4px}.ncard .nh span{color:var(--muted)}
+.ncard .nb{font-size:14px;line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere}
+.ncard .nb .excerpt,.ncard .nb .ans{margin:0}
+.ncard .na-row{display:flex;gap:6px;margin-top:8px}
+.stance{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;margin:6px 2px 0}
+body.focus .wr{height:calc(100vh - 60px)}
+body.focus .wr>.wcol{height:100%;overflow:auto;padding-right:6px}
+body.focus .wr>.gutter,body.focus .nbrowse{position:relative;top:0;height:100%;max-height:none}
+@media (max-width:1100px){.wr{grid-template-columns:1fr}.wr>.gutter{display:none}.nbrowse{position:relative;top:0;max-height:70vh;margin-top:16px}body.focus .wr{height:auto}body.focus .wr>.wcol{height:auto}}
 /* writing assistant */
 .rtebar .chk{display:inline-flex;gap:5px;align-items:center;font-size:12.5px;font-weight:700;color:var(--accent);padding:0 9px}
 .gsug{margin-top:8px;border:1px solid var(--line);border-radius:var(--r-sm);background:var(--panel-2);overflow:hidden}
@@ -472,6 +513,10 @@ body.focus .sect,body.focus .q{scroll-margin-top:12px}
 .rte li,.tbl td.a li{margin:2px 0;white-space:pre-wrap}
 .tbl td.a ul,.tbl td.a ol{margin:4px 0}
 .report .ans{margin:0 0 9px}
+.report .excerpt{margin:0 0 9px;font-style:italic}
+.report .syn-item{margin-bottom:6px}
+.report table.matrix th{font-size:12.5px}
+.report table.matrix td{font-size:13px}
 .report .ans ul,.report .ans ol{margin:4px 0 6px;padding-left:26px}
 .report .ans li{margin:2px 0}
 mark.hl-yellow,mark.hl-green,mark.hl-blue,mark.hl-pink,mark.hl-orange{color:inherit;border-radius:3px;padding:0 1px;-webkit-box-decoration-break:clone;box-decoration-break:clone}
@@ -1049,7 +1094,7 @@ const tpl=pid=>(S.docs[pid]&&S.docs[pid].template)||defaultTemplate();
    ============================================================ */
 const V={view:'home',pid:null,paperId:null,lastPaper:null,tab:'lit',filter:'All',cmpQ:'q1',repLayout:'paper',showEmpty:false,openSec:{},openQ:{},lib:null,split:false,focus:false,swap:false};
 try{Object.assign(V,JSON.parse(localStorage.getItem('litnotes.view')||'{}'))}catch(e){}
-function persistView(){try{localStorage.setItem('litnotes.view',JSON.stringify({view:V.view,pid:V.pid,paperId:V.paperId,lastPaper:V.lastPaper,tab:V.tab,lib:V.lib,split:V.split,focus:V.focus,swap:V.swap}))}catch(e){}}
+function persistView(){try{localStorage.setItem('litnotes.view',JSON.stringify({view:V.view,pid:V.pid,paperId:V.paperId,lastPaper:V.lastPaper,tab:V.tab,lib:V.lib,split:V.split,focus:V.focus,swap:V.swap,draftId:V.draftId,repLayout:V.repLayout}))}catch(e){}}
 function go(o){Object.assign(V,o);persistView();document.getElementById('side').classList.remove('show');closeSearch();const qi=document.getElementById('q');if(qi&&document.activeElement!==qi)qi.value='';render();window.scrollTo(0,0)}
 
 function onData(){
@@ -1058,6 +1103,11 @@ function onData(){
     if(!S.docs[V.paperId]) {go({view:V.pid&&S.docs[V.pid]?'project':'home'});return}
     if(!document.getElementById('paperEditor')) renderMain();
     return; // never clobber an open editor
+  }
+  if(V.view==='draft'){
+    if(!S.docs[V.draftId]){go({view:V.pid&&S.docs[V.pid]?'project':'home'});return}
+    if(!document.getElementById('draftEditor')) renderMain(); else {const nb=$('#nbrowse');if(nb&&!nb.contains(document.activeElement))nb.innerHTML=browserHTML()}
+    return;
   }
   if(V.view==='project'&&!S.docs[V.pid]){go({view:'home'});return}
   renderMain();
@@ -1124,6 +1174,7 @@ const IC={
   external:'<path d="M14 4h6v6M20 4l-9 9"/><path d="M19 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h5"/>',
   x:'<path d="M6 6l12 12M18 6 6 18"/>',
   split:'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M12 4v16"/>',
+  tag:'<path d="M20.6 13.4 12 22l-9-9V4a1 1 0 0 1 1-1h9z"/><circle cx="7.5" cy="7.5" r="1.5"/>',
   maximize:'<path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3"/>',
   minimize:'<path d="M8 3v3a2 2 0 0 1-2 2H3M21 8h-3a2 2 0 0 1-2-2V3M3 16h3a2 2 0 0 1 2 2v3M16 21v-3a2 2 0 0 1 2-2h3"/>',
   swap:'<path d="M7 4 3 8l4 4M3 8h14M17 20l4-4-4-4M21 16H7"/>',
@@ -1203,13 +1254,15 @@ function renderMain(){
   if(V.view==='project'&&S.docs[V.pid]) html=projectView();
   else if(V.view==='paper'&&S.docs[V.paperId]) html=paperView();
   else if(V.view==='paperReport'&&S.docs[V.paperId]) html=paperReportView();
+  else if(V.view==='draft'&&S.docs[V.draftId]) html=draftView();
   else if(V.view==='projects') html=projectsView();
   else if(V.view==='library') html=libraryView();
   else if(V.view==='settings') html=appSettingsView();
   else {V.view='home';html=homeView()}
   m.innerHTML=html;
-  if(V.view!=='paper'){document.body.classList.remove('wide','focus');if(V.focus){V.focus=false;persistView();leaveFullscreen()}}
+  if(V.view!=='paper'&&V.view!=='draft'){document.body.classList.remove('wide','focus');if(V.focus){V.focus=false;persistView();leaveFullscreen()}}
   if(V.view==='paper')bindPaper();
+  if(V.view==='draft')bindDraft();
   if(V.view==='project'&&V.tab==='ask')bindProjectAsk();
   m.querySelectorAll('textarea.inp').forEach(autosize);
 }
@@ -1295,11 +1348,12 @@ function libraryView(){
 /* ---------- Project ---------- */
 function projectView(){
   const p=S.docs[V.pid], pp=papersOf(V.pid), t=tpl(V.pid);
-  const tabs=[['lit','list',`Literature`],['cmp','compare','Compare'],['ask','spark','Ask'],['rep','report','Report'],['set','settings','Settings']];
+  const tabs=[['lit','list',`Literature`],['cmp','compare','Compare'],['ask','spark','Ask'],['write','pen','Write'],['rep','report','Report'],['set','settings','Settings']];
   let body='';
   if(V.tab==='cmp') body=compareView(pp,t);
   else if(V.tab==='rep') body=projectReportView(p,pp,t);
   else if(V.tab==='set') body=settingsView(p,t);
+  else if(V.tab==='write') body=writeTabHTML(p);
   else if(V.tab==='ask') body=pp.length?projectAskView(p,pp,t):`<div class="empty"><div class="ic">${ico('spark')}</div><div class="big">Nothing to ask about yet</div><p>Add literature and take some notes first.</p></div>`;
   else {
     const counts={All:pp.length};['Core','Background','Skip','No verdict'].forEach(k=>counts[k]=pp.filter(x=>k==='No verdict'?!x.verdict:x.verdict===k).length);
@@ -1326,6 +1380,7 @@ function settingsView(p,t){
   <div class="card"><h2 style="margin-bottom:6px">Reading questions</h2>
     <p class="help" style="margin:0 0 14px">${t.questions.length} questions in ${t.sections.length} sections. Reword them for this project (e.g. change “minerals → violence” to your topic), add your own or remove ones you don't need. Answers stay attached to their question.</p>
     <div class="row"><button class="btn" data-act="editTemplate">${ico('edit')}Customise questions</button><button class="btn ghost" data-act="resetTemplate">Reset to original sheet</button></div></div>
+  ${dimsSettingsHTML(p)}
   <div class="card" style="margin-top:14px;border-color:color-mix(in srgb,var(--danger) 30%,var(--line))"><h2 style="margin-bottom:6px">Danger zone</h2><p class="help" style="margin:0 0 12px">Deleting removes the project and every note in it.</p><button class="btn danger" data-act="deleteProject">${ico('trash')}Delete project</button></div>
   </div></div>`;
 }
@@ -1387,6 +1442,7 @@ function paperView(){
           ${q.showChain&&p&&p.chain?`<div class="chain"><b>My causal chain:</b> ${esc(p.chain)}</div>`:''}
           ${q.choices?`<div class="choice" data-choice="${q.choiceKey}">${q.choices.map(c=>`<button class="${ch===c?'on':''}" data-act="choose" data-key="${q.choiceKey}" data-v="${esc(c)}" data-q="${q.id}">${esc(c)}</button>`).join('')}</div>`:''}
           ${rteHTML(x,q)}
+          ${codesRowHTML(x,q)}
         </div></div>`}).join('')}
       </div></section>`;
   }).join('');
@@ -1756,6 +1812,7 @@ function projectNotesText(pid){
   papersOf(pid).forEach((x,i)=>{
     s+=`\n=== Paper ${i+1}: ${apaText(x.ref||{title:x.title})}\nIn-text: ${inText(x.ref).paren.replace(/<[^>]+>/g,'').replace(/&amp;/g,'&')}\nVerdict: ${x.verdict||'—'} · Support/threat: ${x.support||'—'}\n`;
     t.questions.forEach((q,n)=>{const a=trim((x.answers||{})[q.id]);if(a)s+=`Q${n+1} ${q.text}: ${a}\n`});
+    (x.codes||[]).forEach(c=>{const tg=tagById(pid,c.tag);if(!tg)return;const d=dimById(pid,tg.dim)||{};s+=`Tag [${d.name}] ${tg.name}${c.stance?' ('+c.stance+')':''}${c.text?': “'+c.text+'”':''}\n`});
   });
   return s.slice(0,200000);
 }
@@ -1988,6 +2045,18 @@ function cleanRich(html){
       if(n.nodeType!==1)return;
       const tag=n.tagName;
       if(tag==='BR'){parent.appendChild(document.createElement('br'));return}
+      if(tag==='P'&&!/^(LI|H2|H3|P)$/.test(parent.nodeName)){
+        if(parent.lastChild&&parent.lastChild.nodeName==='BR')parent.lastChild.remove();
+        const para=document.createElement('p'); walk(n,para);
+        while(para.lastChild&&para.lastChild.nodeName==='BR'&&para.childNodes.length>1)para.lastChild.remove();
+        if(!para.childNodes.length)para.appendChild(document.createElement('br'));
+        parent.appendChild(para); return;
+      }
+      if(/^H[1-3]$/.test(tag)&&parent.nodeName!=='LI'){
+        if(parent.lastChild&&parent.lastChild.nodeName==='BR')parent.lastChild.remove();
+        const h=document.createElement(tag==='H3'?'h3':'h2'); walk(n,h);
+        if(h.textContent.trim())parent.appendChild(h); return;
+      }
       if(tag==='UL'||tag==='OL'){
         if(parent.lastChild&&parent.lastChild.nodeName==='BR')parent.lastChild.remove();
         const L=document.createElement(tag.toLowerCase()); walk(n,L);
@@ -2039,6 +2108,8 @@ function richWalk(html,md){
       if(n.nodeType!==1)return;
       const t=n.nodeName;
       if(t==='BR'){out.push('\n');return}
+      if(t==='P'){if(out.length&&!/\n$/.test(out.join('')))out.push('\n');go(n,depth);out.push('\n');if(md)out.push('\n');return}
+      if(t==='H2'||t==='H3'){if(out.length&&!/\n$/.test(out.join('')))out.push('\n');if(md)out.push(t==='H2'?'## ':'### ');go(n,depth);out.push('\n');if(md)out.push('\n');return}
       if(t==='UL'||t==='OL'){
         if(out.length&&!/\n$/.test(out.join('')))out.push('\n');
         let k=0;
@@ -2057,18 +2128,20 @@ function richWalk(html,md){
     });
   };
   go(d,0);
-  return out.join('').replace(/\n+$/,'');
+  return out.join('').replace(/[ \t]+\n/g,'\n').replace(/\n{3,}/g,'\n\n').replace(/\n+$/,'');
 }
 function richToText(html){return richWalk(html,false)}
-const hasFormat=h=>/<(b|i|u|mark|ul|ol)\b/i.test(h||'');
+const hasFormat=h=>/<(b|i|u|mark|ul|ol|h2|h3|p)\b/i.test(h||'');
 function answerHTML(x,q){
   const r=x.rich&&x.rich[q.id]; if(r)return cleanRich(r);
   return esc((x.answers||{})[q.id]||'').replace(/\n/g,'<br>');
 }
 function richToMd(html){return richWalk(html,true)}
 function answerMd(x,q){const r=x.rich&&x.rich[q.id];return r?richToMd(cleanRich(r)):((x.answers||{})[q.id]||'')}
-function rteToolbar(qid){
+function rteToolbar(qid,opts){
+  opts=opts||{};
   return `<div class="rtebar" data-for="${qid}" role="toolbar" aria-label="Formatting">
+    ${opts.headings?`<button type="button" data-block="h2" title="Heading" aria-label="Heading" style="font-weight:800">H1</button><button type="button" data-block="h3" title="Subheading" aria-label="Subheading" style="font-weight:800;font-size:12px">H2</button><button type="button" data-block="div" title="Normal text" aria-label="Normal text">¶</button><span class="sep"></span>`:''}
     <button type="button" data-fmt="bold" title="Bold (Ctrl+B)" aria-label="Bold"><b>B</b></button>
     <button type="button" data-fmt="italic" title="Italic (Ctrl+I)" aria-label="Italic"><i style="font-family:Georgia,serif">I</i></button>
     <button type="button" data-fmt="underline" title="Underline (Ctrl+U)" aria-label="Underline"><u>U</u></button>
@@ -2081,6 +2154,7 @@ function rteToolbar(qid){
     <span class="sep"></span>
     <button type="button" data-fmt="clear" title="Clear formatting" aria-label="Clear formatting" style="font-size:12px;font-weight:700">T<sub style="font-size:9px">x</sub></button>
     <span style="flex:1"></span>
+    ${opts.headings?'':`<button type="button" class="chk" data-tagq="${qid}" title="Tag the selected passage (or the whole answer) with a theme, debate or other dimension" aria-label="Tag"><svg class="i" viewBox="0 0 24 24" style="width:15px;height:15px"><path d="M20.6 13.4 12 22l-9-9V4a1 1 0 0 1 1-1h9z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg><span>Tag</span></button>`}
     <button type="button" class="chk" data-check="${qid}" title="Check spelling and grammar — suggestions to accept or ignore" aria-label="Check spelling and grammar"><svg class="i" viewBox="0 0 24 24" style="width:16px;height:16px"><path d="M4 16 8 6l4 10M5.5 12.5h5M14 14l2.5 2.5L21 11"/></svg><span>Check</span></button>
   </div>`;
 }
@@ -2093,7 +2167,7 @@ const ABBR=/(?:^|[\s(])(?:e\.g|i\.e|et al|etc\.?\s*al|cf|vs|viz|approx|ca|p|pp|p
 let lastAuto=null, autoHint=false;
 function textBeforeCaret(ed){
   const s=getSelection(); if(!s.rangeCount)return null;
-  let block=s.anchorNode; while(block&&block!==ed&&!/^(LI|DIV|P)$/.test(block.nodeName))block=block.parentNode;
+  let block=s.anchorNode; while(block&&block!==ed&&!/^(LI|DIV|P|H2|H3)$/.test(block.nodeName))block=block.parentNode;
   if(!block)return null;
   const r=document.createRange(); r.setStart(block,0); r.setEnd(s.anchorNode,s.anchorOffset);
   const d=document.createElement('div'); d.appendChild(r.cloneContents());
@@ -2218,6 +2292,7 @@ function ensureLine(ed){
   const s=getSelection(); s.removeAllRanges(); s.addRange(r);
 }
 function rteCommit(ed){
+  if(ed.dataset.draft){draftCommit(ed);return}
   const x=S.docs[V.paperId]; if(!x)return;
   const qid=ed.dataset.ans;
   if(!ed.textContent.trim()&&!ed.querySelector('ul,ol'))ed.innerHTML='';
@@ -2273,7 +2348,8 @@ function bindRte(root){
       const ed=b.parentElement.nextElementSibling; if(!ed)return;
       if(document.activeElement!==ed)ed.focus();
       try{document.execCommand('styleWithCSS',false,false)}catch(e){}
-      if(b.dataset.fmt==='clear'){document.execCommand('removeFormat');unwrapMarksInSelection(ed)}
+      if(b.dataset.block){document.execCommand('formatBlock',false,'<'+b.dataset.block+'>')}
+      else if(b.dataset.fmt==='clear'){document.execCommand('removeFormat');unwrapMarksInSelection(ed)}
       else if(b.dataset.fmt){if(/List$/.test(b.dataset.fmt))ensureLine(ed);document.execCommand(b.dataset.fmt)}
       else if(b.dataset.hl==='none'){unwrapMarksInSelection(ed)}
       else if(b.dataset.hl){
@@ -2291,6 +2367,312 @@ function bindRte(root){
   });
 }
 document.addEventListener('selectionchange',()=>{if(V.view==='paper')refreshRteState()});
+
+
+/* ============================================================
+   SYNTHESIS: dimensions, tags and codings
+   project.dims  : custom dimensions added by the user (defaults below)
+   project.tags  : [{id, dim, name}]
+   paper.codes   : [{id, tag, qid, text|null, stance?, at}]   text = tagged passage, null = whole answer
+   ============================================================ */
+const DEFAULT_DIMS=[
+  {id:'theme',name:'Themes',color:'#5b6bd6',hint:'Recurring topics across papers, e.g. enforcement, risk perception'},
+  {id:'debate',name:'Debates',color:'#d97745',debate:true,hint:'Open questions the literature argues about; each note records which side it supports'},
+  {id:'method',name:'Methods',color:'#2f9e7a',hint:'Designs and techniques, e.g. survey, panel data, RCT'},
+  {id:'context',name:'Context',color:'#a855c7',hint:'Countries, regions, settings, populations'},
+  {id:'concept',name:'Concepts & variables',color:'#0ea5e9',hint:'Key constructs and how they are measured'},
+  {id:'gap',name:'Gaps',color:'#d64545',hint:'What is missing — material for your contribution'}
+];
+const STANCES=[['supports','Supports','#22a06b'],['challenges','Challenges','#d64545'],['mixed','Mixed','#c98a12']];
+const dimsOf=pid=>DEFAULT_DIMS.concat(((S.docs[pid]||{}).dims)||[]);
+const dimById=(pid,id)=>dimsOf(pid).find(d=>d.id===id);
+const tagsOf=(pid,dim)=>(((S.docs[pid]||{}).tags)||[]).filter(t=>!dim||t.dim===dim);
+const tagById=(pid,id)=>(((S.docs[pid]||{}).tags)||[]).find(t=>t.id===id);
+function codingsFor(pid,tagId){
+  const out=[];
+  papersOf(pid).forEach(x=>(x.codes||[]).forEach(c=>{if(c.tag===tagId)out.push({x,c})}));
+  return out;
+}
+function tagCount(pid,tagId){return codingsFor(pid,tagId).length}
+function questionOf(pid,qid){return tpl(pid).questions.find(q=>q.id===qid)}
+function codeBodyHTML(x,c,pid){
+  if(c.text) return `<p class="excerpt">“${esc(c.text)}”</p>`;
+  const q=questionOf(pid,c.qid); return q?`<div class="ans">${answerHTML(x,q)}</div>`:'';
+}
+function codeBodyText(x,c,pid){
+  if(c.text) return c.text;
+  const q=questionOf(pid,c.qid); return q?((x.answers||{})[q.id]||''):'';
+}
+const qLabel=(pid,qid)=>{const t=tpl(pid);const q=t.questions.find(z=>z.id===qid);return q?`Q${t.questions.indexOf(q)+1} ${q.text}`:''};
+const cite=x=>inText(x.ref).paren.replace(/<[^>]+>/g,'').replace(/&amp;/g,'&');
+
+/* ---------- chips under each answer ---------- */
+function codesRowHTML(x,q){
+  const pid=x.projectId, list=(x.codes||[]).filter(c=>c.qid===q.id);
+  const chips=list.map(c=>{const t=tagById(pid,c.tag);if(!t)return '';const d=dimById(pid,t.dim)||{};const st=STANCES.find(s=>s[0]===c.stance);
+    return `<span class="code-chip" style="--x:${d.color||'var(--accent)'}" title="${esc(d.name||'')}${c.text?' · passage: '+esc(c.text):' · whole answer'}"><i></i><b>${esc(t.name)}</b>${st?`<em style="--s:${st[2]}">${st[1]}</em>`:''}${c.text?`<span class="cx">“${esc(c.text.length>46?c.text.slice(0,44)+'…':c.text)}”</span>`:''}<button data-uncode="${c.id}" aria-label="Remove tag">×</button></span>`}).join('');
+  return `<div class="codes" data-codes="${q.id}">${chips}<button class="btn sm ghost tagbtn" data-tagq="${q.id}" title="Tag the selected passage, or the whole answer if nothing is selected">${ico('tag')}Tag</button></div>`;
+}
+function refreshCodes(qid){
+  const x=S.docs[V.paperId]; const el=document.querySelector(`[data-codes="${qid}"]`); if(!x||!el)return;
+  const q=tpl(x.projectId).questions.find(z=>z.id===qid); el.outerHTML=codesRowHTML(x,q);
+}
+function selectionIn(ed){
+  const s=getSelection(); if(!s.rangeCount||s.isCollapsed)return '';
+  const r=s.getRangeAt(0); if(!ed.contains(r.commonAncestorContainer))return '';
+  return s.toString().replace(/\s+/g,' ').trim();
+}
+
+/* ---------- the tag dialog ---------- */
+function openTagDialog(qid,passage){
+  const x=S.docs[V.paperId]; if(!x)return; const pid=x.projectId;
+  let dim=(V.lastDim&&dimById(pid,V.lastDim))?V.lastDim:'theme', stance='supports', filter='';
+  const ov=modal('',false);
+  const draw=()=>{
+    const d=dimById(pid,dim), tags=tagsOf(pid,dim).filter(t=>t.name.toLowerCase().includes(filter.toLowerCase()));
+    const exact=tagsOf(pid,dim).some(t=>t.name.toLowerCase()===filter.trim().toLowerCase());
+    ov.querySelector('.modal').innerHTML=`<h3>Tag ${passage?'this passage':'this answer'}</h3>
+      <div class="hint" style="margin-bottom:12px"><b>${passage?'Passage':'Whole answer'} · ${esc(qLabel(pid,qid))}</b>${passage?esc(passage.length>220?passage.slice(0,218)+'…':passage):'Tip: select words in your note first to tag just that passage.'}</div>
+      <div class="chips" style="margin-bottom:10px">${dimsOf(pid).map(z=>`<button class="chip ${z.id===dim?'on':''}" data-dim="${z.id}" style="${z.id===dim?`border-color:${z.color};color:${z.color}`:''}">${esc(z.name)}</button>`).join('')}</div>
+      <p class="help" style="margin:0 0 8px">${esc(d.hint||'')}</p>
+      <input class="inp" id="tagFind" placeholder="${d.debate?'Find or create a debate, e.g. Does enforcement change behaviour?':'Find or create a '+esc(d.name.toLowerCase().replace(/s$/,''))+'…'}" value="${esc(filter)}">
+      <div class="taglist">${tags.map(t=>`<button class="tagopt" data-pick="${t.id}"><span>${esc(t.name)}</span><small>${tagCount(pid,t.id)} note${tagCount(pid,t.id)===1?'':'s'}</small></button>`).join('')}
+        ${filter.trim()&&!exact?`<button class="tagopt new" data-create="1">${ico('plus')}<span>Create “${esc(filter.trim())}”</span></button>`:''}
+        ${!tags.length&&!filter.trim()?`<div class="help" style="padding:8px 2px">No ${esc(d.name.toLowerCase())} yet — type one above.</div>`:''}</div>
+      ${d.debate?`<div class="field" style="margin:12px 0 0"><label>This note…</label><div class="choice">${STANCES.map(([k,l,c])=>`<button class="${stance===k?'on':''}" data-stance="${k}" style="${stance===k?`background:${c};border-color:${c}`:''}">${l}</button>`).join('')}</div></div>`:''}
+      <div class="mfoot"><button class="btn" data-x>Close</button></div>`;
+    const f=ov.querySelector('#tagFind'); f.focus(); f.setSelectionRange(f.value.length,f.value.length);
+    f.oninput=()=>{filter=f.value;draw()};
+    f.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();const first=ov.querySelector('[data-pick],[data-create]');if(first)first.click()}};
+    ov.querySelectorAll('[data-dim]').forEach(b=>b.onclick=()=>{dim=b.dataset.dim;V.lastDim=dim;filter='';draw()});
+    ov.querySelectorAll('[data-stance]').forEach(b=>b.onclick=()=>{stance=b.dataset.stance;draw()});
+    ov.querySelectorAll('[data-pick]').forEach(b=>b.onclick=()=>apply(b.dataset.pick));
+    const cr=ov.querySelector('[data-create]'); if(cr) cr.onclick=()=>{
+      const p=S.docs[pid]; p.tags=p.tags||[]; const t={id:uid('tag_'),dim,name:filter.trim()}; p.tags.push(t); save(pid); apply(t.id);
+    };
+    ov.querySelector('[data-x]').onclick=()=>ov.remove();
+  };
+  const apply=tagId=>{
+    const d=dimById(pid,dim); x.codes=x.codes||[];
+    const dup=x.codes.find(c=>c.tag===tagId&&c.qid===qid&&(c.text||'')===(passage||''));
+    if(dup){if(d.debate){dup.stance=stance;save(V.paperId);refreshCodes(qid)}toast('Already tagged');ov.remove();return}
+    x.codes.push({id:uid('c'),tag:tagId,qid,text:passage||null,stance:d.debate?stance:undefined,at:Date.now()});
+    save(V.paperId); refreshCodes(qid); ov.remove(); toast(`Tagged: ${tagById(pid,tagId).name}`);
+  };
+  draw();
+}
+
+/* ---------- managing dimensions & tags (project settings) ---------- */
+function dimsSettingsHTML(p){
+  const pid=V.pid;
+  return `<div class="card" style="margin-top:14px"><h2 style="margin-bottom:6px">Synthesis dimensions</h2>
+  <p class="help" style="margin:0 0 12px">Tags you add while taking notes, grouped by dimension. Rename or remove them here; reports can be organised by any dimension.</p>
+  ${dimsOf(pid).map(d=>{const tg=tagsOf(pid,d.id);return `<div style="margin-bottom:12px"><div class="row" style="gap:8px;margin-bottom:6px"><span style="width:10px;height:10px;border-radius:50%;background:${d.color}"></span><b>${esc(d.name)}</b><span class="muted" style="font-size:12.5px">${tg.length} tag${tg.length===1?'':'s'}</span>${DEFAULT_DIMS.some(z=>z.id===d.id)?'':`<button class="btn sm ghost danger" data-deldim="${d.id}">Remove dimension</button>`}</div>
+    ${tg.length?`<div class="chips">${tg.map(t=>`<span class="code-chip" style="--x:${d.color}"><i></i><b>${esc(t.name)}</b><span class="cx">${tagCount(pid,t.id)}</span><button data-rentag="${t.id}" title="Rename" aria-label="Rename">✎</button><button data-deltag="${t.id}" title="Delete" aria-label="Delete">×</button></span>`).join('')}</div>`:''}</div>`}).join('')}
+  <div class="row" style="margin-top:6px"><input class="inp" id="newDim" placeholder="New dimension, e.g. Theoretical lens" style="max-width:320px"><button class="btn" data-act="addDim">${ico('plus')}Add dimension</button></div></div>`;
+}
+document.addEventListener('click',e=>{
+  const t=e.target.closest('[data-uncode],[data-tagq],[data-deltag],[data-rentag],[data-deldim]'); if(!t)return;
+  if(t.dataset.tagq){const qid=t.dataset.tagq;const ed=document.querySelector(`.rte[data-ans="${qid}"]`);openTagDialog(qid,ed?selectionIn(ed):'');return}
+  if(t.dataset.uncode){const x=S.docs[V.paperId];const c=(x.codes||[]).find(z=>z.id===t.dataset.uncode);if(!c)return;x.codes=x.codes.filter(z=>z!==c);save(V.paperId);refreshCodes(c.qid);return}
+  const pid=V.pid,p=S.docs[pid]; if(!p)return;
+  if(t.dataset.deltag){const tg=tagById(pid,t.dataset.deltag);const n=tagCount(pid,tg.id);confirmBox(`Delete the tag “${tg.name}”${n?` and remove it from ${n} note${n===1?'':'s'}`:''}? Your notes themselves are not changed.`,'Delete tag',()=>{p.tags=p.tags.filter(z=>z.id!==tg.id);save(pid);papersOf(pid).forEach(x=>{if((x.codes||[]).some(c=>c.tag===tg.id)){S.docs[x.id].codes=x.codes.filter(c=>c.tag!==tg.id);save(x.id)}});renderMain()});return}
+  if(t.dataset.rentag){const tg=tagById(pid,t.dataset.rentag);const ov=modal(`<h3>Rename tag</h3><input class="inp" id="rn" value="${esc(tg.name)}"><div class="mfoot"><button class="btn" data-x>Cancel</button><button class="btn pri" data-ok>Rename</button></div>`);ov.querySelector('[data-x]').onclick=()=>ov.remove();ov.querySelector('[data-ok]').onclick=()=>{const v=ov.querySelector('#rn').value.trim();if(v){tg.name=v;save(pid)}ov.remove();renderMain()};return}
+  if(t.dataset.deldim){const d=dimById(pid,t.dataset.deldim);const tg=tagsOf(pid,d.id);confirmBox(`Remove the dimension “${d.name}” and its ${tg.length} tag${tg.length===1?'':'s'}?`,'Remove',()=>{const ids=new Set(tg.map(z=>z.id));p.dims=(p.dims||[]).filter(z=>z.id!==d.id);p.tags=(p.tags||[]).filter(z=>!ids.has(z.id));save(pid);papersOf(pid).forEach(x=>{if((x.codes||[]).some(c=>ids.has(c.tag))){S.docs[x.id].codes=x.codes.filter(c=>!ids.has(c.tag));save(x.id)}});renderMain()});return}
+});
+
+/* ============================================================
+   SYNTHESIS REPORTS
+   ============================================================ */
+function layoutOptions(pid){
+  return [['paper','By paper'],['question','By question'],...dimsOf(pid).map(d=>['dim:'+d.id,'By '+d.name.toLowerCase()]),...dimsOf(pid).filter(d=>!d.debate).slice(0,1).map(d=>['matrix:'+d.id,'Matrix: papers × '+d.name.toLowerCase()]),['matrix:debate','Matrix: papers × debates']];
+}
+function sortedTags(pid,dim){return tagsOf(pid,dim).map(t=>({t,n:tagCount(pid,t.id)})).filter(o=>o.n).sort((a,b)=>b.n-a.n||a.t.name.localeCompare(b.t.name))}
+function dimReportHTML(p,pp,dimId){
+  const pid=V.pid,d=dimById(pid,dimId); if(!d)return '';
+  const tags=sortedTags(pid,dimId);
+  if(!tags.length)return `<h2>${esc(d.name)}</h2><p class="na">No notes are tagged with ${esc(d.name.toLowerCase())} yet. Use the Tag button under any answer while taking notes.</p>`;
+  let html=`<h2>${esc(d.name)}</h2><p class="meta">${tags.length} ${esc(d.name.toLowerCase())} · ${tags.reduce((a,o)=>a+o.n,0)} tagged notes</p>`;
+  const item=({x,c})=>`<div class="syn-item"><h4>${esc(cite(x))} <span style="font-weight:400;color:#6b6f76">· ${esc(paperTitle(x))} · ${esc(qLabel(pid,c.qid))}</span></h4>${codeBodyHTML(x,c,pid)}</div>`;
+  tags.forEach(({t})=>{
+    const rows=codingsFor(pid,t.id);
+    html+=`<h3>${esc(t.name)} <span style="font-weight:400;color:#6b6f76;font-size:15px">(${new Set(rows.map(r=>r.x.id)).size} paper${new Set(rows.map(r=>r.x.id)).size===1?'':'s'})</span></h3>`;
+    if(d.debate){
+      STANCES.forEach(([k,l,col])=>{const g=rows.filter(r=>(r.c.stance||'mixed')===k);if(!g.length)return;html+=`<h4 style="color:${col};text-transform:uppercase;letter-spacing:.06em;font-size:12.5px;margin-top:14px">${l} (${g.length})</h4>`+g.map(item).join('')});
+    }else html+=rows.map(item).join('');
+  });
+  return html;
+}
+function matrixHTML(p,pp,dimId){
+  const pid=V.pid,d=dimById(pid,dimId); const tags=sortedTags(pid,dimId).map(o=>o.t);
+  if(!tags.length)return `<h2>${esc(d.name)} matrix</h2><p class="na">Nothing tagged with ${esc(d.name.toLowerCase())} yet.</p>`;
+  const cell=(x,t)=>{const cs=(x.codes||[]).filter(c=>c.tag===t.id);if(!cs.length)return '';
+    if(d.debate){const by=k=>cs.filter(c=>(c.stance||'mixed')===k).length;return STANCES.map(([k,l,col])=>by(k)?`<span style="color:${col};font-weight:700" title="${l}">${k==='supports'?'▲':k==='challenges'?'▼':'◆'}${by(k)>1?by(k):''}</span>`:'').join(' ')}
+    return `<b>✓</b>${cs.length>1?` <span style="color:#6b6f76">${cs.length}</span>`:''}`};
+  return `<h2>${esc(d.name)} matrix</h2><p class="meta">${d.debate?'▲ supports · ▼ challenges · ◆ mixed. ':''}Empty cells show where a paper says nothing on that ${esc(d.name.toLowerCase().replace(/s$/,''))} — possible gaps.</p>
+  <div style="overflow:auto"><table class="matrix"><tr><th>Paper</th>${tags.map(t=>`<th>${esc(t.name)}</th>`).join('')}</tr>
+  ${pp.map(x=>`<tr><td><b>${esc(cite(x))}</b><br><span style="color:#6b6f76">${esc(paperTitle(x))}</span></td>${tags.map(t=>`<td style="text-align:center">${cell(x,t)}</td>`).join('')}</tr>`).join('')}
+  <tr><td><i>Papers</i></td>${tags.map(t=>`<td style="text-align:center"><i>${new Set(codingsFor(pid,t.id).map(r=>r.x.id)).size}</i></td>`).join('')}</tr></table></div>`;
+}
+function dimReportMd(p,pp,dimId){
+  const pid=V.pid,d=dimById(pid,dimId); const tags=sortedTags(pid,dimId); let s=`## ${d.name}\n\n`;
+  if(!tags.length)return s+'_Nothing tagged yet._\n\n';
+  const item=({x,c})=>`- **${cite(x)}** (${qLabel(pid,c.qid)}): ${(c.text?'“'+c.text+'”':codeBodyText(x,c,pid)).replace(/\n/g,'\n  ')}\n`;
+  tags.forEach(({t})=>{const rows=codingsFor(pid,t.id);s+=`### ${t.name}\n\n`;
+    if(d.debate)STANCES.forEach(([k,l])=>{const g=rows.filter(r=>(r.c.stance||'mixed')===k);if(g.length)s+=`**${l}**\n\n`+g.map(item).join('')+'\n'});
+    else s+=rows.map(item).join('')+'\n'});
+  return s;
+}
+function matrixMd(p,pp,dimId){
+  const pid=V.pid,d=dimById(pid,dimId); const tags=sortedTags(pid,dimId).map(o=>o.t); if(!tags.length)return `## ${d.name} matrix\n\n_Nothing tagged yet._\n\n`;
+  let s=`## ${d.name} matrix\n\n| Paper | ${tags.map(t=>t.name.replace(/\|/g,'/')).join(' | ')} |\n|---|${tags.map(()=>':-:').join('|')}|\n`;
+  pp.forEach(x=>{s+=`| ${cite(x)} | ${tags.map(t=>{const cs=(x.codes||[]).filter(c=>c.tag===t.id);if(!cs.length)return '';return d.debate?cs.map(c=>c.stance==='supports'?'▲':c.stance==='challenges'?'▼':'◆').join(''):'✓'}).join(' | ')} |\n`});
+  return s+'\n';
+}
+
+/* ============================================================
+   WRITE: documents per project, with a notes browser beside them
+   ============================================================ */
+const draftsOf=pid=>Object.entries(S.docs).filter(([k,v])=>v&&v.kind==='draft'&&v.projectId===pid).map(([k,v])=>({id:k,...v})).sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0));
+const words=t=>(String(t||'').match(/[\p{L}\p{N}][\p{L}\p{N}'’-]*/gu)||[]).length;
+function writeTabHTML(p){
+  const ds=draftsOf(V.pid);
+  return `<div class="row" style="margin-bottom:16px"><p class="lede" style="margin:0;flex:1">Write your paper with your notes beside you. Insert notes with their citations, and the reference list builds itself.</p><button class="btn pri" data-act="newDraft">${ico('plus')}New document</button></div>
+  ${ds.length?`<div class="pgrid">${ds.map(d=>`<button class="pc" data-act="openDraft" data-id="${d.id}"><div class="hd"><div class="av" style="background:var(--grad)">${ico('pen')}</div><div style="min-width:0"><div class="t">${esc(d.title||'Untitled document')}</div><div class="m muted" style="font-size:12.5px">Edited ${esc(ago(d.updatedAt||d.createdAt))}</div></div></div><div class="nums"><span><b>${words(d.text).toLocaleString()}</b>words</span><span><b>${citedPapers(d).length}</b>papers cited</span></div></button>`).join('')}</div>`
+  :`<div class="empty"><div class="ic">${ico('pen')}</div><div class="big">Start writing</div><p>Create a document — a literature review chapter, a journal paper, a proposal…</p><button class="btn pri" data-act="newDraft">${ico('plus')}New document</button></div>`}`;
+}
+function newDraftDialog(){
+  const pid=V.pid, themes=sortedTags(pid,'theme'), debates=sortedTags(pid,'debate');
+  const ov=modal(`<h3>New document</h3>
+    <div class="field"><label>Title</label><input class="inp" id="dTitle" placeholder="e.g. Literature review chapter"></div>
+    <div class="field"><label>Start from</label>
+      <label class="row" style="gap:8px;margin-bottom:6px"><input type="radio" name="dTpl" value="blank" checked> A blank page</label>
+      <label class="row" style="gap:8px;margin-bottom:6px"><input type="radio" name="dTpl" value="themes" ${themes.length||debates.length?'':'disabled'}> An outline from my themes and debates <span class="muted" style="font-size:12.5px">(${themes.length} themes, ${debates.length} debates)</span></label>
+      <label class="row" style="gap:8px"><input type="radio" name="dTpl" value="imrad"> A standard paper outline (Introduction, Methods, Results, Discussion, Conclusion)</label></div>
+    <div class="mfoot"><button class="btn" data-x>Cancel</button><button class="btn pri" data-ok>Create</button></div>`);
+  ov.querySelector('[data-x]').onclick=()=>ov.remove();
+  ov.querySelector('[data-ok]').onclick=()=>{
+    const title=ov.querySelector('#dTitle').value.trim()||'Untitled document', tplv=ov.querySelector('[name="dTpl"]:checked').value;
+    let html='';
+    const P='<p><br></p>';
+    if(tplv==='themes'){html='<h2>Introduction</h2>'+P+themes.map(o=>`<h2>${esc(o.t.name)}</h2>`+P).join('')+(debates.length?'<h2>Debates in the literature</h2>'+debates.map(o=>`<h3>${esc(o.t.name)}</h3>`+P).join(''):'')+'<h2>Gaps and contribution</h2>'+P+'<h2>Conclusion</h2>'+P}
+    if(tplv==='imrad')html=['Introduction','Literature review','Methods','Results','Discussion','Conclusion'].map(h=>`<h2>${h}</h2>`+P).join('');
+    if(tplv==='blank')html=P;
+    const id=uid('draft_'); S.docs[id]={kind:'draft',projectId:pid,title,html,text:richToText(html),cites:[],createdAt:Date.now()}; save(id); ov.remove();
+    go({view:'draft',draftId:id});
+  };
+}
+/* papers cited in a draft: inserted via the browser, or whose in-text citation appears in the text */
+function citedPapers(d){
+  const set=new Set(d.cites||[]), text=d.text||'';
+  papersOf(d.projectId).forEach(x=>{const a=validPeople((x.ref||{}).authors);const y=trim((x.ref||{}).year)||'n.d.';if(!a.length)return;const fam=trim(a[0].family);if(fam&&text.includes(fam)&&text.includes(y))set.add(x.id)});
+  return [...set].filter(id=>S.docs[id]);
+}
+function refListHTML(d){
+  const xs=sortedRefs(citedPapers(d).map(id=>({id,...S.docs[id]})));
+  return xs.length?xs.map(x=>`<p class="apa">${apaHTML(x.ref)}</p>`).join(''):'<p class="na">Papers you cite appear here automatically, in APA 7 format.</p>';
+}
+const BR={mode:'question',item:null,q:''};
+function draftView(){
+  const d=S.docs[V.draftId], p=S.docs[d.projectId];
+  return `<div id="draftEditor">
+  <div class="crumbs"><button data-act="nav" data-v="projects">Projects</button>${ico('chev')}<button data-act="openProject" data-id="${d.projectId}">${esc(p?p.name:'Project')}</button>${ico('chev')}<button data-act="tab" data-v="write" data-pid="${d.projectId}">Write</button>${ico('chev')}<span>Document</span></div>
+  <div class="ptoolbar"><span class="ftitle"><span>${esc(d.title||'')}</span></span><button class="btn sm ${V.focus?'pri':''}" data-act="focus">${ico(V.focus?'minimize':'maximize')}${V.focus?'Exit focus':'Focus mode'}</button><span class="muted" style="font-size:13px" id="wcount">${words(d.text).toLocaleString()} words</span><span class="spacer"></span><span class="save" id="saveNote"></span><button class="btn sm" data-act="draftMd">${ico('download')}.md</button><button class="btn sm pri" data-act="draftDoc">${ico('download')}Word / PDF (.html)</button><button class="btn sm ghost danger" data-act="deleteDraft" aria-label="Delete document">${ico('trash')}</button></div>
+  <div class="wr" id="wr" style="--ww:${writerWidth()}%">
+    <div class="wcol">
+      <input class="dtitle" id="dTitleIn" value="${esc(d.title||'')}" placeholder="Document title" aria-label="Document title">
+      ${rteToolbar('__draft',{headings:true})}<div class="rte draft" contenteditable="true" role="textbox" aria-multiline="true" aria-label="Document" data-ans="__draft" data-draft="${V.draftId}" data-ph="Start writing… Insert notes from the panel on the right." spellcheck="${WR.lang!=='off'}" ${WR.lang!=='off'?`lang="${WR.lang}"`:''}>${cleanRich(d.html||'')}</div><div class="gsug" data-sug="__draft" hidden></div>
+      <div class="refs"><h3>References</h3><div id="refList">${refListHTML(d)}</div></div>
+    </div>
+    <div class="gutter wgut" id="wgut" role="separator" aria-orientation="vertical" aria-label="Drag to resize" tabindex="0"></div>
+    <aside class="nbrowse" id="nbrowse">${browserHTML()}</aside>
+  </div></div>`;
+}
+function writerWidth(){let v=60;try{v=parseFloat(localStorage.getItem('litnotes.ww'))||60}catch(e){}return Math.min(80,Math.max(30,v))}
+function browserHTML(){
+  const pid=S.docs[V.draftId].projectId, t=tpl(pid), pp=papersOf(pid);
+  const modes=[['question','Questions'],['paper','Papers'],...dimsOf(pid).map(d=>['dim:'+d.id,d.name]),['search','Search']];
+  let items=[], list='';
+  if(BR.mode==='question') items=t.questions.map(q=>({v:q.id,l:`Q${t.questions.indexOf(q)+1} · ${q.text}`,n:pp.filter(x=>answered(x,q)).length}));
+  else if(BR.mode==='paper') items=pp.map(x=>({v:x.id,l:`${cite(x)} · ${paperTitle(x)}`,n:progress(x,t).n}));
+  else if(BR.mode.startsWith('dim:')) items=sortedTags(pid,BR.mode.slice(4)).map(o=>({v:o.t.id,l:o.t.name,n:o.n}));
+  if(BR.mode!=='search'&&!items.some(i=>i.v===BR.item)) BR.item=(items.find(i=>i.n)||items[0]||{}).v||null;
+  const card=(x,head,bodyHTML,plain)=>`<div class="ncard"><div class="nh"><b>${esc(cite(x))}</b><span>${esc(head)}</span></div><div class="nb">${bodyHTML}</div><div class="na-row"><button class="btn sm" data-ins="${x.id}" data-txt="${esc(plain)}">${ico('plus')}Insert</button><button class="btn sm ghost" data-cite="${x.id}">Cite</button></div></div>`;
+  if(BR.mode==='question'&&BR.item){const q=t.questions.find(z=>z.id===BR.item);list=pp.filter(x=>answered(x,q)).map(x=>card(x,paperTitle(x),answerHTML(x,q)||esc(x[q.choiceKey]||''),(x.answers||{})[q.id]||x[q.choiceKey]||'')).join('')}
+  else if(BR.mode==='paper'&&BR.item){const x=S.docs[BR.item];if(x){const xx={id:BR.item,...x};list=t.questions.filter(q=>answered(xx,q)).map(q=>card(xx,`Q${t.questions.indexOf(q)+1} ${q.text}`,answerHTML(xx,q)||esc(xx[q.choiceKey]||''),(xx.answers||{})[q.id]||xx[q.choiceKey]||'')).join('')}}
+  else if(BR.mode.startsWith('dim:')&&BR.item){const d=dimById(pid,BR.mode.slice(4));const rows=codingsFor(pid,BR.item);
+    const one=({x,c})=>card(x,qLabel(pid,c.qid),codeBodyHTML(x,c,pid),codeBodyText(x,c,pid));
+    list=d&&d.debate?STANCES.map(([k,l,col])=>{const g=rows.filter(r=>(r.c.stance||'mixed')===k);return g.length?`<div class="stance" style="color:${col}">${l} (${g.length})</div>`+g.map(one).join(''):''}).join(''):rows.map(one).join('')}
+  else if(BR.mode==='search'&&BR.q.trim().length>1){const ql=BR.q.toLowerCase();const out=[];pp.forEach(x=>t.questions.forEach(q=>{const a=(x.answers||{})[q.id]||'';if(a.toLowerCase().includes(ql))out.push(card(x,`Q${t.questions.indexOf(q)+1} ${q.text}`,answerHTML(x,q),a))}));list=out.join('')||'<p class="help">No notes match.</p>'}
+  return `<div class="nbhead"><b>Your notes</b><select class="inp" id="brMode" aria-label="Browse notes by">${modes.map(([v,l])=>`<option value="${v}" ${BR.mode===v?'selected':''}>${esc(l)}</option>`).join('')}</select></div>
+    ${BR.mode==='search'?`<input class="inp" id="brQ" placeholder="Search your notes…" value="${esc(BR.q)}">`:items.length?`<select class="inp" id="brItem" aria-label="Choose">${items.map(i=>`<option value="${esc(i.v)}" ${i.v===BR.item?'selected':''}>${esc(i.l)}${i.n!=null?` (${i.n})`:''}</option>`).join('')}</select>`:`<p class="help">Nothing here yet — tag notes with ${esc(BR.mode.startsWith('dim:')?(dimById(pid,BR.mode.slice(4))||{}).name||'':'').toLowerCase()} while reading.</p>`}
+    <div class="nlist">${list||(BR.mode==='search'?'<p class="help">Type at least two letters.</p>':'<p class="help">No notes for this yet.</p>')}</div>`;
+}
+let draftRange=null;
+function bindDraft(){
+  const d=S.docs[V.draftId], ed=document.querySelector('.rte.draft'); if(!ed)return;
+  bindRte(document.getElementById('draftEditor'));
+  document.body.classList.toggle('focus',!!V.focus); document.body.classList.add('wide');
+  ed.addEventListener('focus',()=>{try{document.execCommand('defaultParagraphSeparator',false,'p')}catch(e){}});
+  ed.addEventListener('blur',()=>{try{document.execCommand('defaultParagraphSeparator',false,'div')}catch(e){}});
+  if(!ed.firstChild)ed.innerHTML='<p><br></p>';
+  const keep=()=>{const s=getSelection();if(s.rangeCount&&ed.contains(s.getRangeAt(0).commonAncestorContainer))draftRange=s.getRangeAt(0).cloneRange()};
+  ['keyup','mouseup','input','focus'].forEach(ev=>ed.addEventListener(ev,keep));
+  const ti=$('#dTitleIn'); ti.oninput=()=>{d.title=ti.value;save(V.draftId,700);flashSave();const ft=document.querySelector('#draftEditor .ftitle span');if(ft)ft.textContent=ti.value};
+  const nb=$('#nbrowse');
+  nb.addEventListener('change',e=>{if(e.target.id==='brMode'){BR.mode=e.target.value;BR.item=null;nb.innerHTML=browserHTML()}if(e.target.id==='brItem'){BR.item=e.target.value;nb.innerHTML=browserHTML()}});
+  nb.addEventListener('input',e=>{if(e.target.id==='brQ'){BR.q=e.target.value;const pos=e.target.selectionStart;nb.innerHTML=browserHTML();const q=$('#brQ');q.focus();q.setSelectionRange(pos,pos)}});
+  nb.addEventListener('mousedown',e=>{if(e.target.closest('[data-ins],[data-cite]'))e.preventDefault()});
+  nb.addEventListener('click',e=>{
+    const b=e.target.closest('[data-ins],[data-cite]'); if(!b)return;
+    const x=S.docs[b.dataset.ins||b.dataset.cite]; if(!x)return;
+    const c='('+cite(x).replace(/^\(|\)$/g,'')+')';
+    const txt=b.dataset.ins?(b.dataset.txt.trim().replace(/\s*\n\s*/g,' ')+' '+c):c;
+    insertIntoDraft(ed,(b.dataset.ins?'':' ')+txt+' ');
+    d.cites=[...new Set([...(d.cites||[]),b.dataset.ins||b.dataset.cite])]; draftCommit(ed);
+    toast(b.dataset.ins?'Note inserted — now rewrite it in your own words':'Citation inserted');
+  });
+  // resizable split
+  const g=$('#wgut'),wr=$('#wr');
+  g.addEventListener('pointerdown',e=>{e.preventDefault();g.setPointerCapture(e.pointerId);document.body.classList.add('dragging');
+    const mv=ev=>{const r=wr.getBoundingClientRect();const v=Math.min(80,Math.max(30,(ev.clientX-r.left)/r.width*100));wr.style.setProperty('--ww',v+'%')};
+    const up=()=>{document.body.classList.remove('dragging');g.removeEventListener('pointermove',mv);g.removeEventListener('pointerup',up);try{localStorage.setItem('litnotes.ww',parseFloat(wr.style.getPropertyValue('--ww')))}catch(_){}};
+    g.addEventListener('pointermove',mv);g.addEventListener('pointerup',up)});
+  g.addEventListener('dblclick',()=>{wr.style.setProperty('--ww','60%');try{localStorage.setItem('litnotes.ww',60)}catch(_){}});
+  flashSave(true);
+}
+function insertIntoDraft(ed,text){
+  ed.focus();
+  const s=getSelection();
+  if(draftRange&&ed.contains(draftRange.commonAncestorContainer)){s.removeAllRanges();s.addRange(draftRange)}
+  else{const r=document.createRange();r.selectNodeContents(ed);r.collapse(false);s.removeAllRanges();s.addRange(r)}
+  // inserting a whole note while the caret sits in a heading starts a new paragraph below it
+  let h=s.anchorNode; while(h&&h!==ed&&!/^H[23]$/.test(h.nodeName))h=h.parentNode;
+  if(h&&h!==ed&&text.length>40){const para=document.createElement('p');para.appendChild(document.createElement('br'));h.after(para);const r=document.createRange();r.setStart(para,0);r.collapse(true);s.removeAllRanges();s.addRange(r)}
+  // avoid double spaces
+  const n=s.anchorNode, before=n&&n.nodeType===3?n.nodeValue.slice(0,s.anchorOffset):'';
+  if(/\s$/.test(before)||!before)text=text.replace(/^\s+/,'');
+  document.execCommand('insertText',false,text);
+  draftRange=s.getRangeAt(0).cloneRange();
+}
+function draftCommit(ed){
+  const d=S.docs[ed.dataset.draft]; if(!d)return;
+  if(!ed.textContent.trim()&&!ed.querySelector('ul,ol,h2,h3'))ed.innerHTML='<p><br></p>';
+  d.html=cleanRich(ed.innerHTML); d.text=richToText(d.html);
+  save(ed.dataset.draft,800); flashSave();
+  const w=$('#wcount'); if(w)w.textContent=words(d.text).toLocaleString()+' words';
+  clearTimeout(draftCommit._t); draftCommit._t=setTimeout(()=>{const rl=$('#refList');if(rl)rl.innerHTML=refListHTML(d)},600);
+}
+function draftExport(fmt){
+  const d=S.docs[V.draftId]; const refs=sortedRefs(citedPapers(d).map(id=>({id,...S.docs[id]})));
+  if(fmt==='md'){
+    const md=`# ${d.title||'Untitled document'}\n\n`+richToMd(d.html||'')+(refs.length?`\n\n## References\n\n`+refs.map(x=>apaMd(x.ref)).join('\n\n')+'\n':'');
+    offerDownload(slug(d.title)+'.md',md,md);
+  }else{
+    const body=`<h1>${esc(d.title||'Untitled document')}</h1>${(d.html||'').replace(/<br>(?=<h[23]>)/g,'')}${refs.length?`<h2>References</h2>${refs.map(x=>`<p class="apa">${apaHTML(x.ref)}</p>`).join('')}`:''}`;
+    offerDownload(slug(d.title)+'.html',standaloneHTML(d.title,body),richToText(d.html));
+  }
+}
 
 /* ============================================================
    REPORTS
@@ -2312,7 +2694,7 @@ function paperReportBody(x,t,showEmpty,level){
 function reportToolbar(kind){
   return `<div class="card" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px;padding:12px 16px">${kind==='paper'?`<button class="btn sm" data-act="openPaper" data-id="${V.paperId}">← Back to notes</button>`:''}
   <label class="row" style="gap:7px;font-size:13.5px;font-weight:600"><input type="checkbox" data-act="toggleEmpty" ${V.showEmpty?'checked':''}> Show unanswered</label>
-  ${kind==='project'?`<span class="chips"><button class="chip ${V.repLayout==='paper'?'on':''}" data-act="repLayout" data-v="paper">By paper</button><button class="chip ${V.repLayout==='question'?'on':''}" data-act="repLayout" data-v="question">By question</button></span>`:''}
+  ${kind==='project'?`<label class="row" style="gap:8px;font-size:13.5px;font-weight:600">Organise by <select class="inp" data-act="repLayoutSel" style="width:auto;border-radius:999px;padding:6px 12px">${layoutOptions(V.pid).map(([v,l])=>`<option value="${v}" ${V.repLayout===v?'selected':''}>${esc(l)}</option>`).join('')}</select></label>`:''}
   <span class="spacer"></span>${kind==='project'?`<button class="btn sm" data-act="copyRefs">${ico('list')}Copy reference list</button>`:''}<button class="btn sm" data-act="copyMd" data-kind="${kind}">${ico('copy')}Copy text</button><button class="btn sm" data-act="dl" data-fmt="md" data-kind="${kind}">${ico('download')}.md</button><button class="btn sm pri" data-act="dl" data-fmt="html" data-kind="${kind}">${ico('download')}Word / PDF (.html)</button></div>`;
 }
 function paperReportView(){
@@ -2335,7 +2717,9 @@ function projectReportHTML(p,pp,t){
   <table><tr><th>#</th><th>Paper</th><th>Verdict</th><th>Support / threat</th><th>Status</th></tr>
   ${order.map((x,i)=>`<tr><td>${i+1}</td><td><b>${esc(paperTitle(x))}</b><br>${esc(paperMeta(x))}</td><td>${esc(x.verdict||'—')}</td><td>${esc(x.support||'—')}</td><td>${esc(x.status||'Not started')}</td></tr>`).join('')}
   </table>`;
-  if(V.repLayout==='question'){
+  if(V.repLayout.startsWith('dim:')) html+=dimReportHTML(p,order,V.repLayout.slice(4));
+  else if(V.repLayout.startsWith('matrix:')) html+=matrixHTML(p,order,V.repLayout.slice(7));
+  else if(V.repLayout==='question'){
     t.sections.forEach(s=>{
       let sh=`<h2 style="color:${secColorHex(s)}">${esc(s.title)}</h2>`, any=false;
       t.questions.filter(q=>q.section===s.id).forEach(q=>{
@@ -2381,7 +2765,9 @@ function mdProject(p,pp,t){
   s+=`## Overview\n\n| # | Paper | Verdict | Support / threat | Status |\n|---|---|---|---|---|\n`;
   order.forEach((x,i)=>{s+=`| ${i+1} | ${(paperTitle(x)+(paperMeta(x)?' ('+paperMeta(x)+')':'')).replace(/\|/g,'/')} | ${x.verdict||'—'} | ${x.support||'—'} | ${x.status||'Not started'} |\n`});
   s+='\n';
-  if(V.repLayout==='question'){
+  if(V.repLayout.startsWith('dim:')) s+=dimReportMd(p,order,V.repLayout.slice(4));
+  else if(V.repLayout.startsWith('matrix:')) s+=matrixMd(p,order,V.repLayout.slice(7));
+  else if(V.repLayout==='question'){
     t.sections.forEach(sec=>{
       s+=`## ${sec.title}\n\n`;
       t.questions.filter(q=>q.section===sec.id).forEach(q=>{
@@ -2403,7 +2789,7 @@ function currentReport(kind){
   return {name:p.name||'project',md:mdProject(p,pp,t),html:$('#reportDoc').innerHTML};
 }
 function standaloneHTML(title,body){
-  return `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${esc(title)}</title><style>body{font-family:Georgia,serif;max-width:820px;margin:40px auto;padding:0 20px;line-height:1.55;color:#1f2328;font-size:16px}h1{font-size:28px}h2{font-size:21px;border-bottom:1px solid #ddd;padding-bottom:4px;margin-top:28px}h3{font-size:17px}h4{font-family:Arial,sans-serif;font-size:14px;margin:14px 0 2px}p{white-space:pre-wrap;margin:0 0 8px}.apa{padding-left:.5in;text-indent:-.5in;white-space:normal}.ans{margin:0 0 8px}.ans ul,.ans ol{margin:4px 0 6px;padding-left:26px}mark{color:inherit;padding:0 1px;border-radius:2px}mark.hl-yellow{background:#fde047}mark.hl-green{background:#86efac}mark.hl-blue{background:#93c5fd}mark.hl-pink{background:#f9a8d4}mark.hl-orange{background:#fdba74}.meta{color:#666;font-family:Arial,sans-serif;font-size:13px}.na{color:#999;font-style:italic}table{border-collapse:collapse;width:100%;font-family:Arial,sans-serif;font-size:13px;margin:8px 0 16px}td,th{border:1px solid #ccc;padding:5px 7px;text-align:left;vertical-align:top}th{background:#f3f0e8}</style></head><body>${body}</body></html>`;
+  return `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${esc(title)}</title><style>body{font-family:Georgia,serif;max-width:820px;margin:40px auto;padding:0 20px;line-height:1.55;color:#1f2328;font-size:16px}h1{font-size:28px}h2{font-size:21px;border-bottom:1px solid #ddd;padding-bottom:4px;margin-top:28px}h3{font-size:17px}h4{font-family:Arial,sans-serif;font-size:14px;margin:14px 0 2px}p{white-space:pre-wrap;margin:0 0 8px}.apa{padding-left:.5in;text-indent:-.5in;white-space:normal}.ans{margin:0 0 8px}.excerpt{font-style:italic}.ans ul,.ans ol{margin:4px 0 6px;padding-left:26px}mark{color:inherit;padding:0 1px;border-radius:2px}mark.hl-yellow{background:#fde047}mark.hl-green{background:#86efac}mark.hl-blue{background:#93c5fd}mark.hl-pink{background:#f9a8d4}mark.hl-orange{background:#fdba74}.meta{color:#666;font-family:Arial,sans-serif;font-size:13px}.na{color:#999;font-style:italic}table{border-collapse:collapse;width:100%;font-family:Arial,sans-serif;font-size:13px;margin:8px 0 16px}td,th{border:1px solid #ccc;padding:5px 7px;text-align:left;vertical-align:top}th{background:#f3f0e8}</style></head><body>${body}</body></html>`;
 }
 const slug=s=>(s||'notes').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,60)||'notes';
 async function offerDownload(filename,data,fallbackText){
@@ -2478,7 +2864,7 @@ function backup(){
 }
 function restoreData(o){
   const docs=(o&&o.docs)||o;let n=0;
-  Object.entries(docs||{}).forEach(([k,v])=>{if(v&&(v.kind==='project'||v.kind==='paper')&&/^[A-Za-z0-9_\-.~:@+]+$/.test(k)){S.docs[k]=v;save(k);n++}});
+  Object.entries(docs||{}).forEach(([k,v])=>{if(v&&(v.kind==='project'||v.kind==='paper'||v.kind==='draft')&&/^[A-Za-z0-9_\-.~:@+]+$/.test(k)){S.docs[k]=v;save(k);n++}});
   if(!n)throw new Error('empty');
   toast(`Restored ${n} item${n===1?'':'s'}`);render();
 }
@@ -2498,6 +2884,12 @@ document.addEventListener('click',e=>{
       go({view:v});break}
     case 'theme': setTheme(b.dataset.v);break;
     case 'checkUpd': checkUpdates(true);break;
+    case 'newDraft': newDraftDialog();break;
+    case 'openDraft': {const d=S.docs[id];if(d)go({view:'draft',draftId:id,pid:d.projectId});break}
+    case 'deleteDraft': {const d=S.docs[V.draftId];confirmBox(`Delete “${d.title||'Untitled document'}”? Your notes are not affected.`,'Delete document',()=>{const pid=d.projectId;remove(V.draftId);go({view:'project',pid,tab:'write'})});break}
+    case 'draftMd': draftExport('md');break;
+    case 'draftDoc': draftExport('html');break;
+    case 'addDim': {const inp=$('#newDim');const name=inp&&inp.value.trim();if(!name){inp&&inp.focus();break}const p=S.docs[V.pid];p.dims=p.dims||[];const cols=['#0d9488','#db2777','#65a30d','#7c3aed','#ea580c','#0284c7'];p.dims.push({id:uid('dim_'),name,color:cols[p.dims.length%cols.length],hint:'Your own dimension'});save(V.pid);renderMain();toast('Dimension added');break}
     case 'backupNow': (async()=>{try{const r=await fetch('/api/backups',{method:'POST'});const j=await r.json();toast(j.name?'Backup saved':'Nothing to back up yet');loadBackups()}catch(e){toast('Backup failed — is the server running?')}})();break;
     case 'restoreSnap': {const name=b.dataset.v;confirmBox('Restore notes from this snapshot? Notes in it replace their current versions; anything added since stays.','Restore',async()=>{try{const r=await fetch('/api/backups/'+encodeURIComponent(name));restoreData(await r.json())}catch(e){toast('That snapshot could not be read.')}});break}
     case 'installApp': if(INST.prompt){INST.prompt.prompt();INST.prompt.userChoice.then(c=>{if(c.outcome==='accepted')INST.installed=true;INST.prompt=null;renderMain()}).catch(()=>{})}break;
@@ -2525,7 +2917,7 @@ document.addEventListener('click',e=>{
     case 'home': go({view:'home'});break;
     case 'newProject': newProject();break;
     case 'openProject': go({view:'project',pid:id,tab:V.pid===id?V.tab:'lit',filter:'All'});break;
-    case 'tab': go({tab:b.dataset.v});break;
+    case 'tab': if(b.dataset.pid)go({view:'project',pid:b.dataset.pid,tab:b.dataset.v});else go({tab:b.dataset.v});break;
     case 'filter': V.filter=b.dataset.v;renderMain();break;
     case 'newPaper': newPaper();break;
     case 'openPaper': {const x=S.docs[id];if(!x)break;if(V.paperId!==id)V.openSec={};go({view:'paper',paperId:id,pid:x.projectId});
@@ -2549,7 +2941,7 @@ document.addEventListener('click',e=>{
     case 'copyInText': {const it=inText(S.docs[V.paperId].ref);const d=document.createElement('div');d.innerHTML=it.paren;copyRich(it.paren,d.textContent,'In-text citation copied');break}
     case 'copyRefs': {const pp=sortedRefs(papersOf(V.pid));copyRich(pp.map(x=>`<p style="padding-left:.5in;text-indent:-.5in">${apaHTML(x.ref)}</p>`).join(''),pp.map(x=>apaText(x.ref)).join('\n\n'),'Reference list copied');break}
     case 'deletePaper': confirmBox('This deletes the paper, its notes and any attached PDF.','Delete paper',()=>{const pid=S.docs[V.paperId].projectId;removePdfAsset(S.docs[V.paperId]);remove(V.paperId);go({view:'project',pid,tab:'lit'})});break;
-    case 'deleteProject': {const n=papersOf(V.pid).length;confirmBox(`This deletes the project and ${n} paper${n===1?'':'s'} with all notes.`,'Delete project',()=>{papersOf(V.pid).forEach(x=>{removePdfAsset(x);remove(x.id)});remove(V.pid);go({view:'projects',pid:null})});break}
+    case 'deleteProject': {const n=papersOf(V.pid).length;confirmBox(`This deletes the project, its ${n} paper${n===1?'':'s'}, all notes and written documents.`,'Delete project',()=>{draftsOf(V.pid).forEach(d=>remove(d.id));papersOf(V.pid).forEach(x=>{removePdfAsset(x);remove(x.id)});remove(V.pid);go({view:'projects',pid:null})});break}
     case 'editTemplate': editTemplate();break;
     case 'resetTemplate': confirmBox('Questions go back to the original 24 from your note sheet. Answers to custom questions will be hidden.','Reset questions',()=>{S.docs[V.pid].template=defaultTemplate();save(V.pid);renderMain();toast('Questions reset')});break;
     case 'repLayout': V.repLayout=b.dataset.v;renderMain();break;
@@ -2562,6 +2954,7 @@ document.addEventListener('click',e=>{
 document.addEventListener('change',e=>{
   const t=e.target;
   if(t.dataset.wr){WR[t.dataset.wr]=t.type==='checkbox'?t.checked:t.value;saveWR();toast('Writing settings saved')}
+  if(t.dataset.act==='repLayoutSel'){V.repLayout=t.value;persistView();renderMain()}
   if(t.dataset.act==='cmpQ'){V.cmpQ=t.value;renderMain()}
   if(t.dataset.act==='zoomSel'){const v=t.value;if(v==='width'||v==='page')setZoom(v);else if(v!=='c')setZoom(+v/100*PDF_PX)}
   if(t.dataset.act==='libProj'){V.lib.proj=t.value;persistView();renderMain()}

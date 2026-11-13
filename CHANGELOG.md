@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.9.0]
+- **Tag your notes for synthesis**: under every answer (or with the Tag button in the note toolbar) tag the whole answer, or select a passage and tag just that, with **themes**, **debates**, **methods**, **context**, **concepts & variables** or **gaps** — or add your own dimensions in Project settings.
+- **Debates with sides**: each note tagged with a debate records whether it **supports**, **challenges** or is **mixed**.
+- **Synthesis reports**: Report → *Organise by* now includes any dimension (debates grouped by side) and **matrices** of papers × themes and papers × debates, where empty cells reveal possible gaps. Exports include them.
+- **Write**: a new project tab for your papers and chapters — several documents per project, with headings, formatting, lists and the spelling & grammar check. Your notes sit beside the document and can be browsed by question, paper, theme, debate or any dimension, or searched. **Insert** adds a note with its APA in-text citation; **Cite** adds just the citation. The **reference list builds itself** from the papers you cite, and documents export to Word/PDF and Markdown.
+- Start a document from a blank page, a standard paper outline, or **an outline generated from your themes and debates**.
+- Ask across the project now also knows your tags.
+
 ## [1.8.0]
 - **Automatic backups**: a snapshot of all your notes is saved every 6 hours when something changed (in `data/backups`, newest 30 kept). Settings → Backups shows the last one, has a **Back up now** button, and lets you **Restore** any recent snapshot in one click.
 - **Google Drive**: Settings → Backups explains how to let Google Drive for desktop keep a live copy of your `data` folder — notes, PDFs and snapshots — so nothing is lost if your computer breaks.
