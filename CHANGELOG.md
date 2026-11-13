@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.14.1]
+- **Topic-neutral reading questions.** Questions 6–12, 14, 18 and 20 were worded for one topic (minerals and violence), copied from the original spreadsheet. They now suit any social-science study, quantitative or qualitative. For example, "Theory: what mechanism or framework explains the relationship?" and "Outcome: what is being explained, and how is it measured?"
+- Existing projects are updated automatically. Any question you reworded yourself is left as you wrote it.
+- The example causal chain about mineral prices is removed. The project field is now "My conceptual framework / causal chain".
+
 ## [1.14.0]
 - **Quotes from scanned PDFs.** A new **Area tool** in the reader: draw a box around a passage on a scanned page and the app reads the text. Check and correct it, then **Add quote** (with citation and page) or **Highlight** the area, as with normal PDFs.
 - When a PDF has no selectable text, the reader says so and offers the Area tool.
