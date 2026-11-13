@@ -441,6 +441,21 @@ body.focus .sect,body.focus .q{scroll-margin-top:12px}
 .report p{margin:0 0 9px;white-space:pre-wrap}
 .report .meta{font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#6b6f76}
 .report .na{color:#a5a29a;font-style:italic}
+/* writing assistant */
+.rtebar .chk{display:inline-flex;gap:5px;align-items:center;font-size:12.5px;font-weight:700;color:var(--accent);padding:0 9px}
+.gsug{margin-top:8px;border:1px solid var(--line);border-radius:var(--r-sm);background:var(--panel-2);overflow:hidden}
+.gs-head{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:9px 12px;font-size:13px}
+.gs-head svg{width:16px;height:16px}.gs-head.ok svg{color:var(--success)}.gs-head.warn svg{color:var(--warn)}
+.gs-head .spin{width:15px;height:15px}
+.gs-item{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:9px 12px;border-top:1px solid var(--line);font-size:13.5px}
+.gs-txt{flex:1;min-width:200px}
+.gs-old{text-decoration:line-through;text-decoration-color:var(--danger);color:var(--muted)}
+.gs-new{font-weight:700;color:var(--success)}
+.gs-why{display:block;font-size:12px;color:var(--muted);margin-top:2px}
+.gs-type{font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;padding:2px 7px;border-radius:999px;background:color-mix(in srgb,var(--c-pass1) 14%,transparent);color:color-mix(in srgb,var(--c-pass1) 80%,var(--ink))}
+.gs-type.t-spelling{background:color-mix(in srgb,var(--danger) 13%,transparent);color:color-mix(in srgb,var(--danger) 80%,var(--ink))}
+.gs-type.t-punctuation{background:color-mix(in srgb,var(--warn) 15%,transparent);color:color-mix(in srgb,var(--warn) 80%,var(--ink))}
+.gs-type.t-capitalisation{background:color-mix(in srgb,var(--c-research) 14%,transparent);color:color-mix(in srgb,var(--c-research) 80%,var(--ink))}
 /* rich-text notes */
 .rtebar{display:flex;align-items:center;gap:2px;flex-wrap:wrap;padding:4px;border:1px solid var(--line);border-bottom:0;border-radius:var(--r-sm) var(--r-sm) 0 0;background:var(--panel-2)}
 .rtebar button{border:0;background:none;min-width:30px;height:30px;border-radius:8px;display:inline-grid;place-items:center;color:var(--ink-2);font-size:14px;padding:0 6px}
@@ -1329,10 +1344,15 @@ function compareView(pp,t){
 /* ---------- App settings ---------- */
 function appSettingsView(){
   const counts={p:projects().length,x:allPapers().length};
-  return `<div class="page-head"><div class="grow"><h1>Settings</h1><p class="lede">Appearance${LOCAL?', updates':''} and your data.</p></div></div>
+  return `<div class="page-head"><div class="grow"><h1>Settings</h1><p class="lede">Appearance, writing${LOCAL?', updates':''} and your data.</p></div></div>
   <div class="sec-title"><h2>Appearance</h2></div>
   <div class="looks">${THEMES.map(([k,l,d])=>`<button class="look ${theme()===k?'on':''}" data-act="theme" data-v="${k}"><div class="pv pv-${k}"><div class="bn"></div><div class="cd"><i></i><i></i><i></i></div></div><div class="lb"><b>${l}${theme()===k?' · in use':''}</b><span>${d}</span></div></button>`).join('')}</div>
   ${updatesCardHTML()}
+  <div class="sec-title"><h2>Writing</h2></div>
+  <div class="card">
+    <label class="row" style="gap:10px;flex-wrap:nowrap;margin-bottom:14px;cursor:pointer"><input type="checkbox" data-wr="autocap" ${WR.autocap?'checked':''} style="width:18px;height:18px"><span><b>Capitalise the start of sentences</b><span class="help" style="display:block">At the start of a note, line or list item and after . ! ? — press Backspace straight away to keep a small letter.</span></span></label>
+    <div class="field" style="margin:0;max-width:340px"><label>Spelling language</label><select class="inp" data-wr="lang">${LANGS.map(([k,l])=>`<option value="${k}" ${WR.lang===k?'selected':''}>${l}</option>`).join('')}</select><span class="help">Misspelled words are underlined in red; right-click one for suggestions. The <b>Check</b> button above each note proposes spelling and grammar fixes for you to accept or ignore.</span></div>
+  </div>
   <div class="sec-title"><h2>Your data</h2></div>
   <div class="grid2">
     <div class="card"><div class="row" style="gap:12px;flex-wrap:nowrap;margin-bottom:10px">${S.mode==='db'?(LOCAL?'<span class="dot"></span><b>Saved on your server</b>':'<span class="dot"></span><b>Saved to your Claude account</b>'):'<span class="dot warn"></span><b>Saved in this browser only</b>'}</div><p class="help" style="margin:0">${counts.p} project${counts.p===1?'':'s'} and ${counts.x} paper${counts.x===1?'':'s'}. ${S.mode==='db'?(LOCAL?'Notes and PDFs are stored in the server’s data folder. Back that folder up to keep everything safe.':'Your notes are private to you and follow you to any device where you open this page.'):'Back up regularly — clearing your browser data would remove these notes.'}</p></div>
@@ -1944,6 +1964,7 @@ function cleanRich(html){
       const bg=st.match(/background(?:-color)?\s*:\s*([^;]+)/i); if(bg){const h=hlFromColor(bg[1]);if(h)hl=h}
       if(hl)chain.push('mark.hl-'+hl);
       chain.forEach(t=>{const [name,cls]=t.split('.');const e=document.createElement(name);if(cls)e.className=cls;if(inner)inner.appendChild(e);else wrap=e;inner=e});
+      if(BLOCK.test(tag)&&!(parent.nodeName==='LI')&&parent.lastChild&&parent.lastChild.nodeName!=='BR'&&!/^(UL|OL)$/.test(parent.lastChild.nodeName))parent.appendChild(document.createElement('br'));
       const target=inner||parent;
       walk(n,target);
       if(wrap&&wrap.childNodes.length)parent.appendChild(wrap);
@@ -2010,10 +2031,119 @@ function rteToolbar(qid){
     <button type="button" data-hl="none" title="Remove highlight" aria-label="Remove highlight"><svg class="i" viewBox="0 0 24 24" style="width:16px;height:16px"><path d="m4 20 6-6M14 4l6 6-8 8H8v-4z"/><path d="M3 3l18 18"/></svg></button>
     <span class="sep"></span>
     <button type="button" data-fmt="clear" title="Clear formatting" aria-label="Clear formatting" style="font-size:12px;font-weight:700">T<sub style="font-size:9px">x</sub></button>
+    <span style="flex:1"></span>
+    <button type="button" class="chk" data-check="${qid}" title="Check spelling and grammar — suggestions to accept or ignore" aria-label="Check spelling and grammar"><svg class="i" viewBox="0 0 24 24" style="width:16px;height:16px"><path d="M4 16 8 6l4 10M5.5 12.5h5M14 14l2.5 2.5L21 11"/></svg><span>Check</span></button>
   </div>`;
 }
+/* ---------- writing assistant ---------- */
+const WR={autocap:true,lang:'en-GB'};
+try{const w=JSON.parse(localStorage.getItem('litnotes.writing')||'{}');Object.assign(WR,w)}catch(e){}
+function saveWR(){try{localStorage.setItem('litnotes.writing',JSON.stringify(WR))}catch(e){}}
+const LANGS=[['en-GB','English (UK)'],['en-US','English (US)'],['fr-FR','French'],['off','No spell check']];
+const ABBR=/(?:^|[\s(])(?:e\.g|i\.e|et al|etc\.?\s*al|cf|vs|viz|approx|ca|p|pp|para|fig|figs|tab|eq|eqs|no|nos|vol|vols|ch|sec|ed|eds|dr|mr|mrs|ms|prof|st|jr|sr|inc|ltd|co|corp|dept|est|min|max|resp|incl|excl|n\.d|u\.s|u\.k|op|cit|ibid)\.$/i;
+let lastAuto=null, autoHint=false;
+function textBeforeCaret(ed){
+  const s=getSelection(); if(!s.rangeCount)return null;
+  let block=s.anchorNode; while(block&&block!==ed&&!/^(LI|DIV|P)$/.test(block.nodeName))block=block.parentNode;
+  if(!block)return null;
+  const r=document.createRange(); r.setStart(block,0); r.setEnd(s.anchorNode,s.anchorOffset);
+  const d=document.createElement('div'); d.appendChild(r.cloneContents());
+  return richToText(d.innerHTML);
+}
+function atSentenceStart(ed){
+  const t=textBeforeCaret(ed); if(t==null)return false;
+  if(!t.trim()||/\n\s*$/.test(t))return true;                  // start of note, line or list item
+  const m=t.match(/([^\s]*)([.!?])["'”’)\]]*\s+$/); if(!m)return false;
+  if(m[2]==='.'&&ABBR.test(' '+t.replace(/["'”’)\]]*\s+$/,'')))return false;   // e.g. / et al. / p. 4
+  if(m[2]==='.'&&/(^|\s)[A-Za-z]\.$/.test(t.replace(/\s+$/,'')))return false;  // initials: "G. T. Mbah"
+  if(m[2]==='.'&&/\d\.$/.test(t.replace(/\s+$/,''))&&/(^|\s)\d+\.$/.test(t.replace(/\s+$/,'')))return false; // "1. " numbering typed by hand
+  return true;
+}
+function autoCap(ed,e){
+  if(!WR.autocap||WR.lang==='off'||e.inputType!=='insertText'||!e.data||e.data.length!==1)return false;
+  if(!/\p{Ll}/u.test(e.data)||!getSelection().isCollapsed)return false;
+  if(!atSentenceStart(ed))return false;
+  e.preventDefault();
+  const up=e.data.toLocaleUpperCase(WR.lang==='off'?undefined:WR.lang);
+  document.execCommand('insertText',false,up);
+  const s=getSelection(); lastAuto={node:s.anchorNode,off:s.anchorOffset,lower:e.data,ed};
+  if(!autoHint){autoHint=true;toast('Capitalised the start of the sentence — press Backspace to keep it lowercase')}
+  return true;
+}
+function undoAutoCap(ed,e){
+  if(e.key!=='Backspace'||!lastAuto||lastAuto.ed!==ed)return false;
+  const s=getSelection(); const la=lastAuto; lastAuto=null;
+  if(!s.isCollapsed||s.anchorNode!==la.node||s.anchorOffset!==la.off)return false;
+  e.preventDefault();
+  const r=document.createRange(); r.setStart(la.node,la.off-1); r.setEnd(la.node,la.off);
+  s.removeAllRanges(); s.addRange(r);
+  document.execCommand('insertText',false,la.lower);   // keep the small letter you chose
+  return true;
+}
+
+/* ---- spelling & grammar check: proposals you accept or ignore ---- */
+const GS={};   // qid -> issues
+async function checkWriting(qid){
+  const ed=document.querySelector(`.rte[data-ans="${qid}"]`), box=document.querySelector(`[data-sug="${qid}"]`); if(!ed||!box)return;
+  const text=richToText(cleanRich(ed.innerHTML)).trim();
+  if(!text){toast('Write something first, then check it');return}
+  const sample=await getSample();
+  if(!sample){toast(LOCAL?'The grammar check uses the Ask model — set ANTHROPIC_API_KEY or OLLAMA_URL on the server to turn it on.':'The grammar check is available when you open the app in Claude while signed in.');return}
+  box.hidden=false; box.innerHTML=`<div class="gs-head"><span class="spin"></span>Checking spelling and grammar…</div>`;
+  const variety=(LANGS.find(l=>l[0]===WR.lang)||LANGS[0])[1];
+  const prompt=`You are a careful proofreader for a student's research notes (written in ${variety==='No spell check'?'English':variety}).
+Find ONLY clear spelling, grammar, punctuation and capitalisation errors. Do not rewrite style, do not change meaning, technical terms, abbreviations, citations, numbers or names, and do not "improve" wording that is already correct. Notes can be short and fragmentary: fragments and bullet points are fine.
+Reply with ONLY JSON: {"issues":[{"original":"exact text copied from the notes, 1-8 words, long enough to be unique","suggestion":"the corrected text for exactly that span","type":"spelling|grammar|punctuation|capitalisation","why":"under 10 words"}]}
+Use {"issues":[]} if there is nothing to fix. At most 25 issues.
+<notes>
+${text.slice(0,12000)}
+</notes>`;
+  let res;
+  try{res=await sample.json(prompt,{cache:false,modelTier:'quick'})}
+  catch(e){box.innerHTML=`<div class="gs-head warn">${ico('warn')}<span>${esc(sampleErr(e))}</span><button class="link" data-gsclose="${qid}">Close</button></div>`;return}
+  const issues=((res&&res.issues)||[]).filter(i=>i&&typeof i.original==='string'&&typeof i.suggestion==='string'&&i.original&&i.original!==i.suggestion&&text.includes(i.original)).slice(0,25);
+  GS[qid]=issues.map((i,k)=>({...i,k,state:'open'}));
+  renderSug(qid);
+}
+function renderSug(qid){
+  const box=document.querySelector(`[data-sug="${qid}"]`); if(!box)return;
+  const list=(GS[qid]||[]).filter(i=>i.state==='open');
+  const done=(GS[qid]||[]).length-list.length;
+  if(!(GS[qid]||[]).length){box.innerHTML=`<div class="gs-head ok">${ico('check')}<span>No spelling or grammar problems found.</span><button class="link" data-gsclose="${qid}">Close</button></div>`;return}
+  if(!list.length){box.innerHTML=`<div class="gs-head ok">${ico('check')}<span>All suggestions handled.</span><button class="link" data-gsclose="${qid}">Close</button></div>`;return}
+  box.innerHTML=`<div class="gs-head"><b>${list.length} suggestion${list.length===1?'':'s'}</b>${done?`<span class="muted">· ${done} handled</span>`:''}<span style="flex:1"></span><button class="btn sm" data-gsall="${qid}">${ico('check')}Accept all</button><button class="btn sm ghost" data-gsclose="${qid}">Dismiss</button></div>
+  ${list.map(i=>`<div class="gs-item"><span class="gs-type t-${esc(i.type||'grammar')}">${esc(i.type||'grammar')}</span><div class="gs-txt"><span class="gs-old">${esc(i.original)}</span> → <span class="gs-new">${esc(i.suggestion)}</span>${i.why?`<span class="gs-why">${esc(i.why)}</span>`:''}</div><button class="btn sm pri" data-gsok="${qid}:${i.k}">Accept</button><button class="btn sm ghost" data-gsno="${qid}:${i.k}">Ignore</button></div>`).join('')}`;
+}
+/* replace the first occurrence of `from` in the editor's text, even across formatting, keeping undo */
+function replaceInEditor(ed,from,to){
+  const nodes=[];const w=document.createTreeWalker(ed,NodeFilter.SHOW_TEXT);let n,all='';
+  while(n=w.nextNode()){nodes.push({n,start:all.length});all+=n.nodeValue}
+  const i=all.indexOf(from); if(i<0)return false;
+  const at=pos=>{for(let k=nodes.length-1;k>=0;k--){if(pos>=nodes[k].start)return {node:nodes[k].n,off:pos-nodes[k].start}}return null};
+  const a=at(i), b=at(i+from.length); if(!a||!b)return false;
+  if(b.off>b.node.nodeValue.length)return false;
+  ed.focus();
+  const r=document.createRange(); r.setStart(a.node,a.off); r.setEnd(b.node,b.off);
+  const s=getSelection(); s.removeAllRanges(); s.addRange(r);
+  document.execCommand('insertText',false,to);
+  return true;
+}
+function acceptSug(qid,k){
+  const ed=document.querySelector(`.rte[data-ans="${qid}"]`); const it=(GS[qid]||[]).find(i=>i.k===k); if(!ed||!it)return;
+  if(replaceInEditor(ed,it.original,it.suggestion)){it.state='ok';lastAuto=null;rteCommit(ed)}
+  else{it.state='gone';toast('That text has changed since the check — run Check again')}
+  renderSug(qid);
+}
+document.addEventListener('click',e=>{
+  const t=e.target.closest('[data-check],[data-gsok],[data-gsno],[data-gsall],[data-gsclose]'); if(!t)return;
+  if(t.dataset.check){checkWriting(t.dataset.check);return}
+  if(t.dataset.gsclose){const b=document.querySelector(`[data-sug="${t.dataset.gsclose}"]`);if(b){b.hidden=true;b.innerHTML=''}delete GS[t.dataset.gsclose];return}
+  if(t.dataset.gsall){const q=t.dataset.gsall;(GS[q]||[]).filter(i=>i.state==='open').forEach(i=>acceptSug(q,i.k));return}
+  const [q,k]=(t.dataset.gsok||t.dataset.gsno).split(':');
+  if(t.dataset.gsok)acceptSug(q,+k); else{const it=(GS[q]||[]).find(i=>i.k===+k);if(it)it.state='no';renderSug(q)}
+});
 function rteHTML(x,q){
-  return `${rteToolbar(q.id)}<div class="rte" contenteditable="true" role="textbox" aria-multiline="true" aria-label="Notes for: ${esc(q.text)}" data-ans="${q.id}" data-ph="Your notes, in your own words…" spellcheck="true">${answerHTML(x,q)}</div>`;
+  return `${rteToolbar(q.id)}<div class="rte" contenteditable="true" role="textbox" aria-multiline="true" aria-label="Notes for: ${esc(q.text)}" data-ans="${q.id}" data-ph="Your notes, in your own words…" spellcheck="${WR.lang!=='off'}" ${WR.lang!=='off'?`lang="${WR.lang}"`:''}>${answerHTML(x,q)}</div><div class="gsug" data-sug="${q.id}" hidden></div>`;
 }
 /* turn browser-made highlight spans into our marks, without moving the caret */
 function normalizeMarks(ed){
@@ -2061,11 +2191,15 @@ function bindRte(root){
     });
     ed.addEventListener('drop',e=>{const t=e.dataTransfer&&e.dataTransfer.getData('text/plain');if(t){e.preventDefault();ed.focus();document.execCommand('insertText',false,t)}});
     ed.addEventListener('keydown',e=>{
+      if(undoAutoCap(ed,e)){rteCommit(ed);return}
+      if(e.key.length===1||e.key==='Enter'||e.key==='Delete'||e.key.startsWith('Arrow'))lastAuto=lastAuto&&e.key.length===1?lastAuto:null;
       const inLi=()=>{const s=getSelection();let n=s.anchorNode;while(n&&n!==ed){if(n.nodeName==='LI')return true;n=n.parentNode}return false};
       if(e.key==='Tab'&&inLi()){e.preventDefault();document.execCommand(e.shiftKey?'outdent':'indent');rteCommit(ed);return}
       if((e.ctrlKey||e.metaKey)&&e.shiftKey&&(e.code==='Digit8'||e.code==='Digit7')){e.preventDefault();ensureLine(ed);document.execCommand(e.code==='Digit8'?'insertUnorderedList':'insertOrderedList');rteCommit(ed);refreshRteState()}
     });
     ed.addEventListener('beforeinput',e=>{
+      if(autoCap(ed,e)){rteCommit(ed);return}
+      if(e.inputType==='insertText'&&e.data&&e.data!==' '&&lastAuto){/* typing on after the capital: Backspace now deletes normally */ setTimeout(()=>{lastAuto=null},0)}
       if(e.inputType!=='insertText'||e.data!==' ')return;
       const s=getSelection(); if(!s.isCollapsed)return;
       const n=s.anchorNode; if(!n||n.nodeType!==3)return;
@@ -2372,6 +2506,7 @@ document.addEventListener('click',e=>{
 });
 document.addEventListener('change',e=>{
   const t=e.target;
+  if(t.dataset.wr){WR[t.dataset.wr]=t.type==='checkbox'?t.checked:t.value;saveWR();toast('Writing settings saved')}
   if(t.dataset.act==='cmpQ'){V.cmpQ=t.value;renderMain()}
   if(t.dataset.act==='zoomSel'){const v=t.value;if(v==='width'||v==='page')setZoom(v);else if(v!=='c')setZoom(+v/100*PDF_PX)}
   if(t.dataset.act==='libProj'){V.lib.proj=t.value;persistView();renderMain()}
