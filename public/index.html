@@ -353,7 +353,28 @@ select.inp{appearance:auto}
 
 /* reader & ask */
 body.wide .main{max-width:none}
-.pe.split{grid-template-columns:minmax(0,1.08fr) minmax(380px,1fr)}
+.pe.split{grid-template-columns:minmax(0,var(--lw,52%)) 14px minmax(0,1fr);gap:0}
+.pe.split>.reader{order:1}.pe.split>.gutter{order:2}.pe.split>.notescol{order:3}
+.pe.split.swap>.reader{order:3}.pe.split.swap>.notescol{order:1}
+.gutter{display:none}
+.pe.split>.gutter{display:flex;align-self:stretch;align-items:center;justify-content:center;cursor:col-resize;touch-action:none;position:sticky;top:130px;height:calc(100vh - 146px);border-radius:8px}
+.gutter::before{content:"";width:4px;height:56px;border-radius:4px;background:var(--line-2);transition:background .15s,height .15s}
+.gutter:hover::before,.gutter.drag::before,.gutter:focus-visible::before{background:var(--accent);height:88px}
+body.dragging,body.dragging *{user-select:none!important;cursor:col-resize!important}
+body.dragging .reader{pointer-events:none}
+.ftitle{display:none}
+/* focus mode */
+body.focus .side,body.focus .top,body.focus .crumbs,body.focus .paperhead,body.focus .outline{display:none!important}
+body.focus .app{grid-template-columns:1fr}
+body.focus .main{max-width:none;padding:6px 14px 0}
+body.focus .ptoolbar{position:static;margin:0;padding:4px 0 8px;background:none}
+body.focus .ftitle{display:flex;align-items:center;gap:8px;font-weight:700;font-size:14px;min-width:0;max-width:34vw}
+body.focus .ftitle span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+body.focus .pe.split{height:calc(100vh - 60px)}
+body.focus .pe.split>.reader,body.focus .pe.split>.gutter{position:relative;top:0;height:100%}
+body.focus .pe.split>.notescol{height:100%;overflow:auto;padding:0 6px 60px 2px;overscroll-behavior:contain}
+body.focus .pe:not(.split){grid-template-columns:1fr;max-width:940px;margin:0 auto}
+body.focus .sect,body.focus .q{scroll-margin-top:12px}
 .pe.split .outline{display:none}
 .reader{position:sticky;top:130px;height:calc(100vh - 146px);display:flex;flex-direction:column;border:1px solid var(--line);border-radius:var(--r);background:var(--panel-solid);overflow:hidden;box-shadow:var(--shadow)}
 .rbar{display:flex;gap:6px;align-items:center;padding:8px 10px;border-bottom:1px solid var(--line);flex-wrap:wrap}
@@ -389,7 +410,7 @@ body.wide .main{max-width:none}
 .askform textarea{min-height:54px}
 .askcard{display:flex;flex-direction:column;min-height:560px}
 .qask{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;margin:0 0 10px}.qask svg{width:15px;height:15px}
-@media (max-width:1100px){.pe.split{grid-template-columns:1fr}.reader{position:relative;top:0;height:72vh}}
+@media (max-width:1100px){.pe.split,body.focus .pe.split{grid-template-columns:1fr;height:auto}.pe.split>.gutter{display:none}.reader,body.focus .pe.split>.reader{position:relative;top:0;height:72vh}body.focus .pe.split>.notescol{height:auto;overflow:visible}}
 
 /* auto-fill note */
 .fillnote{display:flex;gap:10px;align-items:flex-start;margin-top:8px;font-size:13px;line-height:1.45;padding:9px 12px;border-radius:10px;background:var(--panel-2);border:1px solid var(--line);color:var(--ink-2)}
@@ -980,9 +1001,9 @@ const tpl=pid=>(S.docs[pid]&&S.docs[pid].template)||defaultTemplate();
 /* ============================================================
    VIEW STATE
    ============================================================ */
-const V={view:'home',pid:null,paperId:null,lastPaper:null,tab:'lit',filter:'All',cmpQ:'q1',repLayout:'paper',showEmpty:false,openSec:{},openQ:{},lib:null,split:false};
+const V={view:'home',pid:null,paperId:null,lastPaper:null,tab:'lit',filter:'All',cmpQ:'q1',repLayout:'paper',showEmpty:false,openSec:{},openQ:{},lib:null,split:false,focus:false,swap:false};
 try{Object.assign(V,JSON.parse(localStorage.getItem('litnotes.view')||'{}'))}catch(e){}
-function persistView(){try{localStorage.setItem('litnotes.view',JSON.stringify({view:V.view,pid:V.pid,paperId:V.paperId,lastPaper:V.lastPaper,tab:V.tab,lib:V.lib,split:V.split}))}catch(e){}}
+function persistView(){try{localStorage.setItem('litnotes.view',JSON.stringify({view:V.view,pid:V.pid,paperId:V.paperId,lastPaper:V.lastPaper,tab:V.tab,lib:V.lib,split:V.split,focus:V.focus,swap:V.swap}))}catch(e){}}
 function go(o){Object.assign(V,o);persistView();document.getElementById('side').classList.remove('show');closeSearch();const qi=document.getElementById('q');if(qi&&document.activeElement!==qi)qi.value='';render();window.scrollTo(0,0)}
 
 function onData(){
@@ -1057,6 +1078,9 @@ const IC={
   external:'<path d="M14 4h6v6M20 4l-9 9"/><path d="M19 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h5"/>',
   x:'<path d="M6 6l12 12M18 6 6 18"/>',
   split:'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M12 4v16"/>',
+  maximize:'<path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3"/>',
+  minimize:'<path d="M8 3v3a2 2 0 0 1-2 2H3M21 8h-3a2 2 0 0 1-2-2V3M3 16h3a2 2 0 0 1 2 2v3M16 21v-3a2 2 0 0 1 2-2h3"/>',
+  swap:'<path d="M7 4 3 8l4 4M3 8h14M17 20l4-4-4-4M21 16H7"/>',
   palette:'<circle cx="12" cy="12" r="9"/><circle cx="8" cy="10" r="1.2"/><circle cx="12" cy="7.5" r="1.2"/><circle cx="16" cy="10" r="1.2"/><path d="M12 21a2.5 2.5 0 0 1 0-5h2a3 3 0 0 0 3-3"/>'
 };
 const ico=(n,cls)=>`<svg class="i ${cls||''}" viewBox="0 0 24 24" aria-hidden="true">${IC[n]||''}</svg>`;
@@ -1138,7 +1162,7 @@ function renderMain(){
   else if(V.view==='settings') html=appSettingsView();
   else {V.view='home';html=homeView()}
   m.innerHTML=html;
-  if(V.view!=='paper')document.body.classList.remove('wide');
+  if(V.view!=='paper'){document.body.classList.remove('wide','focus');if(V.focus){V.focus=false;persistView();leaveFullscreen()}}
   if(V.view==='paper')bindPaper();
   if(V.view==='project'&&V.tab==='ask')bindProjectAsk();
   m.querySelectorAll('textarea.inp').forEach(autosize);
@@ -1317,10 +1341,10 @@ function paperView(){
   return `<div id="paperEditor">
   <div class="crumbs"><button data-act="nav" data-v="projects">Projects</button>${ico('chev')}<button data-act="openProject" data-id="${x.projectId}">${esc(p?p.name:'Project')}</button>${ico('chev')}<span>Notes</span></div>
   <div class="paperhead"><h1 id="pTitle">${esc(paperTitle(x))}</h1><div class="row"><div style="position:relative;width:52px;height:52px" title="${g.n} of ${g.total} answered"><span id="pRing">${ring(g.pct,52,5)}</span><span id="pPct" style="position:absolute;inset:0;display:grid;place-items:center;font-size:12px;font-weight:800">${g.pct}%</span></div></div></div>
-  <div class="ptoolbar"><button class="btn sm" data-act="expandAll">${ico('expand')}Expand all</button><button class="btn sm" data-act="collapseAll">${ico('collapse')}Collapse</button><button class="btn sm" data-act="nextEmpty">${ico('next')}Next unanswered</button><span class="spacer"></span><span class="save" id="saveNote"></span><span id="pdfTool">${pdfToolHTML(x)}</span><button class="btn sm pri" data-act="paperReport">${ico('report')}Report</button><button class="btn sm ghost danger" data-act="deletePaper" aria-label="Delete paper">${ico('trash')}</button></div>
-  <div class="pe ${V.split&&x.pdf?'split':''}">
-    ${V.split&&x.pdf?readerHTML(x):`<nav class="outline" aria-label="Questions">${outline}</nav>`}
-    <div>
+  <div class="ptoolbar"><span class="ftitle" title="${esc(paperTitle(x))}"><span>${esc(paperTitle(x))}</span></span><button class="btn sm ${V.focus?'pri':''}" data-act="focus" title="${V.focus?'Exit focus mode (Esc)':'Focus mode: hide everything except the paper and your notes'}">${ico(V.focus?'minimize':'maximize')}${V.focus?'Exit focus':'Focus mode'}</button>${V.split&&x.pdf?`<button class="btn sm" data-act="swap" title="Swap the PDF and notes sides">${ico('swap')}Swap sides</button>`:''}<button class="btn sm" data-act="expandAll">${ico('expand')}Expand all</button><button class="btn sm" data-act="collapseAll">${ico('collapse')}Collapse</button><button class="btn sm" data-act="nextEmpty">${ico('next')}Next unanswered</button><span class="spacer"></span><span class="save" id="saveNote"></span><span id="pdfTool">${pdfToolHTML(x)}</span><button class="btn sm pri" data-act="paperReport">${ico('report')}Report</button><button class="btn sm ghost danger" data-act="deletePaper" aria-label="Delete paper">${ico('trash')}</button></div>
+  <div class="pe ${V.split&&x.pdf?'split':''} ${V.swap?'swap':''}" id="pe" style="--lw:${paneWidth()}%">
+    ${V.split&&x.pdf?readerHTML(x)+`<div class="gutter" id="gutter" role="separator" aria-orientation="vertical" aria-label="Drag to resize the PDF and notes" aria-valuemin="20" aria-valuemax="80" aria-valuenow="${paneWidth()}" tabindex="0" title="Drag to resize · double-click to reset"></div>`:`<nav class="outline" aria-label="Questions">${outline}</nav>`}
+    <div class="notescol">
       <div class="card refcard">
         <div class="row" style="margin-bottom:6px"><span class="tag" style="--x:var(--c-paper)">${ico('doc')}Reference · APA 7</span><span class="muted" style="font-size:12.5px">${esc((REF_TYPES[x.ref.type]||{}).label||'')}</span><span class="spacer"></span><button class="btn sm" data-act="editRef">${ico('edit')}Edit details</button><button class="btn sm ghost" data-act="copyRef">${ico('copy')}Copy</button></div>
         <div class="apa-big">${apaHTML(x.ref)||'<span class="na">No reference details yet.</span>'}</div>
@@ -1352,6 +1376,8 @@ function bindPaper(){
   const rc=m.querySelector('.refcard'); const id0=V.paperId;
   bindDrop(rc,f=>attachPdf(id0,f));
   document.body.classList.toggle('wide',!!(V.split&&x.pdf));
+  document.body.classList.toggle('focus',!!V.focus);
+  bindGutter();
   if(V.split&&x.pdf){mountReader(x);bindAsk(x)}
 }
 function flashSave(idle){const n=$('#saveNote');if(!n)return;const done=()=>{n.innerHTML=`<span class="dot ${S.mode==='db'?'':'warn'}"></span>${S.mode==='db'?'All changes saved':'Saved in this browser'}`};if(idle){done();return}n.innerHTML=`<span class="dot warn"></span>Saving…`;clearTimeout(flashSave._t);flashSave._t=setTimeout(done,1100)}
@@ -1679,7 +1705,8 @@ ${head.text.slice(0,7000)}
   // 3) embedded PDF metadata (often incomplete)
   const patch={};
   if(trim(head.info.Title)&&head.info.Title.length>8&&!/^microsoft|untitled|\.docx?$/i.test(head.info.Title))patch.title=trim(head.info.Title);
-  if(trim(head.info.Author)){patch.authors=head.info.Author.split(/;|\band\b|&/).map(s=>trim(s)).filter(Boolean).map(n=>{if(n.includes(','))return {family:trim(n.split(',')[0]),given:trim(n.split(',').slice(1).join(' ')),org:false};const w=n.split(/\s+/);return {family:w.pop(),given:w.join(' '),org:false}})}
+  const JUNK=/^(anonymous|unknown|user|admin(istrator)?|author|owner|guest|default|none|n\/?a|microsoft.*|.*@.*|.*\.(com|org|net)|.*\d{3,}.*)$/i;
+  if(trim(head.info.Author)&&!JUNK.test(trim(head.info.Author))){patch.authors=head.info.Author.split(/;|\band\b|&/).map(s=>trim(s)).filter(n=>n&&!JUNK.test(n)).map(n=>{if(n.includes(','))return {family:trim(n.split(',')[0]),given:trim(n.split(',').slice(1).join(' ')),org:false};const w=n.split(/\s+/);return {family:w.pop(),given:w.join(' '),org:false}})}
   if(head.doi)patch.doi=head.doi;
   if(Object.keys(patch).length)return {patch,source:'pdf',doi:head.doi};
   return null;
@@ -1952,6 +1979,8 @@ document.addEventListener('click',e=>{
     case 'jumpQ': openToQuestion(b.dataset.q);break;
     case 'openSplit': {R.tab=b.dataset.v||'pdf';if(!V.split){V.split=true;persistView();renderMain()}else{switchRTab(R.tab)}break}
     case 'closeSplit': V.split=false;persistView();R.token++;renderMain();break;
+    case 'focus': setFocus(!V.focus);break;
+    case 'swap': {V.swap=!V.swap;persistView();const pe=$('#pe');if(pe)pe.classList.toggle('swap',V.swap);refitReader();break}
     case 'rtab': switchRTab(b.dataset.v);break;
     case 'zoom': {const v=b.dataset.v;const cur=R.scale==='fit'?(R._fit||1):R.scale;R.scale=v==='fit'?'fit':Math.min(3,Math.max(.4,+(cur*(v==='+'?1.2:1/1.2)).toFixed(2)));mountReader(S.docs[V.paperId]);break}
     case 'askThisQ': {const x=S.docs[V.paperId],q=tpl(x.projectId).questions.find(z=>z.id===b.dataset.q);const a=askForQuestion(x,q);openAsk(()=>askPaper(V.paperId,a.prompt,a.show));break}
@@ -2014,10 +2043,44 @@ document.addEventListener('input',e=>{
   if(t.dataset.pf&&S.docs[V.pid]){S.docs[V.pid][t.dataset.pf]=t.value;if(t.tagName==='TEXTAREA')autosize(t);save(V.pid,800);if(t.dataset.pf==='name')renderSide()}
 });
 document.addEventListener('keydown',e=>{
-  if(e.key==='Escape'){const o=document.querySelector('.ov');if(o){o.remove();return}closeSearch();$('#q').blur()}
+  if(e.key==='Escape'){const o=document.querySelector('.ov');if(o){o.remove();return}if(V.focus&&V.view==='paper'&&!['input','textarea','select'].includes((e.target.tagName||'').toLowerCase())){setFocus(false);return}closeSearch();$('#q').blur()}
   const tag=(e.target.tagName||'').toLowerCase();
   if(e.key==='/'&&!['input','textarea','select'].includes(tag)&&!document.querySelector('.ov')){e.preventDefault();$('#q').focus()}
 });
+/* ---------- focus mode & resizable panes ---------- */
+function paneWidth(){let v=52;try{v=parseFloat(localStorage.getItem('litnotes.lw'))||52}catch(e){}return Math.min(80,Math.max(20,v))}
+function setPaneWidth(v,persist){
+  v=Math.round(Math.min(80,Math.max(20,v))*10)/10;
+  const pe=$('#pe'); if(pe)pe.style.setProperty('--lw',v+'%');
+  const g=$('#gutter'); if(g)g.setAttribute('aria-valuenow',Math.round(v));
+  if(persist){try{localStorage.setItem('litnotes.lw',v)}catch(e){}refitReader()}
+}
+let _refit;function refitReader(){clearTimeout(_refit);_refit=setTimeout(()=>{const x=S.docs[V.paperId];if(V.view==='paper'&&V.split&&x&&x.pdf&&R.scale==='fit')mountReader(x)},120)}
+function bindGutter(){
+  const g=$('#gutter'),pe=$('#pe'); if(!g||!pe)return;
+  const pctAt=clientX=>{const r=pe.getBoundingClientRect();let p=(clientX-r.left)/r.width*100;return p};
+  g.addEventListener('pointerdown',e=>{
+    e.preventDefault(); g.setPointerCapture(e.pointerId); g.classList.add('drag'); document.body.classList.add('dragging');
+    const move=ev=>setPaneWidth(pctAt(ev.clientX),false);
+    const up=ev=>{g.releasePointerCapture(e.pointerId);g.classList.remove('drag');document.body.classList.remove('dragging');g.removeEventListener('pointermove',move);g.removeEventListener('pointerup',up);g.removeEventListener('pointercancel',up);setPaneWidth(pctAt(ev.clientX),true)};
+    g.addEventListener('pointermove',move); g.addEventListener('pointerup',up); g.addEventListener('pointercancel',up);
+  });
+  g.addEventListener('dblclick',()=>setPaneWidth(52,true));
+  g.addEventListener('keydown',e=>{
+    const cur=parseFloat(getComputedStyle(pe).getPropertyValue('--lw'))||paneWidth();
+    if(e.key==='ArrowLeft'||e.key==='ArrowRight'){e.preventDefault();setPaneWidth(cur+(e.key==='ArrowRight'?3:-3),true)}
+    if(e.key==='Home'){e.preventDefault();setPaneWidth(20,true)} if(e.key==='End'){e.preventDefault();setPaneWidth(80,true)}
+  });
+}
+let _fsByUs=false;
+function enterFullscreen(){try{const el=document.documentElement;if(!document.fullscreenElement&&el.requestFullscreen){el.requestFullscreen({navigationUI:'hide'}).then(()=>{_fsByUs=true}).catch(()=>{})}}catch(e){}}
+function leaveFullscreen(){try{if(document.fullscreenElement&&_fsByUs&&document.exitFullscreen)document.exitFullscreen().catch(()=>{})}catch(e){}_fsByUs=false}
+function setFocus(on){
+  V.focus=!!on; persistView();
+  if(on)enterFullscreen(); else leaveFullscreen();
+  renderMain(); window.scrollTo(0,0);
+}
+document.addEventListener('fullscreenchange',()=>{ if(!document.fullscreenElement&&_fsByUs){_fsByUs=false; if(V.focus)setFocus(false)} });
 function switchRTab(t){
   R.tab=t;
   document.querySelectorAll('.seg button').forEach(z=>z.classList.toggle('on',z.dataset.v===t));
