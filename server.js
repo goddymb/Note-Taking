@@ -122,6 +122,20 @@ function authorized(req) {
   return crypto.timingSafeEqual(a, b);
 }
 
+/* ---------------------------------------------------------------- stored files: PDFs and pictures (checked by content, not name) */
+const FILE_KINDS = [
+  { ext: '.pdf', type: 'application/pdf', test: (b) => b.subarray(0, 1024).indexOf('%PDF-') >= 0 },
+  { ext: '.png', type: 'image/png', test: (b) => b.length > 8 && b[0] === 0x89 && b.toString('latin1', 1, 4) === 'PNG' },
+  { ext: '.jpg', type: 'image/jpeg', test: (b) => b.length > 3 && b[0] === 0xff && b[1] === 0xd8 && b[2] === 0xff },
+  { ext: '.gif', type: 'image/gif', test: (b) => b.toString('latin1', 0, 4) === 'GIF8' },
+  { ext: '.webp', type: 'image/webp', test: (b) => b.toString('latin1', 0, 4) === 'RIFF' && b.toString('latin1', 8, 12) === 'WEBP' },
+];
+const sniffFile = (b) => FILE_KINDS.find((k) => k.test(b)) || null;
+async function findStored(id) {
+  for (const k of FILE_KINDS) { const f = path.join(FILES_DIR, id + k.ext); try { const st = await fsp.stat(f); return { file: f, st, kind: k }; } catch (e) {} }
+  return null;
+}
+
 /* ---------------------------------------------------------------- live updates (SSE) */
 const clients = new Set();
 function broadcast(evt) {
@@ -486,28 +500,28 @@ async function handle(req, res) {
     let buf;
     try { buf = await readBody(req, MAX_UPLOAD); } catch (e) { return fail(res, 413, 'too_large', `Files are limited to ${MAX_UPLOAD / 1024 / 1024} MB`); }
     if (!buf.length) return fail(res, 400, 'invalid_request', 'Empty file');
-    if (buf.subarray(0, 1024).indexOf('%PDF-') < 0) return fail(res, 415, 'unsupported_type', 'Not a PDF');
+    const kind = sniffFile(buf);
+    if (!kind) return fail(res, 415, 'unsupported_type', 'Only PDF, PNG, JPEG, GIF and WebP files are stored');
     const id = crypto.randomBytes(16).toString('hex');
-    await writeAtomic(path.join(FILES_DIR, id + '.pdf'), buf);
-    log('stored pdf', id, buf.length, 'bytes');
-    return send(res, 200, { id, url: '/_blob/' + id, sizeBytes: buf.length, contentType: 'application/pdf' });
+    await writeAtomic(path.join(FILES_DIR, id + kind.ext), buf);
+    log('stored', kind.ext.slice(1), id, buf.length, 'bytes');
+    return send(res, 200, { id, url: '/_blob/' + id, sizeBytes: buf.length, contentType: kind.type });
   }
   const fileMatch = p.match(/^\/api\/files\/([^/]+)$/);
   if (fileMatch && req.method === 'DELETE') {
     const id = fileMatch[1];
     if (!FILE_ID_RE.test(id)) return fail(res, 400, 'invalid_request', 'Bad id');
-    let deleted = true;
-    try { await fsp.rm(path.join(FILES_DIR, id + '.pdf')); } catch { deleted = false; }
+    const found = await findStored(id); let deleted = false;
+    if (found) { try { await fsp.rm(found.file); deleted = true; } catch (e) {} }
     return send(res, 200, { deleted });
   }
   const blobMatch = p.match(/^\/_blob\/([^/]+)$/);
   if (blobMatch && req.method === 'GET') {
     const id = blobMatch[1];
     if (!FILE_ID_RE.test(id)) return fail(res, 404, 'not_found', 'Not found');
-    const file = path.join(FILES_DIR, id + '.pdf');
-    let st; try { st = await fsp.stat(file); } catch { return fail(res, 404, 'not_found', 'Not found'); }
-    res.writeHead(200, { 'Content-Type': 'application/pdf', 'Content-Length': st.size, 'Content-Disposition': 'inline', 'Cache-Control': 'private, max-age=31536000, immutable' });
-    return fs.createReadStream(file).pipe(res);
+    const found = await findStored(id); if (!found) return fail(res, 404, 'not_found', 'Not found');
+    res.writeHead(200, { 'Content-Type': found.kind.type, 'Content-Length': found.st.size, 'Content-Disposition': 'inline', 'Cache-Control': 'private, max-age=31536000, immutable', ...(found.kind.ext === '.pdf' ? {} : { 'Content-Security-Policy': "default-src 'none'; style-src 'unsafe-inline'; sandbox" }) });
+    return fs.createReadStream(found.file).pipe(res);
   }
 
   // AI

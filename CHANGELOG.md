@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.10.0]
+- **Document ribbon** in Write with **Home**, **Format** and **Insert** tabs. Hide it with the arrow on the right and bring it back with any tab.
+- **Format**: font, size and colour for selected text; left, centre, right and justified paragraphs; and a font, size and line spacing for the whole document (for example Times New Roman, 12 pt, double-spaced).
+- **Insert**:
+  - **Pictures** (PNG, JPG, GIF, WebP), with an optional caption and Small / Medium / Large / Full-width sizes; click a picture to resize or remove it.
+  - **Tables** with a header row and caption; Tab moves between cells and adds a row at the end; click a table for + Row, + Column, − Row, − Column or Delete.
+  - **Charts** (columns, bars, line, pie) from data you type or paste from Excel, with a live preview.
+  - **Shapes**: boxes, circles, diamonds, arrows, callouts and simple A → B → C flow diagrams, with text and colours.
+  - **Lines** and **page breaks**.
+- Figures and tables are numbered automatically ("Figure 1.", "Table 1."). Double-click a chart or shape to edit it.
+- Word/PDF exports include your pictures, fonts, sizes, colours, alignment, line spacing and page breaks; Markdown exports include tables.
+- The self-hosted server now also stores pictures, checking each file's content.
+- Fixed: selected options in some dialogs were invisible.
+
 ## [1.9.0]
 - **Tag your notes for synthesis**: under every answer (or with the Tag button in the note toolbar) tag the whole answer, or select a passage and tag just that, with **themes**, **debates**, **methods**, **context**, **concepts & variables** or **gaps** — or add your own dimensions in Project settings.
 - **Debates with sides**: each note tagged with a debate records whether it **supports**, **challenges** or is **mixed**.

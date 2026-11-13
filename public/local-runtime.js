@@ -76,8 +76,8 @@
   const assets = {
     async upload(blob, opts) {
       const type = (opts && opts.type) || blob.type || 'application/pdf';
-      if (type !== 'application/pdf') throw err('unsupported_type', 'Only PDF files are stored');
-      const r = await api('POST', '/api/files', blob, { 'content-type': 'application/pdf' }).catch((e) => { throw e.code === 'unavailable' ? err('store_unavailable', e.message) : e; });
+      if (!/^(application\/pdf|image\/(png|jpeg|gif|webp))$/.test(type)) throw err('unsupported_type', 'Only PDF and PNG/JPEG/GIF/WebP pictures are stored');
+      const r = await api('POST', '/api/files', blob, { 'content-type': type }).catch((e) => { throw e.code === 'unavailable' ? err('store_unavailable', e.message) : e; });
       return r.json();
     },
     async delete(ref) { const id = String(ref).split('/').pop(); const r = await api('DELETE', '/api/files/' + enc(id)); return r.json(); },
