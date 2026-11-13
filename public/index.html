@@ -385,10 +385,20 @@ body.focus .sect,body.focus .q{scroll-margin-top:12px}
 .seg button.on{background:var(--panel-solid);color:var(--ink);box-shadow:0 1px 4px rgba(0,0,0,.14)}
 .seg svg{width:15px;height:15px}
 .btn.icon.sm{padding:6px;border-radius:10px;min-width:32px;justify-content:center}
-.rbody{flex:1;overflow:auto;background:color-mix(in srgb,var(--ink) 12%,var(--bg));padding:14px;display:flex;flex-direction:column;align-items:center;gap:12px}
+.rbody{flex:1;overflow:auto;background:color-mix(in srgb,var(--ink) 12%,var(--bg));padding:14px;display:flex;flex-direction:column;align-items:flex-start;gap:12px;touch-action:pan-x pan-y;overscroll-behavior:contain}
+.rbody .pg{margin-inline:auto}
+.rbody.pan{cursor:grab}.rbody.pan.grabbing{cursor:grabbing}
+.rbody.pan .textLayer{pointer-events:none}
+.rbody.pan .textLayer span{cursor:inherit}
+.pg canvas{width:100%;height:100%}
+.zoomctl{display:inline-flex;align-items:center;gap:3px}
+.zsel{appearance:none;-webkit-appearance:none;border:1px solid var(--line);background:var(--input);border-radius:9px;padding:5px 8px;font-size:12.5px;font-weight:700;color:var(--ink);min-width:66px;text-align:center;text-align-last:center;cursor:pointer}
+.zsel:focus{outline:0;border-color:var(--accent);box-shadow:0 0 0 3px var(--focus)}
+.seg.tools button{padding:5px 8px}.seg.tools svg{width:16px;height:16px}
 [data-theme="midnight"] .rbody{background:#05050f}
 .pg{position:relative;background:#fff;box-shadow:0 2px 12px rgba(0,0,0,.22);flex:none}
 .pg canvas{display:block}
+.pg canvas.old{position:absolute;inset:0}
 .pgnum{position:absolute;right:8px;bottom:5px;font-size:10px;color:#9a9a9a;z-index:2;pointer-events:none}
 .textLayer{position:absolute;inset:0;overflow:clip;line-height:1;text-size-adjust:none;-webkit-text-size-adjust:none;forced-color-adjust:none;transform-origin:0 0;z-index:1}
 .textLayer span,.textLayer br{color:transparent;position:absolute;white-space:pre;cursor:text;transform-origin:0 0}
@@ -1477,14 +1487,19 @@ function pdfText(p){
 }
 
 /* ---------- reader pane ---------- */
-const R={scale:'fit',obs:null,token:0,tab:'pdf',turns:{},ctl:null};
+const R={mode:'width',scale:1,obs:null,token:0,tab:'pdf',turns:{},ctl:null,doc:null,pages:[],tool:'hand'};
+try{R.tool=localStorage.getItem('litnotes.tool')||'hand';R.mode=localStorage.getItem('litnotes.zmode')||'width';const z=parseFloat(localStorage.getItem('litnotes.zoom'));if(z)R.scale=z}catch(e){}
+const PDF_PX=96/72;                                   // 100% = true size on screen
+const ZOOM_STEPS=[25,33,50,67,75,80,90,100,110,125,150,175,200,250,300,400,500];
+const pctOf=sc=>Math.round(sc/PDF_PX*100);
 function readerHTML(x){
   return `<aside class="reader" id="reader">
     <div class="rbar">
       <div class="seg"><button class="${R.tab==='pdf'?'on':''}" data-act="rtab" data-v="pdf">${ico('doc')}PDF</button><button class="${R.tab==='ask'?'on':''}" data-act="rtab" data-v="ask">${ico('spark')}Ask ${AIN}</button></div>
       <span class="spacer"></span>
       <span class="rpdf ${R.tab==='pdf'?'':'hide'}"><span class="pgn" id="pgn">…</span>
-        <button class="btn icon sm" data-act="zoom" data-v="-" title="Zoom out" aria-label="Zoom out">−</button><button class="btn sm" data-act="zoom" data-v="fit" title="Fit width">Fit</button><button class="btn icon sm" data-act="zoom" data-v="+" title="Zoom in" aria-label="Zoom in">+</button></span>
+        <span class="seg tools" role="group" aria-label="Mouse tool"><button class="${R.tool==='hand'?'on':''}" data-act="rtool" data-v="hand" title="Hand tool: click and drag to move around the page" aria-label="Hand tool"><svg class="i" viewBox="0 0 24 24"><path d="M8 13V5.5a1.5 1.5 0 0 1 3 0V12M11 11.5v-8a1.5 1.5 0 0 1 3 0V12M14 11.5V5a1.5 1.5 0 0 1 3 0v7.5M17 9.5a1.5 1.5 0 0 1 3 0V15a6 6 0 0 1-6 6h-1.5a6 6 0 0 1-4.6-2.2L4.6 15.6a1.6 1.6 0 0 1 2.4-2.1L8 14.7"/></svg></button><button class="${R.tool==='select'?'on':''}" data-act="rtool" data-v="select" title="Text tool: select and copy text" aria-label="Text tool"><svg class="i" viewBox="0 0 24 24"><path d="M9 4h6M9 20h6M12 4v16"/></svg></button></span>
+        <span class="zoomctl"><button class="btn icon sm" data-act="zoom" data-v="-" title="Zoom out (Ctrl + scroll down)" aria-label="Zoom out">−</button><select class="zsel" id="zoomSel" data-act="zoomSel" aria-label="Zoom level"></select><button class="btn icon sm" data-act="zoom" data-v="+" title="Zoom in (Ctrl + scroll up)" aria-label="Zoom in">+</button></span></span>
       <a class="btn icon sm" href="${esc(pdfUrl(x.pdf))}" target="_blank" rel="noopener" title="Open in new tab" aria-label="Open PDF in new tab">${ico('external')}</a>
       <button class="btn icon sm" data-act="closeSplit" title="Close reader" aria-label="Close reader">${ico('x')}</button>
     </div>
@@ -1497,37 +1512,131 @@ async function mountReader(x){
   let doc;
   try{doc=await openPdfDoc(x.pdf)}catch(e){if(token!==R.token)return;box.innerHTML=`<div class="rload">${ico('warn')}<span>The PDF could not be displayed here. <a class="link" href="${esc(pdfUrl(x.pdf))}" target="_blank" rel="noopener">Open it in a new tab</a> instead.</span></div>`;return}
   if(token!==R.token||!$('#rpages'))return;
-  const lib=await loadPdfjs();
-  const first=await doc.getPage(1); const base=first.getViewport({scale:1});
-  const avail=box.clientWidth-28;
-  const scale=R.scale==='fit'?Math.max(.4,avail/base.width):R.scale;
-  if(R.scale==='fit')R._fit=scale;
+  await loadPdfjs();
+  R.doc=doc; R.pages=[];
+  // page sizes at scale 1 (pages can differ in size)
+  for(let i=1;i<=doc.numPages;i++){const pg=await doc.getPage(i);const vp=pg.getViewport({scale:1});R.pages.push({n:i,w:vp.width,h:vp.height});if(token!==R.token)return}
   box.innerHTML='';
   if(R.obs)R.obs.disconnect();
-  const dpr=Math.min(window.devicePixelRatio||1,2);
-  const render=async(el)=>{
-    if(el.dataset.done)return; el.dataset.done='1';
-    const n=+el.dataset.n, page=await doc.getPage(n), vp=page.getViewport({scale});
-    const c=document.createElement('canvas'); c.width=Math.floor(vp.width*dpr); c.height=Math.floor(vp.height*dpr); c.style.width=vp.width+'px'; c.style.height=vp.height+'px';
-    const ctx=c.getContext('2d'); el.appendChild(c);
-    await page.render({canvas:c,canvasContext:ctx,viewport:vp,transform:dpr!==1?[dpr,0,0,dpr,0,0]:null}).promise.catch(()=>{});
-    try{
-      const tl=document.createElement('div'); tl.className='textLayer'; el.appendChild(tl);
-      tl.style.setProperty('--scale-factor',scale); tl.style.setProperty('--total-scale-factor',scale); tl.style.setProperty('--user-unit','1');
-      await new lib.TextLayer({textContentSource:page.streamTextContent(),container:tl,viewport:vp}).render();
-    }catch(e){}
-  };
-  R.obs=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)render(e.target)}),{root:box,rootMargin:'600px 0px'});
-  const pgObs=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting&&e.intersectionRatio>.35){const g=$('#pgn');if(g)g.textContent=`${e.target.dataset.n} / ${doc.numPages}`}})},{root:box,threshold:[.35]});
-  for(let i=1;i<=doc.numPages;i++){
-    const vp=i===1?first.getViewport({scale}):null;
-    const el=document.createElement('div'); el.className='pg'; el.dataset.n=i;
-    const w=vp?vp.width:base.width*scale, h=vp?vp.height:base.height*scale;
-    el.style.width=w+'px'; el.style.height=h+'px';
-    el.innerHTML=`<span class="pgnum">${i}</span>`;
-    box.appendChild(el); R.obs.observe(el); pgObs.observe(el);
-  }
+  R.vis=new Set();
+  R.pages.forEach(p=>{
+    const el=document.createElement('div'); el.className='pg'; el.dataset.n=p.n;
+    el.innerHTML=`<span class="pgnum">${p.n}</span>`; p.el=el; box.appendChild(el);
+  });
+  R.obs=new IntersectionObserver(es=>es.forEach(e=>{const n=+e.target.dataset.n;if(e.isIntersecting){R.vis.add(n);renderPage(n)}else R.vis.delete(n)}),{root:box,rootMargin:'500px 0px'});
+  const pgObs=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting&&e.intersectionRatio>.3){const g=$('#pgn');if(g)g.textContent=`${e.target.dataset.n} / ${doc.numPages}`}})},{root:box,threshold:[.3]});
+  R.pages.forEach(p=>{R.obs.observe(p.el);pgObs.observe(p.el)});
+  box.classList.toggle('pan',R.tool==='hand');
+  layoutPages(R.mode==='custom'?R.scale:fitScale(R.mode),null,true);
   const g=$('#pgn'); if(g)g.textContent=`1 / ${doc.numPages}`;
+  bindViewerGestures(box);
+}
+function fitScale(mode){
+  const box=$('#rpages'); if(!box||!R.pages.length)return R.scale||1;
+  const maxW=Math.max(...R.pages.map(p=>p.w)), first=R.pages[0];
+  const aw=box.clientWidth-30, ah=box.clientHeight-30;
+  const sc=mode==='page'?Math.min(aw/first.w,ah/first.h):aw/maxW;
+  return Math.max(.1,sc);
+}
+function clampScale(sc){return Math.min(5*PDF_PX,Math.max(.25*PDF_PX,sc))}
+/* resize page boxes to a new scale, keeping the point under `anchor` (box coords) in place */
+function layoutPages(scale,anchor,initial){
+  const box=$('#rpages'); if(!box||!R.pages.length)return;
+  scale=clampScale(scale);
+  const old=R.scale||scale;
+  const ax=anchor?anchor.x:box.clientWidth/2, ay=anchor?anchor.y:box.clientHeight/2;
+  const fx=(box.scrollLeft+ax)/Math.max(1,box.scrollWidth), fy=(box.scrollTop+ay)/Math.max(1,box.scrollHeight);
+  R.scale=scale;
+  R.pages.forEach(p=>{p.el.style.width=Math.floor(p.w*scale)+'px';p.el.style.height=Math.floor(p.h*scale)+'px';const tl=p.el.querySelector('.textLayer');if(tl)tl.remove();p.el.dataset.done=''});
+  if(!initial&&old!==scale){box.scrollLeft=fx*box.scrollWidth-ax;box.scrollTop=fy*box.scrollHeight-ay}
+  updateZoomUI();
+  try{localStorage.setItem('litnotes.zoom',scale);localStorage.setItem('litnotes.zmode',R.mode)}catch(e){}
+  clearTimeout(R._rr); R._rr=setTimeout(()=>R.vis&&R.vis.forEach(n=>renderPage(n)),initial?0:180);
+}
+async function renderPage(n){
+  const p=R.pages[n-1]; if(!p||!R.doc)return;
+  const scale=R.scale, key=String(scale);
+  if(p.el.dataset.done===key||p.busy===key)return;
+  p.busy=key;
+  if(p.task){try{p.task.cancel()}catch(e){}}
+  const lib=await loadPdfjs(); const page=await R.doc.getPage(n);
+  if(R.scale!==scale){p.busy='';return}
+  const vp=page.getViewport({scale});
+  const maxPix=16e6, dpr=Math.min(window.devicePixelRatio||1,2,Math.sqrt(maxPix/(vp.width*vp.height)));
+  const c=document.createElement('canvas'); c.width=Math.floor(vp.width*dpr); c.height=Math.floor(vp.height*dpr);
+  p.task=page.render({canvas:c,canvasContext:c.getContext('2d'),viewport:vp,transform:dpr!==1?[dpr,0,0,dpr,0,0]:null});
+  try{await p.task.promise}catch(e){if(p.busy===key)p.busy='';return}
+  if(R.scale!==scale){p.busy='';return}
+  p.el.querySelectorAll('canvas').forEach(o=>o.remove());
+  p.el.insertBefore(c,p.el.firstChild);
+  try{
+    const tl=document.createElement('div'); tl.className='textLayer'; p.el.appendChild(tl);
+    tl.style.setProperty('--scale-factor',scale); tl.style.setProperty('--total-scale-factor',scale); tl.style.setProperty('--user-unit','1');
+    await new lib.TextLayer({textContentSource:page.streamTextContent(),container:tl,viewport:vp}).render();
+  }catch(e){}
+  p.el.dataset.done=key; p.busy='';
+}
+function updateZoomUI(){
+  const sel=$('#zoomSel'); if(!sel)return;
+  const pct=pctOf(R.scale);
+  const fw=pctOf(fitScale('width')), fp=pctOf(fitScale('page'));
+  let opts=`<option value="width">Fit width · ${fw}%</option><option value="page">Fit page · ${fp}%</option>`;
+  const custom=R.mode==='custom'&&!ZOOM_STEPS.includes(pct);
+  opts+=ZOOM_STEPS.map(z=>`<option value="${z}">${z}%</option>`).join('');
+  if(custom)opts=`<option value="c" hidden>${pct}%</option>`+opts;
+  sel.innerHTML=opts;
+  sel.value=R.mode==='custom'?(custom?'c':String(pct)):R.mode;
+  // the closed select shows a compact label
+  const label=R.mode==='custom'?pct+'%':(R.mode==='width'?'Fit width · ':'Fit page · ')+pct+'%';
+  sel.title='Zoom: '+label;
+}
+function setZoom(v,anchor){
+  if(!R.pages.length)return;
+  if(v==='width'||v==='page'){R.mode=v;layoutPages(fitScale(v),anchor);return}
+  R.mode='custom'; layoutPages(v,anchor);
+}
+function stepZoom(dir){
+  const cur=pctOf(R.scale);
+  let next=dir>0?ZOOM_STEPS.find(z=>z>cur+0.5):[...ZOOM_STEPS].reverse().find(z=>z<cur-0.5);
+  if(next==null)next=dir>0?ZOOM_STEPS[ZOOM_STEPS.length-1]:ZOOM_STEPS[0];
+  setZoom(next/100*PDF_PX);
+}
+function bindViewerGestures(box){
+  if(box._bound)return; box._bound=true;
+  // mouse / pen drag with the hand tool
+  let drag=null;
+  box.addEventListener('pointerdown',e=>{
+    if(R.tool!=='hand'||e.pointerType==='touch'||e.button!==0)return;
+    if(e.target.closest('a,button'))return;
+    drag={x:e.clientX,y:e.clientY,l:box.scrollLeft,t:box.scrollTop,id:e.pointerId};
+    box.setPointerCapture(e.pointerId); box.classList.add('grabbing'); e.preventDefault();
+  });
+  box.addEventListener('pointermove',e=>{if(!drag||e.pointerId!==drag.id)return;box.scrollLeft=drag.l-(e.clientX-drag.x);box.scrollTop=drag.t-(e.clientY-drag.y)});
+  const end=e=>{if(!drag)return;try{box.releasePointerCapture(drag.id)}catch(_){}drag=null;box.classList.remove('grabbing')};
+  box.addEventListener('pointerup',end); box.addEventListener('pointercancel',end); box.addEventListener('lostpointercapture',end);
+  // Ctrl + wheel and trackpad pinch (browsers send ctrlKey with pinch gestures)
+  box.addEventListener('wheel',e=>{
+    if(!e.ctrlKey&&!e.metaKey)return;
+    e.preventDefault();
+    const r=box.getBoundingClientRect();
+    R.mode='custom'; layoutPages(R.scale*Math.exp(-e.deltaY*0.0025),{x:e.clientX-r.left,y:e.clientY-r.top});
+  },{passive:false});
+  // two-finger pinch on touch screens (one finger scrolls natively)
+  let pinch=null;
+  const dist=t=>Math.hypot(t[0].clientX-t[1].clientX,t[0].clientY-t[1].clientY);
+  box.addEventListener('touchstart',e=>{
+    if(e.touches.length===2){const r=box.getBoundingClientRect();pinch={d:dist(e.touches),s:R.scale,x:(e.touches[0].clientX+e.touches[1].clientX)/2-r.left,y:(e.touches[0].clientY+e.touches[1].clientY)/2-r.top}}
+  },{passive:true});
+  box.addEventListener('touchmove',e=>{
+    if(!pinch||e.touches.length!==2)return;
+    e.preventDefault();
+    const r=box.getBoundingClientRect();
+    const mx=(e.touches[0].clientX+e.touches[1].clientX)/2-r.left, my=(e.touches[0].clientY+e.touches[1].clientY)/2-r.top;
+    R.mode='custom'; layoutPages(pinch.s*dist(e.touches)/pinch.d,{x:mx,y:my});
+    // two fingers also pan
+    box.scrollLeft-=mx-pinch.x; box.scrollTop-=my-pinch.y; pinch.x=mx; pinch.y=my;
+  },{passive:false});
+  box.addEventListener('touchend',e=>{if(e.touches.length<2)pinch=null});
 }
 
 /* ---------- Ask Claude about one paper ---------- */
@@ -2212,7 +2321,8 @@ document.addEventListener('click',e=>{
     case 'focus': setFocus(!V.focus);break;
     case 'swap': {V.swap=!V.swap;persistView();const pe=$('#pe');if(pe)pe.classList.toggle('swap',V.swap);refitReader();break}
     case 'rtab': switchRTab(b.dataset.v);break;
-    case 'zoom': {const v=b.dataset.v;const cur=R.scale==='fit'?(R._fit||1):R.scale;R.scale=v==='fit'?'fit':Math.min(3,Math.max(.4,+(cur*(v==='+'?1.2:1/1.2)).toFixed(2)));mountReader(S.docs[V.paperId]);break}
+    case 'zoom': stepZoom(b.dataset.v==='+'?1:-1);break;
+    case 'rtool': {R.tool=b.dataset.v;try{localStorage.setItem('litnotes.tool',R.tool)}catch(e){}document.querySelectorAll('.seg.tools button').forEach(z=>z.classList.toggle('on',z.dataset.v===R.tool));const bx=$('#rpages');if(bx)bx.classList.toggle('pan',R.tool==='hand');break}
     case 'askThisQ': {const x=S.docs[V.paperId],q=tpl(x.projectId).questions.find(z=>z.id===b.dataset.q);const a=askForQuestion(x,q);openAsk(()=>askPaper(V.paperId,a.prompt,a.show));break}
     case 'askQ': {const x=S.docs[V.paperId],q=tpl(x.projectId).questions.find(z=>z.id===b.dataset.q);const a=askForQuestion(x,q);askPaper(V.paperId,a.prompt,a.show);break}
     case 'askPreset': askPaper(V.paperId,b.dataset.v);break;
@@ -2263,6 +2373,7 @@ document.addEventListener('click',e=>{
 document.addEventListener('change',e=>{
   const t=e.target;
   if(t.dataset.act==='cmpQ'){V.cmpQ=t.value;renderMain()}
+  if(t.dataset.act==='zoomSel'){const v=t.value;if(v==='width'||v==='page')setZoom(v);else if(v!=='c')setZoom(+v/100*PDF_PX)}
   if(t.dataset.act==='libProj'){V.lib.proj=t.value;persistView();renderMain()}
   if(t.dataset.act==='libSort'){V.lib.sort=t.value;persistView();renderMain()}
   if(t.dataset.act==='toggleEmpty'){V.showEmpty=t.checked;renderMain()}
@@ -2285,7 +2396,7 @@ function setPaneWidth(v,persist){
   const g=$('#gutter'); if(g)g.setAttribute('aria-valuenow',Math.round(v));
   if(persist){try{localStorage.setItem('litnotes.lw',v)}catch(e){}refitReader()}
 }
-let _refit;function refitReader(){clearTimeout(_refit);_refit=setTimeout(()=>{const x=S.docs[V.paperId];if(V.view==='paper'&&V.split&&x&&x.pdf&&R.scale==='fit')mountReader(x)},120)}
+let _refit;function refitReader(){clearTimeout(_refit);_refit=setTimeout(()=>{const x=S.docs[V.paperId];if(V.view==='paper'&&V.split&&x&&x.pdf&&R.pages.length){if(R.mode!=='custom')layoutPages(fitScale(R.mode));else updateZoomUI()}},120)}
 function bindGutter(){
   const g=$('#gutter'),pe=$('#pe'); if(!g||!pe)return;
   const pctAt=clientX=>{const r=pe.getBoundingClientRect();let p=(clientX-r.left)/r.width*100;return p};
@@ -2318,12 +2429,13 @@ function switchRTab(t){
   if(pg)pg.classList.toggle('hide',t!=='pdf'); if(ak)ak.classList.toggle('hide',t!=='ask'); if(rp)rp.classList.toggle('hide',t!=='pdf');
   const tool=$('#pdfTool'); if(tool)tool.innerHTML=pdfToolHTML(S.docs[V.paperId]);
   if(t==='ask'){const i=$('#askIn');if(i)setTimeout(()=>i.focus(),50)}
+  if(t==='pdf'&&R.pages.length)setTimeout(()=>{if(R.mode!=='custom')layoutPages(fitScale(R.mode));else updateZoomUI()},30);
 }
 function openAsk(then){
   if(!V.split){V.split=true;R.tab='ask';persistView();renderMain();setTimeout(then,30);return}
   switchRTab('ask');then();
 }
-let _rz;window.addEventListener('resize',()=>{clearTimeout(_rz);_rz=setTimeout(()=>{if(V.view==='paper'&&V.split&&R.scale==='fit'&&S.docs[V.paperId]&&S.docs[V.paperId].pdf)mountReader(S.docs[V.paperId])},250)});
+let _rz;window.addEventListener('resize',()=>{clearTimeout(_rz);_rz=setTimeout(()=>{if(V.view==='paper'&&V.split&&R.pages.length&&$('#rpages')){if(R.mode!=='custom')layoutPages(fitScale(R.mode));else updateZoomUI()}},200)});
 function closeSearch(){const b=$('#sres');if(b){b.classList.remove('show')}}
 $('#q').addEventListener('input',e=>runSearch(e.target.value));
 $('#q').addEventListener('focus',e=>{if(e.target.value.trim().length>1)runSearch(e.target.value)});

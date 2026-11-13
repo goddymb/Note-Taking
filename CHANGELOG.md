@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.5.0]
+- **Zoom by percentage** in the PDF reader: − and + step through 25%–500%, or pick Fit width, Fit page or a level from the menu. The current percentage is always shown.
+- Zooming keeps your place: the part of the page you are looking at stays in view instead of jumping to the top.
+- **Hand tool**: click and drag to move around a zoomed page. Switch to the **text tool** to select and copy text.
+- **Touch screens**: pinch with two fingers to zoom, swipe with one finger to scroll. Trackpad pinch and Ctrl + mouse wheel zoom too.
+- Fixed: when a page was zoomed wider than the panel, its left side could not be reached.
+- Pages re-render sharply at every zoom level.
+
 ## [1.4.0]
 - **Lists in notes**: bulleted and numbered lists from the toolbar, with Ctrl+Shift+8 / Ctrl+Shift+7, or by typing "- " or "1. " at the start of a line.
 - Press Tab inside a list to indent a point (nested list) and Shift+Tab to move it back out.
