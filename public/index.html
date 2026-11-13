@@ -1347,6 +1347,7 @@ function appSettingsView(){
   return `<div class="page-head"><div class="grow"><h1>Settings</h1><p class="lede">Appearance, writing${LOCAL?', updates':''} and your data.</p></div></div>
   <div class="sec-title"><h2>Appearance</h2></div>
   <div class="looks">${THEMES.map(([k,l,d])=>`<button class="look ${theme()===k?'on':''}" data-act="theme" data-v="${k}"><div class="pv pv-${k}"><div class="bn"></div><div class="cd"><i></i><i></i><i></i></div></div><div class="lb"><b>${l}${theme()===k?' · in use':''}</b><span>${d}</span></div></button>`).join('')}</div>
+  ${installCardHTML()}
   ${updatesCardHTML()}
   <div class="sec-title"><h2>Writing</h2></div>
   <div class="card">
@@ -1876,6 +1877,23 @@ function fillNoteHTML(f){
    UPDATES (self-hosted only)
    ============================================================ */
 const UPD={info:null,checking:false,updating:false};
+/* installable app (self-hosted only) */
+const INST={prompt:null,installed:false};
+const isStandalone=()=>{try{return matchMedia('(display-mode: standalone)').matches||matchMedia('(display-mode: window-controls-overlay)').matches}catch(e){return false}};
+if(LOCAL){
+  try{if('serviceWorker' in navigator)navigator.serviceWorker.register('/sw.js').catch(()=>{})}catch(e){}
+  window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();INST.prompt=e;if(V.view==='settings')renderMain()});
+  window.addEventListener('appinstalled',()=>{INST.installed=true;INST.prompt=null;toast('Literature Notes is installed — find it in your Start menu');if(V.view==='settings')renderMain()});
+}
+function installCardHTML(){
+  if(!LOCAL)return '';
+  let body;
+  if(isStandalone()) body=`<div class="row"><span class="dot"></span><span>You are using the installed app. To remove it, right-click its icon in the Start menu and choose <b>Uninstall</b>.</span></div>`;
+  else if(INST.installed) body=`<div class="row"><span class="dot"></span><span>Installed. Open <b>Literature Notes</b> from your Start menu or taskbar.</span></div>`;
+  else if(INST.prompt) body=`<p class="help" style="margin:0 0 12px">Open Literature Notes in its own window with an icon in the Start menu and taskbar, without browser tabs. Your notes stay exactly where they are.</p><button class="btn pri" data-act="installApp">${ico('download')}Install app</button>`;
+  else body=`<p class="help" style="margin:0 0 8px">Open Literature Notes in its own window with a Start-menu icon. In <b>Edge</b>: click <b>⋯</b> (top right) → <b>Apps</b> → <b>Install this site as an app</b>. In <b>Chrome</b>: click the install icon at the right end of the address bar, or <b>⋮</b> → <b>Cast, save and share</b> → <b>Install page as app</b>.</p><p class="help" style="margin:0">Docker Desktop must be running for the app to open — turn on <b>Start Docker Desktop when you sign in</b> in Docker Desktop's settings so it is always ready.</p>`;
+  return `<div class="sec-title"><h2>Desktop app</h2></div><div class="card">${body}</div>`;
+}
 async function checkUpdates(force){
   if(!LOCAL||!LOCAL.updates)return;
   UPD.checking=true; if(V.view==='settings')renderMain();
@@ -2446,6 +2464,7 @@ document.addEventListener('click',e=>{
       go({view:v});break}
     case 'theme': setTheme(b.dataset.v);break;
     case 'checkUpd': checkUpdates(true);break;
+    case 'installApp': if(INST.prompt){INST.prompt.prompt();INST.prompt.userChoice.then(c=>{if(c.outcome==='accepted')INST.installed=true;INST.prompt=null;renderMain()}).catch(()=>{})}break;
     case 'doUpdate': doUpdate();break;
     case 'resume': {const x=S.docs[id];if(!x)break;go({view:'paper',paperId:id,pid:x.projectId});const s=nextStage(x,tpl(x.projectId));if(s){const q=tpl(x.projectId).questions.find(z=>z.section===s.id&&!answered(x,z));if(q)setTimeout(()=>openToQuestion(q.id),60)}break}
     case 'quickAdd': quickAdd();break;

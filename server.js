@@ -151,7 +151,8 @@ async function indexHtml() {
   if (fontsAvailable.length) {
     html = html.replace(/<link rel="preconnect"[^>]*>\s*/g, '').replace(/<link href="https:\/\/fonts\.googleapis\.com[^>]*>/, '<link href="/vendor/fonts.css" rel="stylesheet">');
   }
-  return html.replace('<head>', '<head>\n' + inject);
+  const pwa = '<link rel="manifest" href="/manifest.webmanifest">\n<meta name="theme-color" content="#8b5cf6">\n<link rel="icon" type="image/svg+xml" href="/icons/icon.svg">\n<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">\n<meta name="application-name" content="Literature Notes">\n';
+  return html.replace('<head>', '<head>\n' + inject + pwa);
 }
 
 /* ---------------------------------------------------------------- updates */
@@ -367,6 +368,27 @@ async function handle(req, res) {
     return send(res, 200, await indexHtml(), { 'Content-Type': 'text/html; charset=utf-8' });
   }
   if (req.method === 'GET' && p === '/local-runtime.js') return serveStatic(res, PUBLIC_DIR, 'local-runtime.js', 'no-cache');
+  // installable app (Start menu / taskbar window)
+  if (req.method === 'GET' && p === '/manifest.webmanifest') {
+    return send(res, 200, JSON.stringify({
+      id: '/', name: 'Literature Notes', short_name: 'Lit Notes',
+      description: 'Structured reading notes for literature reviews',
+      start_url: '/', scope: '/', display: 'standalone', display_override: ['window-controls-overlay', 'standalone'],
+      background_color: '#fbf9ff', theme_color: '#8b5cf6', categories: ['education', 'productivity'],
+      icons: [
+        { src: '/icons/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+        { src: '/icons/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+        { src: '/icons/maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+        { src: '/icons/icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any' },
+      ],
+    }), { 'Content-Type': 'application/manifest+json', 'Cache-Control': 'no-cache' });
+  }
+  if (req.method === 'GET' && p.startsWith('/icons/')) return serveStatic(res, path.join(PUBLIC_DIR, 'icons'), p.slice('/icons/'.length), 'public, max-age=604800');
+  if (req.method === 'GET' && p === '/sw.js') {
+    // Minimal service worker: lets browsers install the app. It caches nothing,
+    // so updates always show the latest version and data never goes stale.
+    return send(res, 200, "self.addEventListener('install',()=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil(self.clients.claim()));self.addEventListener('fetch',()=>{});", { 'Content-Type': 'text/javascript; charset=utf-8', 'Cache-Control': 'no-cache', 'Service-Worker-Allowed': '/' });
+  }
   if (req.method === 'GET' && p === '/vendor/fonts.css') return send(res, 200, fontsCss(), { 'Content-Type': 'text/css; charset=utf-8', 'Cache-Control': 'public, max-age=86400' });
   if (req.method === 'GET' && p.startsWith('/vendor/pdfjs/')) return serveStatic(res, PDFJS_DIR, p.slice('/vendor/pdfjs/'.length), 'public, max-age=604800');
   if (req.method === 'GET' && p.startsWith('/vendor/fonts/')) {

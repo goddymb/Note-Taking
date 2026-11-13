@@ -37,6 +37,10 @@ This downloads the ready-made app image from GitHub (`ghcr.io/goddymb/note-takin
 **Build from source instead** (no download from GitHub, no one-click updates):
 `docker compose -f docker-compose.yml -f docker-compose.build.yml up -d --build`
 
+### Install it as a desktop app
+
+Open http://localhost:8080 in Edge or Chrome and go to **Settings → Desktop app → Install app** (or in Edge: **⋯ → Apps → Install this site as an app**). Literature Notes then opens in its own window from the Start menu and taskbar. Docker Desktop must be running; turn on *Start Docker Desktop when you sign in* in its settings so the app is always available.
+
 ## 2. Turn on "Ask" (optional)
 
 Edit `.env`, then run `docker compose up -d` again.
