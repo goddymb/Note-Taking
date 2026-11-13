@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.18.0]
+- **More guiding hints for all 24 questions**, written to help you learn note-taking:
+  - 📍 **Where to look** gives the parts of the paper in order, plus the words to scan for (e.g. "This paper…", "We find…").
+  - ✎ **How to answer** gives numbered steps and a sentence starter.
+  - 💡 **Example** gives a fuller model answer, sometimes with a note on why it is good.
+  - New ⚠ **Avoid** shows the most common beginner mistake for that question.
+- Existing projects get the new guidance automatically; hints you rewrote yourself are kept.
+- The question editor (Settings → Reading questions → Customise) now has larger boxes, keeps line breaks, and lets you write your own "Avoid" tip.
+
 ## [1.17.2]
 - A paper's own report now ends with the ideas you jotted down while reading that paper, with their tags and page numbers. Project reports already list all ideas grouped by tag.
 
