@@ -431,6 +431,21 @@ body.focus .sect,body.focus .q{scroll-margin-top:12px}
 .report p{margin:0 0 9px;white-space:pre-wrap}
 .report .meta{font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#6b6f76}
 .report .na{color:#a5a29a;font-style:italic}
+/* rich-text notes */
+.rtebar{display:flex;align-items:center;gap:2px;flex-wrap:wrap;padding:4px;border:1px solid var(--line);border-bottom:0;border-radius:var(--r-sm) var(--r-sm) 0 0;background:var(--panel-2)}
+.rtebar button{border:0;background:none;min-width:30px;height:30px;border-radius:8px;display:inline-grid;place-items:center;color:var(--ink-2);font-size:14px;padding:0 6px}
+.rtebar button:hover{background:var(--hover);color:var(--ink)}
+.rtebar button.on{background:color-mix(in srgb,var(--accent) 16%,transparent);color:var(--accent)}
+.rtebar .sep{width:1px;height:20px;background:var(--line-2);margin:0 4px}
+.rtebar .swc{width:18px;height:18px;border-radius:50%;border:1.5px solid rgba(0,0,0,.12);display:block}
+.rtebar .lbl{font-size:11px;color:var(--muted);font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin:0 4px 0 2px}
+.rte{min-height:96px;border:1px solid var(--line);border-radius:0 0 var(--r-sm) var(--r-sm);padding:10px 12px;background:var(--input);line-height:1.65;outline:0;white-space:pre-wrap;overflow-wrap:anywhere;transition:border-color .15s,box-shadow .15s}
+.rte:focus{border-color:var(--accent);box-shadow:0 0 0 4px var(--focus)}
+.rte:empty::before{content:attr(data-ph);color:var(--muted);pointer-events:none}
+.rte b,.rte strong{font-weight:700}
+mark.hl-yellow,mark.hl-green,mark.hl-blue,mark.hl-pink,mark.hl-orange{color:inherit;border-radius:3px;padding:0 1px;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+mark.hl-yellow{background:rgba(250,204,21,.42)}mark.hl-green{background:rgba(74,222,128,.38)}mark.hl-blue{background:rgba(96,165,250,.38)}mark.hl-pink{background:rgba(244,114,182,.38)}mark.hl-orange{background:rgba(251,146,60,.42)}
+.swc.hl-yellow{background:#facc15}.swc.hl-green{background:#4ade80}.swc.hl-blue{background:#60a5fa}.swc.hl-pink{background:#f472b6}.swc.hl-orange{background:#fb923c}
 .report table{border-collapse:collapse;width:100%;font-family:Arial,Helvetica,sans-serif;font-size:14px;margin:10px 0 18px}
 .report td,.report th{border:1px solid #e3ddd0;padding:7px 9px;text-align:left;vertical-align:top}
 .report th{background:#f6f3ec}
@@ -739,7 +754,7 @@ function migrateRef(x){
 }
 
 /* ---------- PDF attachments (stored as artifact assets) ---------- */
-const PDF_MAX=20*1024*1024;
+const PDF_MAX=((window.LITNOTES_CONFIG&&window.LITNOTES_CONFIG.maxUploadMb)||20)*1024*1024;
 let _assets, PDF_OK; const UP=new Set();
 async function getAssets(){
   if(_assets!==undefined)return _assets;
@@ -751,7 +766,7 @@ const pdfUrl=p=>'/_blob/'+p.id;
 function checkPdf(f){
   if(!f)return 'No file selected.';
   if(!(f.type==='application/pdf'||/\.pdf$/i.test(f.name)))return 'Please choose a PDF file.';
-  if(f.size>PDF_MAX)return `This PDF is ${fmtSize(f.size)} — the limit is 20 MB.`;
+  if(f.size>PDF_MAX)return `This PDF is ${fmtSize(f.size)} — the limit is ${Math.round(PDF_MAX/1048576)} MB.`;
   return '';
 }
 function assetErr(e){
@@ -780,7 +795,7 @@ function pdfBoxHTML(x){
   if(x.pdf) return `<div class="pdfrow"><span class="pdfic">PDF</span><div class="nm"><b title="${esc(x.pdf.name)}">${esc(x.pdf.name)}</b><span>${fmtSize(x.pdf.size)} · added ${esc(ago(x.pdf.addedAt))}</span></div>
     <a class="btn sm pri" href="${esc(pdfUrl(x.pdf))}" target="_blank" rel="noopener">${ico('doc')}Open PDF</a><button class="btn sm" data-act="pickPdf">${ico('upload')}Replace</button><button class="btn sm ghost danger" data-act="removePdf">${ico('trash')}</button></div>`;
   if(PDF_OK===false) return `<div class="help">${unavailable('pdf')}</div>`;
-  return `<button class="drop" data-act="pickPdf" data-drop="1"><span class="di">${ico('upload')}</span><span><b>Attach the PDF</b><span>Drag it here or click to choose · up to 20 MB</span></span></button>`;
+  return `<button class="drop" data-act="pickPdf" data-drop="1"><span class="di">${ico('upload')}</span><span><b>Attach the PDF</b><span>Drag it here or click to choose · up to ${Math.round(PDF_MAX/1048576)} MB</span></span></button>`;
 }
 function pdfToolHTML(x){
   if(!x||!x.pdf||UP.has(V.paperId))return '';
@@ -1291,7 +1306,7 @@ function compareView(pp,t){
   const filled=pp.filter(x=>answered(x,q)).length;
   return `<div class="card" style="margin-bottom:16px"><div class="row" style="align-items:flex-end"><div class="field" style="flex:1;margin:0;min-width:260px"><label>Read down one question across every paper</label><select class="inp" data-act="cmpQ">${opts}</select></div><span class="tag" style="--x:${secColor(s)}">${esc(s.title)}</span><span class="muted" style="font-size:13px">${filled}/${pp.length} answered</span></div></div>
   <table class="tbl static"><thead><tr><th style="width:32%">Paper</th><th>${idx}. ${esc(q.text)}</th></tr></thead><tbody>
-  ${pp.map(x=>{const a=(x.answers||{})[q.id]||'';const c=q.choiceKey?x[q.choiceKey]:'';return `<tr><td><button class="link" style="text-align:left" data-act="openPaper" data-id="${x.id}" data-q="${q.id}">${esc(paperTitle(x))}</button><div class="m">${esc(paperMeta(x))}</div></td><td class="a">${c?`<span class="badge b-${c}">${esc(c)}</span> `:''}${a?esc(a):'<span class="na">Not answered</span>'}</td></tr>`}).join('')}
+  ${pp.map(x=>{const a=(x.answers||{})[q.id]||'';const c=q.choiceKey?x[q.choiceKey]:'';return `<tr><td><button class="link" style="text-align:left" data-act="openPaper" data-id="${x.id}" data-q="${q.id}">${esc(paperTitle(x))}</button><div class="m">${esc(paperMeta(x))}</div></td><td class="a">${c?`<span class="badge b-${c}">${esc(c)}</span> `:''}${a.trim()?answerHTML(x,q):'<span class="na">Not answered</span>'}</td></tr>`}).join('')}
   </tbody></table>`;
 }
 
@@ -1333,7 +1348,7 @@ function paperView(){
           ${x.pdf?`<button class="link qask" data-act="askThisQ" data-q="${q.id}">${ico('spark')}Ask ${AIN} where the paper answers this</button>`:''}
           ${q.showChain&&p&&p.chain?`<div class="chain"><b>My causal chain:</b> ${esc(p.chain)}</div>`:''}
           ${q.choices?`<div class="choice" data-choice="${q.choiceKey}">${q.choices.map(c=>`<button class="${ch===c?'on':''}" data-act="choose" data-key="${q.choiceKey}" data-v="${esc(c)}" data-q="${q.id}">${esc(c)}</button>`).join('')}</div>`:''}
-          <textarea class="inp" data-ans="${q.id}" placeholder="Your notes, in your own words…">${esc(a)}</textarea>
+          ${rteHTML(x,q)}
         </div></div>`}).join('')}
       </div></section>`;
   }).join('');
@@ -1366,12 +1381,7 @@ function bindPaper(){
     const h=()=>{x[el.dataset.f]=el.value; save(V.paperId,700); flashSave()};
     el.addEventListener('input',h); el.addEventListener('change',h);
   });
-  m.querySelectorAll('[data-ans]').forEach(el=>{
-    el.addEventListener('input',()=>{
-      x.answers=x.answers||{}; x.answers[el.dataset.ans]=el.value; autosize(el);
-      updateQState(el.dataset.ans); save(V.paperId,700); flashSave();
-    });
-  });
+  bindRte(m);
   flashSave(true);
   const rc=m.querySelector('.refcard'); const id0=V.paperId;
   bindDrop(rc,f=>attachPdf(id0,f));
@@ -1417,7 +1427,7 @@ function openToQuestion(qid){
   const sec=el.closest('.sect'); sec.classList.add('open'); V.openSec[sec.dataset.sec]=true;
   el.classList.add('open'); V.openQ[V.paperId+':'+qid]=true;
   el.scrollIntoView({behavior:'smooth',block:'center'});
-  const ta=el.querySelector('textarea'); autosize(ta); setTimeout(()=>ta.focus({preventScroll:true}),350);
+  const ta=el.querySelector('.rte'); if(ta)setTimeout(()=>ta.focus({preventScroll:true}),350);
 }
 
 
@@ -1771,6 +1781,146 @@ async function doUpdate(){
 }
 
 /* ============================================================
+   RICH-TEXT NOTES  (bold, italic, underline, highlight)
+   Stored as cleaned HTML in x.rich[qid]; plain text stays in x.answers[qid]
+   so search, Ask, previews and progress keep working on text.
+   ============================================================ */
+const HL=[['yellow','#fde047',[253,224,71]],['green','#86efac',[134,239,172]],['blue','#93c5fd',[147,197,253]],['pink','#f9a8d4',[249,168,212]],['orange','#fdba74',[253,186,116]]];
+function hlFromColor(c){
+  const m=String(c||'').match(/rgba?\(\s*(\d+)[ ,]+(\d+)[ ,]+(\d+)(?:[ ,/]+([\d.]+))?/i); if(!m)return null;
+  if(m[4]!==undefined&&parseFloat(m[4])===0)return null;
+  const rgb=[+m[1],+m[2],+m[3]]; let best=null,bd=1e9;
+  HL.forEach(([k,,v])=>{const d=(v[0]-rgb[0])**2+(v[1]-rgb[1])**2+(v[2]-rgb[2])**2;if(d<bd){bd=d;best=k}});
+  return bd<9000?best:null;
+}
+/* whitelist-based cleaner: returns safe HTML using only b, i, u, mark.hl-*, br */
+function cleanRich(html){
+  const src=document.createElement('template'); src.innerHTML=html||'';
+  const out=document.createElement('div');
+  const BLOCK=/^(DIV|P|LI|H[1-6]|BLOCKQUOTE|PRE|TR|SECTION|ARTICLE)$/;
+  const walk=(node,parent)=>{
+    node.childNodes.forEach((n,i)=>{
+      if(n.nodeType===3){parent.appendChild(document.createTextNode(n.nodeValue));return}
+      if(n.nodeType!==1)return;
+      const tag=n.tagName;
+      if(tag==='BR'){parent.appendChild(document.createElement('br'));return}
+      if(/^(SCRIPT|STYLE|TEMPLATE|IFRAME|OBJECT|SVG|MATH|NOSCRIPT)$/.test(tag))return;
+      let wrap=null,inner=null;
+      const st=n.getAttribute&&n.getAttribute('style')||'';
+      const chain=[];
+      if(tag==='B'||tag==='STRONG'||/font-weight\s*:\s*(bold|[6-9]00)/i.test(st))chain.push('b');
+      if(tag==='I'||tag==='EM'||/font-style\s*:\s*italic/i.test(st))chain.push('i');
+      if(tag==='U'||/text-decoration[^;]*underline/i.test(st))chain.push('u');
+      let hl=null;
+      if(tag==='MARK'){const c=(n.className||'').match(/hl-(yellow|green|blue|pink|orange)/);hl=c?c[1]:'yellow'}
+      const bg=st.match(/background(?:-color)?\s*:\s*([^;]+)/i); if(bg){const h=hlFromColor(bg[1]);if(h)hl=h}
+      if(hl)chain.push('mark.hl-'+hl);
+      chain.forEach(t=>{const [name,cls]=t.split('.');const e=document.createElement(name);if(cls)e.className=cls;if(inner)inner.appendChild(e);else wrap=e;inner=e});
+      const target=inner||parent;
+      walk(n,target);
+      if(wrap&&wrap.childNodes.length)parent.appendChild(wrap);
+      if(BLOCK.test(tag)&&n.nextSibling&&parent.lastChild&&parent.lastChild.nodeName!=='BR')parent.appendChild(document.createElement('br'));
+    });
+  };
+  walk(src.content,out);
+  // drop empty formatting and trailing breaks
+  out.querySelectorAll('b,i,u,mark').forEach(e=>{if(!e.textContent)e.remove()});
+  while(out.lastChild&&out.lastChild.nodeName==='BR')out.lastChild.remove();
+  return out.innerHTML;
+}
+function richToText(html){const d=document.createElement('div');d.innerHTML=String(html||'').replace(/<br\s*\/?>/gi,'\n');return d.textContent}
+const hasFormat=h=>/<(b|i|u|mark)\b/i.test(h||'');
+function answerHTML(x,q){
+  const r=x.rich&&x.rich[q.id]; if(r)return cleanRich(r);
+  return esc((x.answers||{})[q.id]||'').replace(/\n/g,'<br>');
+}
+function richToMd(html){
+  return richToText(String(html||'').replace(/<b>/gi,'\u0001**').replace(/<\/b>/gi,'**\u0001').replace(/<i>/gi,'\u0001*').replace(/<\/i>/gi,'*\u0001')).replace(/\u0001/g,'');
+}
+function answerMd(x,q){const r=x.rich&&x.rich[q.id];return r?richToMd(cleanRich(r)):((x.answers||{})[q.id]||'')}
+function rteToolbar(qid){
+  return `<div class="rtebar" data-for="${qid}" role="toolbar" aria-label="Formatting">
+    <button type="button" data-fmt="bold" title="Bold (Ctrl+B)" aria-label="Bold"><b>B</b></button>
+    <button type="button" data-fmt="italic" title="Italic (Ctrl+I)" aria-label="Italic"><i style="font-family:Georgia,serif">I</i></button>
+    <button type="button" data-fmt="underline" title="Underline (Ctrl+U)" aria-label="Underline"><u>U</u></button>
+    <span class="sep"></span><span class="lbl">Highlight</span>
+    ${HL.map(([k])=>`<button type="button" data-hl="${k}" title="Highlight ${k}" aria-label="Highlight ${k}"><span class="swc hl-${k}"></span></button>`).join('')}
+    <button type="button" data-hl="none" title="Remove highlight" aria-label="Remove highlight"><svg class="i" viewBox="0 0 24 24" style="width:16px;height:16px"><path d="m4 20 6-6M14 4l6 6-8 8H8v-4z"/><path d="M3 3l18 18"/></svg></button>
+    <span class="sep"></span>
+    <button type="button" data-fmt="clear" title="Clear formatting" aria-label="Clear formatting" style="font-size:12px;font-weight:700">T<sub style="font-size:9px">x</sub></button>
+  </div>`;
+}
+function rteHTML(x,q){
+  return `${rteToolbar(q.id)}<div class="rte" contenteditable="true" role="textbox" aria-multiline="true" aria-label="Notes for: ${esc(q.text)}" data-ans="${q.id}" data-ph="Your notes, in your own words…" spellcheck="true">${answerHTML(x,q)}</div>`;
+}
+/* turn browser-made highlight spans into our marks, without moving the caret */
+function normalizeMarks(ed){
+  ed.querySelectorAll('span[style*="background"],font[style*="background"]').forEach(sp=>{
+    const h=hlFromColor(sp.style.backgroundColor);
+    sp.style.backgroundColor='';
+    let target=sp;
+    if(h){const m=document.createElement('mark');m.className='hl-'+h;sp.parentNode.insertBefore(m,sp);m.appendChild(sp);target=sp}
+    if(!sp.getAttribute('style'))sp.removeAttribute('style');
+    if(!sp.attributes.length){while(sp.firstChild)sp.parentNode.insertBefore(sp.firstChild,sp);sp.remove()}
+  });
+}
+function unwrapMarksInSelection(ed){
+  const sel=window.getSelection(); if(!sel.rangeCount)return;
+  const r=sel.getRangeAt(0);
+  ed.querySelectorAll('mark').forEach(m=>{if(r.intersectsNode(m)){while(m.firstChild)m.parentNode.insertBefore(m.firstChild,m);m.remove()}});
+  ed.querySelectorAll('span[style*="background"]').forEach(sp=>{if(r.intersectsNode(sp))sp.style.backgroundColor=''});
+}
+function rteCommit(ed){
+  const x=S.docs[V.paperId]; if(!x)return;
+  const qid=ed.dataset.ans;
+  if(!ed.textContent.trim()&&!ed.querySelector('img'))ed.innerHTML='';
+  const html=cleanRich(ed.innerHTML), text=richToText(html);
+  x.answers=x.answers||{}; x.answers[qid]=text;
+  x.rich=x.rich||{}; if(hasFormat(html))x.rich[qid]=html; else delete x.rich[qid];
+  updateQState(qid); save(V.paperId,700); flashSave();
+}
+function refreshRteState(){
+  const ed=document.activeElement; if(!ed||!ed.classList||!ed.classList.contains('rte'))return;
+  const bar=ed.previousElementSibling; if(!bar)return;
+  ['bold','italic','underline'].forEach(c=>{const b=bar.querySelector(`[data-fmt="${c}"]`);let on=false;try{on=document.queryCommandState(c)}catch(e){}if(b)b.classList.toggle('on',on)});
+}
+function bindRte(root){
+  root.querySelectorAll('.rte').forEach(ed=>{
+    ed.addEventListener('input',()=>rteCommit(ed));
+    ed.addEventListener('paste',e=>{ // paste as plain text so notes stay clean
+      e.preventDefault(); const t=(e.clipboardData||window.clipboardData).getData('text/plain');
+      document.execCommand('insertText',false,t);
+    });
+    ed.addEventListener('drop',e=>{const t=e.dataTransfer&&e.dataTransfer.getData('text/plain');if(t){e.preventDefault();ed.focus();document.execCommand('insertText',false,t)}});
+    ed.addEventListener('keyup',refreshRteState); ed.addEventListener('mouseup',refreshRteState);
+    ed.addEventListener('focus',refreshRteState);
+  });
+  root.querySelectorAll('.rtebar button').forEach(b=>{
+    b.addEventListener('mousedown',e=>e.preventDefault()); // keep the text selection
+    b.addEventListener('click',()=>{
+      const ed=b.parentElement.nextElementSibling; if(!ed)return;
+      if(document.activeElement!==ed)ed.focus();
+      try{document.execCommand('styleWithCSS',false,false)}catch(e){}
+      if(b.dataset.fmt==='clear'){document.execCommand('removeFormat');unwrapMarksInSelection(ed)}
+      else if(b.dataset.fmt){document.execCommand(b.dataset.fmt)}
+      else if(b.dataset.hl==='none'){unwrapMarksInSelection(ed)}
+      else if(b.dataset.hl){
+        const sel=window.getSelection();
+        if(!sel.rangeCount||sel.isCollapsed){toast('Select some text first, then pick a highlight colour');return}
+        unwrapMarksInSelection(ed);
+        const c=HL.find(h=>h[0]===b.dataset.hl)[1];
+        try{document.execCommand('styleWithCSS',false,true)}catch(e){}
+        document.execCommand('hiliteColor',false,c);
+        try{document.execCommand('styleWithCSS',false,false)}catch(e){}
+        normalizeMarks(ed);
+      }
+      rteCommit(ed); refreshRteState();
+    });
+  });
+}
+document.addEventListener('selectionchange',()=>{if(V.view==='paper')refreshRteState()});
+
+/* ============================================================
    REPORTS
    ============================================================ */
 function paperReportBody(x,t,showEmpty,level){
@@ -1783,7 +1933,7 @@ function paperReportBody(x,t,showEmpty,level){
     const items=qs.map(q=>({q,...ans(q)})).filter(i=>showEmpty||i.a||i.c);
     if(!items.length)return;
     html+=`<h${h+1} style="color:${secColorHex(s)}">${esc(s.title)}</h${h+1}>`;
-    items.forEach(i=>{html+=`<h4>${t.questions.indexOf(i.q)+1}. ${esc(i.q.text)}</h4>${i.c?`<p><b>${esc(i.c)}</b></p>`:''}${i.a?`<p>${esc(i.a)}</p>`:(i.c?'':'<p class="na">Not answered</p>')}`});
+    items.forEach(i=>{html+=`<h4>${t.questions.indexOf(i.q)+1}. ${esc(i.q.text)}</h4>${i.c?`<p><b>${esc(i.c)}</b></p>`:''}${i.a?`<p>${answerHTML(x,i.q)}</p>`:(i.c?'':'<p class="na">Not answered</p>')}`});
   });
   return html;
 }
@@ -1821,7 +1971,7 @@ function projectReportHTML(p,pp,t){
         if(!rows.length)return;
         if(!any){html+=sh;any=true}
         html+=`<h3>${t.questions.indexOf(q)+1}. ${esc(q.text)}</h3>`;
-        rows.forEach(r=>{html+=`<h4>${esc(paperTitle(r.x))}${r.x.authors||r.x.year?' — '+esc(paperMeta(r.x)):''}</h4>${r.c?`<p><b>${esc(r.c)}</b></p>`:''}${r.a?`<p>${esc(r.a)}</p>`:(r.c?'':'<p class="na">Not answered</p>')}`});
+        rows.forEach(r=>{html+=`<h4>${esc(paperTitle(r.x))}${r.x.authors||r.x.year?' — '+esc(paperMeta(r.x)):''}</h4>${r.c?`<p><b>${esc(r.c)}</b></p>`:''}${r.a?`<p>${answerHTML(r.x,q)}</p>`:(r.c?'':'<p class="na">Not answered</p>')}`});
       });
     });
   }else{
@@ -1847,7 +1997,7 @@ function mdPaper(x,t,showEmpty,hl){
     const items=t.questions.filter(q=>q.section===sec.id).map(q=>({q,a:((x.answers||{})[q.id]||'').trim(),c:q.choiceKey?x[q.choiceKey]:''})).filter(i=>showEmpty||i.a||i.c);
     if(!items.length)return;
     s+=`${H(hl+1)}${sec.title}\n\n`;
-    items.forEach(i=>{s+=`**${t.questions.indexOf(i.q)+1}. ${i.q.text}**\n\n${i.c?`*${i.c}*\n\n`:''}${i.a||(i.c?'':'_Not answered_')}${i.a||!i.c?'\n\n':''}`});
+    items.forEach(i=>{s+=`**${t.questions.indexOf(i.q)+1}. ${i.q.text}**\n\n${i.c?`*${i.c}*\n\n`:''}${i.a?answerMd(x,i.q):(i.c?'':'_Not answered_')}${i.a||!i.c?'\n\n':''}`});
   });
   return s;
 }
@@ -1866,7 +2016,7 @@ function mdProject(p,pp,t){
         const rows=order.map(x=>({x,a:((x.answers||{})[q.id]||'').trim(),c:q.choiceKey?x[q.choiceKey]:''})).filter(r=>V.showEmpty||r.a||r.c);
         if(!rows.length)return;
         s+=`### ${t.questions.indexOf(q)+1}. ${q.text}\n\n`;
-        rows.forEach(r=>{s+=`- **${paperTitle(r.x)}**${r.c?` — *${r.c}*`:''}: ${(r.a||(r.c?'':'_Not answered_')).replace(/\n/g,'\n  ')}\n`});
+        rows.forEach(r=>{s+=`- **${paperTitle(r.x)}**${r.c?` — *${r.c}*`:''}: ${(r.a?answerMd(r.x,q):(r.c?'':'_Not answered_')).replace(/\n/g,'\n  ')}\n`});
         s+='\n';
       });
     });
@@ -1881,7 +2031,7 @@ function currentReport(kind){
   return {name:p.name||'project',md:mdProject(p,pp,t),html:$('#reportDoc').innerHTML};
 }
 function standaloneHTML(title,body){
-  return `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${esc(title)}</title><style>body{font-family:Georgia,serif;max-width:820px;margin:40px auto;padding:0 20px;line-height:1.55;color:#1f2328;font-size:16px}h1{font-size:28px}h2{font-size:21px;border-bottom:1px solid #ddd;padding-bottom:4px;margin-top:28px}h3{font-size:17px}h4{font-family:Arial,sans-serif;font-size:14px;margin:14px 0 2px}p{white-space:pre-wrap;margin:0 0 8px}.apa{padding-left:.5in;text-indent:-.5in;white-space:normal}.meta{color:#666;font-family:Arial,sans-serif;font-size:13px}.na{color:#999;font-style:italic}table{border-collapse:collapse;width:100%;font-family:Arial,sans-serif;font-size:13px;margin:8px 0 16px}td,th{border:1px solid #ccc;padding:5px 7px;text-align:left;vertical-align:top}th{background:#f3f0e8}</style></head><body>${body}</body></html>`;
+  return `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${esc(title)}</title><style>body{font-family:Georgia,serif;max-width:820px;margin:40px auto;padding:0 20px;line-height:1.55;color:#1f2328;font-size:16px}h1{font-size:28px}h2{font-size:21px;border-bottom:1px solid #ddd;padding-bottom:4px;margin-top:28px}h3{font-size:17px}h4{font-family:Arial,sans-serif;font-size:14px;margin:14px 0 2px}p{white-space:pre-wrap;margin:0 0 8px}.apa{padding-left:.5in;text-indent:-.5in;white-space:normal}mark{color:inherit;padding:0 1px;border-radius:2px}mark.hl-yellow{background:#fde047}mark.hl-green{background:#86efac}mark.hl-blue{background:#93c5fd}mark.hl-pink{background:#f9a8d4}mark.hl-orange{background:#fdba74}.meta{color:#666;font-family:Arial,sans-serif;font-size:13px}.na{color:#999;font-style:italic}table{border-collapse:collapse;width:100%;font-family:Arial,sans-serif;font-size:13px;margin:8px 0 16px}td,th{border:1px solid #ccc;padding:5px 7px;text-align:left;vertical-align:top}th{background:#f3f0e8}</style></head><body>${body}</body></html>`;
 }
 const slug=s=>(s||'notes').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,60)||'notes';
 async function offerDownload(filename,data,fallbackText){
@@ -2003,11 +2153,11 @@ document.addEventListener('click',e=>{
       let qid=b.dataset.q; if(!qid&&b.dataset.stage){const q=tpl(x.projectId).questions.find(z=>z.section===b.dataset.stage&&!answered(x,z));qid=q&&q.id}
       if(qid)setTimeout(()=>openToQuestion(qid),60);break}
     case 'toggleSec': {const s=b.closest('.sect');s.classList.toggle('open');V.openSec[id]=s.classList.contains('open');break}
-    case 'toggleQ': {const q=b.closest('.q');q.classList.toggle('open');V.openQ[V.paperId+':'+id]=q.classList.contains('open');if(q.classList.contains('open')){const ta=q.querySelector('textarea');autosize(ta);ta.focus()}break}
+    case 'toggleQ': {const q=b.closest('.q');q.classList.toggle('open');V.openQ[V.paperId+':'+id]=q.classList.contains('open');if(q.classList.contains('open')){const ta=q.querySelector('.rte');if(ta)ta.focus()}break}
     case 'expandAll': document.querySelectorAll('#paperEditor .sect, #paperEditor .q').forEach(el=>el.classList.add('open'));tpl(S.docs[V.paperId].projectId).questions.forEach(q=>V.openQ[V.paperId+':'+q.id]=true);V.openSec={};document.querySelectorAll('#paperEditor textarea').forEach(autosize);break;
     case 'collapseAll': document.querySelectorAll('#paperEditor .q').forEach(el=>el.classList.remove('open'));Object.keys(V.openQ).forEach(k=>{if(k.startsWith(V.paperId+':'))delete V.openQ[k]});break;
     case 'nextEmpty': {const x=S.docs[V.paperId],t=tpl(x.projectId);const q=t.questions.find(z=>!answered(x,z));if(!q){toast('Every question is answered 🎉');break}
-      const sec=document.querySelector(`[data-sec="${q.section}"]`);sec.classList.add('open');V.openSec[q.section]=true;const el=document.querySelector(`[data-q="${q.id}"]`);el.classList.add('open');V.openQ[V.paperId+':'+q.id]=true;el.scrollIntoView({behavior:'smooth',block:'center'});const ta=el.querySelector('textarea');autosize(ta);setTimeout(()=>ta.focus({preventScroll:true}),300);break}
+      const sec=document.querySelector(`[data-sec="${q.section}"]`);sec.classList.add('open');V.openSec[q.section]=true;const el=document.querySelector(`[data-q="${q.id}"]`);el.classList.add('open');V.openQ[V.paperId+':'+q.id]=true;el.scrollIntoView({behavior:'smooth',block:'center'});const ta=el.querySelector('.rte');if(ta)setTimeout(()=>ta.focus({preventScroll:true}),300);break}
     case 'choose': {const x=S.docs[V.paperId];const k=b.dataset.key;x[k]=x[k]===b.dataset.v?'':b.dataset.v;b.parentElement.querySelectorAll('button').forEach(z=>z.classList.toggle('on',z.dataset.v===x[k]));updateQState(b.dataset.q);
       // Q5 verdict changes dim state of passes 2-3
       if(k==='verdict'){['pass2','pass3'].forEach(s=>{const el=document.querySelector(`[data-sec="${s}"]`);if(el)el.classList.toggle('dim',x.verdict==='Skip')})}
@@ -2043,9 +2193,9 @@ document.addEventListener('input',e=>{
   if(t.dataset.pf&&S.docs[V.pid]){S.docs[V.pid][t.dataset.pf]=t.value;if(t.tagName==='TEXTAREA')autosize(t);save(V.pid,800);if(t.dataset.pf==='name')renderSide()}
 });
 document.addEventListener('keydown',e=>{
-  if(e.key==='Escape'){const o=document.querySelector('.ov');if(o){o.remove();return}if(V.focus&&V.view==='paper'&&!['input','textarea','select'].includes((e.target.tagName||'').toLowerCase())){setFocus(false);return}closeSearch();$('#q').blur()}
+  if(e.key==='Escape'){const o=document.querySelector('.ov');if(o){o.remove();return}if(V.focus&&V.view==='paper'&&!e.target.isContentEditable&&!['input','textarea','select'].includes((e.target.tagName||'').toLowerCase())){setFocus(false);return}closeSearch();$('#q').blur()}
   const tag=(e.target.tagName||'').toLowerCase();
-  if(e.key==='/'&&!['input','textarea','select'].includes(tag)&&!document.querySelector('.ov')){e.preventDefault();$('#q').focus()}
+  if(e.key==='/'&&!e.target.isContentEditable&&!['input','textarea','select'].includes(tag)&&!document.querySelector('.ov')){e.preventDefault();$('#q').focus()}
 });
 /* ---------- focus mode & resizable panes ---------- */
 function paneWidth(){let v=52;try{v=parseFloat(localStorage.getItem('litnotes.lw'))||52}catch(e){}return Math.min(80,Math.max(20,v))}

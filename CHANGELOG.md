@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.0]
+- **Formatted notes**: make text **bold**, *italic* or underlined, and highlight it in yellow, green, blue, pink or orange. A small toolbar sits above every note; Ctrl+B, Ctrl+I and Ctrl+U work too.
+- Formatting appears in paper and project reports, in Compare, and in exported Word/PDF files; Markdown exports keep bold and italics.
+- Pasted text is cleaned automatically, so notes stay tidy and safe.
+- The PDF size limit shown in the app now matches your server's setting.
+- Smaller updates: after this version, updates download only the changed app files instead of the whole app.
+
 ## [1.2.0]
 - **Focus mode** for reading: hides the sidebar, top bar and headers so only the PDF and your notes fill the screen (uses full screen where the browser allows). Leave with "Exit focus" or Esc.
 - **Resizable panes**: drag the handle between the PDF and your notes to set their widths; double-click it to reset. Your choice is remembered, and the PDF re-fits to the new width.
