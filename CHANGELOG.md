@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.16.4]
+- **Toolbars stay at the top.** In notes, the formatting toolbar stays fixed just under the question bar while a long note scrolls beneath it. This also works in Focus mode.
+- In Write, the document ribbon (Home, Format, Insert) now stays fixed under the page toolbar instead of slipping behind it.
+
 ## [1.16.3]
 - **Hints open on click.** Each question now shows three small buttons: 📍 Where to look, ✎ How to answer and 💡 Example. A card opens only when you click its button and closes when you click again, so the note box gets the space.
 - **Less padding around the note box.** The current question no longer sits inside an extra padded box; that came from a style clash with the side menu's project card.
