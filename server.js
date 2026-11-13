@@ -13,6 +13,8 @@ const fs = require('node:fs');
 const fsp = require('node:fs/promises');
 const path = require('node:path');
 const crypto = require('node:crypto');
+const { execFile } = require('node:child_process');
+const os = require('node:os');
 
 /* ---------------------------------------------------------------- config */
 const env = (k, d) => (process.env[k] === undefined || process.env[k] === '' ? d : process.env[k]);
@@ -74,6 +76,36 @@ function send(res, status, body, headers = {}) {
   res.end(payload);
 }
 const fail = (res, status, code, message) => send(res, status, { code, message });
+
+/* ---------- OCR for scanned pages (Tesseract, installed in the Docker image) ---------- */
+const OCR_BIN = env('OCR_BIN', 'tesseract');
+const OCR_WANT = env('OCR_LANGS', 'eng+fra');
+const OCR = { ok: false, langs: '' };
+function detectOcr() {
+  return new Promise((resolve) => {
+    execFile(OCR_BIN, ['--list-langs'], { timeout: 10000 }, (err, stdout, stderr) => {
+      if (err) { resolve(); return; }
+      const have = new Set(String(stdout + stderr).split(/\s+/));
+      const langs = OCR_WANT.split('+').filter((l) => have.has(l));
+      if (langs.length) { OCR.ok = true; OCR.langs = langs.join('+'); }
+      resolve();
+    });
+  });
+}
+async function handleOcr(req, res) {
+  if (!OCR.ok) return fail(res, 503, 'ocr_off', 'Text recognition is not installed on this server');
+  let buf;
+  try { buf = await readBody(req, 25 * 1024 * 1024); } catch (e) { return fail(res, 413, 'too_large', 'Image too large'); }
+  if (!(buf.length > 8 && buf[0] === 0x89 && buf[1] === 0x50 && buf[2] === 0x4e && buf[3] === 0x47)) return fail(res, 400, 'bad_image', 'Expected a PNG image');
+  const tmp = path.join(os.tmpdir(), `ocr-${crypto.randomBytes(6).toString('hex')}.png`);
+  await fsp.writeFile(tmp, buf);
+  const psm = /^(3|4|6|7|11)$/.test(String(new URL(req.url, 'http://x').searchParams.get('psm'))) ? new URL(req.url, 'http://x').searchParams.get('psm') : '6';
+  execFile(OCR_BIN, [tmp, 'stdout', '-l', OCR.langs, '--psm', psm], { timeout: 90000, maxBuffer: 8 * 1024 * 1024, env: { ...process.env, OMP_THREAD_LIMIT: '2' } }, (err, stdout) => {
+    fsp.unlink(tmp).catch(() => {});
+    if (err) { log('ocr failed', err.message); return fail(res, 500, 'ocr_failed', 'Could not read the text'); }
+    send(res, 200, JSON.stringify({ text: String(stdout).replace(/\f/g, '').trim(), langs: OCR.langs }), { 'Content-Type': 'application/json; charset=utf-8' });
+  });
+}
 
 function readBody(req, limit) {
   return new Promise((resolve, reject) => {
@@ -159,6 +191,7 @@ async function indexHtml() {
     version: 1,
     pdfjsBase: '/vendor/pdfjs/',
     pdflibUrl: '/vendor/pdf-lib/pdf-lib.min.js',
+    ocr: OCR.ok,
     ai: AI ? { label: AI.label, provider: AI.provider, model: AI.model } : null,
     maxUploadMb: Math.round(MAX_UPLOAD / 1024 / 1024),
     lookup: CROSSREF_ENABLED,
@@ -529,6 +562,7 @@ async function handle(req, res) {
 
   // AI
   if (p === '/api/ask' && req.method === 'POST') return handleAsk(req, res);
+  if (p === '/api/ocr' && req.method === 'POST') return handleOcr(req, res);
   if (p === '/api/lookup' && req.method === 'GET') return handleLookup(url, res);
   if (p === '/api/version' && req.method === 'GET') return handleVersion(url, res);
   if (p === '/api/backups' && req.method === 'GET') {
@@ -553,6 +587,7 @@ async function main() {
   await fsp.mkdir(BACKUP_DIR, { recursive: true });
   await initBackups();
   detectFonts();
+  await detectOcr();
   const server = http.createServer((req, res) => {
     handle(req, res).catch((e) => { log('error', req.method, req.url, e.stack || e.message); if (!res.headersSent) fail(res, 500, 'internal', 'Server error'); else res.end(); });
   });
@@ -561,6 +596,7 @@ async function main() {
     log(`Literature Notes ${APP_VERSION} running on http://localhost:${PORT}`);
     log(`data folder: ${DATA_DIR}`);
     log(`PDF.js: ${fs.existsSync(path.join(PDFJS_DIR, 'pdf.min.mjs')) ? 'local' : 'MISSING (run npm install)'} · fonts: ${fontsAvailable.length ? fontsAvailable.join(', ') : 'Google Fonts fallback'}`);
+    log(`Text recognition (scanned PDFs): ${OCR.ok ? 'on · ' + OCR.langs : 'off — tesseract not found'}`);
     log(`Ask: ${AI ? `${AI.provider} (${AI.model})` : 'off — set ANTHROPIC_API_KEY or OLLAMA_URL to enable'}`);
     if (!APP_PASSWORD && HOST !== '127.0.0.1') log('tip: set APP_PASSWORD if other people on your network can reach this port');
   });

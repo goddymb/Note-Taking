@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.14.0]
+- **Quotes from scanned PDFs.** A new **Area tool** in the reader: draw a box around a passage on a scanned page and the app reads the text. Check and correct it, then **Add quote** (with citation and page) or **Highlight** the area, as with normal PDFs.
+- When a PDF has no selectable text, the reader says so and offers the Area tool.
+- Text recognition runs on your own computer (Tesseract, English and French), with no internet or API key. This update is a larger download than usual (about 30–40 MB), once, because it adds the text-recognition engine.
+
 ## [1.13.0]
 - **Settings in tabs:** Appearance, Writing, Backups & data, and App & updates. A dot on the App & updates tab shows when an update is waiting.
 - **Project settings in tabs:** Details (with Delete project), Reading questions, Themes & dimensions, and Abbreviations.

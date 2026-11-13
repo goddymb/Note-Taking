@@ -2,7 +2,8 @@
 # Layers are ordered from least to most often changed, so an update only
 # downloads the app files (a few hundred KB) instead of the whole image.
 FROM node:22-alpine
-RUN apk add --no-cache su-exec
+# Tesseract reads the text of scanned PDF pages (English and French).
+RUN apk add --no-cache su-exec tesseract-ocr tesseract-ocr-data-eng tesseract-ocr-data-fra
 LABEL org.opencontainers.image.source="https://github.com/goddymb/Note-Taking" \
       org.opencontainers.image.description="Literature Notes — structured note-taking for literature reviews"
 

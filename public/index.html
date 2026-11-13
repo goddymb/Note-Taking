@@ -544,6 +544,10 @@ body.focus .wr>.gutter,body.focus .nbrowse{position:relative;top:0;height:100%;m
 .abbrsug{margin-top:8px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:12.5px}.abbrsug[hidden]{display:none}
 .abchip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--panel-2);border-radius:999px;padding:3px 4px 3px 10px}
 .abchip button{border:0;background:none;color:var(--accent);font-weight:700;cursor:pointer;padding:2px 6px;border-radius:999px;font:inherit}.abchip button:hover{background:var(--panel)}
+.rbody.area .textLayer{pointer-events:none}.rbody.area .pg{cursor:crosshair}
+.areabox{position:absolute;z-index:3;border:2px dashed var(--accent);background:color-mix(in srgb,var(--accent) 14%,transparent);border-radius:3px;pointer-events:none}
+.scanhint{background:color-mix(in srgb,var(--warn,#e0a100) 12%,var(--panel))}
+.selpop textarea.inp{flex:1;min-height:64px;font-size:13px;line-height:1.4;padding:7px 9px;resize:vertical}
 .hlLayer{position:absolute;inset:0;z-index:0;pointer-events:none;mix-blend-mode:multiply}
 .hlLayer i{position:absolute;display:block;border-radius:2px}
 .selpop{position:absolute;z-index:30;left:50%;transform:translateX(-50%);background:var(--panel-solid,var(--panel));color:var(--ink);border:1px solid var(--line);border-radius:14px;box-shadow:0 14px 40px rgba(0,0,0,.3);padding:10px 12px;display:grid;gap:8px;width:min(420px,calc(100% - 24px));font-size:13px;animation:spIn .15s ease}
@@ -1657,12 +1661,13 @@ function readerHTML(x){
       <div class="seg"><button class="${R.tab==='pdf'?'on':''}" data-act="rtab" data-v="pdf">${ico('doc')}PDF</button><button class="${R.tab==='ask'?'on':''}" data-act="rtab" data-v="ask">${ico('spark')}Ask ${AIN}</button></div>
       <span class="spacer"></span>
       <span class="rpdf ${R.tab==='pdf'?'':'hide'}"><span class="pgn" id="pgn">…</span>
-        <span class="seg tools" role="group" aria-label="Mouse tool"><button class="${R.tool==='hand'?'on':''}" data-act="rtool" data-v="hand" title="Hand tool: click and drag to move around the page" aria-label="Hand tool"><svg class="i" viewBox="0 0 24 24"><path d="M8 13V5.5a1.5 1.5 0 0 1 3 0V12M11 11.5v-8a1.5 1.5 0 0 1 3 0V12M14 11.5V5a1.5 1.5 0 0 1 3 0v7.5M17 9.5a1.5 1.5 0 0 1 3 0V15a6 6 0 0 1-6 6h-1.5a6 6 0 0 1-4.6-2.2L4.6 15.6a1.6 1.6 0 0 1 2.4-2.1L8 14.7"/></svg></button><button class="${R.tool==='select'?'on':''}" data-act="rtool" data-v="select" title="Text tool: select text to highlight it, quote it into your notes, or copy it" aria-label="Text tool"><svg class="i" viewBox="0 0 24 24"><path d="M9 4h6M9 20h6M12 4v16"/></svg></button></span>
+        <span class="seg tools" role="group" aria-label="Mouse tool"><button class="${R.tool==='hand'?'on':''}" data-act="rtool" data-v="hand" title="Hand tool: click and drag to move around the page" aria-label="Hand tool"><svg class="i" viewBox="0 0 24 24"><path d="M8 13V5.5a1.5 1.5 0 0 1 3 0V12M11 11.5v-8a1.5 1.5 0 0 1 3 0V12M14 11.5V5a1.5 1.5 0 0 1 3 0v7.5M17 9.5a1.5 1.5 0 0 1 3 0V15a6 6 0 0 1-6 6h-1.5a6 6 0 0 1-4.6-2.2L4.6 15.6a1.6 1.6 0 0 1 2.4-2.1L8 14.7"/></svg></button><button class="${R.tool==='select'?'on':''}" data-act="rtool" data-v="select" title="Text tool: select text to highlight it, quote it into your notes, or copy it" aria-label="Text tool"><svg class="i" viewBox="0 0 24 24"><path d="M9 4h6M9 20h6M12 4v16"/></svg></button><button class="${R.tool==='area'?'on':''}" data-act="rtool" data-v="area" title="Area tool: draw a box around a passage on a scanned page — the app reads the text so you can quote or highlight it" aria-label="Area tool">${AREA_ICON}</button></span>
         <span class="zoomctl"><button class="btn icon sm" data-act="zoom" data-v="-" title="Zoom out (Ctrl + scroll down)" aria-label="Zoom out">−</button><select class="zsel" id="zoomSel" data-act="zoomSel" aria-label="Zoom level"></select><button class="btn icon sm" data-act="zoom" data-v="+" title="Zoom in (Ctrl + scroll up)" aria-label="Zoom in">+</button></span></span>
       <a class="btn icon sm" href="${esc(pdfUrl(x.pdf))}" target="_blank" rel="noopener" title="Open in new tab" aria-label="Open PDF in new tab">${ico('external')}</a>
       <button class="btn icon sm" data-act="closeSplit" title="Close reader" aria-label="Close reader">${ico('x')}</button>
     </div>
     <div class="hlsave ${R.tab==='pdf'?'':'hide'}" id="hlsave" hidden></div>
+    <div class="hlsave scanhint" id="scanhint" hidden></div>
     <div class="rbody ${R.tab==='pdf'?'':'hide'}" id="rpages"><div class="rload"><span class="spin"></span>Opening PDF…</div></div>
     <div class="rask ${R.tab==='ask'?'':'hide'}" id="rask">${askPaneHTML(x)}</div>
   </aside>`;
@@ -1686,11 +1691,11 @@ async function mountReader(x){
   R.obs=new IntersectionObserver(es=>es.forEach(e=>{const n=+e.target.dataset.n;if(e.isIntersecting){R.vis.add(n);renderPage(n)}else R.vis.delete(n)}),{root:box,rootMargin:'500px 0px'});
   const pgObs=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting&&e.intersectionRatio>.3){const g=$('#pgn');if(g)g.textContent=`${e.target.dataset.n} / ${doc.numPages}`}})},{root:box,threshold:[.3]});
   R.pages.forEach(p=>{R.obs.observe(p.el);pgObs.observe(p.el)});
-  box.classList.toggle('pan',R.tool==='hand');
+  box.classList.toggle('pan',R.tool==='hand'); box.classList.toggle('area',R.tool==='area');
   layoutPages(R.mode==='custom'?R.scale:fitScale(R.mode),null,true);
   const g=$('#pgn'); if(g)g.textContent=`1 / ${doc.numPages}`;
-  bindViewerGestures(box); bindQuotes(box); drawHighlights(); updateHlBar();
-  if(R.tool==='hand'){let seen=false;try{seen=localStorage.getItem('litnotes.quoteTip')}catch(e){}if(!seen){toast('Tip: pick the Text tool (I) in the reader to highlight text or quote it into your notes');try{localStorage.setItem('litnotes.quoteTip','1')}catch(e){}}}
+  bindViewerGestures(box); bindQuotes(box); bindArea(box); drawHighlights(); updateHlBar(); updateScanHint();
+  if(R.tool==='hand'){let seen=false;try{seen=localStorage.getItem('litnotes.quoteTip')}catch(e){}if(!seen){toast('Tip: pick the Text tool (I) to highlight or quote text — or the Area tool for scanned pages');try{localStorage.setItem('litnotes.quoteTip','1')}catch(e){}}}
 }
 function fitScale(mode){
   const box=$('#rpages'); if(!box||!R.pages.length)return R.scale||1;
@@ -1734,6 +1739,7 @@ async function renderPage(n){
     const tl=document.createElement('div'); tl.className='textLayer'; p.el.appendChild(tl);
     tl.style.setProperty('--scale-factor',scale); tl.style.setProperty('--total-scale-factor',scale); tl.style.setProperty('--user-unit','1');
     await new lib.TextLayer({textContentSource:page.streamTextContent(),container:tl,viewport:vp}).render();
+    const was=p.scanned; p.scanned=!tl.textContent.replace(/\s/g,'').length; if(was!==p.scanned)updateScanHint();
   }catch(e){}
   p.el.dataset.done=key; p.busy='';
 }
@@ -3470,29 +3476,34 @@ function showPop(info,hl){
   const qsel=defaultQuoteQ(x);
   const host=$('#reader'); if(!host)return;
   const el=document.createElement('div'); el.id='selpop'; el.className='selpop'; el.setAttribute('role','dialog'); el.setAttribute('aria-label','Selected text');
-  el.innerHTML=`<div class="sptext">“${esc(info.text.length>110?info.text.slice(0,108)+'…':info.text)}”<button class="spx" data-spx aria-label="Close">×</button></div>
+  if(info.loading){el.innerHTML=`<div class="sprow"><span class="spin"></span><span>Reading the text in the box…</span><button class="spx" data-spx aria-label="Close">×</button></div>`;host.appendChild(el);placePop(el,info,host);el.querySelector('[data-spx]').onclick=hidePop;return}
+  el.innerHTML=`${info.ocr?`<div class="sprow" style="align-items:flex-start"><textarea class="inp" id="spText" rows="3" aria-label="Recognised text — correct it if needed">${esc(info.text)}</textarea><button class="spx" data-spx aria-label="Close">×</button></div><div class="help" style="margin:-4px 0 0;font-size:12px">Read from the scan — check it against the page and correct any mistakes before adding.</div>`:`<div class="sptext">“${esc(info.text.length>110?info.text.slice(0,108)+'…':info.text)}”<button class="spx" data-spx aria-label="Close">×</button></div>`}
     <div class="sprow"><span class="spl">Highlight</span>${HLC.map(([k,hex])=>`<button class="hlc ${hl&&hl.color===k?'on':''}" data-hlc="${k}" style="background:${hex}" title="${hl?'Change to':'Highlight in'} ${k}" aria-label="${k}"></button>`).join('')}${hl?`<button class="btn sm ghost danger" data-hldel title="Remove this highlight">${ico('trash')}Remove</button>`:''}</div>
     <div class="sprow"><span class="spl">Quote to</span><select class="inp" id="spQ" aria-label="Question to add the quote to">${t.questions.map((q,i)=>`<option value="${q.id}" ${q.id===qsel?'selected':''}>Q${i+1} · ${esc(q.text.length>46?q.text.slice(0,44)+'…':q.text)}</option>`).join('')}</select></div>
     <div class="sprow"><span class="spl">Page</span><input class="inp" id="spPg" value="${esc(pg)}" style="width:76px" aria-label="Page number for the citation" title="Printed page number used in the citation. PDF page ${first}${first!==lastP?'–'+lastP:''}."><span class="muted" style="font-size:12px;flex:1">${esc(citeCore(x))}, ${esc(pageStr(pg))}</span><button class="btn sm pri" data-spquote>${ico('plus')}Add quote</button></div>`;
-  host.appendChild(el);
+  host.appendChild(el); placePop(el,info,host);
+  el.querySelector('[data-spx]').onclick=()=>{hidePop();getSelection().removeAllRanges()};
+  const spText=el.querySelector('#spText'); if(spText){spText.addEventListener('input',()=>{POP.text=spText.value.trim()});setTimeout(()=>spText.focus(),30)}
+  const pgI=el.querySelector('#spPg'), lab=el.querySelector('.sprow:last-child .muted');
+  pgI.addEventListener('input',()=>{lab.textContent=`${citeCore(x)}, ${pageStr(pgI.value.trim()||'?')}`});
+  el.addEventListener('mousedown',e=>{if(!e.target.closest('input,select,textarea'))e.preventDefault()});
+  el.addEventListener('keydown',e=>{if(e.key==='Escape'){hidePop();e.stopPropagation()}if(e.key==='Enter'&&e.target.id==='spPg'){e.preventDefault();el.querySelector('[data-spquote]').click()}});
+  el.querySelectorAll('[data-hlc]').forEach(b=>b.onclick=()=>{if(!POP.text){toast('There is no text to highlight');return}hl?recolorHighlight(hl.id,b.dataset.hlc):addHighlight(POP,b.dataset.hlc);hidePop();getSelection().removeAllRanges()});
+  const del=el.querySelector('[data-hldel]'); if(del)del.onclick=()=>{removeHighlight(hl.id);hidePop()};
+  el.querySelector('[data-spquote]').onclick=()=>{
+    const text=(POP.text||'').trim(); if(!text){toast('There is no text to quote');return}
+    const qid=el.querySelector('#spQ').value, page=pgI.value.trim()||String(first);
+    QUOTE_Q=qid; try{localStorage.setItem('litnotes.quoteQ',qid)}catch(e){}
+    addQuoteToNotes(x,qid,text,page); hidePop(); getSelection().removeAllRanges();
+  };
+}
+function placePop(el,info,host){
   // dock inside the visible part of the reader, away from the selected text (and from browser add-ons that pop up beside it)
   const rp=$('#rpages'), hr=host.getBoundingClientRect(), pr=rp.getBoundingClientRect();
   const visTop=Math.max(pr.top,0), visBot=Math.min(pr.bottom,window.innerHeight), eh=el.offsetHeight;
   const selTop=info.anchor.top, selBot=info.anchor.y;
   const atTop=!(selTop<visTop+eh+24&&selBot>visTop-4);
   el.style.top=((atTop?visTop+10:visBot-eh-10)-hr.top)+'px';
-  el.querySelector('[data-spx]').onclick=()=>{hidePop();getSelection().removeAllRanges()};
-  const pgI=el.querySelector('#spPg'), lab=el.querySelector('.sprow:last-child .muted');
-  pgI.addEventListener('input',()=>{lab.textContent=`${citeCore(x)}, ${pageStr(pgI.value.trim()||'?')}`});
-  el.addEventListener('mousedown',e=>{if(!e.target.closest('input,select'))e.preventDefault()});
-  el.addEventListener('keydown',e=>{if(e.key==='Escape'){hidePop();e.stopPropagation()}if(e.key==='Enter'&&e.target.id==='spPg'){e.preventDefault();el.querySelector('[data-spquote]').click()}});
-  el.querySelectorAll('[data-hlc]').forEach(b=>b.onclick=()=>{hl?recolorHighlight(hl.id,b.dataset.hlc):addHighlight(POP,b.dataset.hlc);hidePop();getSelection().removeAllRanges()});
-  const del=el.querySelector('[data-hldel]'); if(del)del.onclick=()=>{removeHighlight(hl.id);hidePop()};
-  el.querySelector('[data-spquote]').onclick=()=>{
-    const qid=el.querySelector('#spQ').value, page=pgI.value.trim()||String(first);
-    QUOTE_Q=qid; try{localStorage.setItem('litnotes.quoteQ',qid)}catch(e){}
-    addQuoteToNotes(x,qid,info.text,page); hidePop(); getSelection().removeAllRanges();
-  };
 }
 
 /* ---------- highlights ---------- */
@@ -3615,10 +3626,112 @@ document.addEventListener('selectionchange',()=>{
     if(document.activeElement&&document.activeElement.closest&&document.activeElement.closest('#selpop'))return;
     const info=selectionInPdf();
     if(info){if(!POP||POP.text!==info.text||POP.hl)showPop(info)}
-    else if(POP&&!POP.hl)hidePop();
+    else if(POP&&!POP.hl&&!POP.ocr)hidePop();
   },450);
 });
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&POP)hidePop()});
+
+/* ============================================================
+   SCANNED PAGES: draw a box with the Area tool, the app reads the text
+   Self-hosted: Tesseract on the server (/api/ocr). Online: Claude reads the image.
+   ============================================================ */
+const AREA_ICON='<svg class="i" viewBox="0 0 24 24"><path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3"/><path d="M8 10h8M8 14h5"/></svg>';
+function setReaderTool(t){
+  R.tool=t; try{localStorage.setItem('litnotes.tool',t)}catch(e){}
+  document.querySelectorAll('.seg.tools button').forEach(z=>z.classList.toggle('on',z.dataset.v===t));
+  const bx=$('#rpages'); if(bx){bx.classList.toggle('pan',t==='hand');bx.classList.toggle('area',t==='area')}
+  updateScanHint();
+}
+async function ocrAvailable(){
+  if(LOCAL&&LOCAL.ocr)return 'server';
+  const smp=await getSample(); if(!smp||typeof smp.limits!=='function')return '';
+  try{const l=await smp.limits();return l&&l.images?'claude':''}catch(e){return ''}
+}
+async function ocrImage(blob){
+  const how=await ocrAvailable();
+  if(how==='server'){
+    const r=await fetch('/api/ocr?psm=6',{method:'POST',headers:{'Content-Type':'image/png'},body:blob});
+    const j=await r.json().catch(()=>({})); if(!r.ok)throw Object.assign(new Error(j.message||'ocr'),{code:j.code||'ocr_failed'});
+    return j.text||'';
+  }
+  if(how==='claude'){
+    const smp=await getSample();
+    const r=await smp('This image is a cropped passage from a scanned academic paper. Transcribe its text exactly as printed, in reading order. Join lines that belong to the same paragraph, and rejoin words split by a hyphen at a line break. Do not add, explain, summarise or correct anything. Reply with the text only.',{images:[blob],modelTier:'quick',cache:false});
+    return (r&&r.text||'').trim();
+  }
+  throw Object.assign(new Error('no ocr'),{code:'no_ocr'});
+}
+/* render the boxed part of a page sharply (about 300 dpi) and return a PNG */
+async function cropPage(n,[x1,y1,x2,y2]){
+  const p=R.pages[n-1], page=await R.doc.getPage(n);
+  const sc=Math.max(1,Math.min(300/72,Math.sqrt(36e6/(p.w*p.h))));
+  const vp=page.getViewport({scale:sc});
+  const c=document.createElement('canvas'); c.width=Math.ceil(vp.width); c.height=Math.ceil(vp.height);
+  await page.render({canvas:c,canvasContext:c.getContext('2d'),viewport:vp}).promise;
+  const pad=4, sx=Math.max(0,Math.floor(x1*sc)-pad), sy=Math.max(0,Math.floor(y1*sc)-pad);
+  const w=Math.min(c.width-sx,Math.ceil((x2-x1)*sc)+pad*2), h=Math.min(c.height-sy,Math.ceil((y2-y1)*sc)+pad*2);
+  const o=document.createElement('canvas'); o.width=w; o.height=h;
+  const g=o.getContext('2d'); g.fillStyle='#fff'; g.fillRect(0,0,w,h); g.drawImage(c,sx,sy,w,h,0,0,w,h);
+  c.width=c.height=0;
+  return await new Promise(res=>o.toBlob(res,'image/png'));
+}
+async function readArea(n,r1){
+  const p=R.pages[n-1]; if(!p||!p.vp1)return;
+  const [ax,ay]=pdfPt(p.vp1,r1[0],r1[1]),[bx,by]=pdfPt(p.vp1,r1[2],r1[3]);
+  const pdfRect=[Math.min(ax,bx),Math.min(ay,by),Math.max(ax,bx),Math.max(ay,by)].map(v=>Math.round(v*100)/100);
+  const b=p.el.getBoundingClientRect(), k=b.width/p.w;
+  const anchor={x:b.left+r1[2]*k,y:b.top+r1[3]*k,top:b.top+r1[1]*k};
+  const info={text:'',byPage:{[n]:[pdfRect]},pages:[n],anchor,ocr:true,loading:true,tok:Math.random()};
+  showPop(info);
+  try{
+    const blob=await cropPage(n,r1);
+    const text=cleanSelText(await ocrImage(blob));
+    if(!POP||POP.tok!==info.tok)return;   // closed meanwhile
+    showPop({...info,loading:false,text:text||''});
+    if(!text)toast('No text found in that area — try a slightly larger box');
+  }catch(e){
+    hidePop();
+    toast(e&&e.code==='no_ocr'?(LOCAL?'Text recognition is not installed on this server — update the app to get it':'Reading scanned pages needs Claude access for this page — reload and choose Allow'):(e&&e.code?sampleErr(e)!=='Something went wrong — please try again.'?sampleErr(e):'Could not read the text in that area — try again':'Could not read the text in that area — try again'));
+  }
+}
+function bindArea(box){
+  if(box._abound)return; box._abound=true;
+  let st=null;
+  box.addEventListener('pointerdown',e=>{
+    if(R.tool!=='area'||e.button!==0)return;
+    const el=e.target.closest('.pg'); if(!el)return;
+    e.preventDefault();
+    const b=el.getBoundingClientRect();
+    const d=document.createElement('div'); d.className='areabox'; el.appendChild(d);
+    st={el,b,x:e.clientX-b.left,y:e.clientY-b.top,d,id:e.pointerId};
+    box.setPointerCapture(e.pointerId);
+    Object.assign(d.style,{left:st.x+'px',top:st.y+'px',width:'0px',height:'0px'});
+  });
+  box.addEventListener('pointermove',e=>{
+    if(!st||e.pointerId!==st.id)return;
+    const x=Math.min(Math.max(e.clientX-st.b.left,0),st.b.width), y=Math.min(Math.max(e.clientY-st.b.top,0),st.b.height);
+    Object.assign(st.d.style,{left:Math.min(x,st.x)+'px',top:Math.min(y,st.y)+'px',width:Math.abs(x-st.x)+'px',height:Math.abs(y-st.y)+'px'});
+  });
+  const end=e=>{
+    if(!st||e.pointerId!==st.id)return;
+    const s0=st; st=null; try{box.releasePointerCapture(e.pointerId)}catch(_){}
+    const L=parseFloat(s0.d.style.left),T=parseFloat(s0.d.style.top),W=parseFloat(s0.d.style.width),H=parseFloat(s0.d.style.height);
+    setTimeout(()=>s0.d.remove(),e.type==='pointerup'&&W>10&&H>8?1200:0);
+    if(e.type!=='pointerup'||W<=10||H<=8)return;
+    const n=+s0.el.dataset.n, p=R.pages[n-1], k=s0.b.width/p.w;
+    readArea(n,[L/k,T/k,(L+W)/k,(T+H)/k]);
+  };
+  box.addEventListener('pointerup',end); box.addEventListener('pointercancel',end);
+}
+/* a gentle hint when the visible pages have no text layer */
+function updateScanHint(){
+  const h=$('#scanhint'); if(!h)return;
+  const scanned=R.pages.some(p=>p.scanned);
+  if(!scanned||R.tool==='area'||R.tab!=='pdf'){h.hidden=true;return}
+  h.hidden=false;
+  h.innerHTML=`<span>${AREA_ICON}<b>This PDF is a scan</b> <span class="muted">— its text can't be selected. Use the Area tool and draw a box around a passage; the app reads the text for you to quote or highlight.</span></span><span class="spacer"></span><button class="btn sm pri" data-usearea>Use Area tool</button>`;
+  h.querySelector('[data-usearea]').onclick=()=>setReaderTool('area');
+}
 
 /* ============================================================
    REPORTS
@@ -3857,7 +3970,7 @@ document.addEventListener('click',e=>{
     case 'swap': {V.swap=!V.swap;persistView();const pe=$('#pe');if(pe)pe.classList.toggle('swap',V.swap);refitReader();break}
     case 'rtab': switchRTab(b.dataset.v);break;
     case 'zoom': stepZoom(b.dataset.v==='+'?1:-1);break;
-    case 'rtool': {R.tool=b.dataset.v;try{localStorage.setItem('litnotes.tool',R.tool)}catch(e){}document.querySelectorAll('.seg.tools button').forEach(z=>z.classList.toggle('on',z.dataset.v===R.tool));const bx=$('#rpages');if(bx)bx.classList.toggle('pan',R.tool==='hand');break}
+    case 'rtool': setReaderTool(b.dataset.v);break;
     case 'askThisQ': {const x=S.docs[V.paperId],q=tpl(x.projectId).questions.find(z=>z.id===b.dataset.q);const a=askForQuestion(x,q);openAsk(()=>askPaper(V.paperId,a.prompt,a.show));break}
     case 'askQ': {const x=S.docs[V.paperId],q=tpl(x.projectId).questions.find(z=>z.id===b.dataset.q);const a=askForQuestion(x,q);askPaper(V.paperId,a.prompt,a.show);break}
     case 'askPreset': askPaper(V.paperId,b.dataset.v);break;
@@ -3965,7 +4078,7 @@ function switchRTab(t){
   R.tab=t;
   document.querySelectorAll('.seg button').forEach(z=>z.classList.toggle('on',z.dataset.v===t));
   const pg=$('#rpages'),ak=$('#rask'),rp=document.querySelector('.rpdf');
-  if(pg)pg.classList.toggle('hide',t!=='pdf'); if(ak)ak.classList.toggle('hide',t!=='ask'); if(rp)rp.classList.toggle('hide',t!=='pdf'); const hb=$('#hlsave'); if(hb)hb.classList.toggle('hide',t!=='pdf'); if(t!=='pdf')hidePop();
+  if(pg)pg.classList.toggle('hide',t!=='pdf'); if(ak)ak.classList.toggle('hide',t!=='ask'); if(rp)rp.classList.toggle('hide',t!=='pdf'); const hb=$('#hlsave'); if(hb)hb.classList.toggle('hide',t!=='pdf'); updateScanHint(); if(t!=='pdf')hidePop();
   const tool=$('#pdfTool'); if(tool)tool.innerHTML=pdfToolHTML(S.docs[V.paperId]);
   if(t==='ask'){const i=$('#askIn');if(i)setTimeout(()=>i.focus(),50)}
   if(t==='pdf'&&R.pages.length)setTimeout(()=>{if(R.mode!=='custom')layoutPages(fitScale(R.mode));else updateZoomUI()},30);
