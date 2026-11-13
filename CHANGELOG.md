@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.13.0]
+- **Settings in tabs:** Appearance, Writing, Backups & data, and App & updates. A dot on the App & updates tab shows when an update is waiting.
+- **Project settings in tabs:** Details (with Delete project), Reading questions, Themes & dimensions, and Abbreviations.
+- **Less repetition:**
+  - The theme switcher has moved from the top bar to Settings → Appearance.
+  - Compare and Reports are no longer in the side menu; they remain as tabs inside each project.
+  - The side menu's project card is now a single compact button that opens the project. The list of papers in progress stays on the Home page.
+  - Duplicate "Add paper" buttons are gone. Use the one in the top bar, which adds to the project you are in.
+  - On the Home page, the four count cards are replaced by a short line in the welcome banner.
+- **Tidier paper toolbar:** Expand all, Collapse all, Swap sides and Delete paper are now in the ⋯ menu.
+
 ## [1.12.1]
 - The highlight and quote controls now sit in a bar inside the reader, away from the selected text, so browser add-ons that pop up next to a selection (such as Sider) no longer cover them.
 - The bar appears once, when you finish selecting, instead of redrawing while you drag.

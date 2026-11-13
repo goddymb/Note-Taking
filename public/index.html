@@ -241,6 +241,19 @@ h2{font-size:20px;line-height:1.25}
 .tab{display:inline-flex;align-items:center;gap:7px;border:0;background:none;padding:8px 16px;border-radius:999px;color:var(--muted);font-weight:600;font-size:14px}
 .tab:hover{color:var(--ink)}
 .tab.on{background:var(--ink);color:var(--bg)}
+.subtabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin:4px 0 20px;overflow-x:auto}
+.subtabs button{border:0;background:none;padding:10px 14px;font:inherit;font-weight:600;font-size:14px;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.subtabs button:hover{color:var(--ink)}.subtabs button.on{color:var(--accent);border-bottom-color:var(--accent)}
+.subtabs .bdot{width:7px;height:7px;border-radius:50%;background:var(--accent)}
+.stabbody>.sec-title:first-child{margin-top:0}
+.mwrap{position:relative}
+.menu{position:absolute;right:0;top:calc(100% + 6px);z-index:50;min-width:230px;background:var(--panel-solid,var(--panel));border:1px solid var(--line);border-radius:12px;box-shadow:0 14px 36px rgba(0,0,0,.2);padding:6px;display:grid}
+.menu[hidden]{display:none}
+.menu button{display:flex;align-items:center;gap:10px;border:0;background:none;padding:9px 10px;border-radius:8px;font:inherit;font-size:14px;color:var(--ink);text-align:left;cursor:pointer}
+.menu button:hover{background:var(--panel-2)}.menu button.danger{color:var(--danger)}.menu .i{width:16px;height:16px}
+.menu hr{border:0;border-top:1px solid var(--line);margin:4px 2px}
+.curbtn{display:block;width:100%;text-align:left;font:inherit;color:inherit;cursor:pointer}.curbtn:hover{border-color:var(--accent)}
+.minis{display:flex;gap:16px;flex-wrap:wrap;margin-top:14px;font-size:13px;color:var(--muted)}.minis span{display:inline-flex;align-items:center;gap:6px}.minis b{color:var(--ink)}.minis .i{width:15px;height:15px}
 .tab svg{width:16px;height:16px}
 .chips{display:flex;gap:6px;flex-wrap:wrap}
 .chip{border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:5px 12px;font-size:13px;font-weight:600;color:var(--muted)}
@@ -653,7 +666,6 @@ mark.hl-yellow{background:rgba(250,204,21,.42)}mark.hl-green{background:rgba(74,
         <kbd>/</kbd>
         <div class="sres" id="sres"></div>
       </div>
-      <div class="themes" id="themeSw" role="group" aria-label="Theme"></div>
       <button class="btn pri" data-act="quickAdd"><svg class="i" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg><span class="addlbl">Add paper</span></button>
     </header>
     <main class="main" id="main"></main>
@@ -1247,7 +1259,7 @@ const ico=(n,cls)=>`<svg class="i ${cls||''}" viewBox="0 0 24 24" aria-hidden="t
 const THEMES=[['midnight','Midnight','Dark, premium, violet-to-pink glow, glassy panels'],['vibrant','Vibrant','Bright blue-to-teal, warm yellow and coral accents'],['aurora','Aurora','Light and elegant, soft purple-pink washes']];
 function theme(){return document.documentElement.dataset.theme||'aurora'}
 function setTheme(t){document.documentElement.dataset.theme=t;try{localStorage.setItem('litnotes.theme',t)}catch(e){}renderThemeSw();if(V.view==='settings')renderMain()}
-function renderThemeSw(){$('#themeSw').innerHTML=THEMES.map(([k,l])=>`<button class="${theme()===k?'on':''}" data-act="theme" data-v="${k}" title="${l} theme" aria-pressed="${theme()===k}"><i class="sw ${k}"></i><span>${l}</span></button>`).join('')}
+function renderThemeSw(){const el=$('#themeSw');if(!el)return;el.innerHTML=THEMES.map(([k,l])=>`<button class="${theme()===k?'on':''}" data-act="theme" data-v="${k}" title="${l} theme" aria-pressed="${theme()===k}"><i class="sw ${k}"></i><span>${l}</span></button>`).join('')}
 const SEC_VAR={pass1:'--c-pass1',pass2:'--c-pass2',pass3:'--c-pass3',research:'--c-research'};
 function secColor(s){return SEC_VAR[s.id]?`var(${SEC_VAR[s.id]})`:(s.color||'var(--accent)')}
 function secColorHex(s){ // for exported/static documents
@@ -1289,7 +1301,7 @@ function activeNav(){
 function renderSide(){
   const n=activeNav(), all=allPapers();
   const updBadge=UPD.info&&UPD.info.newer;
-  const items=[['home','home','Home'],['projects','folder','Projects',projects().length],['library','library','Library',all.length],['compare','compare','Compare'],['reports','report','Reports'],['settings','settings','Settings',updBadge?'●':null]];
+  const items=[['home','home','Home'],['projects','folder','Projects',projects().length],['library','library','Library',all.length],['settings','settings','Settings',updBadge?'●':null]];
   $('#nav').innerHTML=`<div class="slabel" style="margin-bottom:6px">Workspace</div>`+items.map(([k,i,l,c])=>`<button class="nv ${n===k?'on':''}" data-act="nav" data-v="${k}" ${n===k?'aria-current="page"':''}>${ico(i)}<span>${l}</span>${c!=null?`<span class="k" ${c==='●'?'style="color:var(--accent);font-size:14px" title="Update available"':''}>${c}</span>`:''}</button>`).join('');
   // current project card
   const p=V.pid&&S.docs[V.pid]&&S.docs[V.pid].kind==='project'?{id:V.pid,...S.docs[V.pid]}:projects().slice(-1)[0];
@@ -1298,12 +1310,10 @@ function renderSide(){
   const open=pp.filter(x=>nextStage(x,t)).sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0)).slice(0,5);
   const tot=pp.reduce((a,x)=>{const g=progress(x,t);return [a[0]+g.n,a[1]+g.total]},[0,0]);
   const pct=tot[1]?Math.round(tot[0]*100/tot[1]):0;
-  $('#curProj').innerHTML=`<div class="slabel" style="margin-bottom:8px">Current project</div><div class="cur">
+  $('#curProj').innerHTML=`<div class="slabel" style="margin-bottom:8px">Current project</div><button class="cur curbtn" data-act="openProject" data-id="${p.id}" title="Open ${esc(p.name||'project')}">
     <div class="row" style="gap:10px;flex-wrap:nowrap"><div style="position:relative;width:38px;height:38px;flex:none">${ring(pct,38,4)}<span style="position:absolute;inset:0;display:grid;place-items:center;font-size:10px;font-weight:800">${pct}%</span></div>
     <div style="min-width:0"><div class="ttl">${esc(p.name||'Untitled project')}</div><div class="sm">${pp.length} paper${pp.length===1?'':'s'} · ${open.length?open.length+' in progress':'all caught up'}</div></div></div>
-    ${open.length?`<ul>${open.map(x=>{const s=nextStage(x,t);return `<li><button data-act="openPaper" data-id="${x.id}" title="${esc(paperTitle(x))}"><span class="mini">${ring(progress(x,t).pct,18,3)}</span><span class="t">${esc(paperTitle(x))}</span><span style="width:8px;height:8px;border-radius:50%;background:${secColor(s)};flex:none" title="Next: ${esc(s.title)}"></span></button></li>`}).join('')}</ul>`:''}
-    <button class="btn sm" style="width:100%;justify-content:center;margin-top:10px" data-act="openProject" data-id="${p.id}">Open project ${ico('arrow')}</button>
-  </div>`;
+    </button>`;
 }
 
 /* ============================================================
@@ -1352,12 +1362,10 @@ function homeView(){
     <div><div class="eyebrow">${greeting()}</div>
     <h1>${last?'Pick up where you left off':'Your reading desk is ready'}</h1>
     <p>${last?`<b>${esc(paperTitle(last))}</b>${last.authors?' — '+esc(last.authors):''}. ${lt?`Next up: ${esc(lt.title)}.`:'All questions answered — time for the report.'}`:'Add your first paper to start taking structured notes.'}</p>
-    <div class="row">${last?`<button class="btn pri" data-act="resume" data-id="${last.id}">${ico('play')}Resume reading</button>`:''}<button class="btn" data-act="quickAdd">${ico('plus')}Add paper</button></div></div>
+    <div class="row">${last?`<button class="btn pri" data-act="resume" data-id="${last.id}">${ico('play')}Resume reading</button>`:''}</div>
+    <div class="minis">${[['star','Core papers',core],['help','Questions to discuss',toDiscuss]].map(([i,l,v])=>`<span>${ico(i)}<b>${v}</b> ${l.toLowerCase()}</span>`).join('')}</div></div>
     <div class="ring">${ring(pct,132,12,theme()!=='aurora')}<div class="v"><div><b>${pct}%</b><small>of reading questions answered</small></div></div></div>
   </section>
-  <div class="stats">
-    ${[['folder','Projects',ps.length,'var(--c-pass1)'],['library','Papers',all.length,'var(--c-pass2)'],['star','Core papers',core,'var(--c-pass3)'],['help','Questions to discuss',toDiscuss,'var(--c-research)']].map(([i,l,v,c])=>`<div class="card stat" style="--x:${c}"><div class="ic">${ico(i)}</div><div><b>${v}</b><span>${l}</span></div></div>`).join('')}
-  </div>
   <div class="sec-title"><h2>Continue reading</h2>${cont.length?`<button class="btn ghost sm" data-act="nav" data-v="library">View library ${ico('arrow')}</button>`:''}</div>
   ${cont.length?`<div class="tasks">${cont.map(taskCard).join('')}</div>`:`<div class="card muted">Nothing in progress. ${all.length?'Every paper is fully annotated — nice work.':'Add a paper to get started.'}</div>`}
   <div class="sec-title"><h2>Your projects</h2><button class="btn ghost sm" data-act="newProject">${ico('plus')}New project</button></div>
@@ -1397,7 +1405,7 @@ function libraryView(){
   let list=all.filter(x=>(f.proj==='all'||x.projectId===f.proj)&&(f.verdict==='All'||(f.verdict==='No verdict'?!x.verdict:x.verdict===f.verdict)));
   const key={recent:(a,b)=>(b.updatedAt||0)-(a.updatedAt||0),author:(a,b)=>(a.authors||'~').localeCompare(b.authors||'~'),year:(a,b)=>(b.year||'').localeCompare(a.year||''),progress:(a,b)=>progress(b,tpl(b.projectId)).pct-progress(a,tpl(a.projectId)).pct}[f.sort];
   list.sort(key);
-  return `<div class="page-head"><div class="grow"><h1>Library</h1><p class="lede">Every paper across all your projects — ${all.length} in total.</p></div><button class="btn pri" data-act="quickAdd">${ico('plus')}Add paper</button></div>
+  return `<div class="page-head"><div class="grow"><h1>Library</h1><p class="lede">Every paper across all your projects — ${all.length} in total.</p></div></div>
   <div class="row" style="margin:20px 0 14px">
     <select class="inp" style="width:auto;border-radius:999px" data-act="libProj"><option value="all">All projects</option>${projects().map(p=>`<option value="${p.id}" ${f.proj===p.id?'selected':''}>${esc(p.name)}</option>`).join('')}</select>
     <div class="chips">${['All','Core','Background','Skip','No verdict'].map(k=>`<button class="chip ${f.verdict===k?'on':''}" data-act="libVerdict" data-v="${k}">${k}</button>`).join('')}</div>
@@ -1429,25 +1437,26 @@ function projectView(){
   let n=0,tot=0;pp.forEach(x=>{const g=progress(x,t);n+=g.n;tot+=g.total});
   return `<div class="crumbs"><button data-act="nav" data-v="projects">Projects</button>${ico('chev')}<span>${esc(p.name||'Untitled project')}</span></div>
   <div class="page-head"><div class="grow"><h1>${esc(p.name||'Untitled project')}</h1>${p.description?`<p class="lede">${esc(p.description)}</p>`:''}</div>
-    <div class="row"><span class="muted" style="font-size:13px">${pp.length} paper${pp.length===1?'':'s'} · ${tot?Math.round(n*100/tot):0}% annotated</span><button class="btn pri" data-act="newPaper">${ico('plus')}Add literature</button></div></div>
+    <div class="row"><span class="muted" style="font-size:13px">${pp.length} paper${pp.length===1?'':'s'} · ${tot?Math.round(n*100/tot):0}% annotated</span></div></div>
   <div class="tabs" role="tablist">${tabs.map(([k,i,l])=>`<button class="tab ${V.tab===k?'on':''}" role="tab" aria-selected="${V.tab===k}" data-act="tab" data-v="${k}">${ico(i)}${l}</button>`).join('')}</div>
   ${body}`;
 }
 function settingsView(p,t){
-  return `<div class="grid2" style="align-items:start">
-  <div class="card"><h2 style="margin-bottom:14px">Project details</h2>
+  const nab=abbrsOf(V.pid).length;
+  const head=subtabsHTML('proj',[['details','Details'],['questions','Reading questions'],['synth','Themes & dimensions'],['abbr','Abbreviations']]);
+  let b='';
+  if(STAB.proj==='details') b=`<div class="card" style="max-width:760px"><h2 style="margin-bottom:14px">Project details</h2>
     <div class="field"><label>Project name</label><input class="inp" data-pf="name" value="${esc(p.name||'')}"></div>
     <div class="field"><label>Description / review question</label><textarea class="inp" data-pf="description" placeholder="What is this literature review about?">${esc(p.description||'')}</textarea></div>
-    <div class="field"><label>My causal chain (shown with Q18)</label><textarea class="inp" data-pf="chain">${esc(p.chain||'')}</textarea></div>
+    <div class="field" style="margin-bottom:0"><label>My causal chain (shown with Q18)</label><textarea class="inp" data-pf="chain">${esc(p.chain||'')}</textarea></div>
   </div>
-  <div>
-  <div class="card"><h2 style="margin-bottom:6px">Reading questions</h2>
+  <div class="card" style="margin-top:14px;max-width:760px;border-color:color-mix(in srgb,var(--danger) 30%,var(--line))"><h2 style="margin-bottom:6px">Delete project</h2><p class="help" style="margin:0 0 12px">Deleting removes the project and every note in it.</p><button class="btn danger" data-act="deleteProject">${ico('trash')}Delete project</button></div>`;
+  else if(STAB.proj==='questions') b=`<div class="card" style="max-width:760px"><h2 style="margin-bottom:6px">Reading questions</h2>
     <p class="help" style="margin:0 0 14px">${t.questions.length} questions in ${t.sections.length} sections. Reword them for this project (e.g. change “minerals → violence” to your topic), add your own or remove ones you don't need. Answers stay attached to their question.</p>
-    <div class="row"><button class="btn" data-act="editTemplate">${ico('edit')}Customise questions</button><button class="btn ghost" data-act="resetTemplate">Reset to original sheet</button></div></div>
-  ${dimsSettingsHTML(p)}
-  <div class="card" style="margin-top:14px"><h2 style="margin-bottom:6px">Abbreviations &amp; acronyms</h2><p class="help" style="margin:0 0 12px">${abbrsOf(V.pid).length} defined${abbrsOf(V.pid).length?': '+esc(abbrsOf(V.pid).slice(0,8).map(a=>a.short).join(', '))+(abbrsOf(V.pid).length>8?'…':''):''}. Select an abbreviation in any note and click <b>Abbr.</b>, or write “Full Form (ABC)” and accept the suggestion.</p><button class="btn" data-abbrmgr="${V.pid}">Manage abbreviations</button></div>
-  <div class="card" style="margin-top:14px;border-color:color-mix(in srgb,var(--danger) 30%,var(--line))"><h2 style="margin-bottom:6px">Danger zone</h2><p class="help" style="margin:0 0 12px">Deleting removes the project and every note in it.</p><button class="btn danger" data-act="deleteProject">${ico('trash')}Delete project</button></div>
-  </div></div>`;
+    <div class="row"><button class="btn" data-act="editTemplate">${ico('edit')}Customise questions</button><button class="btn ghost" data-act="resetTemplate">Reset to original sheet</button></div></div>`;
+  else if(STAB.proj==='synth') b=dimsSettingsHTML(p).replace('<div class="card" style="margin-top:14px">','<div class="card">');
+  else b=`<div class="card" style="max-width:760px"><h2 style="margin-bottom:6px">Abbreviations &amp; acronyms</h2><p class="help" style="margin:0 0 12px">${nab} defined${nab?': '+esc(abbrsOf(V.pid).slice(0,12).map(a=>a.short).join(', '))+(nab>12?'…':''):''}. Select an abbreviation in any note and click <b>Abbr.</b>, or write “Full Form (ABC)” and accept the suggestion. Insert the list into a document from Write → Insert → Abbreviations.</p><button class="btn" data-abbrmgr="${V.pid}">Manage abbreviations</button></div>`;
+  return head+`<div class="stabbody">${b}</div>`;
 }
 function compareView(pp,t){
   if(!pp.length) return `<div class="empty"><div class="ic">${ico('compare')}</div><div class="big">Nothing to compare yet</div><p>Add literature first — then read one question across every paper here.</p></div>`;
@@ -1462,24 +1471,31 @@ function compareView(pp,t){
 }
 
 /* ---------- App settings ---------- */
+const STAB={app:'look',proj:'details'};
+function closeMenus(){document.querySelectorAll('.menu').forEach(m=>{m.hidden=true;const b=m.parentNode.querySelector('[data-act="moreMenu"]');if(b)b.setAttribute('aria-expanded','false')})}
+document.addEventListener('click',e=>{if(!e.target.closest('[data-act="moreMenu"]'))closeMenus()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeMenus()});
+function subtabsHTML(kind,list){
+  if(!list.some(([k])=>k===STAB[kind]))STAB[kind]=list[0][0];
+  return `<div class="subtabs" role="tablist">${list.map(([k,l,badge])=>`<button role="tab" aria-selected="${STAB[kind]===k}" class="${STAB[kind]===k?'on':''}" data-act="stab" data-k="${kind}" data-v="${k}">${l}${badge?'<i class="bdot" title="Update available"></i>':''}</button>`).join('')}</div>`;
+}
 function appSettingsView(){
   const counts={p:projects().length,x:allPapers().length};
-  return `<div class="page-head"><div class="grow"><h1>Settings</h1><p class="lede">Appearance, writing${LOCAL?', updates':''} and your data.</p></div></div>
-  <div class="sec-title"><h2>Appearance</h2></div>
-  <div class="looks">${THEMES.map(([k,l,d])=>`<button class="look ${theme()===k?'on':''}" data-act="theme" data-v="${k}"><div class="pv pv-${k}"><div class="bn"></div><div class="cd"><i></i><i></i><i></i></div></div><div class="lb"><b>${l}${theme()===k?' · in use':''}</b><span>${d}</span></div></button>`).join('')}</div>
-  ${backupsCardHTML()}
-  ${installCardHTML()}
-  ${updatesCardHTML()}
-  <div class="sec-title"><h2>Writing</h2></div>
-  <div class="card">
+  const tabs=[['look','Appearance'],['writing','Writing'],['data','Backups & data'],...(LOCAL?[['app','App & updates',UPD.info&&UPD.info.newer]]:[])];
+  const head=`<div class="page-head"><div class="grow"><h1>Settings</h1></div></div>${subtabsHTML('app',tabs)}`;
+  let b='';
+  if(STAB.app==='look') b=`<p class="help" style="margin:0 0 14px">Choose how the app looks. The theme is remembered on this device.</p>
+  <div class="looks">${THEMES.map(([k,l,d])=>`<button class="look ${theme()===k?'on':''}" data-act="theme" data-v="${k}"><div class="pv pv-${k}"><div class="bn"></div><div class="cd"><i></i><i></i><i></i></div></div><div class="lb"><b>${l}${theme()===k?' · in use':''}</b><span>${d}</span></div></button>`).join('')}</div>`;
+  else if(STAB.app==='writing') b=`<div class="card">
     <label class="row" style="gap:10px;flex-wrap:nowrap;margin-bottom:14px;cursor:pointer"><input type="checkbox" data-wr="autocap" ${WR.autocap?'checked':''} style="width:18px;height:18px"><span><b>Capitalise the start of sentences</b><span class="help" style="display:block">At the start of a note, line or list item and after . ! ? — press Backspace straight away to keep a small letter.</span></span></label>
     <div class="field" style="margin:0;max-width:340px"><label>Spelling language</label><select class="inp" data-wr="lang">${LANGS.map(([k,l])=>`<option value="${k}" ${WR.lang===k?'selected':''}>${l}</option>`).join('')}</select><span class="help">Misspelled words are underlined in red; right-click one for suggestions. The <b>Check</b> button above each note proposes spelling and grammar fixes for you to accept or ignore.</span></div>
-  </div>
-  <div class="sec-title"><h2>Your data</h2></div>
-  <div class="grid2">
-    <div class="card"><div class="row" style="gap:12px;flex-wrap:nowrap;margin-bottom:10px">${S.mode==='db'?(LOCAL?'<span class="dot"></span><b>Saved on your server</b>':'<span class="dot"></span><b>Saved to your Claude account</b>'):'<span class="dot warn"></span><b>Saved in this browser only</b>'}</div><p class="help" style="margin:0">${counts.p} project${counts.p===1?'':'s'} and ${counts.x} paper${counts.x===1?'':'s'}. ${S.mode==='db'?(LOCAL?'Notes and PDFs are stored in the server’s data folder. Back that folder up to keep everything safe.':'Your notes are private to you and follow you to any device where you open this page.'):'Back up regularly — clearing your browser data would remove these notes.'}</p></div>
-    <div class="card"><b>Backup &amp; restore</b><p class="help" style="margin:6px 0 12px">Download everything as a .json file, or restore from one. Restoring adds to or updates what is here; it never deletes. ${LOCAL?'PDFs live in the server’s data folder and are not inside this file.':'PDFs stay stored with the app and are not inside the backup file.'}</p><div class="row"><button class="btn" data-act="backup">${ico('download')}Back up all data</button><button class="btn ghost" data-act="restore">${ico('upload')}Restore…</button></div></div>
   </div>`;
+  else if(STAB.app==='data') b=`<div class="grid2">
+    <div class="card"><div class="row" style="gap:12px;flex-wrap:nowrap;margin-bottom:10px">${S.mode==='db'?(LOCAL?'<span class="dot"></span><b>Saved on your server</b>':'<span class="dot"></span><b>Saved to your Claude account</b>'):'<span class="dot warn"></span><b>Saved in this browser only</b>'}</div><p class="help" style="margin:0">${counts.p} project${counts.p===1?'':'s'} and ${counts.x} paper${counts.x===1?'':'s'}. ${S.mode==='db'?(LOCAL?'Notes and PDFs are stored in the server’s data folder. Back that folder up to keep everything safe.':'Your notes are private to you and follow you to any device where you open this page.'):'Back up regularly — clearing your browser data would remove these notes.'}</p></div>
+    <div class="card"><b>Back up to a file</b><p class="help" style="margin:6px 0 12px">Download everything as a .json file, or restore from one. Restoring adds to or updates what is here; it never deletes. ${LOCAL?'PDFs live in the server’s data folder and are not inside this file.':'PDFs stay stored with the app and are not inside the backup file.'}</p><div class="row"><button class="btn" data-act="backup">${ico('download')}Back up all data</button><button class="btn ghost" data-act="restore">${ico('upload')}Restore…</button></div></div>
+  </div>${backupsCardHTML()}`;
+  else if(STAB.app==='app') b=updatesCardHTML()+installCardHTML();
+  return head+`<div class="stabbody">${b}</div>`;
 }
 
 /* ---------- Paper editor ---------- */
@@ -1515,7 +1531,7 @@ function paperView(){
   return `<div id="paperEditor">
   <div class="crumbs"><button data-act="nav" data-v="projects">Projects</button>${ico('chev')}<button data-act="openProject" data-id="${x.projectId}">${esc(p?p.name:'Project')}</button>${ico('chev')}<span>Notes</span></div>
   <div class="paperhead"><h1 id="pTitle">${esc(paperTitle(x))}</h1><div class="row"><div style="position:relative;width:52px;height:52px" title="${g.n} of ${g.total} answered"><span id="pRing">${ring(g.pct,52,5)}</span><span id="pPct" style="position:absolute;inset:0;display:grid;place-items:center;font-size:12px;font-weight:800">${g.pct}%</span></div></div></div>
-  <div class="ptoolbar"><span class="ftitle" title="${esc(paperTitle(x))}"><span>${esc(paperTitle(x))}</span></span><button class="btn sm ${V.focus?'pri':''}" data-act="focus" title="${V.focus?'Exit focus mode (Esc)':'Focus mode: hide everything except the paper and your notes'}">${ico(V.focus?'minimize':'maximize')}${V.focus?'Exit focus':'Focus mode'}</button>${V.split&&x.pdf?`<button class="btn sm" data-act="swap" title="Swap the PDF and notes sides">${ico('swap')}Swap sides</button>`:''}<button class="btn sm" data-act="expandAll">${ico('expand')}Expand all</button><button class="btn sm" data-act="collapseAll">${ico('collapse')}Collapse</button><button class="btn sm" data-act="nextEmpty">${ico('next')}Next unanswered</button><span class="spacer"></span><span class="save" id="saveNote"></span><span id="pdfTool">${pdfToolHTML(x)}</span><button class="btn sm pri" data-act="paperReport">${ico('report')}Report</button><button class="btn sm ghost danger" data-act="deletePaper" aria-label="Delete paper">${ico('trash')}</button></div>
+  <div class="ptoolbar"><span class="ftitle" title="${esc(paperTitle(x))}"><span>${esc(paperTitle(x))}</span></span><button class="btn sm ${V.focus?'pri':''}" data-act="focus" title="${V.focus?'Exit focus mode (Esc)':'Focus mode: hide everything except the paper and your notes'}">${ico(V.focus?'minimize':'maximize')}${V.focus?'Exit focus':'Focus mode'}</button><button class="btn sm" data-act="nextEmpty">${ico('next')}Next unanswered</button><span class="spacer"></span><span class="save" id="saveNote"></span><span id="pdfTool">${pdfToolHTML(x)}</span><button class="btn sm pri" data-act="paperReport">${ico('report')}Report</button><span class="mwrap"><button class="btn sm icon" data-act="moreMenu" aria-haspopup="menu" aria-expanded="false" title="More" aria-label="More actions"><svg class="i" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.4" fill="currentColor"/><circle cx="12" cy="12" r="1.4" fill="currentColor"/><circle cx="19" cy="12" r="1.4" fill="currentColor"/></svg></button><div class="menu" role="menu" hidden>${V.split&&x.pdf?`<button role="menuitem" data-act="swap">${ico('swap')}Swap PDF and notes sides</button>`:''}<button role="menuitem" data-act="expandAll">${ico('expand')}Expand all questions</button><button role="menuitem" data-act="collapseAll">${ico('collapse')}Collapse all questions</button><hr><button role="menuitem" class="danger" data-act="deletePaper">${ico('trash')}Delete paper</button></div></span></div>
   <div class="pe ${V.split&&x.pdf?'split':''} ${V.swap?'swap':''}" id="pe" style="--lw:${paneWidth()}%">
     ${V.split&&x.pdf?readerHTML(x)+`<div class="gutter" id="gutter" role="separator" aria-orientation="vertical" aria-label="Drag to resize the PDF and notes" aria-valuemin="20" aria-valuemax="80" aria-valuenow="${paneWidth()}" tabindex="0" title="Drag to resize · double-click to reset"></div>`:`<nav class="outline" aria-label="Questions">${outline}</nav>`}
     <div class="notescol">
@@ -3857,6 +3873,8 @@ document.addEventListener('click',e=>{
     case 'openProject': go({view:'project',pid:id,tab:V.pid===id?V.tab:'lit',filter:'All'});break;
     case 'tab': if(b.dataset.pid)go({view:'project',pid:b.dataset.pid,tab:b.dataset.v});else go({tab:b.dataset.v});break;
     case 'filter': V.filter=b.dataset.v;renderMain();break;
+    case 'stab': STAB[b.dataset.k]=b.dataset.v;renderMain();break;
+    case 'moreMenu': {const m=b.parentNode.querySelector('.menu');const open=m.hidden;closeMenus();if(open){m.hidden=false;b.setAttribute('aria-expanded','true')}break}
     case 'newPaper': newPaper();break;
     case 'openPaper': {const x=S.docs[id];if(!x)break;if(V.paperId!==id)V.openSec={};go({view:'paper',paperId:id,pid:x.projectId});
       let qid=b.dataset.q; if(!qid&&b.dataset.stage){const q=tpl(x.projectId).questions.find(z=>z.section===b.dataset.stage&&!answered(x,z));qid=q&&q.id}
