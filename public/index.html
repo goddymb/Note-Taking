@@ -309,6 +309,15 @@ select.inp{appearance:auto}
 .save{font-size:12.5px;color:var(--muted);display:inline-flex;align-items:center;gap:6px;min-width:140px;justify-content:flex-end;white-space:nowrap}
 .save .dot,.side-foot .dot{transition:background-color .3s}
 .refcard{margin-bottom:16px}
+.refcol .i{transform:rotate(90deg);transition:transform .2s}
+.refcard.min .refcol .i{transform:none}
+.refmini,.refmini2{display:none}
+.refcard.min{padding-top:10px;padding-bottom:10px}
+.refcard.min>*:not(.refhead){display:none}
+.refcard.min .refhead{margin-bottom:0!important;flex-wrap:nowrap}
+.refcard.min .reffull,.refcard.min [data-act="copyRef"]{display:none}
+.refcard.min .refmini{display:block;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:13.5px;color:var(--ink-2)}
+.refcard.min .refmini2{display:inline-flex;flex:none;margin:0}
 .refcard .apa-big{font-family:var(--serif);font-size:17.5px;line-height:1.55;padding-left:2em;text-indent:-2em;margin:4px 0 8px}
 .intext{display:flex;gap:8px;flex-wrap:wrap;font-size:13px;color:var(--muted)}
 .intext code{font-family:var(--font);background:var(--panel-2);border:1px solid var(--line);border-radius:7px;padding:2px 8px;color:var(--ink-2)}
@@ -1593,8 +1602,8 @@ function paperView(){
   <div class="pe ${V.split&&x.pdf?'split':''} ${V.swap?'swap':''}" id="pe" style="--lw:${paneWidth()}%">
     ${V.split&&x.pdf?readerHTML(x)+`<div class="gutter" id="gutter" role="separator" aria-orientation="vertical" aria-label="Drag to resize the PDF and notes" aria-valuemin="20" aria-valuemax="80" aria-valuenow="${paneWidth()}" tabindex="0" title="Drag to resize · double-click to reset"></div>`:`<nav class="outline" aria-label="Questions">${outline}</nav>`}
     <div class="notescol">
-      <div class="card refcard">
-        <div class="row" style="margin-bottom:6px"><span class="tag" style="--x:var(--c-paper)">${ico('doc')}Reference · APA 7</span><span class="muted" style="font-size:12.5px">${esc((REF_TYPES[x.ref.type]||{}).label||'')}</span><span class="spacer"></span><button class="btn sm" data-act="editRef">${ico('edit')}Edit details</button><button class="btn sm ghost" data-act="copyRef">${ico('copy')}Copy</button></div>
+      <div class="card refcard ${NQ.ref===false?'min':''}">
+        <div class="row refhead" style="margin-bottom:6px"><button class="btn sm icon refcol" data-act="refToggle" aria-expanded="${NQ.ref!==false}" title="${NQ.ref===false?'Show the reference card':'Fold the reference card to one line'}" aria-label="Show or hide the reference card">${ico('chev')}</button><span class="tag reffull" style="--x:var(--c-paper)">${ico('doc')}Reference · APA 7</span><span class="muted reffull" style="font-size:12.5px">${esc((REF_TYPES[x.ref.type]||{}).label||'')}</span><span class="refmini" title="${esc(apaText(x.ref)||'')}">${esc(apaText(x.ref)||'No reference details yet')}</span>${x.pdf?'<span class="pdfmini refmini2">PDF</span>':''}<span class="spacer reffull"></span><button class="btn sm" data-act="editRef">${ico('edit')}Edit details</button><button class="btn sm ghost" data-act="copyRef">${ico('copy')}Copy</button></div>
         <div class="apa-big">${apaHTML(x.ref)||'<span class="na">No reference details yet.</span>'}</div>
         <div id="pdfBox" style="margin:4px 0 12px">${pdfBoxHTML(x)}</div>
         <div class="intext"><span>In-text</span><code>${it.paren}</code><span>Narrative</span><code>${it.narr}</code><button class="link" style="font-size:13px" data-act="copyInText">Copy</button></div>
@@ -4115,6 +4124,7 @@ document.addEventListener('click',e=>{
       let qid=b.dataset.q; if(!qid&&b.dataset.stage){const q=tpl(x.projectId).questions.find(z=>z.section===b.dataset.stage&&!answered(x,z));qid=q&&q.id}
       if(qid)setTimeout(()=>openToQuestion(qid),60);break}
     case 'toggleSec': {const s=b.closest('.sect');s.classList.toggle('open');V.openSec[id]=s.classList.contains('open');break}
+    case 'refToggle': {NQ.ref=NQ.ref===false;saveNQ();const c=b.closest('.refcard');c.classList.toggle('min',NQ.ref===false);b.setAttribute('aria-expanded',String(NQ.ref!==false));b.title=NQ.ref===false?'Show the reference card':'Fold the reference card to one line';break}
     case 'qstep': {const x=S.docs[V.paperId],t=tpl(x.projectId);const i=t.questions.findIndex(z=>z.id===NQ.cur[V.paperId]);const q=t.questions[i+(+b.dataset.v)];if(q)setCurQ(q.id,true);break}
     case 'nqToggle': {const k=b.dataset.v;NQ[k]=!NQ[k];saveNQ();const nav=$('#qnav');if(nav){const x=S.docs[V.paperId];nav.outerHTML=qnavHTML(x,tpl(x.projectId))}applyQnav();if(k==='single'&&!NQ.single){const qid=NQ.cur[V.paperId];if(qid)openToQuestion(qid)}break}
     case 'toggleQ': {if(NQ.single&&b.closest('.notescol.single'))break;const q=b.closest('.q');q.classList.toggle('open');V.openQ[V.paperId+':'+id]=q.classList.contains('open');if(q.classList.contains('open')){const ta=q.querySelector('.rte');if(ta)ta.focus()}break}

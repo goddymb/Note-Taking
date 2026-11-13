@@ -1,5 +1,8 @@
 # Changelog
 
+## [1.16.2]
+- **Fold the reference card.** The arrow at the top left of the reference card folds it to a single line showing the reference (and a PDF tag), with Edit details still at hand. Click the arrow again to unfold it. The app remembers your choice.
+
 ## [1.16.1]
 - **Saving no longer shakes the screen.** Saving used to redraw the side menu, and on some pages the whole page, after every keystroke. Now only what actually changed is redrawn, and nothing is redrawn while you are typing in a field.
 - The save indicator keeps a fixed size: only its dot turns amber briefly while saving. The toolbar buttons next to it no longer move.
