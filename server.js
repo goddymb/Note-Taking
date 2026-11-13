@@ -15,6 +15,8 @@ const path = require('node:path');
 const crypto = require('node:crypto');
 const { execFile } = require('node:child_process');
 const os = require('node:os');
+const dns = require('node:dns').promises;
+const net = require('node:net');
 
 /* ---------------------------------------------------------------- config */
 const env = (k, d) => (process.env[k] === undefined || process.env[k] === '' ? d : process.env[k]);
@@ -195,6 +197,7 @@ async function indexHtml() {
     ai: AI ? { label: AI.label, provider: AI.provider, model: AI.model } : null,
     maxUploadMb: Math.round(MAX_UPLOAD / 1024 / 1024),
     lookup: CROSSREF_ENABLED,
+    webFetch: WEB_FETCH,
     appVersion: APP_VERSION,
     updates: !!UPDATE_REPO,
   };
@@ -342,6 +345,45 @@ async function handleLookup(url, res) {
     return send(res, 200, { ref });
   } catch (e) {
     return fail(res, 502, 'unavailable', 'CrossRef could not be reached (offline?)');
+  } finally { clearTimeout(timer); }
+}
+
+/* ---------------------------------------------------------------- fetch a web page or PDF by link (for reference details and the web reader) */
+const WEB_FETCH = env('WEB_FETCH', 'on') !== 'off';
+const WEB_FETCH_PRIVATE = env('WEB_FETCH_ALLOW_PRIVATE', '') === '1';   // for testing only
+function isPrivateIp(ip) {
+  if (net.isIPv4(ip)) {
+    const [a, b] = ip.split('.').map(Number);
+    return a === 10 || a === 127 || a === 0 || (a === 169 && b === 254) || (a === 172 && b >= 16 && b <= 31) || (a === 192 && b === 168) || (a === 100 && b >= 64 && b <= 127);
+  }
+  const v = ip.toLowerCase();
+  if (v.startsWith('::ffff:')) return isPrivateIp(v.slice(7));
+  return v === '::1' || v === '::' || v.startsWith('fc') || v.startsWith('fd') || v.startsWith('fe80');
+}
+async function handleFetchUrl(url, res) {
+  if (!WEB_FETCH) return fail(res, 404, 'off', 'Fetching web pages is turned off on this server');
+  let u;
+  try { u = new URL(String(url.searchParams.get('url') || '').trim()); } catch (e) { return fail(res, 400, 'bad_url', 'That is not a valid web address'); }
+  if (!/^https?:$/.test(u.protocol)) return fail(res, 400, 'bad_url', 'Only http and https links can be opened');
+  try { const { address } = await dns.lookup(u.hostname); if (isPrivateIp(address) && !WEB_FETCH_PRIVATE) return fail(res, 400, 'blocked', 'Links to this computer or local network are not fetched'); }
+  catch (e) { return fail(res, 502, 'not_found', 'That website could not be found (check the link, or are you offline?)'); }
+  const ctl = new AbortController(); const timer = setTimeout(() => ctl.abort(), 25000);
+  try {
+    const r = await fetch(u.href, { redirect: 'follow', signal: ctl.signal, headers: {
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Safari/537.36 LiteratureNotes/1.0',
+      'Accept': 'text/html,application/xhtml+xml,application/pdf;q=0.9,*/*;q=0.5', 'Accept-Language': 'en,fr;q=0.8' } });
+    if (!r.ok) return fail(res, 502, 'http_' + r.status, r.status === 403 || r.status === 401 ? 'The website refused the request (it may need a login or block apps)' : `The website answered with an error (${r.status})`);
+    const ct = (r.headers.get('content-type') || '').toLowerCase();
+    const kind = ct.includes('pdf') ? 'pdf' : /html|xml|text\/plain/.test(ct) || !ct ? 'html' : '';
+    if (!kind) return fail(res, 415, 'unsupported', 'That link is not a web page or a PDF');
+    const max = kind === 'pdf' ? MAX_UPLOAD : 8 * 1024 * 1024;
+    if (Number(r.headers.get('content-length') || 0) > max) return fail(res, 413, 'too_large', 'The file behind that link is too large');
+    const buf = Buffer.from(await r.arrayBuffer());
+    if (buf.length > max) return fail(res, 413, 'too_large', 'The file behind that link is too large');
+    const isPdf = kind === 'pdf' || buf.slice(0, 5).toString() === '%PDF-';
+    send(res, 200, buf, { 'Content-Type': isPdf ? 'application/pdf' : (ct.includes('charset') ? ct : 'text/html'), 'X-Final-Url': encodeURI(r.url || u.href), 'X-Kind': isPdf ? 'pdf' : 'html' });
+  } catch (e) {
+    return fail(res, 502, 'unavailable', e && e.name === 'AbortError' ? 'The website took too long to answer' : 'The website could not be reached (are you offline?)');
   } finally { clearTimeout(timer); }
 }
 
@@ -563,6 +605,7 @@ async function handle(req, res) {
   // AI
   if (p === '/api/ask' && req.method === 'POST') return handleAsk(req, res);
   if (p === '/api/ocr' && req.method === 'POST') return handleOcr(req, res);
+  if (p === '/api/fetchurl' && req.method === 'GET') return handleFetchUrl(url, res);
   if (p === '/api/lookup' && req.method === 'GET') return handleLookup(url, res);
   if (p === '/api/version' && req.method === 'GET') return handleVersion(url, res);
   if (p === '/api/backups' && req.method === 'GET') {

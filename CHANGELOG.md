@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.19.0]
+- **Fill details from a DOI or a link.** "Add paper" has a new box at the top: paste a DOI (e.g. 10.1016/…) or any web link and click **Fill details** (or just paste). This works with or without a PDF.
+  - A DOI gets the details from CrossRef.
+  - A link to an article page reads the page's own citation details, uses its DOI if it has one, and attaches the PDF if the page offers it.
+  - A direct link to a PDF attaches the PDF.
+  - A link to an ordinary web page fills in a Webpage reference: author, date, title and website name.
+- **Read web sources in the app.** For a web source, **Read side by side** opens the page next to your notes:
+  - **Reader** shows a clean, saved copy of the text (menus, adverts and cookie banners removed), with numbered paragraphs.
+  - **Live page** shows the website itself. Some sites refuse to be shown inside other apps; you can then open them in your browser instead.
+  - Select text in Reader to **Add quote** or make an **Idea**. Web pages have no page numbers, so the citation uses the paragraph, as APA requires: "…" (Ndip, 2023, para. 2).
+  - **Ask** works on web sources too.
+- A DOI found inside a PDF is now looked up in CrossRef in the online version as well.
+- New server setting `WEB_FETCH=off` turns off fetching links. Links to your own computer or local network are never fetched.
+
 ## [1.18.0]
 - **More guiding hints for all 24 questions**, written to help you learn note-taking:
   - 📍 **Where to look** gives the parts of the paper in order, plus the words to scan for (e.g. "This paper…", "We find…").

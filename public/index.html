@@ -375,6 +375,25 @@ body.focus .qnav{top:0}
 @keyframes fade{from{opacity:0;transform:translateY(-3px)}to{opacity:1;transform:none}}
 .hints{display:block;margin-bottom:8px}.hints:not(:has(.hint:not([hidden]))){display:none}
 .hint[hidden]{display:none}
+.lookbox{background:color-mix(in srgb,var(--accent) 6%,var(--panel-2));border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.webbody{background:var(--panel-2);display:block;padding:16px 16px 16px 42px}
+.webbody:has(.webframe){padding:0;display:flex;flex-direction:column}.webbody .webframe{flex:1;height:auto;min-height:400px}
+.webbody .rload{margin:40px auto}
+.webdoc{max-width:760px;margin:0 auto;padding:28px 32px 60px;background:var(--panel-solid,#fff);color:var(--ink);font-family:var(--serif);line-height:1.7;min-height:100%;box-shadow:var(--shadow)}
+.webdoc .webhead{font-family:var(--sans,inherit);border-bottom:1px solid var(--line);margin-bottom:18px;padding-bottom:12px}
+.webdoc .website{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--accent)}
+.webdoc h1{font-size:1.6em;line-height:1.25;margin:6px 0 8px}
+.webdoc .webmeta{font-size:12.5px;color:var(--muted)}
+.webdoc h2{font-size:1.25em;margin:1.4em 0 .5em}.webdoc h3,.webdoc h4{font-size:1.08em;margin:1.2em 0 .4em}
+.webdoc p,.webdoc blockquote{position:relative;margin:0 0 1em}
+.webdoc [data-para]::before{content:attr(data-para);position:absolute;left:-30px;top:.35em;font:600 10.5px var(--sans,system-ui);color:var(--muted);opacity:.65;width:22px;text-align:right}
+.webdoc blockquote{border-left:3px solid var(--line);padding-left:14px;color:var(--ink-2)}
+.webdoc img{max-width:100%;height:auto;border-radius:6px}
+.webdoc table{border-collapse:collapse;font-size:.85em;margin:1em 0;display:block;overflow-x:auto}.webdoc td,.webdoc th{border:1px solid var(--line);padding:4px 8px}
+.webdoc a{color:var(--accent)}
+.webdoc ::selection{background:color-mix(in srgb,var(--accent) 30%,transparent)}
+.webframe{width:100%;height:calc(100% - 34px);border:0;background:#fff;display:block}
+.webnote{font-size:12px;color:var(--muted);padding:8px 12px;border-top:1px solid var(--line);background:var(--panel)}
 .ideatags{display:flex;flex-wrap:wrap;gap:6px}
 .itag{border:1px solid color-mix(in srgb,var(--x) 45%,var(--line));background:none;color:var(--ink-2);border-radius:999px;padding:5px 12px;font:inherit;font-size:13px;font-weight:600;cursor:pointer}
 .itag.on{background:color-mix(in srgb,var(--x) 16%,var(--panel));color:var(--ink);border-color:var(--x)}
@@ -1032,7 +1051,7 @@ function pdfBoxHTML(x){
   return `<button class="drop" data-act="pickPdf" data-drop="1"><span class="di">${ico('upload')}</span><span><b>Attach the PDF</b><span>Drag it here or click to choose · up to ${Math.round(PDF_MAX/1048576)} MB</span></span></button>`;
 }
 function pdfToolHTML(x){
-  if(!x||!x.pdf||UP.has(V.paperId))return '';
+  if(!x||!hasReadable(x)||UP.has(V.paperId))return '';
   const on=V.split;
   return `<button class="btn sm ${on&&R.tab==='pdf'?'pri':''}" data-act="${on&&R.tab==='pdf'?'closeSplit':'openSplit'}" data-v="pdf">${ico('split')}${on&&R.tab==='pdf'?'Close reader':'Read side by side'}</button><button class="btn sm ${on&&R.tab==='ask'?'pri':''}" data-act="openSplit" data-v="ask">${ico('spark')}Ask ${AIN}</button>`;
 }
@@ -1050,7 +1069,7 @@ function bindDrop(el,cb){
 /* ---------- Reference editor modal ---------- */
 function refEditor(ref,{heading,okLabel,onSave,pdf}){
   const w=clone(ref);
-  let pdfFile=null, fill=null;
+  let pdfFile=null, fill=null, look=null, webSnap=null, lookQ=w.doi?('https://doi.org/'+w.doi):(w.url||'');
   const pdfZone=()=>{
     const fillBtn=src=>fill&&fill.state==='busy'?'':`<button class="btn sm" data-pdffill="${src}">${ico('spark')}Fill details from ${src==='new'?'this':'the attached'} PDF</button>`;
     if(pdfFile) return `<div class="pdfrow"><span class="pdfic">PDF</span><div class="nm"><b>${esc(pdfFile.name)}</b><span>${fmtSize(pdfFile.size)} · uploads when you save</span></div>${fill?'':fillBtn('new')}<button class="btn sm ghost danger" data-pdfclear>${ico('trash')}Remove</button></div>${fillNoteHTML(fill)}`;
@@ -1086,10 +1105,31 @@ function refEditor(ref,{heading,okLabel,onSave,pdf}){
     }
     draw();
   };
+  const runLookup=async()=>{
+    const upd=()=>{const n=ov.querySelector('#lookNote');if(n)n.innerHTML=lookupNoteHTML(look)};
+    look={state:'busy',msg:'Looking it up…'}; upd();
+    try{
+      const res=await lookupSource(lookQ,m=>{look={state:'busy',msg:m};upd()});
+      if(!document.body.contains(ov))return;
+      if(res.noFetch){w.url=res.patch.url;if(!trim(w.title))w.type='web';look={state:'fail',msg:lookupErr({code:'no_fetch'})};draw();return}
+      applyPatch(w,res.patch);
+      if(res.web)webSnap=res.web;
+      let gotPdf=false;
+      if(res.pdfFile&&pdf&&!pdfFile&&!(pdf.current)){pdfFile=res.pdfFile;gotPdf=true}
+      const from=res.source==='crossref'?`Details filled from CrossRef using the DOI <b>${esc(res.doi)}</b>.`:res.source==='page'?'Details filled from the web page.':res.source==='pdf-link'?'The link is a PDF — it is attached.':'';
+      look={state:'ok',msg:from+(gotPdf&&res.source!=='pdf-link'?' The PDF the page offers is attached.':'')+(webSnap?' A readable copy of the page is kept, so you can read it in the app.':'')};
+      if(res.source==='pdf-link'&&gotPdf){draw();runFill({file:pdfFile});return}
+      draw();
+    }catch(e){if(!document.body.contains(ov))return;look={state:'fail',msg:lookupErr(e)};upd()}
+  };
   const draw=()=>{
     const T=REF_TYPES[w.type]||REF_TYPES.journal;
     const dk=T.date;
     ov.querySelector('.modal').innerHTML=`<h3>${esc(heading)}</h3>
+    <div class="field lookbox"><label>DOI or web link <span style="font-weight:500;text-transform:none;letter-spacing:0">(optional)</span></label>
+      <div class="row" style="flex-wrap:nowrap"><input class="inp" id="lookQ" value="${esc(lookQ)}" placeholder="e.g. 10.1016/j.aap.2021.106325  or  https://www.who.int/…" autocomplete="off"><button class="btn" data-lookup>${ico('spark')}Fill details</button></div>
+      <div class="help" style="margin-top:4px">Paste the paper's DOI or a link and the details are filled in for you — with or without a PDF.${LOCAL&&LOCAL.webFetch?' For a web page, a readable copy is kept so you can read it in the app; if a page offers its PDF, the PDF is attached.':''}</div>
+      <div id="lookNote">${lookupNoteHTML(look)}</div></div>
     ${pdf?`<div class="field"><label>Document</label><div id="pdfZone">${pdfZone()}</div></div>`:''}
     <div class="field"><label>Publication type</label><select class="inp" data-rf="type">${Object.entries(REF_TYPES).map(([k,v])=>`<option value="${k}" ${w.type===k?'selected':''}>${v.label}</option>`).join('')}</select></div>
     ${people('authors','Author(s)','Add every author in the order shown on the publication. Use “Organisation” for group authors such as WHO or a ministry.')}
@@ -1130,6 +1170,9 @@ function refEditor(ref,{heading,okLabel,onSave,pdf}){
     ov.querySelectorAll('[data-padd]').forEach(b=>b.onclick=()=>{const k=b.dataset.padd;w[k]=w[k]||[];w[k].push({family:'',given:'',org:false});draw();const ins=ov.querySelectorAll(`[data-pk="${k}"][data-k="family"]`);ins[ins.length-1].focus()});
     ov.querySelectorAll('[data-pdel]').forEach(b=>b.onclick=()=>{w[b.dataset.pdel].splice(+b.dataset.i,1);draw()});
     ov.querySelectorAll('[data-pmove]').forEach(b=>b.onclick=()=>{const L=w[b.dataset.pmove],i=+b.dataset.i;[L[i-1],L[i]]=[L[i],L[i-1]];draw()});
+    const lq=ov.querySelector('#lookQ'); lq.addEventListener('input',()=>{lookQ=lq.value}); lq.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();runLookup()}});
+    lq.addEventListener('paste',()=>setTimeout(()=>{lookQ=lq.value;if(doiFrom(lookQ)||isLink(lookQ))runLookup()},30));
+    ov.querySelector('[data-lookup]').onclick=runLookup;
     ov.querySelector('[data-sc]').onclick=()=>{w.title=sentenceCase(w.title);ov.querySelector('[data-rf="title"]').value=w.title;preview()};
     const bindPdf=()=>{
       const z=ov.querySelector('#pdfZone'); if(!z)return;
@@ -1148,7 +1191,7 @@ function refEditor(ref,{heading,okLabel,onSave,pdf}){
       Object.keys(w).forEach(k=>{if(!keep.has(k))delete w[k]});
       if(T.date==='year'){delete w.month;delete w.day;delete w.dayEnd}
       w.authors=(w.authors||[]).filter(a=>trim(a.family)); if(w.editors) w.editors=w.editors.filter(a=>trim(a.family));
-      ov.remove(); onSave(w,pdfFile);
+      ov.remove(); onSave(w,pdfFile,webSnap&&(w.url||webSnap.url)?webSnap:null);
     };
   };
   draw();
@@ -1627,9 +1670,9 @@ function paperView(){
   return `<div id="paperEditor">
   <div class="crumbs"><button data-act="nav" data-v="projects">Projects</button>${ico('chev')}<button data-act="openProject" data-id="${x.projectId}">${esc(p?p.name:'Project')}</button>${ico('chev')}<span>Notes</span></div>
   <div class="paperhead"><h1 id="pTitle">${esc(paperTitle(x))}</h1><div class="row"><div style="position:relative;width:52px;height:52px" title="${g.n} of ${g.total} answered"><span id="pRing">${ring(g.pct,52,5)}</span><span id="pPct" style="position:absolute;inset:0;display:grid;place-items:center;font-size:12px;font-weight:800">${g.pct}%</span></div></div></div>
-  <div class="ptoolbar"><span class="ftitle" title="${esc(paperTitle(x))}"><span>${esc(paperTitle(x))}</span></span><button class="btn sm ${V.focus?'pri':''}" data-act="focus" title="${V.focus?'Exit focus mode (Esc)':'Focus mode: hide everything except the paper and your notes'}">${ico(V.focus?'minimize':'maximize')}${V.focus?'Exit focus':'Focus mode'}</button><button class="btn sm" data-act="nextEmpty">${ico('next')}Next unanswered</button><button class="btn sm" data-act="newIdea" title="Jot down an idea — saved with a citation to this paper">${ico('bulb')}Idea</button><span class="spacer"></span><span class="save" id="saveNote"></span><span id="pdfTool">${pdfToolHTML(x)}</span><button class="btn sm pri" data-act="paperReport">${ico('report')}Report</button><span class="mwrap"><button class="btn sm icon" data-act="moreMenu" aria-haspopup="menu" aria-expanded="false" title="More" aria-label="More actions"><svg class="i" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.4" fill="currentColor"/><circle cx="12" cy="12" r="1.4" fill="currentColor"/><circle cx="19" cy="12" r="1.4" fill="currentColor"/></svg></button><div class="menu" role="menu" hidden>${V.split&&x.pdf?`<button role="menuitem" data-act="swap">${ico('swap')}Swap PDF and notes sides</button>`:''}${NQ.single?'':`<button role="menuitem" data-act="expandAll">${ico('expand')}Expand all questions</button><button role="menuitem" data-act="collapseAll">${ico('collapse')}Collapse all questions</button>`}<hr><button role="menuitem" class="danger" data-act="deletePaper">${ico('trash')}Delete paper</button></div></span></div>
-  <div class="pe ${V.split&&x.pdf?'split':''} ${V.swap?'swap':''}" id="pe" style="--lw:${paneWidth()}%">
-    ${V.split&&x.pdf?readerHTML(x)+`<div class="gutter" id="gutter" role="separator" aria-orientation="vertical" aria-label="Drag to resize the PDF and notes" aria-valuemin="20" aria-valuemax="80" aria-valuenow="${paneWidth()}" tabindex="0" title="Drag to resize · double-click to reset"></div>`:`<nav class="outline" aria-label="Questions">${outline}</nav>`}
+  <div class="ptoolbar"><span class="ftitle" title="${esc(paperTitle(x))}"><span>${esc(paperTitle(x))}</span></span><button class="btn sm ${V.focus?'pri':''}" data-act="focus" title="${V.focus?'Exit focus mode (Esc)':'Focus mode: hide everything except the paper and your notes'}">${ico(V.focus?'minimize':'maximize')}${V.focus?'Exit focus':'Focus mode'}</button><button class="btn sm" data-act="nextEmpty">${ico('next')}Next unanswered</button><button class="btn sm" data-act="newIdea" title="Jot down an idea — saved with a citation to this paper">${ico('bulb')}Idea</button><span class="spacer"></span><span class="save" id="saveNote"></span><span id="pdfTool">${pdfToolHTML(x)}</span><button class="btn sm pri" data-act="paperReport">${ico('report')}Report</button><span class="mwrap"><button class="btn sm icon" data-act="moreMenu" aria-haspopup="menu" aria-expanded="false" title="More" aria-label="More actions"><svg class="i" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.4" fill="currentColor"/><circle cx="12" cy="12" r="1.4" fill="currentColor"/><circle cx="19" cy="12" r="1.4" fill="currentColor"/></svg></button><div class="menu" role="menu" hidden>${V.split&&hasReadable(x)?`<button role="menuitem" data-act="swap">${ico('swap')}Swap reader and notes sides</button>`:''}${NQ.single?'':`<button role="menuitem" data-act="expandAll">${ico('expand')}Expand all questions</button><button role="menuitem" data-act="collapseAll">${ico('collapse')}Collapse all questions</button>`}<hr><button role="menuitem" class="danger" data-act="deletePaper">${ico('trash')}Delete paper</button></div></span></div>
+  <div class="pe ${V.split&&hasReadable(x)?'split':''} ${V.swap?'swap':''}" id="pe" style="--lw:${paneWidth()}%">
+    ${V.split&&hasReadable(x)?(x.pdf?readerHTML(x):webReaderHTML(x))+`<div class="gutter" id="gutter" role="separator" aria-orientation="vertical" aria-label="Drag to resize the PDF and notes" aria-valuemin="20" aria-valuemax="80" aria-valuenow="${paneWidth()}" tabindex="0" title="Drag to resize · double-click to reset"></div>`:`<nav class="outline" aria-label="Questions">${outline}</nav>`}
     <div class="notescol">
       <div class="card refcard ${NQ.ref===false?'min':''}">
         <div class="row refhead" style="margin-bottom:6px"><button class="btn sm icon refcol" data-act="refToggle" aria-expanded="${NQ.ref!==false}" title="${NQ.ref===false?'Show the reference card':'Fold the reference card to one line'}" aria-label="Show or hide the reference card">${ico('chev')}</button><span class="tag reffull" style="--x:var(--c-paper)">${ico('doc')}Reference · APA 7</span><span class="muted reffull" style="font-size:12.5px">${esc((REF_TYPES[x.ref.type]||{}).label||'')}</span><span class="refmini" title="${esc(apaText(x.ref)||'')}">${esc(apaText(x.ref)||'No reference details yet')}</span>${x.pdf?'<span class="pdfmini refmini2">PDF</span>':''}<span class="spacer reffull"></span><button class="btn sm" data-act="editRef">${ico('edit')}Edit details</button><button class="btn sm ghost" data-act="copyRef">${ico('copy')}Copy</button></div>
@@ -1657,10 +1700,10 @@ function bindPaper(){
   flashSave(true);
   const rc=m.querySelector('.refcard'); const id0=V.paperId;
   bindDrop(rc,f=>attachPdf(id0,f));
-  document.body.classList.toggle('wide',!!(V.split&&x.pdf));
+  document.body.classList.toggle('wide',!!(V.split&&hasReadable(x)));
   document.body.classList.toggle('focus',!!V.focus);
   bindGutter();
-  if(V.split&&x.pdf){mountReader(x);bindAsk(x)}
+  if(V.split&&hasReadable(x)){x.pdf?mountReader(x):mountWeb(x);bindAsk(x)}
   applyQnav();
 }
 function flashSave(idle){
@@ -1936,7 +1979,7 @@ function bindAsk(x){
   const th=$('#thread'); if(th) th.scrollTop=th.scrollHeight;
 }
 async function askPaper(id,question,show){
-  const x=S.docs[id]; if(!x||!x.pdf)return;
+  const x=S.docs[id]; if(!x||!hasReadable(x))return;
   const sample=await getSample();
   if(!sample){toast(unavailable('ai'));return}
   const th=$('#thread'); const turns=R.turns[id]=R.turns[id]||[];
@@ -1947,11 +1990,11 @@ async function askPaper(id,question,show){
   $('#askIn').value=''; $('#askGo').disabled=true; $('#askStop').hidden=false;
   R.ctl=new AbortController();
   try{
-    const {text:paper,pages,truncated}=await pdfText(x.pdf);
+    const isWeb=!x.pdf; const {text:paper,pages,truncated}=isWeb?(webPaperText(x)||{text:'',pages:0}):await pdfText(x.pdf);
     if(!paper.trim()){throw {code:'notext'}}
     out.innerHTML='<span class="spin"></span> Thinking…';
     const rules=`You are a research assistant helping a student write a literature review. Answer ONLY from the paper text below.
-- Cite the page for each claim like (p. 4), using the [page N] markers.
+${isWeb?'- Cite the paragraph for each claim like (para. 4), using the [para N] markers.':'- Cite the page for each claim like (p. 4), using the [page N] markers.'}
 - If the paper does not say, reply that it does not say — never guess or use outside knowledge.
 - Be concise: short paragraphs or bullets, under 220 words unless asked for more. Plain text; **bold** allowed.
 - Separate what the authors measured from how they interpret it when relevant.
@@ -1971,7 +2014,7 @@ ${paper}
     turns.pop();
     out.parentElement.classList.remove('pending');
     if(e&&e.code==='cancelled'){out.innerHTML=e.text?md(e.text)+'<div class="help">(Stopped)</div>':'<span class="help">Stopped.</span>'}
-    else if(e&&e.code==='notext') out.innerHTML='<span class="help">This PDF has no selectable text (it may be a scan), so Claude cannot read it.</span>';
+    else if(e&&e.code==='notext') out.innerHTML=x.pdf?'<span class="help">This PDF has no selectable text (it may be a scan), so Claude cannot read it.</span>':'<span class="help">Open the page in Reader view first, so a readable copy of it is saved — then ask again.</span>';
     else if(e&&e.code) out.innerHTML=(e.text?md(e.text):'')+`<div class="warnline">${ico('warn')}<span>${esc(sampleErr(e))}</span></div>`;
     else out.innerHTML=`<div class="warnline">${ico('warn')}<span>The PDF could not be read.</span></div>`;
   }finally{const nc=document.querySelector('[data-act="askClear"]');if(nc&&R.turns[id]&&R.turns[id].length)nc.disabled=false;const g=$('#askGo');if(g)g.disabled=false;const s=$('#askStop');if(s)s.hidden=true;R.ctl=null}
@@ -2077,8 +2120,8 @@ function normRef(o){
 async function autofillRef(src){
   const head=await pdfHead(src);
   // 1) CrossRef through the self-hosted server
-  if(head.doi&&LOCAL&&LOCAL.lookup){
-    try{const r=await fetch('/api/lookup?doi='+encodeURIComponent(head.doi));if(r.ok){const j=await r.json();if(j&&j.ref&&j.ref.title)return {patch:normRef(j.ref),source:'crossref',doi:head.doi}}}catch(e){}
+  if(head.doi){
+    try{const patch=await doiLookup(head.doi);if(patch&&patch.title)return {patch,source:'crossref',doi:head.doi}}catch(e){}
   }
   // 2) AI reads the first page
   const sample=await getSample();
@@ -3509,8 +3552,8 @@ function loadPdfLib(){
 }
 const curPaper=()=>V.view==='paper'&&S.docs[V.paperId]?S.docs[V.paperId]:null;
 const citeCore=x=>cite(x).replace(/^\(|\)$/g,'');
-const pageStr=pg=>/[–-]/.test(String(pg))?'pp. '+String(pg).replace(/\s*[-–]\s*/,'–'):'p. '+pg;
-const quoteText=(x,text,pg)=>`“${text}” (${citeCore(x)}, ${pageStr(pg)})`;
+const pageStr=pg=>{pg=String(pg||'').trim();if(/^(paras?|pp?|sec(tion)?|ch(apter)?|slide|table|figure|fig)\.?\s/i.test(pg)||/^¶/.test(pg))return pg;return /[–-]/.test(pg)?'pp. '+pg.replace(/\s*[-–]\s*/,'–'):'p. '+pg};
+const quoteText=(x,text,pg)=>`“${text}” (${citeCore(x)}${String(pg||'').trim()?', '+pageStr(pg):''})`;
 
 /* printed page number: the PDF's own page labels, else the first page in the reference */
 function printedPage(x,n){
@@ -3581,20 +3624,20 @@ function showPop(info,hl){
   const x=curPaper(); if(!x)return;
   hidePop(); POP={...info,hl};
   const t=tpl(x.projectId), first=info.pages[0], lastP=info.pages[info.pages.length-1];
-  const pg=first===lastP?printedPage(x,first):`${printedPage(x,first)}–${printedPage(x,lastP)}`;
+  const pg=info.web?(info.para||''):first===lastP?printedPage(x,first):`${printedPage(x,first)}–${printedPage(x,lastP)}`;
   const qsel=defaultQuoteQ(x);
   const host=$('#reader'); if(!host)return;
   const el=document.createElement('div'); el.id='selpop'; el.className='selpop'; el.setAttribute('role','dialog'); el.setAttribute('aria-label','Selected text');
   if(info.loading){el.innerHTML=`<div class="sprow"><span class="spin"></span><span>Reading the text in the box…</span><button class="spx" data-spx aria-label="Close">×</button></div>`;host.appendChild(el);placePop(el,info,host);el.querySelector('[data-spx]').onclick=hidePop;return}
   el.innerHTML=`${info.ocr?`<div class="sprow" style="align-items:flex-start"><textarea class="inp" id="spText" rows="3" aria-label="Recognised text — correct it if needed">${esc(info.text)}</textarea><button class="spx" data-spx aria-label="Close">×</button></div><div class="help" style="margin:-4px 0 0;font-size:12px">Read from the scan — check it against the page and correct any mistakes before adding.</div>`:`<div class="sptext">“${esc(info.text.length>110?info.text.slice(0,108)+'…':info.text)}”<button class="spx" data-spx aria-label="Close">×</button></div>`}
-    <div class="sprow"><span class="spl">Highlight</span>${HLC.map(([k,hex])=>`<button class="hlc ${hl&&hl.color===k?'on':''}" data-hlc="${k}" style="background:${hex}" title="${hl?'Change to':'Highlight in'} ${k}" aria-label="${k}"></button>`).join('')}${hl?`<button class="btn sm ghost danger" data-hldel title="Remove this highlight">${ico('trash')}Remove</button>`:''}</div>
+    <div class="sprow" ${info.web?'hidden':''}><span class="spl">Highlight</span>${HLC.map(([k,hex])=>`<button class="hlc ${hl&&hl.color===k?'on':''}" data-hlc="${k}" style="background:${hex}" title="${hl?'Change to':'Highlight in'} ${k}" aria-label="${k}"></button>`).join('')}${hl?`<button class="btn sm ghost danger" data-hldel title="Remove this highlight">${ico('trash')}Remove</button>`:''}</div>
     <div class="sprow"><span class="spl">Quote to</span><select class="inp" id="spQ" aria-label="Question to add the quote to">${t.questions.map((q,i)=>`<option value="${q.id}" ${q.id===qsel?'selected':''}>Q${i+1} · ${esc(q.text.length>46?q.text.slice(0,44)+'…':q.text)}</option>`).join('')}</select></div>
-    <div class="sprow"><span class="spl">Page</span><input class="inp" id="spPg" value="${esc(pg)}" style="width:76px" aria-label="Page number for the citation" title="Printed page number used in the citation. PDF page ${first}${first!==lastP?'–'+lastP:''}."><span class="muted" style="font-size:12px;flex:1">${esc(citeCore(x))}, ${esc(pageStr(pg))}</span><button class="btn sm" data-spidea title="Save a thought about this passage as an idea">${ico('bulb')}Idea</button><button class="btn sm pri" data-spquote>${ico('plus')}Add quote</button></div>`;
+    <div class="sprow"><span class="spl">${info.web?'Where':'Page'}</span><input class="inp" id="spPg" value="${esc(pg)}" style="width:${info.web?96:76}px" aria-label="${info.web?'Paragraph for the citation':'Page number for the citation'}" title="${info.web?'Web pages have no page numbers: APA cites the paragraph (para. N), or a section heading.':`Printed page number used in the citation. PDF page ${first}${first!==lastP?'–'+lastP:''}.`}"><span class="muted" style="font-size:12px;flex:1">${esc(citeCore(x))}${pg?', '+esc(pageStr(pg)):''}</span><button class="btn sm" data-spidea title="Save a thought about this passage as an idea">${ico('bulb')}Idea</button><button class="btn sm pri" data-spquote>${ico('plus')}Add quote</button></div>`;
   host.appendChild(el); placePop(el,info,host);
   el.querySelector('[data-spx]').onclick=()=>{hidePop();getSelection().removeAllRanges()};
   const spText=el.querySelector('#spText'); if(spText){spText.addEventListener('input',()=>{POP.text=spText.value.trim()});setTimeout(()=>spText.focus(),30)}
   const pgI=el.querySelector('#spPg'), lab=el.querySelector('.sprow:last-child .muted');
-  pgI.addEventListener('input',()=>{lab.textContent=`${citeCore(x)}, ${pageStr(pgI.value.trim()||'?')}`});
+  pgI.addEventListener('input',()=>{const v=pgI.value.trim();lab.textContent=`${citeCore(x)}${v?', '+pageStr(v):''}`});
   el.addEventListener('mousedown',e=>{if(!e.target.closest('input,select,textarea'))e.preventDefault()});
   el.addEventListener('keydown',e=>{if(e.key==='Escape'){hidePop();e.stopPropagation()}if(e.key==='Enter'&&e.target.id==='spPg'){e.preventDefault();el.querySelector('[data-spquote]').click()}});
   el.querySelectorAll('[data-hlc]').forEach(b=>b.onclick=()=>{if(!POP.text){toast('There is no text to highlight');return}hl?recolorHighlight(hl.id,b.dataset.hlc):addHighlight(POP,b.dataset.hlc);hidePop();getSelection().removeAllRanges()});
@@ -3602,7 +3645,7 @@ function showPop(info,hl){
   el.querySelector('[data-spidea]').onclick=()=>{const text=(POP.text||'').trim();const page=pgI.value.trim();hidePop();getSelection().removeAllRanges();openIdeaDialog({text:text?`“${text}”\n\n`:'',page})};
   el.querySelector('[data-spquote]').onclick=()=>{
     const text=(POP.text||'').trim(); if(!text){toast('There is no text to quote');return}
-    const qid=el.querySelector('#spQ').value, page=pgI.value.trim()||String(first);
+    const qid=el.querySelector('#spQ').value, page=pgI.value.trim()||(info.web?'':String(first));
     QUOTE_Q=qid; try{localStorage.setItem('litnotes.quoteQ',qid)}catch(e){}
     addQuoteToNotes(x,qid,text,page); hidePop(); getSelection().removeAllRanges();
   };
@@ -3702,16 +3745,16 @@ function addQuoteToNotes(x,qid,text,page){
     if(x.rich&&x.rich[qid])x.rich[qid]+=`<div>${esc(q)}</div>`;
     save(V.paperId);
   }
-  const t=tpl(x.projectId); toast(`Quote added to Q${t.questions.findIndex(z=>z.id===qid)+1} with ${citeCore(x)}, ${pageStr(page)}`);
+  const t=tpl(x.projectId); toast(`Quote added to Q${t.questions.findIndex(z=>z.id===qid)+1} with ${citeCore(x)}${String(page||'').trim()?', '+pageStr(page):''}`);
 }
 /* quotes found in a paper's notes */
 function quotesOf(x){
   const core=citeCore(x), out=[], seen=new Set();
-  const re=/“([^”]{2,})”\s*\(([^()]+?),\s*(pp?\.\s*[^)]+)\)/g;
-  Object.entries(x.answers||{}).forEach(([qid,a])=>{let m;while((m=re.exec(a||''))){if(m[2].trim()!==core)continue;const k=m[1]+'|'+m[3];if(seen.has(k))continue;seen.add(k);out.push({qid,text:m[1],page:m[3].trim(),full:m[0]})}});
+  const re=/“([^”]{2,})”\s*\(([^()]+?)(?:,\s*((?:pp?|paras?)\.\s*[^)]+))?\)/g;
+  Object.entries(x.answers||{}).forEach(([qid,a])=>{let m;while((m=re.exec(a||''))){if(m[2].trim()!==core)continue;const k=m[1]+'|'+(m[3]||'');if(seen.has(k))continue;seen.add(k);out.push({qid,text:m[1],page:(m[3]||'').trim(),full:m[0]})}});
   return out;
 }
-const endsWithOwnCite=(x,txt)=>new RegExp(citeCore(x).replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+',\\s*pp?\\.\\s*[^)]+\\)\\s*\\.?\\s*$').test(txt);
+const endsWithOwnCite=(x,txt)=>new RegExp(citeCore(x).replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'(,\\s*(pp?|paras?)\\.\\s*[^)]+)?\\)\\s*\\.?\\s*$').test(txt);
 
 /* ---------- wiring into the reader ---------- */
 function bindQuotes(box){
@@ -3722,7 +3765,7 @@ function bindQuotes(box){
   box.addEventListener('pointerup',e=>{
     const moved=down&&Math.hypot(e.clientX-down.x,e.clientY-down.y)>4;
     setTimeout(()=>{
-      const info=selectionInPdf();
+      const info=selectionInPdf()||selectionInWeb();
       if(info){if(!(POP&&!POP.hl&&POP.text===info.text))showPop(info);return}
       if(!moved){const h=hlAt(e.clientX,e.clientY);if(h){showPop({text:h.text,byPage:{[h.page]:h.rects},pages:[h.page],anchor:{x:e.clientX,y:e.clientY,top:e.clientY}},h)}}
     },10);
@@ -3734,7 +3777,7 @@ document.addEventListener('selectionchange',()=>{
   clearTimeout(_selT); _selT=setTimeout(()=>{
     if(SEL_DRAG)return;
     if(document.activeElement&&document.activeElement.closest&&document.activeElement.closest('#selpop'))return;
-    const info=selectionInPdf();
+    const info=selectionInPdf()||selectionInWeb();
     if(info){if(!POP||POP.text!==info.text||POP.hl)showPop(info)}
     else if(POP&&!POP.hl&&!POP.ocr)hidePop();
   },450);
@@ -4020,6 +4063,251 @@ document.addEventListener('input',e=>{if(e.target.id==='ideaQ'){IV.q=e.target.va
 document.addEventListener('change',e=>{if(e.target.matches('[data-act="ideaProj"]')){IV.proj=e.target.value;IV.tag='All';renderMain()}});
 
 /* ============================================================
+   DOI / LINK LOOKUP and WEB SOURCES
+   - DOI → CrossRef (server, or CrossRef directly)
+   - link → the page's own citation details (self-hosted server fetches it)
+   - link to a PDF, or a page that offers its PDF → the PDF is attached
+   - web pages are kept as a clean, readable copy: paper.web = {url,title,site,html,text,fetchedAt}
+   ============================================================ */
+function doiFrom(q){
+  let s=String(q||'').trim(); try{s=decodeURIComponent(s)}catch(e){}
+  const m=s.match(DOI_RE); return m?cleanDoi(m[1].replace(/[?#].*$/,'').replace(/\/(full|abstract|pdf|epdf|html)$/i,'')):'';
+}
+const isLink=q=>/^https?:\/\/\S+\.\S+/i.test(String(q||'').trim())||/^www\.\S+\.\S+/i.test(String(q||'').trim());
+const normLink=q=>{q=String(q||'').trim();return /^www\./i.test(q)?'https://'+q:q};
+function crossrefToRefClient(m){
+  const first=a=>Array.isArray(a)?(a[0]||''):(a||'');
+  const dec=s=>{const d=document.createElement('textarea');d.innerHTML=String(s||'').replace(/<[^>]+>/g,'');return d.value.trim()};
+  const t=m.type||'', container=dec(first(m['container-title']));
+  let type='journal';
+  if(['book','monograph','edited-book','reference-book'].includes(t))type='book';
+  else if(['book-chapter','book-section','book-part','reference-entry'].includes(t))type='chapter';
+  else if(['report','report-component','posted-content'].includes(t))type='report';
+  else if(t==='proceedings-article')type=container?'chapter':'conference';
+  else if(t==='dissertation')type='thesis';
+  const people=l=>(l||[]).map(a=>a.family?{family:a.family,given:a.given||'',org:false}:a.name?{family:a.name,given:'',org:true}:null).filter(Boolean);
+  const dp=((m['published-print']||m['published-online']||m.issued||{})['date-parts']||[[]])[0]||[];
+  const ref={type,authors:people(m.author),editors:people(m.editor),year:dp[0]?String(dp[0]):'',month:dp[1]?String(dp[1]):'',day:dp[2]?String(dp[2]):'',
+    title:dec(first(m.title))+(first(m.subtitle)?': '+dec(first(m.subtitle)):''),doi:m.DOI||'',publisher:dec(m.publisher)};
+  if(type==='journal')Object.assign(ref,{journal:container,volume:m.volume||'',issue:m.issue||'',pages:m.page||'',articleNo:m['article-number']||''});
+  if(type==='chapter')Object.assign(ref,{bookTitle:container,pages:m.page||''});
+  return ref;
+}
+async function doiLookup(doi){
+  if(LOCAL&&LOCAL.lookup){
+    const r=await fetch('/api/lookup?doi='+encodeURIComponent(doi)); const j=await r.json().catch(()=>({}));
+    if(r.ok&&j.ref&&j.ref.title)return normRef(j.ref);
+    throw Object.assign(new Error(j.message||'not found'),{code:r.status===404?'doi_not_found':'doi_failed',msg:j.message});
+  }
+  try{
+    const r=await fetch('https://api.crossref.org/works/'+encodeURIComponent(doi));
+    if(r.status===404)throw Object.assign(new Error('nf'),{code:'doi_not_found'});
+    const j=await r.json(); if(j&&j.message)return normRef(crossrefToRefClient(j.message));
+  }catch(e){if(e&&e.code)throw e}
+  throw Object.assign(new Error('blocked'),{code:'doi_failed',msg:'CrossRef could not be reached from here'});
+}
+async function fetchLink(url){
+  if(!(LOCAL&&LOCAL.webFetch))throw Object.assign(new Error('no fetch'),{code:'no_fetch'});
+  const r=await fetch('/api/fetchurl?url='+encodeURIComponent(url));
+  if(!r.ok){const j=await r.json().catch(()=>({}));throw Object.assign(new Error(j.message||'fetch failed'),{code:j.code||'fetch_failed',msg:j.message})}
+  const finalUrl=(()=>{try{return decodeURI(r.headers.get('X-Final-Url')||url)}catch(e){return url}})();
+  if(r.headers.get('X-Kind')==='pdf'){
+    const b=await r.blob(); let name=(finalUrl.split('?')[0].split('/').pop()||'paper').replace(/[^\w.\-]+/g,'_'); if(!/\.pdf$/i.test(name))name+='.pdf';
+    return {kind:'pdf',file:new File([b],name,{type:'application/pdf'}),finalUrl};
+  }
+  return {kind:'html',html:await r.text(),finalUrl};
+}
+
+/* ---------- reading a web page ---------- */
+const ORG_RE=/\b(organi[sz]ation|ministry|ministère|agency|institute|university|association|council|department|bank|fund|foundation|programme|program|commission|office|authority|society|centre|center|union|nations|unicef|who|world|government|news|bbc|reuters)\b/i;
+function personFromName(n){
+  n=trim(String(n||'').replace(/^by\s+/i,'').replace(/\s+/g,' ')); if(!n)return null;
+  if(n.includes(','))return {family:trim(n.split(',')[0]),given:trim(n.split(',').slice(1).join(' ')),org:false};
+  const w=n.split(' ');
+  if(w.length===1||w.length>4||ORG_RE.test(n))return {family:n,given:'',org:true};
+  return {family:w[w.length-1],given:w.slice(0,-1).join(' '),org:false};
+}
+function parseWeb(html,url){
+  const d=new DOMParser().parseFromString(html,'text/html');
+  const base=d.createElement('base'); base.href=url; d.head&&d.head.prepend(base);
+  const meta=n=>{const e=d.querySelector(`meta[name="${n}" i],meta[property="${n}" i]`);return e?trim(e.getAttribute('content')||''):''};
+  const metas=n=>[...d.querySelectorAll(`meta[name="${n}" i],meta[property="${n}" i]`)].map(e=>trim(e.getAttribute('content')||'')).filter(Boolean);
+  let ld={};
+  d.querySelectorAll('script[type="application/ld+json"]').forEach(s=>{try{const j=JSON.parse(s.textContent);[].concat(j&&j['@graph']||j).forEach(o=>{if(o&&!ld.headline&&!ld.name&&/Article|Report|BlogPosting|WebPage|Scholarly|Thesis|Book/i.test([].concat(o['@type']||'').join(' ')))ld=o})}catch(e){}});
+  const host=(()=>{try{return new URL(url).hostname.replace(/^www\./,'')}catch(e){return ''}})();
+  const site=meta('og:site_name')||(ld.publisher&&(ld.publisher.name||ld.publisher))||meta('citation_publisher')||meta('dc.publisher')||'';
+  let title=meta('citation_title')||meta('dc.title')||(ld.headline||ld.name||'')||meta('og:title')||meta('twitter:title')||trim(d.title||'');
+  if(site)title=title.replace(new RegExp('\\s*[|\\-–—:]\\s*'+site.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'\\s*$','i'),'');
+  title=title.replace(/\s*[|–—]\s*[^|–—]{2,40}$/,m=>m.length<title.length/2&&!/:/.test(m)?'':m);
+  let names=metas('citation_author'); if(!names.length)names=metas('dc.creator');
+  if(!names.length&&ld.author)names=[].concat(ld.author).map(a=>typeof a==='string'?a:(a&&a.name)||'').filter(Boolean);
+  if(!names.length)names=metas('author').concat(metas('article:author').filter(a=>!/^https?:/.test(a)));
+  const authors=[...new Set(names)].map(personFromName).filter(Boolean);
+  const dateS=meta('citation_publication_date')||meta('citation_date')||meta('citation_online_date')||(ld.datePublished||'')||meta('article:published_time')||meta('dc.date')||meta('date')||(ld.dateModified||'')||meta('article:modified_time');
+  const dm=String(dateS).match(/(\d{4})(?:[-\/](\d{1,2})(?:[-\/](\d{1,2}))?)?/);
+  let doi=meta('citation_doi')||meta('prism.doi')||meta('dc.identifier')||meta('bepress_citation_doi');
+  doi=doiFrom(doi)||doiFrom(url)||'';
+  const journal=meta('citation_journal_title');
+  const fp=meta('citation_firstpage'), lp=meta('citation_lastpage');
+  const patch={type:journal?'journal':(meta('citation_technical_report_number')||/report/i.test(meta('dc.type'))?'report':'web'),
+    authors,title:trim(title),year:dm?dm[1]:'',month:dm&&dm[2]?String(+dm[2]):'',day:dm&&dm[3]?String(+dm[3]):'',url};
+  if(journal)Object.assign(patch,{journal,volume:meta('citation_volume'),issue:meta('citation_issue'),pages:fp?(lp?fp+'-'+lp:fp):'',publisher:meta('citation_publisher')});
+  else{patch.site=site||host;if(patch.type==='report')patch.publisher=site||meta('citation_publisher')}
+  if(doi)patch.doi=doi;
+  let pdfLink=meta('citation_pdf_url'); try{if(pdfLink)pdfLink=new URL(pdfLink,url).href}catch(e){pdfLink=''}
+  return {patch,doi,pdfLink,article:extractArticle(d,url,trim(title)),site:site||host};
+}
+/* the readable part of a page: main text only, safe tags only */
+function extractArticle(d,url,title){
+  d.querySelectorAll('script,style,noscript,template,iframe,svg,canvas,form,button,input,select,textarea,nav,footer,aside,[role="navigation"],[role="banner"],[role="contentinfo"],[aria-hidden="true"],[hidden]').forEach(e=>e.remove());
+  const JUNK=/(^|[\s_-])(nav|menu|footer|header|sidebar|share|social|cookie|consent|banner|related|recommend|comment|subscribe|newsletter|promo|advert|ads?|breadcrumb|popup|modal|toolbar|skip)([\s_-]|$)/i;
+  d.querySelectorAll('div,section,ul,header').forEach(e=>{const c=(e.className&&e.className.baseVal!==undefined?e.className.baseVal:e.className||'')+' '+(e.id||'');if(JUNK.test(c)&&e.textContent.length<4000&&!e.querySelector('h1'))e.remove()});
+  const plen=e=>[...e.querySelectorAll('p')].reduce((s,p)=>s+p.textContent.trim().length,0);
+  let root=[...d.querySelectorAll('article,main,[role="main"],[itemprop="articleBody"],.article-body,.entry-content,.post-content')].sort((a,b)=>plen(b)-plen(a))[0];
+  if(!root||plen(root)<400){
+    const score=new Map();
+    d.querySelectorAll('p').forEach(p=>{const L=p.textContent.trim().length;if(L<40)return;const a=p.parentElement,b=a&&a.parentElement;if(a)score.set(a,(score.get(a)||0)+L);if(b)score.set(b,(score.get(b)||0)+L/2)});
+    let best=null,bs=0; score.forEach((v,k)=>{if(v>bs){bs=v;best=k}}); root=best||d.body;
+  }
+  const ALLOW={P:'p',H1:'h2',H2:'h2',H3:'h3',H4:'h4',H5:'h4',H6:'h4',UL:'ul',OL:'ol',LI:'li',BLOCKQUOTE:'blockquote',STRONG:'b',B:'b',EM:'i',I:'i',U:'u',A:'a',BR:'br',TABLE:'table',THEAD:'thead',TBODY:'tbody',TR:'tr',TH:'th',TD:'td',FIGURE:'figure',FIGCAPTION:'figcaption',IMG:'img',SUP:'sup',SUB:'sub',PRE:'pre',CODE:'code',HR:'hr'};
+  const out=document.createElement('div');
+  const walk=(src,dst)=>{src.childNodes.forEach(n=>{
+    if(n.nodeType===3){dst.appendChild(document.createTextNode(n.nodeValue));return}
+    if(n.nodeType!==1)return;
+    const tag=ALLOW[n.tagName];
+    if(!tag){walk(n,dst);if(/^(DIV|SECTION|HEADER)$/.test(n.tagName)&&dst.lastChild&&dst.lastChild.nodeType===3)dst.appendChild(document.createElement('br'));return}
+    const e=document.createElement(tag);
+    if(tag==='a'){const h=n.getAttribute('href');try{const abs=new URL(h,url).href;if(/^https?:/.test(abs)){e.href=abs;e.target='_blank';e.rel='noopener noreferrer'}}catch(_){}}
+    if(tag==='img'){const s=n.getAttribute('src')||n.getAttribute('data-src');try{const abs=new URL(s,url).href;if(!/^https?:/.test(abs))return;e.src=abs;e.alt=n.getAttribute('alt')||'';e.loading='lazy';e.referrerPolicy='no-referrer'}catch(_){return}dst.appendChild(e);return}
+    walk(n,e); if(tag!=='br'&&tag!=='hr'&&!e.textContent.trim()&&!e.querySelector('img'))return;
+    dst.appendChild(e);
+  })};
+  walk(root,out);
+  // drop a repeated title at the top, collapse empties, number the paragraphs (APA cites web text by paragraph)
+  const h=out.querySelector('h2'); if(h&&title&&h.textContent.trim().toLowerCase()===title.toLowerCase())h.remove();
+  let n=0; out.querySelectorAll('p,blockquote').forEach(p=>{if(p.closest('li,td,th'))return;if(p.parentElement&&p.parentElement.closest('blockquote'))return;p.setAttribute('data-para',++n)});
+  let html=out.innerHTML.replace(/(<br>\s*){3,}/g,'<br><br>');
+  if(html.length>400000)html=html.slice(0,400000);
+  const text=[...out.querySelectorAll('[data-para],h2,h3,h4,li')].map(e=>e.dataset.para?`[para ${e.dataset.para}] ${e.textContent.trim()}`:e.textContent.trim()).filter(Boolean).join('\n').slice(0,TEXT_MAX);
+  return {html,text,paras:n};
+}
+function cleanWebHTML(html){
+  // stored copies are re-checked before display: only the tags the extractor produces
+  const t=document.createElement('template'); t.innerHTML=html;
+  t.content.querySelectorAll('*').forEach(e=>{
+    if(!/^(P|H2|H3|H4|UL|OL|LI|BLOCKQUOTE|B|I|U|A|BR|TABLE|THEAD|TBODY|TR|TH|TD|FIGURE|FIGCAPTION|IMG|SUP|SUB|PRE|CODE|HR)$/.test(e.tagName)){e.replaceWith(...e.childNodes);return}
+    [...e.attributes].forEach(a=>{const ok=(a.name==='data-para')||(e.tagName==='A'&&['href','target','rel'].includes(a.name))||(e.tagName==='IMG'&&['src','alt','loading','referrerpolicy'].includes(a.name));if(!ok||/^\s*javascript:/i.test(a.value))e.removeAttribute(a.name)});
+    if(e.tagName==='A'&&!/^https?:/i.test(e.getAttribute('href')||''))e.removeAttribute('href');
+    if(e.tagName==='IMG'&&!/^https?:/i.test(e.getAttribute('src')||''))e.remove();
+  });
+  return t.innerHTML;
+}
+
+/* ---------- what the lookup box does ---------- */
+async function lookupSource(q,onStep){
+  q=String(q||'').trim(); if(!q)throw Object.assign(new Error('empty'),{code:'empty'});
+  const doi=doiFrom(q);
+  if(doi&&(!isLink(q)||!(LOCAL&&LOCAL.webFetch)||/doi\.org\//i.test(q))){
+    onStep&&onStep('Looking up the DOI in CrossRef…');
+    const patch=await doiLookup(doi); return {patch,source:'crossref',doi};
+  }
+  if(!isLink(q))throw Object.assign(new Error('not a doi'),{code:'not_doi'});
+  const url=normLink(q);
+  if(!(LOCAL&&LOCAL.webFetch)){
+    if(doi){const patch=await doiLookup(doi);return {patch,source:'crossref',doi}}
+    return {patch:{url},source:'none',noFetch:true};
+  }
+  onStep&&onStep('Opening the link…');
+  const got=await fetchLink(url);
+  if(got.kind==='pdf')return {patch:{url:got.finalUrl},source:'pdf-link',pdfFile:got.file};
+  const pw=parseWeb(got.html,got.finalUrl);
+  let patch=pw.patch, source='page', pdfFile=null;
+  if(pw.doi){onStep&&onStep('Found a DOI — looking it up in CrossRef…');try{patch=await doiLookup(pw.doi);source='crossref'}catch(e){}}
+  if(pw.pdfLink){onStep&&onStep('Getting the PDF the page offers…');try{const p=await fetchLink(pw.pdfLink);if(p.kind==='pdf')pdfFile=p.file}catch(e){}}
+  const isWebSource=!pw.doi&&patch.type!=='journal';
+  const web=pw.article.text.length>200?{url:got.finalUrl,title:patch.title||'',site:pw.site,html:pw.article.html,text:pw.article.text,paras:pw.article.paras,fetchedAt:Date.now()}:null;
+  return {patch,source,doi:pw.doi,pdfFile,web:isWebSource||!pdfFile?web:null};
+}
+function lookupNoteHTML(st){
+  if(!st)return '';
+  if(st.state==='busy')return `<div class="fillnote"><span class="spin"></span><span>${esc(st.msg||'Looking it up…')}</span></div>`;
+  if(st.state==='fail')return `<div class="fillnote warn">${ico('warn')}<span>${esc(st.msg)}</span></div>`;
+  return `<div class="fillnote ok">${ico('check')}<span>${st.msg} <b>Check every field</b> before saving.</span></div>`;
+}
+function lookupErr(e){
+  const c=e&&e.code;
+  if(c==='empty')return 'Paste a DOI (e.g. 10.1016/j.aap.2020.105) or a web link first.';
+  if(c==='not_doi')return 'That does not look like a DOI or a web link. A DOI starts with 10. and a link with https://';
+  if(c==='doi_not_found')return 'CrossRef does not know this DOI — check it for typos. Some DOIs (e.g. from DataCite) are not in CrossRef; fill the details in below.';
+  if(c==='no_fetch')return 'This version cannot open web links. The link is saved; please fill in the details below.';
+  return (e&&e.msg)||'Could not get the details automatically — please fill them in below.';
+}
+
+/* ---------- reading a web source inside the app ---------- */
+const canWeb=x=>!!(x&&!x.pdf&&(x.web||(x.ref&&x.ref.url)));
+const hasReadable=x=>!!(x&&(x.pdf||canWeb(x)));
+const webUrl=x=>(x.web&&x.web.url)||(x.ref&&x.ref.url)||'';
+try{R.wmode=localStorage.getItem('litnotes.wmode')||'reader';R.wfs=parseFloat(localStorage.getItem('litnotes.wfs'))||17}catch(e){R.wmode='reader';R.wfs=17}
+if(!(LOCAL&&LOCAL.webFetch))R.wmode='live';
+function webReaderHTML(x){
+  const url=webUrl(x), canReader=!!(x.web||(LOCAL&&LOCAL.webFetch));
+  return `<aside class="reader" id="reader">
+    <div class="rbar">
+      <div class="seg"><button class="${R.tab==='pdf'?'on':''}" data-act="rtab" data-v="pdf">${ico('external')}Page</button><button class="${R.tab==='ask'?'on':''}" data-act="rtab" data-v="ask">${ico('spark')}Ask ${AIN}</button></div>
+      <span class="spacer"></span>
+      <span class="rpdf ${R.tab==='pdf'?'':'hide'}">
+        ${canReader?`<span class="seg" role="group" aria-label="How to show the page"><button class="${R.wmode==='reader'?'on':''}" data-act="wmode" data-v="reader" title="A clean, readable copy of the text — select text to quote it">Reader</button><button class="${R.wmode==='live'?'on':''}" data-act="wmode" data-v="live" title="The website itself (some websites refuse to be shown inside other apps)">Live page</button></span>`:''}
+        ${R.wmode==='reader'?`<span class="zoomctl"><button class="btn icon sm" data-act="wfs" data-v="-1" aria-label="Smaller text" title="Smaller text">A−</button><button class="btn icon sm" data-act="wfs" data-v="1" aria-label="Larger text" title="Larger text">A+</button></span>${LOCAL&&LOCAL.webFetch?`<button class="btn icon sm" data-act="wrefresh" title="Fetch the page again (if it has changed)" aria-label="Fetch again">↻</button>`:''}`:''}
+      </span>
+      ${url?`<a class="btn icon sm" href="${esc(url)}" target="_blank" rel="noopener noreferrer" title="Open the website in your browser" aria-label="Open in browser">${ico('external')}</a>`:''}
+      <button class="btn icon sm" data-act="closeSplit" title="Close reader" aria-label="Close reader">${ico('x')}</button>
+    </div>
+    <div class="rbody webbody ${R.tab==='pdf'?'':'hide'}" id="rpages"><div class="rload"><span class="spin"></span>Opening the page…</div></div>
+    <div class="rask ${R.tab==='ask'?'':'hide'}" id="rask">${askPaneHTML(x)}</div>
+  </aside>`;
+}
+async function mountWeb(x,refresh){
+  const token=++R.token, box=$('#rpages'); if(!box)return;
+  R.doc=null; R.pages=[]; hidePop();
+  const url=webUrl(x);
+  if(R.wmode==='live'||!(x.web||(LOCAL&&LOCAL.webFetch))){
+    box.innerHTML=url?`<iframe class="webframe" src="${esc(url)}" referrerpolicy="no-referrer" sandbox="allow-scripts allow-same-origin allow-popups allow-forms" title="${esc(paperTitle(x))}"></iframe><div class="webnote">Blank page? Some websites refuse to be shown inside other apps. ${LOCAL&&LOCAL.webFetch?'Use <b>Reader</b> above, or ':''}<a class="link" href="${esc(url)}" target="_blank" rel="noopener noreferrer">open it in your browser</a>.</div>`:`<div class="rload">${ico('warn')}<span>No web link saved for this source. Add it in Edit details.</span></div>`;
+    return;
+  }
+  if(!x.web||refresh){
+    box.innerHTML=`<div class="rload"><span class="spin"></span>Fetching a readable copy of the page…</div>`;
+    try{
+      const got=await fetchLink(url); if(token!==R.token)return;
+      if(got.kind==='pdf'){box.innerHTML=`<div class="rload">${ico('doc')}<span>This link is a PDF. Attach it as the paper's PDF to read it here with highlights and quotes.</span><button class="btn sm pri" data-act="attachLinkPdf">${ico('upload')}Attach this PDF</button></div>`;R.linkPdf=got.file;return}
+      const pw=parseWeb(got.html,got.finalUrl);
+      if(pw.article.text.length<120)throw Object.assign(new Error('empty'),{code:'empty_page',msg:'No readable text was found on that page (it may need a login or be built with scripts).'});
+      const pid0=V.paperId, y=S.docs[pid0]; if(!y)return; y.web={url:got.finalUrl,title:pw.patch.title||'',site:pw.site,html:pw.article.html,text:pw.article.text,paras:pw.article.paras,fetchedAt:Date.now()}; save(pid0);
+      x=y; if(refresh)toast('Page fetched again');
+    }catch(e){if(token!==R.token)return;box.innerHTML=`<div class="rload">${ico('warn')}<span>${esc((e&&e.msg)||'The page could not be fetched.')} Try <button class="link" data-act="wmode" data-v="live">Live page</button> or <a class="link" href="${esc(url)}" target="_blank" rel="noopener noreferrer">open it in your browser</a>.</span></div>`;return}
+  }
+  if(token!==R.token||!$('#rpages'))return;
+  const w=x.web;
+  box.innerHTML=`<article class="webdoc" style="font-size:${R.wfs}px"><div class="webhead"><div class="website">${esc(w.site||'')}</div><h1>${esc(w.title||paperTitle(x))}</h1><div class="webmeta">Copy saved ${esc(fmtDate(new Date(w.fetchedAt).toISOString().slice(0,10)))} · <a class="link" href="${esc(w.url)}" target="_blank" rel="noopener noreferrer">${esc(w.url.replace(/^https?:\/\//,'').slice(0,70))}</a> · paragraphs are numbered for citing (para. N)</div></div>${cleanWebHTML(w.html)}</article>`;
+  bindQuotes(box);
+}
+/* selected text in the web reader → quote with paragraph number */
+function selectionInWeb(){
+  const s=getSelection(); if(!s||s.isCollapsed||!s.rangeCount)return null;
+  const r=s.getRangeAt(0), doc=document.querySelector('#rpages .webdoc'); if(!doc||!doc.contains(r.commonAncestorContainer))return null;
+  const text=cleanSelText(s.toString()); if(text.length<2)return null;
+  const el=n=>n&&(n.nodeType===1?n:n.parentElement);
+  const pa=el(r.startContainer)&&el(r.startContainer).closest('[data-para]'), pb=el(r.endContainer)&&el(r.endContainer).closest('[data-para]');
+  const a=pa?pa.dataset.para:'', b=pb?pb.dataset.para:'';
+  const para=a?(b&&b!==a?`paras. ${a}–${b}`:`para. ${a}`):'';
+  const rc=[...r.getClientRects()]; const last=rc[rc.length-1]||r.getBoundingClientRect();
+  return {text,web:true,para,pages:[],byPage:{},anchor:{x:last.right,y:last.bottom,top:(rc[0]||last).top}};
+}
+function webPaperText(x){
+  const w=x.web; if(!w||!w.text)return null;
+  return {text:w.text,pages:0,truncated:w.text.length>=TEXT_MAX,web:true};
+}
+
+/* ============================================================
    REPORTS
    ============================================================ */
 function paperReportBody(x,t,showEmpty,level){
@@ -4212,9 +4500,10 @@ function newProject(){
   ov.querySelector('#npName').addEventListener('keydown',e=>{if(e.key==='Enter')ok()});
 }
 function newPaper(){
-  refEditor(newRef(),{heading:'Add literature',okLabel:'Add and start notes',pdf:{},onSave:(ref,file)=>{
+  refEditor(newRef(),{heading:'Add literature',okLabel:'Add and start notes',pdf:{},onSave:(ref,file,web)=>{
     const id=uid('paper_');
     S.docs[id]={kind:'paper',projectId:V.pid,ref,dateRead:new Date().toISOString().slice(0,10),status:'Not started',answers:{},createdAt:Date.now()};
+    if(web&&!file)S.docs[id].web=web;
     syncFromRef(S.docs[id]); save(id); V.openSec={}; go({view:'paper',paperId:id});
     if(file) attachPdf(id,file);
   }});
@@ -4289,6 +4578,10 @@ document.addEventListener('click',e=>{
     case 'toggleSec': {const s=b.closest('.sect');s.classList.toggle('open');V.openSec[id]=s.classList.contains('open');break}
     case 'hint': {const qb=b.closest('.qbody');const k=b.dataset.h;const open=b.getAttribute('aria-expanded')!=='true';qb.querySelectorAll('.hchip').forEach(c=>{const on=open&&c.dataset.h===k;c.setAttribute('aria-expanded',String(on));c.classList.toggle('on',on)});qb.querySelectorAll('[data-hc]').forEach(c=>c.hidden=!(open&&c.dataset.hc===k));break}
     case 'newIdea': openIdeaDialog();break;
+    case 'wmode': {R.wmode=b.dataset.v;try{localStorage.setItem('litnotes.wmode',R.wmode)}catch(e){}const rd=$('#reader');if(rd){const x=S.docs[V.paperId];rd.outerHTML=webReaderHTML({id:V.paperId,...x});mountWeb({id:V.paperId,...x});bindAsk({id:V.paperId,...x})}break}
+    case 'wfs': {R.wfs=Math.max(13,Math.min(26,R.wfs+(+b.dataset.v)));try{localStorage.setItem('litnotes.wfs',R.wfs)}catch(e){}const d=document.querySelector('.webdoc');if(d)d.style.fontSize=R.wfs+'px';break}
+    case 'wrefresh': mountWeb({id:V.paperId,...S.docs[V.paperId]},true);break;
+    case 'attachLinkPdf': if(R.linkPdf){const f=R.linkPdf;R.linkPdf=null;attachPdf(V.paperId,f)}break;
     case 'ideaTag': IV.tag=b.dataset.v;IV.name='';renderMain();break;
     case 'ideaName': IV.name=b.dataset.v;renderMain();break;
     case 'refToggle': {NQ.ref=NQ.ref===false;saveNQ();const c=b.closest('.refcard');c.classList.toggle('min',NQ.ref===false);b.setAttribute('aria-expanded',String(NQ.ref!==false));b.title=NQ.ref===false?'Show the reference card':'Fold the reference card to one line';break}
@@ -4305,7 +4598,7 @@ document.addEventListener('click',e=>{
       if(k==='verdict'){['pass2','pass3'].forEach(s=>{const el=document.querySelector(`[data-sec="${s}"]`);if(el)el.classList.toggle('dim',x.verdict==='Skip')})}
       save(V.paperId);flashSave();break}
     case 'paperReport': go({view:'paperReport'});break;
-    case 'editRef': {const id0=V.paperId,x=S.docs[id0];refEditor(x.ref||newRef(),{heading:'Edit reference',okLabel:'Save reference',pdf:{current:x.pdf},onSave:(ref,file)=>{x.ref=ref;delete x.oldCitation;syncFromRef(x);save(id0);renderMain();if(file)attachPdf(id0,file)}});break}
+    case 'editRef': {const id0=V.paperId,x=S.docs[id0];refEditor(x.ref||newRef(),{heading:'Edit reference',okLabel:'Save reference',pdf:{current:x.pdf},onSave:(ref,file,web)=>{x.ref=ref;delete x.oldCitation;if(web&&!x.pdf&&!file)x.web=web;syncFromRef(x);save(id0);renderMain();if(file)attachPdf(id0,file)}});break}
     case 'pickPdf': {const id0=V.paperId;pickFile(f=>attachPdf(id0,f));break}
     case 'removePdf': {const id0=V.paperId;confirmBox('Remove the attached PDF? Your notes stay.','Remove PDF',async()=>{const x=S.docs[id0];await removePdfAsset(x);delete x.pdf;delete x.pdfOrig;x.highlights=[];x.hlDirty=false;save(id0);refreshPdfUI(id0);toast('PDF removed')});break}
     case 'copyRef': {const r=S.docs[V.paperId].ref;copyRich(`<p style="padding-left:.5in;text-indent:-.5in">${apaHTML(r)}</p>`,apaText(r),'Reference copied');break}
