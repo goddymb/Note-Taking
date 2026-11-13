@@ -1,0 +1,11 @@
+# Build the app from these source files instead of downloading the published image:
+#   docker compose -f docker-compose.yml -f docker-compose.build.yml up -d --build
+services:
+  literature-notes:
+    image: literature-notes:local
+    build:
+      context: .
+      args:
+        APP_VERSION: local
+    labels:
+      com.centurylinklabs.watchtower.enable: "false"

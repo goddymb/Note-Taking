@@ -1,0 +1,6 @@
+data
+ollama
+node_modules
+vendor-fonts
+.env
+*.log

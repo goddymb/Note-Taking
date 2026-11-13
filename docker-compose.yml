@@ -1,0 +1,44 @@
+services:
+  literature-notes:
+    image: ghcr.io/goddymb/note-taking:latest
+    container_name: literature-notes
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8080:8080"   # only this computer; use "8080:8080" to open it to your network (set APP_PASSWORD then)
+    volumes:
+      - ./data:/data            # your notes and PDFs live here — back this folder up
+    env_file:
+      - .env
+    environment:
+      WATCHTOWER_URL: http://updater:8080
+      UPDATE_TOKEN: ${UPDATE_TOKEN:-literature-notes-updater}
+    labels:
+      com.centurylinklabs.watchtower.enable: "true"   # the updater only touches this container
+
+  # Installs new versions when you click "Update now" in Settings. It never updates anything else.
+  updater:
+    image: nickfedor/watchtower:latest
+    container_name: literature-notes-updater
+    restart: unless-stopped
+    command: --label-enable --http-api-update --cleanup
+    environment:
+      WATCHTOWER_HTTP_API_TOKEN: ${UPDATE_TOKEN:-literature-notes-updater}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  # Optional: a local AI model, so Ask works fully offline.
+  # Start with:  docker compose --profile local-ai up -d
+  # Then pull a model once:  docker compose exec ollama ollama pull llama3.1:8b
+  # And set OLLAMA_URL=http://ollama:11434 in .env
+  ollama:
+    image: ollama/ollama:latest
+    container_name: literature-notes-ollama
+    restart: unless-stopped
+    profiles: ["local-ai"]
+    volumes:
+      - ./ollama:/root/.ollama
+    # Uncomment for an NVIDIA GPU (needs the NVIDIA Container Toolkit):
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices: [{ driver: nvidia, count: all, capabilities: [gpu] }]
