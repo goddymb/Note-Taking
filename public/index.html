@@ -379,6 +379,11 @@ body.focus .qnav{top:0}
 .itag{border:1px solid color-mix(in srgb,var(--x) 45%,var(--line));background:none;color:var(--ink-2);border-radius:999px;padding:5px 12px;font:inherit;font-size:13px;font-weight:600;cursor:pointer}
 .itag.on{background:color-mix(in srgb,var(--x) 16%,var(--panel));color:var(--ink);border-color:var(--x)}
 .itag.sm{padding:2px 9px;font-size:11.5px;cursor:default}
+.idnamed{margin-top:10px;padding:8px 10px;border-left:3px solid var(--x);background:var(--panel-2);border-radius:0 10px 10px 0}
+.idnamed label{display:block;font-size:12px;font-weight:700;color:var(--muted);margin-bottom:4px}
+.idnamed .inp{padding:6px 9px;font-size:14px}
+.idsug{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+.idsug button{border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:2px 9px;font:inherit;font-size:12.5px;cursor:pointer;color:var(--ink-2)}.idsug button:hover{border-color:var(--x);color:var(--ink)}
 .idsrcline{display:flex;align-items:center;gap:6px;margin-top:12px;font-size:13px;color:var(--muted)}.idsrcline b{color:var(--ink)}
 .itag.newtag{cursor:text;width:auto;min-width:90px;border-style:dashed;outline:0;color:var(--ink)}.itag.newtag:focus{border-color:var(--accent)}
 .idsrc{font-weight:700;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:4px 9px;font-size:13px}
@@ -2841,13 +2846,13 @@ function browserHTML(){
   let items=[], list='';
   if(BR.mode==='question') items=t.questions.map(q=>({v:q.id,l:`Q${t.questions.indexOf(q)+1} · ${q.text}`,n:pp.filter(x=>answered(x,q)).length}));
   else if(BR.mode==='paper') items=pp.map(x=>({v:x.id,l:`${cite(x)} · ${paperTitle(x)}`,n:progress(x,t).n}));
-  else if(BR.mode==='ideas'){const pi=ideasAll().filter(i=>i.projectId===pid||!i.projectId);const tc={};pi.forEach(i=>(i.tags||[]).forEach(t=>tc[t]=(tc[t]||0)+1));items=[{v:'__all',l:'All ideas',n:pi.length},...Object.keys(tc).sort().map(t=>({v:t,l:t,n:tc[t]}))]}
+  else if(BR.mode==='ideas'){const pi=ideasAll().filter(i=>i.projectId===pid||!i.projectId);const tc={};pi.forEach(i=>(i.tags||[]).forEach(t=>{tc[t]=(tc[t]||0)+1;if(i.named&&i.named[t]){const k=t+': '+i.named[t];tc[k]=(tc[k]||0)+1}}));items=[{v:'__all',l:'All ideas',n:pi.length},...Object.keys(tc).sort().map(t=>({v:t,l:t,n:tc[t]}))]}
   else if(BR.mode==='quotes') items=[{v:'__all',l:'All papers',n:pp.reduce((s,x)=>s+quotesOf(x).length,0)},...pp.map(x=>({v:x.id,l:`${cite(x)} · ${paperTitle(x)}`,n:quotesOf(x).length}))];
   else if(BR.mode.startsWith('dim:')) items=sortedTags(pid,BR.mode.slice(4)).map(o=>({v:o.t.id,l:o.t.name,n:o.n}));
   if(BR.mode!=='search'&&!items.some(i=>i.v===BR.item)) BR.item=(items.find(i=>i.n)||items[0]||{}).v||null;
   const card=(x,head,bodyHTML,plain)=>`<div class="ncard"><div class="nh"><b>${esc(cite(x))}</b><span>${esc(head)}</span></div><div class="nb">${bodyHTML}</div><div class="na-row"><button class="btn sm" data-ins="${x.id}" data-txt="${esc(plain)}">${ico('plus')}Insert</button><button class="btn sm ghost" data-cite="${x.id}">Cite</button></div></div>`;
   if(BR.mode==='question'&&BR.item){const q=t.questions.find(z=>z.id===BR.item);list=pp.filter(x=>answered(x,q)).map(x=>card(x,paperTitle(x),answerHTML(x,q)||esc(x[q.choiceKey]||''),(x.answers||{})[q.id]||x[q.choiceKey]||'')).join('')}
-  else if(BR.mode==='ideas'&&BR.item){list=ideasAll().filter(i=>(i.projectId===pid||!i.projectId)&&(BR.item==='__all'||(i.tags||[]).includes(BR.item))).map(i=>{const src=ideaSource(i);return `<div class="ncard"><div class="nh"><b>${esc(src?'('+src.cite+')':'My idea')}</b><span>${(i.tags||[]).map(esc).join(' · ')}</span></div><div class="nb">${esc(i.text).replace(/\n/g,'<br>')}</div><div class="na-row"><button class="btn sm" data-idea="${i.id}">${ico('plus')}Insert</button></div></div>`}).join('')||'<p class="help">No ideas yet. While reading, click <b>Idea</b> to jot one down.</p>'}
+  else if(BR.mode==='ideas'&&BR.item){list=ideasAll().filter(i=>(i.projectId===pid||!i.projectId)&&(BR.item==='__all'||(i.tags||[]).includes(BR.item)||(i.tags||[]).some(t=>ideaLabel(i,t)===BR.item))).map(i=>{const src=ideaSource(i);return `<div class="ncard"><div class="nh"><b>${esc(src?'('+src.cite+')':'My idea')}</b><span>${(i.tags||[]).map(t=>esc(ideaLabel(i,t))).join(' · ')}</span></div><div class="nb">${esc(i.text).replace(/\n/g,'<br>')}</div><div class="na-row"><button class="btn sm" data-idea="${i.id}">${ico('plus')}Insert</button></div></div>`}).join('')||'<p class="help">No ideas yet. While reading, click <b>Idea</b> to jot one down.</p>'}
   else if(BR.mode==='quotes'&&BR.item){list=pp.filter(x=>BR.item==='__all'||x.id===BR.item).flatMap(x=>quotesOf(x).map(qu=>`<div class="ncard"><div class="nh"><b>${esc(cite(x))}</b><span>${esc(qu.page)} · ${esc(qLabel(pid,qu.qid))}</span></div><div class="nb">“${esc(qu.text)}”</div><div class="na-row"><button class="btn sm" data-ins="${x.id}" data-txt="${esc(qu.full)}">${ico('plus')}Insert quote</button></div></div>`)).join('')||'<p class="help">No quotes yet. In the PDF reader, select text with the Text tool and choose <b>Add quote</b>.</p>'}
   else if(BR.mode==='paper'&&BR.item){const x=S.docs[BR.item];if(x){const xx={id:BR.item,...x};list=t.questions.filter(q=>answered(xx,q)).map(q=>card(xx,`Q${t.questions.indexOf(q)+1} ${q.text}`,answerHTML(xx,q)||esc(xx[q.choiceKey]||''),(xx.answers||{})[q.id]||xx[q.choiceKey]||'')).join('')}}
   else if(BR.mode.startsWith('dim:')&&BR.item){const d=dimById(pid,BR.mode.slice(4));const rows=codingsFor(pid,BR.item);
@@ -3902,6 +3907,15 @@ document.addEventListener('change',e=>{if(e.target.id==='qsel')setCurQ(e.target.
 const IDEA_TAGS=['Theme','Concept','Method','Gap','Doubt','Curious','Question','To do'];
 const IDEA_COL={Theme:'#7c5cff',Concept:'#2f8cff',Method:'#13a89e',Gap:'#e0703a',Doubt:'#d64545',Curious:'#c25bd6',Question:'#c99a06','To do':'#5b6b84'};
 const ideaColor=t=>IDEA_COL[t]||'#6b7280';
+/* types that get a name: which theme, which concept… (linked to the project's tags of the same kind) */
+const IDEA_NAMED={Theme:'theme',Concept:'concept',Method:'method',Gap:null};
+function ideaNames(type,pid){
+  const set=new Map();
+  ideasAll().forEach(i=>{const n=i.named&&i.named[type];if(n)set.set(n.toLowerCase(),n)});
+  const dim=IDEA_NAMED[type]; if(dim&&pid&&typeof tagsOf==='function')tagsOf(pid,dim).forEach(t=>{if(!set.has(t.name.toLowerCase()))set.set(t.name.toLowerCase(),t.name)});
+  return [...set.values()].sort((a,b)=>a.localeCompare(b));
+}
+const ideaLabel=(i,t)=>i.named&&i.named[t]?`${t}: ${i.named[t]}`:t;
 const ideasAll=()=>Object.entries(S.docs).filter(([k,v])=>v&&v.kind==='idea').map(([k,v])=>({id:k,...v})).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
 function ideaTagList(){const set=new Set(IDEA_TAGS);ideasAll().forEach(i=>(i.tags||[]).forEach(t=>set.add(t)));return [...set]}
 function ideaSource(i){const x=i.paperId&&S.docs[i.paperId];if(!x)return null;return {x:{id:i.paperId,...x},cite:citeCore({id:i.paperId,...x})+(i.page?', '+pageStr(i.page):'')}}
@@ -3915,32 +3929,45 @@ function readerPage(x){
 }
 function openIdeaDialog(opts){
   opts=opts||{};
+  const open=document.querySelector('.ov #idText'); if(open){open.focus();return}   // one idea pop-up at a time
+  if(document.activeElement&&document.activeElement.blur)document.activeElement.blur();
   const editing=opts.id?S.docs[opts.id]:null;
   const paperId=editing?editing.paperId:(opts.paperId!==undefined?opts.paperId:(V.view==='paper'?V.paperId:null));
   const x=paperId&&S.docs[paperId]?{id:paperId,...S.docs[paperId]}:null;
   let tags=new Set(editing?editing.tags||[]:opts.tags||[]);
+  const named={...(editing&&editing.named||{})};
   const page=editing?editing.page||'':(opts.page!=null?opts.page:(x&&V.split?readerPage(x):''));
   const ov=modal(`<h3 style="display:flex;align-items:center;gap:8px">${ICON_BULB}${editing?'Edit idea':'New idea'}</h3>
     <textarea class="inp" id="idText" rows="5" placeholder="Write the idea down before it slips away…" style="font-size:15px;line-height:1.55">${esc(editing?editing.text:(opts.text||''))}</textarea>
     <div class="ideatags" id="idTags" style="margin-top:10px"></div>
+    <div id="idNamed"></div>
     <div class="idsrcline">${x?`From <b>${esc(citeCore(x))}</b>, page <input class="inp" id="idPage" value="${esc(page)}" placeholder="–" style="width:58px;padding:3px 6px;font-size:13px"><label style="margin-left:auto;cursor:pointer;display:inline-flex;gap:5px;align-items:center"><input type="checkbox" id="idNoSrc"> no source</label>`:'<span>Not linked to a paper</span>'}</div>
     <div class="mfoot">${editing?`<button class="btn ghost danger" data-del style="margin-right:auto">${ico('trash')}Delete</button>`:'<span class="help" style="margin-right:auto">Ctrl+Enter saves</span>'}<button class="btn" data-x>Cancel</button><button class="btn pri" data-ok>Save</button></div>`);
   const drawTags=()=>{ov.querySelector('#idTags').innerHTML=[...new Set([...ideaTagList(),...tags])].map(t=>`<button type="button" class="itag ${tags.has(t)?'on':''}" style="--x:${ideaColor(t)}" data-t="${esc(t)}">${esc(t)}</button>`).join('')+`<input class="itag newtag" id="idNewTag" placeholder="+ own tag" aria-label="Add your own tag" size="9">`;
+    drawNamed();
     const ni=ov.querySelector('#idNewTag'); ni.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.ctrlKey&&!e.metaKey){e.preventDefault();addTag()}}); ni.addEventListener('blur',()=>{if(trim(ni.value))addTag()});
     ov.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{const t=b.dataset.t;tags.has(t)?tags.delete(t):tags.add(t);drawTags();const nb=ov.querySelector(`[data-t="${CSS.escape(t)}"]`);if(nb)nb.focus()})};
+  function drawNamed(){
+    const box=ov.querySelector('#idNamed'); const pidN=x?x.projectId:(V.pid||null);
+    const types=[...tags].filter(t=>t in IDEA_NAMED);
+    box.innerHTML=types.map(t=>{const sug=ideaNames(t,pidN).filter(n=>n!==named[t]).slice(0,14);return `<div class="idnamed" style="--x:${ideaColor(t)}"><label>Which ${t.toLowerCase()}?</label><input class="inp" data-named="${esc(t)}" value="${esc(named[t]||'')}" placeholder="${t==='Gap'?'e.g. No studies in francophone Africa':'Name it, e.g. '+({Theme:'Enforcement',Concept:'Risk compensation',Method:'Survey'}[t])}">${sug.length?`<div class="idsug">${sug.map(n=>`<button type="button" data-pick="${esc(t)}" data-n="${esc(n)}">${esc(n)}</button>`).join('')}</div>`:''}</div>`}).join('');
+    box.querySelectorAll('[data-named]').forEach(i=>i.addEventListener('input',()=>{named[i.dataset.named]=i.value}));
+    box.querySelectorAll('[data-pick]').forEach(b=>b.onclick=()=>{named[b.dataset.pick]=b.dataset.n;drawNamed()});
+  }
   drawTags();
   function addTag(){const i=ov.querySelector('#idNewTag');const v=trim(i.value).replace(/^#/,'');if(!v)return;const t=v.charAt(0).toUpperCase()+v.slice(1);tags.add(t);i.value='';drawTags();const n=ov.querySelector('#idNewTag');if(n)n.focus()}
-  const ta=ov.querySelector('#idText'); setTimeout(()=>{ta.focus();ta.setSelectionRange(ta.value.length,ta.value.length)},40);
+  const ta=ov.querySelector('#idText'); const fz=()=>{ta.focus();ta.setSelectionRange(ta.value.length,ta.value.length)}; fz(); setTimeout(fz,60);
   const doSave=again=>{
     const text=ta.value.trim(); if(!text){ta.focus();return}
     const noSrc=ov.querySelector('#idNoSrc'), linked=x&&!(noSrc&&noSrc.checked);
     const pg=ov.querySelector('#idPage'), pv=pg?pg.value.trim():'';
     const id=editing?opts.id:uid('idea_');
     const prev=S.docs[id]||{};
-    S.docs[id]={...prev,kind:'idea',text,tags:[...tags],paperId:linked?x.id:null,projectId:linked?x.projectId:(prev.projectId||(V.pid&&S.docs[V.pid]?V.pid:null)),page:linked?pv:'',createdAt:prev.createdAt||Date.now()};
+    const nm={}; [...tags].forEach(t=>{const v=trim(named[t]);if(v&&t in IDEA_NAMED)nm[t]=v});
+    S.docs[id]={...prev,kind:'idea',text,tags:[...tags],named:nm,paperId:linked?x.id:null,projectId:linked?x.projectId:(prev.projectId||(V.pid&&S.docs[V.pid]?V.pid:null)),page:linked?pv:'',createdAt:prev.createdAt||Date.now()};
     save(id); renderSide();
     toast(editing?'Idea updated':`Idea saved${linked?' with '+citeCore(x)+(pv?', '+pageStr(pv):''):''}`);
-    if(again){ta.value='';tags=new Set();drawTags();ta.focus();return}
+    if(again){ta.value='';tags=new Set();Object.keys(named).forEach(k=>delete named[k]);drawTags();ta.focus();return}
     ov.remove(); if(V.view==='ideas')renderMain();
   };
   ov.querySelector('[data-ok]').onclick=()=>doSave(false);
@@ -3951,12 +3978,12 @@ function openIdeaDialog(opts){
 }
 
 /* ---------- the Ideas page ---------- */
-const IV={tag:'All',proj:'all',q:''};
+const IV={tag:'All',name:'',proj:'all',q:''};
 function ideaCardHTML(i){
   const src=ideaSource(i);
   return `<div class="card ideacard">
     <div class="itext">${esc(i.text).replace(/\n/g,'<br>')}</div>
-    ${(i.tags||[]).length?`<div class="row" style="gap:6px;margin-top:10px">${i.tags.map(t=>`<span class="itag on sm" style="--x:${ideaColor(t)}">${esc(t)}</span>`).join('')}</div>`:''}
+    ${(i.tags||[]).length?`<div class="row" style="gap:6px;margin-top:10px">${i.tags.map(t=>`<span class="itag on sm" style="--x:${ideaColor(t)}">${esc(ideaLabel(i,t))}</span>`).join('')}</div>`:''}
     <div class="row" style="gap:6px;margin-top:8px;flex-wrap:nowrap">
       ${src?`<button class="link" style="font-size:12.5px" data-act="openPaper" data-id="${i.paperId}" title="${esc(paperTitle(src.x))}">${esc(src.cite)}</button>`:'<span class="muted" style="font-size:12.5px">My own idea</span>'}
       <span class="muted" style="font-size:12px">· ${esc(ago(i.createdAt))}</span>
@@ -3971,12 +3998,16 @@ function ideasView(){
   const counts={}; inProj.forEach(i=>(i.tags||[]).forEach(t=>counts[t]=(counts[t]||0)+1));
   const untagged=inProj.filter(i=>!(i.tags||[]).length).length;
   const ql=IV.q.trim().toLowerCase();
-  const list=inProj.filter(i=>(IV.tag==='All'||(IV.tag==='Untagged'?!(i.tags||[]).length:(i.tags||[]).includes(IV.tag)))&&(!ql||i.text.toLowerCase().includes(ql)||(ideaSource(i)||{cite:''}).cite.toLowerCase().includes(ql)));
+  const byTag=inProj.filter(i=>IV.tag==='All'||(IV.tag==='Untagged'?!(i.tags||[]).length:(i.tags||[]).includes(IV.tag)));
+  const nameCounts={}; if(IV.tag in IDEA_NAMED)byTag.forEach(i=>{const n=i.named&&i.named[IV.tag];if(n)nameCounts[n]=(nameCounts[n]||0)+1});
+  if(IV.name&&!nameCounts[IV.name])IV.name='';
+  const list=byTag.filter(i=>(!IV.name||(i.named&&i.named[IV.tag])===IV.name)&&(!ql||i.text.toLowerCase().includes(ql)||(ideaSource(i)||{cite:''}).cite.toLowerCase().includes(ql)));
   return head+`<div class="row" style="margin:18px 0 14px">
     <select class="inp" style="width:auto;border-radius:999px" data-act="ideaProj"><option value="all">All projects</option>${projects().map(p=>`<option value="${p.id}" ${IV.proj===p.id?'selected':''}>${esc(p.name)}</option>`).join('')}</select>
     <input class="inp" id="ideaQ" placeholder="Search ideas…" value="${esc(IV.q)}" style="max-width:260px;border-radius:999px">
   </div>
   <div class="chips" style="margin-bottom:16px"><button class="chip ${IV.tag==='All'?'on':''}" data-act="ideaTag" data-v="All">All <span style="opacity:.6">${inProj.length}</span></button>${Object.keys(counts).sort((a,b)=>counts[b]-counts[a]).map(t=>`<button class="chip ${IV.tag===t?'on':''}" data-act="ideaTag" data-v="${esc(t)}"><i style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${ideaColor(t)};margin-right:5px"></i>${esc(t)} <span style="opacity:.6">${counts[t]}</span></button>`).join('')}${untagged?`<button class="chip ${IV.tag==='Untagged'?'on':''}" data-act="ideaTag" data-v="Untagged">Untagged <span style="opacity:.6">${untagged}</span></button>`:''}</div>
+  ${Object.keys(nameCounts).length?`<div class="chips" style="margin:-6px 0 16px;padding-left:12px;border-left:3px solid ${ideaColor(IV.tag)}"><button class="chip ${!IV.name?'on':''}" data-act="ideaName" data-v="">Every ${esc(IV.tag.toLowerCase())}</button>${Object.keys(nameCounts).sort().map(n=>`<button class="chip ${IV.name===n?'on':''}" data-act="ideaName" data-v="${esc(n)}">${esc(n)} <span style="opacity:.6">${nameCounts[n]}</span></button>`).join('')}</div>`:''}
   <div class="ideagrid" id="ideaList">${list.map(ideaCardHTML).join('')||'<p class="muted">No ideas match.</p>'}</div>`;
 }
 document.addEventListener('click',e=>{const b=e.target.closest('[data-ideaedit]');if(b)openIdeaDialog({id:b.dataset.ideaedit})});
@@ -4043,7 +4074,7 @@ function projectReportHTML(p,pp,t){
     order.forEach((x,i)=>{html+=`<h2>${i+1}. ${esc(paperTitle(x))}</h2><p class="meta">${esc(paperMeta(x))}</p>${paperReportBody(x,t,V.showEmpty,2)}`});
   }
   const pidR=p.id||V.pid, idl=ideasAll().filter(i=>i.projectId===pidR);
-  if(idl.length){const tagsR=[...new Set(idl.flatMap(i=>(i.tags||[]).length?i.tags:['Untagged']))];html+=`<h2>Ideas</h2>`+tagsR.map(t=>`<h3>${esc(t)}</h3>`+idl.filter(i=>t==='Untagged'?!(i.tags||[]).length:(i.tags||[]).includes(t)).map(i=>{const src=ideaSource(i);return `<p>${esc(i.text).replace(/\n/g,'<br>')}${src?` (${esc(src.cite)})`:''}</p>`}).join('')).join('')}
+  if(idl.length){const tagsR=[...new Set(idl.flatMap(i=>(i.tags||[]).length?i.tags.map(t=>ideaLabel(i,t)):['Untagged']))].sort();html+=`<h2>Ideas</h2>`+tagsR.map(t=>`<h3>${esc(t)}</h3>`+idl.filter(i=>t==='Untagged'?!(i.tags||[]).length:(i.tags||[]).some(z=>ideaLabel(i,z)===t)).map(i=>{const src=ideaSource(i);return `<p>${esc(i.text).replace(/\n/g,'<br>')}${src?` (${esc(src.cite)})`:''}</p>`}).join('')).join('')}
   const abl=abbrsOf(p.id||V.pid);
   if(abl.length) html+=`<h2>Abbreviations</h2><table><tr><th>Abbreviation</th><th>Full form</th></tr>${abl.map(a=>`<tr><td><b>${esc(a.short)}</b></td><td>${esc(a.full)}</td></tr>`).join('')}</table>`;
   const refs=sortedRefs(pp).filter(x=>x.ref);
@@ -4093,7 +4124,7 @@ function mdProject(p,pp,t){
     });
   }else order.forEach(x=>{s+=mdPaper(x,t,V.showEmpty,2)});
   const pidM=p.id||V.pid, idm=ideasAll().filter(i=>i.projectId===pidM);
-  if(idm.length){const tagsM=[...new Set(idm.flatMap(i=>(i.tags||[]).length?i.tags:['Untagged']))];s+='## Ideas\n\n'+tagsM.map(t=>`### ${t}\n\n`+idm.filter(i=>t==='Untagged'?!(i.tags||[]).length:(i.tags||[]).includes(t)).map(i=>{const src=ideaSource(i);return '- '+i.text.replace(/\n+/g,' ')+(src?` (${src.cite})`:'')}).join('\n')+'\n\n').join('')}
+  if(idm.length){const tagsM=[...new Set(idm.flatMap(i=>(i.tags||[]).length?i.tags.map(t=>ideaLabel(i,t)):['Untagged']))].sort();s+='## Ideas\n\n'+tagsM.map(t=>`### ${t}\n\n`+idm.filter(i=>t==='Untagged'?!(i.tags||[]).length:(i.tags||[]).some(z=>ideaLabel(i,z)===t)).map(i=>{const src=ideaSource(i);return '- '+i.text.replace(/\n+/g,' ')+(src?` (${src.cite})`:'')}).join('\n')+'\n\n').join('')}
   const abl=abbrsOf(p.id||V.pid);
   if(abl.length) s+=`## Abbreviations\n\n| Abbreviation | Full form |\n|---|---|\n`+abl.map(a=>`| ${a.short.replace(/\|/g,'/')} | ${a.full.replace(/\|/g,'/')} |`).join('\n')+'\n\n';
   const refs=sortedRefs(pp).filter(x=>x.ref);
@@ -4250,7 +4281,8 @@ document.addEventListener('click',e=>{
     case 'toggleSec': {const s=b.closest('.sect');s.classList.toggle('open');V.openSec[id]=s.classList.contains('open');break}
     case 'hint': {const qb=b.closest('.qbody');const k=b.dataset.h;const open=b.getAttribute('aria-expanded')!=='true';qb.querySelectorAll('.hchip').forEach(c=>{const on=open&&c.dataset.h===k;c.setAttribute('aria-expanded',String(on));c.classList.toggle('on',on)});qb.querySelectorAll('[data-hc]').forEach(c=>c.hidden=!(open&&c.dataset.hc===k));break}
     case 'newIdea': openIdeaDialog();break;
-    case 'ideaTag': IV.tag=b.dataset.v;renderMain();break;
+    case 'ideaTag': IV.tag=b.dataset.v;IV.name='';renderMain();break;
+    case 'ideaName': IV.name=b.dataset.v;renderMain();break;
     case 'refToggle': {NQ.ref=NQ.ref===false;saveNQ();const c=b.closest('.refcard');c.classList.toggle('min',NQ.ref===false);b.setAttribute('aria-expanded',String(NQ.ref!==false));b.title=NQ.ref===false?'Show the reference card':'Fold the reference card to one line';break}
     case 'qstep': {const x=S.docs[V.paperId],t=tpl(x.projectId);const i=t.questions.findIndex(z=>z.id===NQ.cur[V.paperId]);const q=t.questions[i+(+b.dataset.v)];if(q)setCurQ(q.id,true);break}
     case 'nqToggle': {const k=b.dataset.v;NQ[k]=!NQ[k];saveNQ();const nav=$('#qnav');if(nav){const x=S.docs[V.paperId];nav.outerHTML=qnavHTML(x,tpl(x.projectId))}applyQnav();if(k==='single'&&!NQ.single){const qid=NQ.cur[V.paperId];if(qid)openToQuestion(qid)}break}

@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.17.1]
+- **Name your concepts, themes, methods and gaps.** When you tick Theme, Concept, Method or Gap on an idea, the pop-up asks which one, e.g. "Which concept? Risk compensation". Names you have used before, and the themes, concepts and methods you tagged in your notes, appear as buttons to pick with one click.
+- On the Ideas page, choosing a type (e.g. Concept) shows its names as a second row of filters, so you can see every idea about "Risk compensation" together. Reports and the Write panel group ideas the same way.
+- Fixed: pressing the space bar right after opening the idea pop-up could open it a second time.
+
 ## [1.17.0]
 - **Ideas.** An **Idea** button on the note page (and on the PDF selection bar) opens a small pop-up. Type the thought, tick tags (Theme, Concept, Method, Gap, Doubt, Curious, Question, To do, or your own), and Save. The pop-up closes and the idea is stored with a citation to the paper you are reading, including the page shown in the reader. Next time it opens empty. Tick "no source" for your own ideas.
 - **Ideas page** in the side menu: every idea from every paper in one place. Filter by tag or project, search, click a citation to open the paper, or edit and delete ideas.
