@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.15.0]
+- **Example answers.** Every reading question now shows a third hint, 💡 Example answer, next to "Where to look" and "How to answer". The examples are short model answers drawn from different social-science topics (health, education, transport, labour, governance).
+- You can write your own example for any question in Settings → Reading questions → Customise questions.
+- Existing projects get the examples automatically for questions you have not reworded.
+
 ## [1.14.2]
 - Finished making the reading questions topic-neutral. The hints for Q2 (unit of analysis), Q17, Q21 and Q24 and the Pass 2 description no longer assume one kind of study ("grid cell", "equation", "results tables", "our sessions").
 - Existing projects are updated automatically; your own rewording is kept.
