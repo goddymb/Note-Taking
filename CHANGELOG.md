@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.12.1]
+- The highlight and quote controls now sit in a bar inside the reader, away from the selected text, so browser add-ons that pop up next to a selection (such as Sider) no longer cover them.
+- The bar appears once, when you finish selecting, instead of redrawing while you drag.
+- Stronger highlight colours and larger colour buttons. A preview of the selected text and a close (×) button are shown in the bar.
+
 ## [1.12.0]
 - **Quotes and highlights from the PDF.** With the Text tool (I) in the reader, select text and a small pop-up offers:
   - **Highlight** in yellow, green, blue or pink. Click a highlight later to change its colour, quote it, or remove it.
