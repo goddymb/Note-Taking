@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.14.2]
+- Finished making the reading questions topic-neutral. The hints for Q2 (unit of analysis), Q17, Q21 and Q24 and the Pass 2 description no longer assume one kind of study ("grid cell", "equation", "results tables", "our sessions").
+- Existing projects are updated automatically; your own rewording is kept.
+
 ## [1.14.1]
 - **Topic-neutral reading questions.** Questions 6–12, 14, 18 and 20 were worded for one topic (minerals and violence), copied from the original spreadsheet. They now suit any social-science study, quantitative or qualitative. For example, "Theory: what mechanism or framework explains the relationship?" and "Outcome: what is being explained, and how is it measured?"
 - Existing projects are updated automatically. Any question you reworded yourself is left as you wrote it.
