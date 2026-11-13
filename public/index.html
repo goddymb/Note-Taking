@@ -528,6 +528,9 @@ body.focus .wr>.gutter,body.focus .nbrowse{position:relative;top:0;height:100%;m
 @media (max-width:1100px){.wr{grid-template-columns:1fr}.wr>.gutter{display:none}.nbrowse{position:relative;top:0;max-height:70vh;margin-top:16px}body.focus .wr{height:auto}body.focus .wr>.wcol{height:auto}}
 /* writing assistant */
 .rtebar .chk{display:inline-flex;gap:5px;align-items:center;font-size:12.5px;font-weight:700;color:var(--accent);padding:0 9px}
+.abbrsug{margin-top:8px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:12.5px}.abbrsug[hidden]{display:none}
+.abchip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--panel-2);border-radius:999px;padding:3px 4px 3px 10px}
+.abchip button{border:0;background:none;color:var(--accent);font-weight:700;cursor:pointer;padding:2px 6px;border-radius:999px;font:inherit}.abchip button:hover{background:var(--panel)}
 .gsug{margin-top:8px;border:1px solid var(--line);border-radius:var(--r-sm);background:var(--panel-2);overflow:hidden}
 .gs-head{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:9px 12px;font-size:13px}
 .gs-head svg{width:16px;height:16px}.gs-head.ok svg{color:var(--success)}.gs-head.warn svg{color:var(--warn)}
@@ -1426,6 +1429,7 @@ function settingsView(p,t){
     <p class="help" style="margin:0 0 14px">${t.questions.length} questions in ${t.sections.length} sections. Reword them for this project (e.g. change “minerals → violence” to your topic), add your own or remove ones you don't need. Answers stay attached to their question.</p>
     <div class="row"><button class="btn" data-act="editTemplate">${ico('edit')}Customise questions</button><button class="btn ghost" data-act="resetTemplate">Reset to original sheet</button></div></div>
   ${dimsSettingsHTML(p)}
+  <div class="card" style="margin-top:14px"><h2 style="margin-bottom:6px">Abbreviations &amp; acronyms</h2><p class="help" style="margin:0 0 12px">${abbrsOf(V.pid).length} defined${abbrsOf(V.pid).length?': '+esc(abbrsOf(V.pid).slice(0,8).map(a=>a.short).join(', '))+(abbrsOf(V.pid).length>8?'…':''):''}. Select an abbreviation in any note and click <b>Abbr.</b>, or write “Full Form (ABC)” and accept the suggestion.</p><button class="btn" data-abbrmgr="${V.pid}">Manage abbreviations</button></div>
   <div class="card" style="margin-top:14px;border-color:color-mix(in srgb,var(--danger) 30%,var(--line))"><h2 style="margin-bottom:6px">Danger zone</h2><p class="help" style="margin:0 0 12px">Deleting removes the project and every note in it.</p><button class="btn danger" data-act="deleteProject">${ico('trash')}Delete project</button></div>
   </div></div>`;
 }
@@ -2261,6 +2265,7 @@ function rteToolbar(qid,opts){
     <button type="button" data-fmt="clear" title="Clear formatting" aria-label="Clear formatting" style="font-size:12px;font-weight:700">T<sub style="font-size:9px">x</sub></button>
     <span style="flex:1"></span>
     ${opts.headings?'':`<button type="button" class="chk" data-tagq="${qid}" title="Tag the selected passage (or the whole answer) with a theme, debate or other dimension" aria-label="Tag"><svg class="i" viewBox="0 0 24 24" style="width:15px;height:15px"><path d="M20.6 13.4 12 22l-9-9V4a1 1 0 0 1 1-1h9z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg><span>Tag</span></button>`}
+    <button type="button" class="chk" data-abbr="${qid}" title="Abbreviation: select it (e.g. WHO) and give its full form, for the list of abbreviations" aria-label="Abbreviation"><span style="font-weight:800;font-size:11px;letter-spacing:.02em">A.B.</span><span>Abbr.</span></button>
     <button type="button" class="chk" data-check="${qid}" title="Check spelling and grammar — suggestions to accept or ignore" aria-label="Check spelling and grammar"><svg class="i" viewBox="0 0 24 24" style="width:16px;height:16px"><path d="M4 16 8 6l4 10M5.5 12.5h5M14 14l2.5 2.5L21 11"/></svg><span>Check</span></button>
   </div>`;
 }
@@ -2372,7 +2377,7 @@ document.addEventListener('click',e=>{
   if(t.dataset.gsok)acceptSug(q,+k); else{const it=(GS[q]||[]).find(i=>i.k===+k);if(it)it.state='no';renderSug(q)}
 });
 function rteHTML(x,q){
-  return `${rteToolbar(q.id)}<div class="rte" contenteditable="true" role="textbox" aria-multiline="true" aria-label="Notes for: ${esc(q.text)}" data-ans="${q.id}" data-ph="Your notes, in your own words…" spellcheck="${WR.lang!=='off'}" ${WR.lang!=='off'?`lang="${WR.lang}"`:''}>${answerHTML(x,q)}</div><div class="gsug" data-sug="${q.id}" hidden></div>`;
+  return `${rteToolbar(q.id)}<div class="rte" contenteditable="true" role="textbox" aria-multiline="true" aria-label="Notes for: ${esc(q.text)}" data-ans="${q.id}" data-ph="Your notes, in your own words…" spellcheck="${WR.lang!=='off'}" ${WR.lang!=='off'?`lang="${WR.lang}"`:''}>${answerHTML(x,q)}</div><div class="gsug" data-sug="${q.id}" hidden></div><div class="abbrsug" data-abbrsug="${q.id}" hidden></div>`;
 }
 /* turn browser-made highlight spans into our marks, without moving the caret */
 function normalizeMarks(ed){
@@ -2405,7 +2410,7 @@ function rteCommit(ed){
   const html=cleanRich(ed.innerHTML), text=richToText(html);
   x.answers=x.answers||{}; x.answers[qid]=text;
   x.rich=x.rich||{}; if(hasFormat(html))x.rich[qid]=html; else delete x.rich[qid];
-  updateQState(qid); save(V.paperId,700); flashSave();
+  updateQState(qid); save(V.paperId,700); flashSave(); scheduleAbbrSuggest(ed);
 }
 function refreshRteState(){
   const ed=document.activeElement; if(!ed||!ed.classList||!ed.classList.contains('rte'))return;
@@ -2643,7 +2648,7 @@ const draftsOf=pid=>Object.entries(S.docs).filter(([k,v])=>v&&v.kind==='draft'&&
 const words=t=>(String(t||'').match(/[\p{L}\p{N}][\p{L}\p{N}'’-]*/gu)||[]).length;
 function writeTabHTML(p){
   const ds=draftsOf(V.pid);
-  return `<div class="row" style="margin-bottom:16px"><p class="lede" style="margin:0;flex:1">Write your paper with your notes beside you. Insert notes with their citations, and the reference list builds itself.</p><button class="btn pri" data-act="newDraft">${ico('plus')}New document</button></div>
+  return `<div class="row" style="margin-bottom:16px"><p class="lede" style="margin:0;flex:1">Write your paper with your notes beside you. Insert notes with their citations, and the reference list builds itself.</p><button class="btn" data-abbrmgr="${V.pid}" title="List of abbreviations and acronyms for this project">Abbreviations <span class="muted">(${abbrsOf(V.pid).length})</span></button><button class="btn pri" data-act="newDraft">${ico('plus')}New document</button></div>
   ${ds.length?`<div class="pgrid">${ds.map(d=>`<button class="pc" data-act="openDraft" data-id="${d.id}"><div class="hd"><div class="av" style="background:var(--grad)">${ico('pen')}</div><div style="min-width:0"><div class="t">${esc(d.title||'Untitled document')}</div><div class="m muted" style="font-size:12.5px">Edited ${esc(ago(d.updatedAt||d.createdAt))}</div></div></div><div class="nums"><span><b>${words(d.text).toLocaleString()}</b>words</span><span><b>${citedPapers(d).length}</b>papers cited</span></div></button>`).join('')}</div>`
   :`<div class="empty"><div class="ic">${ico('pen')}</div><div class="big">Start writing</div><p>Create a document — a literature review chapter, a journal paper, a proposal…</p><button class="btn pri" data-act="newDraft">${ico('plus')}New document</button></div>`}`;
 }
@@ -2687,7 +2692,7 @@ function draftView(){
   <div class="wr" id="wr" style="--ww:${writerWidth()}%">
     <div class="wcol">
       <input class="dtitle" id="dTitleIn" value="${esc(d.title||'')}" placeholder="Document title" aria-label="Document title">
-      ${ribbonHTML(d)}<div style="${docStyleVars(d)}" class="rte draft" contenteditable="true" role="textbox" aria-multiline="true" aria-label="Document" data-ans="__draft" data-draft="${V.draftId}" data-ph="Start writing… Insert notes from the panel on the right." spellcheck="${WR.lang!=='off'}" ${WR.lang!=='off'?`lang="${WR.lang}"`:''}>${cleanRich(d.html||'')}</div><div class="gsug" data-sug="__draft" hidden></div>
+      ${ribbonHTML(d)}<div style="${docStyleVars(d)}" class="rte draft" contenteditable="true" role="textbox" aria-multiline="true" aria-label="Document" data-ans="__draft" data-draft="${V.draftId}" data-ph="Start writing… Insert notes from the panel on the right." spellcheck="${WR.lang!=='off'}" ${WR.lang!=='off'?`lang="${WR.lang}"`:''}>${cleanRich(d.html||'')}</div><div class="gsug" data-sug="__draft" hidden></div><div class="abbrsug" data-abbrsug="__draft" hidden></div>
       <div class="refs"><h3>References</h3><div id="refList">${refListHTML(d)}</div></div>
     </div>
     <div class="gutter wgut" id="wgut" role="separator" aria-orientation="vertical" aria-label="Drag to resize" tabindex="0"></div>
@@ -2766,7 +2771,7 @@ function draftCommit(ed){
   const d=S.docs[ed.dataset.draft]; if(!d)return;
   if(!ed.textContent.trim()&&!ed.querySelector('ul,ol,h2,h3'))ed.innerHTML='<p><br></p>';
   d.html=cleanRich(ed.innerHTML); d.text=richToText(d.html);
-  save(ed.dataset.draft,800); flashSave();
+  save(ed.dataset.draft,800); flashSave(); scheduleAbbrSuggest(ed);
   const w=$('#wcount'); if(w)w.textContent=words(d.text).toLocaleString()+' words';
   clearTimeout(draftCommit._t); draftCommit._t=setTimeout(()=>{const rl=$('#refList');if(rl)rl.innerHTML=refListHTML(d)},600);
 }
@@ -2794,7 +2799,7 @@ const saveRB=()=>{try{localStorage.setItem('litnotes.ribbon',JSON.stringify({tab
 const LINE_SPACINGS=[['1','Single (1.0)'],['1.15','1.15'],['1.5','1.5'],['2','Double (2.0)']];
 const docStyle=d=>Object.assign({font:'default',size:12,lh:'1.5'},d.style||{});
 function docStyleVars(d){const st=docStyle(d);const f=FONTS.find(x=>x[0]===st.font)||FONTS[0];return `--dfont:${f[2]};--dsize:${st.size}pt;--dlh:${st.lh}`}
-const IC2={
+const IC2={abbr:'<path d="M4 6h3M4 12h3M4 18h3M10 6h10M10 12h10M10 18h7"/>',abbrEdit:'<path d="M4 7h9M4 12h6M4 17h4"/><path d="m14 19 1-4 5-5 3 3-5 5z"/>',
   alLeft:'<path d="M4 6h16M4 10h10M4 14h16M4 18h10"/>',alCenter:'<path d="M4 6h16M7 10h10M4 14h16M7 18h10"/>',alRight:'<path d="M4 6h16M10 10h10M4 14h16M10 18h10"/>',alJustify:'<path d="M4 6h16M4 10h16M4 14h16M4 18h16"/>',
   image:'<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m21 16-5-5-9 9"/>',
   table:'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M3 15h18M9 4v16M15 4v16"/>',
@@ -2837,6 +2842,10 @@ function ribbonHTML(d){
       <div class="rg"><div class="rgl">Layout</div><div class="rgc">
         <button class="rbig" data-ins2="hr">${ic2('hr')}<span>Line</span></button>
         <button class="rbig" data-ins2="pb">${ic2('pb')}<span>Page break</span></button>
+      </div></div>
+      <div class="rg"><div class="rgl">Lists</div><div class="rgc">
+        <button class="rbig" data-ins2="abbr" title="Insert an alphabetical list of the abbreviations used in this document">${ic2('abbr')}<span>Abbreviations</span></button>
+        <button class="rbig" data-abbrmgr="" title="Define, edit or find abbreviations">${ic2('abbrEdit')}<span>Edit list</span></button>
       </div></div>
     </div>
   </div>`;
@@ -3131,6 +3140,7 @@ function bindRibbon(){
     if(k==='shape')figureDialog('shape');
     if(k==='hr')insertBlockHTML('<hr>');
     if(k==='pb')insertBlockHTML('<hr class="pb">');
+    if(k==='abbr')insertAbbrList();
   });
   rb.addEventListener('change',e=>{
     const t=e.target, d=S.docs[V.draftId];
@@ -3162,6 +3172,169 @@ async function embedImages(html){
   }
   return html;
 }
+
+/* ============================================================
+   ABBREVIATIONS & ACRONYMS (per project)
+   project.abbrs        : [{short, full}]
+   project.abbrIgnore   : ['PDF', …]   things that look like abbreviations but are not to be listed
+   ============================================================ */
+const abbrsOf=pid=>(((S.docs[pid]||{}).abbrs)||[]).slice().sort((a,b)=>a.short.localeCompare(b.short,undefined,{sensitivity:'base'}));
+const abbrIgnored=pid=>new Set(((S.docs[pid]||{}).abbrIgnore)||[]);
+const ABBR_STOP=new Set(['of','and','the','for','in','on','to','at','by','with','a','an','de','des','du','la','le','les','et','en','d','l','&']);
+function initialsMatch(words,abbr){
+  const letters=abbr.replace(/s$/,'').replace(/[^A-Za-z0-9]/g,'').toLowerCase();
+  const parts=words.flatMap(w=>w.split(/[-–\/]/)).filter(w=>w&&!ABBR_STOP.has(w.toLowerCase()));
+  const ini=parts.map(w=>w[0].toLowerCase()).join('');
+  if(ini===letters)return true;
+  // allow a word to give two letters (e.g. "Moto-Taxi" → MT, "UNICEF"-style blends): letters must appear in order, every word used
+  let i=0; for(const w of parts){const lw=w.toLowerCase();if(lw[0]!==letters[i])return false;i++;let j=1;while(i<letters.length&&j<lw.length&&lw[j]===letters[i]&&parts.indexOf(w)===parts.length-1){i++;j++}}
+  return i===letters.length&&parts.length>=2;
+}
+/* "World Health Organization (WHO)" and "WHO (World Health Organization)" */
+function singular(short,full){
+  if(!/^[A-Z0-9&-]{2,}s$/.test(short))return {short,full};
+  const f=full.replace(/ies$/,'y').replace(/(ss|us|is)$/,'$1').replace(/([^s])s$/,'$1');
+  return {short:short.slice(0,-1),full:f};
+}
+function findDefinitions(text){
+  const out=[]; const seen=new Set();
+  const re1=/((?:[\p{L}][\p{L}'’-]*[ \t]+){1,9}?[\p{L}][\p{L}'’-]*)\s*\(\s*([A-Z][A-Za-z0-9&-]{1,11})\s*\)/gu;
+  let m;
+  while((m=re1.exec(text))){
+    const words=m[1].trim().split(/\s+/), abbr=m[2];
+    if((abbr.match(/[A-Z]/g)||[]).length<2)continue;
+    for(let k=1;k<=words.length;k++){const cand=words.slice(-k);if(initialsMatch(cand,abbr)){const full=cand.join(' ');const d=singular(abbr,full.charAt(0).toUpperCase()+full.slice(1));if(!seen.has(d.short)){seen.add(d.short);out.push(d)}break}}
+  }
+  const re2=/\b([A-Z][A-Za-z0-9&-]{1,11})\s*\(\s*([\p{L}][^()]{3,90}?)\s*\)/gu;
+  while((m=re2.exec(text))){
+    const abbr=m[1], words=m[2].trim().split(/\s+/);
+    if((abbr.match(/[A-Z]/g)||[]).length<2||seen.has(abbr)||seen.has(abbr.replace(/s$/,'')))continue;
+    if(initialsMatch(words,abbr)){const d=singular(abbr,m[2].trim());if(!seen.has(d.short)){seen.add(d.short);out.push(d)}}
+  }
+  return out;
+}
+function abbrTokens(text){
+  const out=new Map();
+  (String(text||'').match(/\b[A-Z][A-Za-z0-9&]*(?:-[A-Z0-9]+)?\b/g)||[]).forEach(t=>{
+    const caps=(t.match(/[A-Z]/g)||[]).length; if(caps<2||t.length>12)return;
+    if(/^[A-Z][a-z]+[A-Z][a-z]+$/.test(t))return;                 // CamelCase names (McDonald)
+    const base=/^[A-Z0-9&-]+s$/.test(t)&&t.length>3?t.slice(0,-1):t;  // plural: RTIs → RTI
+    out.set(base,(out.get(base)||0)+1);
+  });
+  return out;
+}
+function projectTexts(pid){
+  const texts=[];
+  papersOf(pid).forEach(x=>Object.values(x.answers||{}).forEach(a=>texts.push(a)));
+  draftsOf(pid).forEach(d=>texts.push(d.text||''));
+  return texts.join('\n');
+}
+function undefinedAbbrs(pid){
+  const defined=new Set(abbrsOf(pid).map(a=>a.short)), ign=abbrIgnored(pid);
+  return [...abbrTokens(projectTexts(pid)).entries()].filter(([t])=>!defined.has(t)&&!ign.has(t)).sort((a,b)=>b[1]-a[1]).map(([short,n])=>({short,n}));
+}
+function upsertAbbr(pid,short,full){
+  short=trim(short); full=trim(full); if(!short||!full)return false;
+  if(/^[A-Z0-9&-]{2,}s$/.test(short)){const d=singular(short,full);short=d.short;full=d.full}
+  const p=S.docs[pid]; p.abbrs=p.abbrs||[];
+  const ex=p.abbrs.find(a=>a.short===short); if(ex)ex.full=full; else p.abbrs.push({short,full});
+  p.abbrIgnore=(p.abbrIgnore||[]).filter(x=>x!==short);
+  save(pid); return true;
+}
+const curPid=()=>V.view==='draft'?(S.docs[V.draftId]||{}).projectId:V.view==='paper'?(S.docs[V.paperId]||{}).projectId:V.pid;
+
+/* ---------- define one abbreviation (from the toolbar) ---------- */
+function openAbbrDialog(pid,selText){
+  let short='',full='';
+  const t=trim(selText);
+  const defs=t?findDefinitions(t):[];
+  if(defs.length){short=defs[0].short;full=defs[0].full}
+  else if(/^[A-Z][A-Za-z0-9&-]{1,11}$/.test(t)&&(t.match(/[A-Z]/g)||[]).length>=2)short=t;
+  else if(t&&t.split(/\s+/).length>1){full=t;short=t.split(/\s+/).filter(w=>!ABBR_STOP.has(w.toLowerCase())).map(w=>w[0].toUpperCase()).join('')}
+  else short=t;
+  const ex=abbrsOf(pid).find(a=>a.short===short); if(ex&&!full)full=ex.full;
+  const ov=modal(`<h3>Abbreviation</h3>
+    <div class="grid2" style="grid-template-columns:150px 1fr"><div class="field"><label>Short form</label><input class="inp" id="abS" value="${esc(short)}" placeholder="e.g. WHO"></div>
+    <div class="field"><label>Full form</label><input class="inp" id="abF" value="${esc(full)}" placeholder="e.g. World Health Organization"></div></div>
+    <p class="help" style="margin:0">Saved to this project's list of abbreviations. Tip: writing “World Health Organization (WHO)” in a note or document is picked up automatically.</p>
+    <div class="mfoot"><button class="btn ghost" data-all style="margin-right:auto">All abbreviations…</button><button class="btn" data-x>Cancel</button><button class="btn pri" data-ok>Save</button></div>`);
+  const sI=ov.querySelector('#abS'), fI=ov.querySelector('#abF'); (short&&!full?fI:sI).focus();
+  const ok=()=>{if(!trim(sI.value)){sI.focus();return}if(!trim(fI.value)){fI.focus();return}upsertAbbr(pid,sI.value,fI.value);ov.remove();toast(`Saved: ${trim(sI.value)} — ${trim(fI.value)}`)};
+  ov.querySelector('[data-ok]').onclick=ok; [sI,fI].forEach(i=>i.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();ok()}}));
+  ov.querySelector('[data-x]').onclick=()=>ov.remove();
+  ov.querySelector('[data-all]').onclick=()=>{ov.remove();openAbbrManager(pid)};
+}
+
+/* ---------- the full list, with abbreviations still to define ---------- */
+function openAbbrManager(pid){
+  const ov=modal('',true);
+  const draw=()=>{
+    const list=abbrsOf(pid);
+    const found=findDefinitions(projectTexts(pid)).filter(d=>!list.some(a=>a.short===d.short));
+    const undef=undefinedAbbrs(pid).filter(u=>!found.some(d=>d.short===u.short));
+    ov.querySelector('.modal').innerHTML=`<h3>Abbreviations &amp; acronyms</h3>
+      <p class="help" style="margin:-6px 0 14px">${esc((S.docs[pid]||{}).name||'')} · ${list.length} defined. Insert the list into a document from Write → Insert → Abbreviations; it also appears in project reports.</p>
+      ${found.length?`<div class="card" style="background:var(--panel-2);margin-bottom:14px;padding:12px 14px"><b style="font-size:14px">Found in your writing (${found.length})</b>
+        ${found.map((d,i)=>`<div class="row" style="flex-wrap:nowrap;margin-top:8px"><b style="min-width:80px">${esc(d.short)}</b><span style="flex:1">${esc(d.full)}</span><button class="btn sm pri" data-addf="${i}">Add</button></div>`).join('')}
+        ${found.length>1?`<div class="row" style="margin-top:8px"><button class="btn sm" data-addall>Add all ${found.length}</button></div>`:''}</div>`:''}
+      ${undef.length?`<div class="card" style="background:var(--panel-2);margin-bottom:14px;padding:12px 14px"><b style="font-size:14px">Used but not defined yet (${undef.length})</b><p class="help" style="margin:2px 0 6px">Type the full form, or ignore it if it is not an abbreviation you want listed.</p>
+        <div style="max-height:220px;overflow:auto">${undef.slice(0,60).map(u=>`<div class="row" style="flex-wrap:nowrap;margin-top:6px"><b style="min-width:80px">${esc(u.short)}</b><span class="muted" style="font-size:12px;min-width:44px">${u.n}×</span><input class="inp" data-def="${esc(u.short)}" placeholder="Full form…" style="flex:1"><button class="btn sm" data-defok="${esc(u.short)}">Save</button><button class="btn sm ghost" data-ign="${esc(u.short)}">Ignore</button></div>`).join('')}</div></div>`:''}
+      <div class="row" style="flex-wrap:nowrap;margin-bottom:8px"><input class="inp" id="nAbS" placeholder="Short" style="max-width:130px"><input class="inp" id="nAbF" placeholder="Full form"><button class="btn" data-addnew>${ico('plus')}Add</button></div>
+      ${list.length?`<table class="tbl static" style="box-shadow:none"><thead><tr><th style="width:150px">Abbreviation</th><th>Full form</th><th style="width:50px"></th></tr></thead><tbody>
+        ${list.map(a=>`<tr><td><input class="inp" data-es="${esc(a.short)}" value="${esc(a.short)}" style="padding:6px 8px;font-weight:700"></td><td><input class="inp" data-ef="${esc(a.short)}" value="${esc(a.full)}" style="padding:6px 8px"></td><td><button class="btn sm ghost danger" data-delab="${esc(a.short)}" aria-label="Delete">${ico('trash')}</button></td></tr>`).join('')}
+      </tbody></table>`:'<p class="help">No abbreviations yet.</p>'}
+      ${(S.docs[pid].abbrIgnore||[]).length?`<p class="help" style="margin-top:10px">Ignored: ${S.docs[pid].abbrIgnore.map(x=>`<button class="link" data-unign="${esc(x)}" title="Stop ignoring">${esc(x)}</button>`).join(', ')}</p>`:''}
+      <div class="mfoot"><button class="btn pri" data-x>Done</button></div>`;
+    const p=S.docs[pid];
+    ov.querySelector('[data-x]').onclick=()=>{ov.remove();if(V.view==='project')renderMain()};
+    ov.querySelectorAll('[data-addf]').forEach(b=>b.onclick=()=>{const d=found[+b.dataset.addf];upsertAbbr(pid,d.short,d.full);draw()});
+    const aa=ov.querySelector('[data-addall]'); if(aa)aa.onclick=()=>{found.forEach(d=>upsertAbbr(pid,d.short,d.full));draw()};
+    ov.querySelectorAll('[data-defok]').forEach(b=>b.onclick=()=>{const i=ov.querySelector(`[data-def="${CSS.escape(b.dataset.defok)}"]`);if(!trim(i.value)){i.focus();return}upsertAbbr(pid,b.dataset.defok,i.value);draw()});
+    ov.querySelectorAll('[data-def]').forEach(i=>i.addEventListener('keydown',e=>{if(e.key==='Enter'&&trim(i.value)){upsertAbbr(pid,i.dataset.def,i.value);draw()}}));
+    ov.querySelectorAll('[data-ign]').forEach(b=>b.onclick=()=>{p.abbrIgnore=[...new Set([...(p.abbrIgnore||[]),b.dataset.ign])];save(pid);draw()});
+    ov.querySelectorAll('[data-unign]').forEach(b=>b.onclick=()=>{p.abbrIgnore=(p.abbrIgnore||[]).filter(x=>x!==b.dataset.unign);save(pid);draw()});
+    const add=()=>{const sI=ov.querySelector('#nAbS'),fI=ov.querySelector('#nAbF');if(!trim(sI.value)){sI.focus();return}if(!trim(fI.value)){fI.focus();return}upsertAbbr(pid,sI.value,fI.value);draw();ov.querySelector('#nAbS').focus()};
+    ov.querySelector('[data-addnew]').onclick=add; ['#nAbS','#nAbF'].forEach(s=>ov.querySelector(s).addEventListener('keydown',e=>{if(e.key==='Enter')add()}));
+    ov.querySelectorAll('[data-ef]').forEach(i=>i.addEventListener('change',()=>{const a=p.abbrs.find(z=>z.short===i.dataset.ef);if(a&&trim(i.value)){a.full=trim(i.value);save(pid)}}));
+    ov.querySelectorAll('[data-es]').forEach(i=>i.addEventListener('change',()=>{const a=p.abbrs.find(z=>z.short===i.dataset.es);const v=trim(i.value);if(a&&v&&!p.abbrs.some(z=>z.short===v)){a.short=v;save(pid);draw()}}));
+    ov.querySelectorAll('[data-delab]').forEach(b=>b.onclick=()=>{p.abbrs=p.abbrs.filter(z=>z.short!==b.dataset.delab);save(pid);draw()});
+  };
+  draw();
+}
+
+/* ---------- gentle suggestion under the editor when "Full Form (ABC)" is typed ---------- */
+const abbrDismissed=new Set();
+function suggestAbbrs(ed){
+  const pid=curPid(); if(!pid)return;
+  const key=ed.dataset.ans, box=document.querySelector(`[data-abbrsug="${key}"]`); if(!box)return;
+  const known=new Set(abbrsOf(pid).map(a=>a.short));
+  const defs=findDefinitions(richToText(cleanRich(ed.innerHTML))).filter(d=>!known.has(d.short)&&!abbrDismissed.has(d.short+'|'+d.full));
+  if(!defs.length){box.hidden=true;box.innerHTML='';return}
+  box.hidden=false;
+  box.innerHTML=`<span class="muted">Add to abbreviations?</span>${defs.slice(0,4).map((d,i)=>`<span class="abchip"><b>${esc(d.short)}</b> ${esc(d.full)}<button data-abok="${i}" title="Add">Add</button><button data-abno="${i}" aria-label="Dismiss">×</button></span>`).join('')}`;
+  box.querySelectorAll('[data-abok]').forEach(b=>b.onclick=()=>{const d=defs[+b.dataset.abok];upsertAbbr(pid,d.short,d.full);toast(`Added ${d.short}`);suggestAbbrs(ed)});
+  box.querySelectorAll('[data-abno]').forEach(b=>b.onclick=()=>{const d=defs[+b.dataset.abno];abbrDismissed.add(d.short+'|'+d.full);suggestAbbrs(ed)});
+}
+let _abT; function scheduleAbbrSuggest(ed){clearTimeout(_abT);_abT=setTimeout(()=>suggestAbbrs(ed),1200)}
+
+/* ---------- list for documents and reports ---------- */
+function abbrsUsedIn(pid,text){const toks=abbrTokens(text);return abbrsOf(pid).filter(a=>toks.has(a.short)||String(text).includes(a.short))}
+function abbrTableHTML(list){return `<table class="dtable"><tr><th>Abbreviation</th><th>Full form</th></tr>${list.map(a=>`<tr><td><b>${esc(a.short)}</b></td><td>${esc(a.full)}</td></tr>`).join('')}</table>`}
+function insertAbbrList(){
+  const d=S.docs[V.draftId], pid=d.projectId;
+  let list=abbrsUsedIn(pid,d.text||''); const all=abbrsOf(pid);
+  if(!all.length){toast('No abbreviations yet — select one in your text and click Abbr., or open the list to add them');openAbbrManager(pid);return}
+  if(!list.length)list=all;
+  insertBlockHTML(`<h2>List of abbreviations</h2>${abbrTableHTML(list)}`);
+  toast(`Inserted ${list.length} abbreviation${list.length===1?'':'s'}`);
+}
+document.addEventListener('click',e=>{
+  const b=e.target.closest('[data-abbr],[data-abbrmgr]'); if(!b)return;
+  if(b.dataset.abbrmgr!==undefined&&b.hasAttribute('data-abbrmgr')){openAbbrManager(b.dataset.abbrmgr||curPid());return}
+  const key=b.dataset.abbr, ed=document.querySelector(`.rte[data-ans="${key}"]`); const pid=curPid(); if(!pid)return;
+  let sel=''; const s=getSelection(); if(ed&&s.rangeCount&&ed.contains(s.getRangeAt(0).commonAncestorContainer))sel=s.toString();
+  openAbbrDialog(pid,sel);
+});
 
 /* ============================================================
    REPORTS
@@ -3222,6 +3395,8 @@ function projectReportHTML(p,pp,t){
   }else{
     order.forEach((x,i)=>{html+=`<h2>${i+1}. ${esc(paperTitle(x))}</h2><p class="meta">${esc(paperMeta(x))}</p>${paperReportBody(x,t,V.showEmpty,2)}`});
   }
+  const abl=abbrsOf(p.id||V.pid);
+  if(abl.length) html+=`<h2>Abbreviations</h2><table><tr><th>Abbreviation</th><th>Full form</th></tr>${abl.map(a=>`<tr><td><b>${esc(a.short)}</b></td><td>${esc(a.full)}</td></tr>`).join('')}</table>`;
   const refs=sortedRefs(pp).filter(x=>x.ref);
   if(refs.length) html+=`<h2>References</h2>${refs.map(x=>`<p class="apa">${apaHTML(x.ref)}</p>`).join('')}`;
   return html;
@@ -3268,6 +3443,8 @@ function mdProject(p,pp,t){
       });
     });
   }else order.forEach(x=>{s+=mdPaper(x,t,V.showEmpty,2)});
+  const abl=abbrsOf(p.id||V.pid);
+  if(abl.length) s+=`## Abbreviations\n\n| Abbreviation | Full form |\n|---|---|\n`+abl.map(a=>`| ${a.short.replace(/\|/g,'/')} | ${a.full.replace(/\|/g,'/')} |`).join('\n')+'\n\n';
   const refs=sortedRefs(pp).filter(x=>x.ref);
   if(refs.length) s+=`## References\n\n`+refs.map(x=>apaMd(x.ref)).join('\n\n')+'\n';
   return s;

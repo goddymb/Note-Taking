@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.11.0]
+- **Abbreviations and acronyms** for each project.
+  - In any note or document, select an abbreviation (for example WHO) and click **Abbr.** to give its full form.
+  - Writing "World Health Organization (WHO)" or "WHO (World Health Organization)" is spotted automatically and offered for one-click adding. Plurals such as "RTIs" are listed in the singular.
+  - The **Abbreviations** window (Write tab, Settings, or Insert → Edit list) shows the defined list, abbreviations found in your writing, and capitals used but not yet defined, which you can fill in or ignore.
+- **Insert → Abbreviations** adds an alphabetical "List of abbreviations" table with those used in the document.
+- Project reports (HTML and Markdown) include an Abbreviations section.
+
 ## [1.10.0]
 - **Document ribbon** in Write with **Home**, **Format** and **Insert** tabs. Hide it with the arrow on the right and bring it back with any tab.
 - **Format**: font, size and colour for selected text; left, centre, right and justified paragraphs; and a font, size and line spacing for the whole document (for example Times New Roman, 12 pt, double-spaced).
