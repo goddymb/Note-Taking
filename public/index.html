@@ -1347,6 +1347,7 @@ function appSettingsView(){
   return `<div class="page-head"><div class="grow"><h1>Settings</h1><p class="lede">Appearance, writing${LOCAL?', updates':''} and your data.</p></div></div>
   <div class="sec-title"><h2>Appearance</h2></div>
   <div class="looks">${THEMES.map(([k,l,d])=>`<button class="look ${theme()===k?'on':''}" data-act="theme" data-v="${k}"><div class="pv pv-${k}"><div class="bn"></div><div class="cd"><i></i><i></i><i></i></div></div><div class="lb"><b>${l}${theme()===k?' · in use':''}</b><span>${d}</span></div></button>`).join('')}</div>
+  ${backupsCardHTML()}
   ${installCardHTML()}
   ${updatesCardHTML()}
   <div class="sec-title"><h2>Writing</h2></div>
@@ -1884,6 +1885,36 @@ if(LOCAL){
   try{if('serviceWorker' in navigator)navigator.serviceWorker.register('/sw.js').catch(()=>{})}catch(e){}
   window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();INST.prompt=e;if(V.view==='settings')renderMain()});
   window.addEventListener('appinstalled',()=>{INST.installed=true;INST.prompt=null;toast('Literature Notes is installed — find it in your Start menu');if(V.view==='settings')renderMain()});
+}
+const BKS={info:null,loading:false};
+async function loadBackups(){if(!LOCAL)return;BKS.loading=true;try{const r=await fetch('/api/backups');BKS.info=await r.json()}catch(e){BKS.info={error:true}}BKS.loading=false;if(V.view==='settings')renderMain()}
+function backupsCardHTML(){
+  if(!LOCAL)return '';
+  if(!BKS.info&&!BKS.loading)setTimeout(loadBackups,0);
+  const i=BKS.info||{list:[]};
+  const fmt=t=>new Date(t).toLocaleString(undefined,{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+  const last=(i.list||[])[0];
+  return `<div class="sec-title"><h2>Backups</h2></div>
+  <div class="grid2" style="align-items:start">
+    <div class="card">
+      <div class="row" style="gap:10px;flex-wrap:nowrap;margin-bottom:8px">${last?'<span class="dot"></span>':'<span class="dot warn"></span>'}<b>${last?'Last snapshot '+esc(fmt(last.at)):'No snapshot yet'}</b></div>
+      <p class="help" style="margin:0 0 12px">A snapshot of all your notes is saved automatically ${(i.everyHours||6)==1?'every hour':'every '+esc(String(i.everyHours||6))+' hours'} when something changed, in the <code>${esc(i.folder||'data/backups')}</code> folder. The newest ${esc(String(i.keep||30))} are kept.</p>
+      <div class="row" style="margin-bottom:${(i.list||[]).length?'12px':'0'}"><button class="btn" data-act="backupNow">${ico('download')}Back up now</button></div>
+      ${(i.list||[]).length?`<div class="help" style="margin-bottom:6px"><b>Recent snapshots</b> — Restore brings back notes as they were then (it adds and updates, never deletes).</div>
+      ${(i.list||[]).slice(0,6).map(b=>`<div class="row" style="justify-content:space-between;flex-wrap:nowrap;padding:6px 0;border-top:1px solid var(--line)"><span style="font-size:13px">${esc(fmt(b.at))} <span class="muted">· ${fmtSize(b.size)}</span></span><button class="btn sm ghost" data-act="restoreSnap" data-v="${esc(b.name)}">Restore</button></div>`).join('')}`:''}
+    </div>
+    <div class="card">
+      <b>Keep a copy in Google Drive</b>
+      <p class="help" style="margin:6px 0 10px">So nothing is lost if your computer breaks, let Google Drive keep a live copy of your <b>data</b> folder (notes, PDFs and these snapshots):</p>
+      <ol class="help" style="margin:0 0 10px;padding-left:20px;line-height:1.7">
+        <li>Install <b>Google Drive for desktop</b> (free, from google.com/drive/download) and sign in.</li>
+        <li>Click the Drive icon near the clock → ⚙ <b>Settings</b> → <b>Preferences</b>.</li>
+        <li>Under <b>My Computer</b> (or <b>Folders from your computer</b>), click <b>Add folder</b> and choose the <b>data</b> folder inside your literature-notes folder.</li>
+        <li>Tick <b>Sync with Google Drive</b> → <b>Done</b> → <b>Save</b>.</li>
+      </ol>
+      <p class="help" style="margin:0">From then on every change is copied to drive.google.com → <b>Computers</b>. To recover on a new computer: install the app, stop it, copy the <b>data</b> folder from Google Drive into the new literature-notes folder, and start it again.</p>
+    </div>
+  </div>`;
 }
 function installCardHTML(){
   if(!LOCAL)return '';
@@ -2445,12 +2476,15 @@ function backup(){
   const data={app:'literature-notes',version:1,exportedAt:new Date().toISOString(),docs:S.docs};
   offerDownload('literature-notes-backup-'+new Date().toISOString().slice(0,10)+'.json',JSON.stringify(data,null,2));
 }
+function restoreData(o){
+  const docs=(o&&o.docs)||o;let n=0;
+  Object.entries(docs||{}).forEach(([k,v])=>{if(v&&(v.kind==='project'||v.kind==='paper')&&/^[A-Za-z0-9_\-.~:@+]+$/.test(k)){S.docs[k]=v;save(k);n++}});
+  if(!n)throw new Error('empty');
+  toast(`Restored ${n} item${n===1?'':'s'}`);render();
+}
 function restore(file){
   const r=new FileReader();
-  r.onload=()=>{try{const o=JSON.parse(r.result);const docs=o.docs||o;let n=0;
-      Object.entries(docs).forEach(([k,v])=>{if(v&&(v.kind==='project'||v.kind==='paper')&&/^[A-Za-z0-9_\-.~:@+]+$/.test(k)){S.docs[k]=v;save(k);n++}});
-      toast(`Restored ${n} item${n===1?'':'s'}`);render();
-    }catch(e){toast('That file is not a valid backup.')}};
+  r.onload=()=>{try{restoreData(JSON.parse(r.result))}catch(e){toast('That file is not a valid backup.')}};
   r.readAsText(file);
 }
 
@@ -2464,6 +2498,8 @@ document.addEventListener('click',e=>{
       go({view:v});break}
     case 'theme': setTheme(b.dataset.v);break;
     case 'checkUpd': checkUpdates(true);break;
+    case 'backupNow': (async()=>{try{const r=await fetch('/api/backups',{method:'POST'});const j=await r.json();toast(j.name?'Backup saved':'Nothing to back up yet');loadBackups()}catch(e){toast('Backup failed — is the server running?')}})();break;
+    case 'restoreSnap': {const name=b.dataset.v;confirmBox('Restore notes from this snapshot? Notes in it replace their current versions; anything added since stays.','Restore',async()=>{try{const r=await fetch('/api/backups/'+encodeURIComponent(name));restoreData(await r.json())}catch(e){toast('That snapshot could not be read.')}});break}
     case 'installApp': if(INST.prompt){INST.prompt.prompt();INST.prompt.userChoice.then(c=>{if(c.outcome==='accepted')INST.installed=true;INST.prompt=null;renderMain()}).catch(()=>{})}break;
     case 'doUpdate': doUpdate();break;
     case 'resume': {const x=S.docs[id];if(!x)break;go({view:'paper',paperId:id,pid:x.projectId});const s=nextStage(x,tpl(x.projectId));if(s){const q=tpl(x.projectId).questions.find(z=>z.section===s.id&&!answered(x,z));if(q)setTimeout(()=>openToQuestion(q.id),60)}break}

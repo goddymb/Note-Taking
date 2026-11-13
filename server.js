@@ -21,6 +21,9 @@ const HOST = env('HOST', '0.0.0.0');
 const DATA_DIR = path.resolve(env('DATA_DIR', path.join(__dirname, 'data')));
 const DOCS_DIR = path.join(DATA_DIR, 'docs');
 const FILES_DIR = path.join(DATA_DIR, 'files');
+const BACKUP_DIR = path.join(DATA_DIR, 'backups');
+const BACKUP_KEEP = Math.max(3, parseInt(env('BACKUP_KEEP', '30'), 10));
+const BACKUP_MIN_HOURS = Math.max(1, parseFloat(env('BACKUP_MIN_HOURS', '6')));
 const PUBLIC_DIR = path.join(__dirname, 'public');
 const PDFJS_DIR = path.resolve(env('PDFJS_DIR', path.join(__dirname, 'node_modules', 'pdfjs-dist', 'build')));
 const FONTS_DIR = path.resolve(env('FONTS_DIR', path.join(__dirname, 'vendor-fonts')));
@@ -153,6 +156,49 @@ async function indexHtml() {
   }
   const pwa = '<link rel="manifest" href="/manifest.webmanifest">\n<meta name="theme-color" content="#8b5cf6">\n<link rel="icon" type="image/svg+xml" href="/icons/icon.svg">\n<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">\n<meta name="application-name" content="Literature Notes">\n';
   return html.replace('<head>', '<head>\n' + inject + pwa);
+}
+
+/* ---------------------------------------------------------------- automatic note snapshots */
+const BK = { lastChange: 0, lastSnapshot: 0, running: false };
+const markChanged = () => { BK.lastChange = Date.now(); };
+async function listSnapshots() {
+  let names = [];
+  try { names = (await fsp.readdir(BACKUP_DIR)).filter((n) => /^notes-.*\.json$/.test(n)); } catch (e) { return []; }
+  const out = [];
+  for (const n of names) { try { const st = await fsp.stat(path.join(BACKUP_DIR, n)); out.push({ name: n, size: st.size, at: st.mtimeMs }); } catch (e) {} }
+  return out.sort((a, b) => b.at - a.at);
+}
+async function takeSnapshot(reason) {
+  if (BK.running) return null;
+  BK.running = true;
+  try {
+    const docs = {};
+    for (const n of (await fsp.readdir(DOCS_DIR)).filter((x) => x.endsWith('.json'))) {
+      try { docs[n.slice(0, -5)] = JSON.parse(await fsp.readFile(path.join(DOCS_DIR, n), 'utf8')); } catch (e) {}
+    }
+    if (!Object.keys(docs).length) return null;
+    const d = new Date(); const pad = (x) => String(x).padStart(2, '0');
+    const name = `notes-${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}_${pad(d.getHours())}${pad(d.getMinutes())}.json`;
+    await fsp.mkdir(BACKUP_DIR, { recursive: true });
+    await writeAtomic(path.join(BACKUP_DIR, name), JSON.stringify({ app: 'literature-notes', version: 1, exportedAt: d.toISOString(), appVersion: APP_VERSION, docs }));
+    BK.lastSnapshot = Date.now();
+    const all = await listSnapshots();
+    for (const old of all.slice(BACKUP_KEEP)) await fsp.rm(path.join(BACKUP_DIR, old.name), { force: true });
+    log(`backup saved (${reason}): ${name}`);
+    return name;
+  } finally { BK.running = false; }
+}
+async function initBackups() {
+  const snaps = await listSnapshots();
+  BK.lastSnapshot = snaps.length ? snaps[0].at : 0;
+  try {
+    for (const n of await fsp.readdir(DOCS_DIR)) { const st = await fsp.stat(path.join(DOCS_DIR, n)); if (st.mtimeMs > BK.lastChange) BK.lastChange = st.mtimeMs; }
+  } catch (e) {}
+  const tick = () => {
+    if (BK.lastChange > BK.lastSnapshot && Date.now() - BK.lastSnapshot >= BACKUP_MIN_HOURS * 3600e3) takeSnapshot('automatic').catch((e) => log('backup failed:', e.message));
+  };
+  setTimeout(tick, 15000).unref();
+  setInterval(tick, 10 * 60e3).unref();
 }
 
 /* ---------------------------------------------------------------- updates */
@@ -416,11 +462,13 @@ async function handle(req, res) {
       try { data = JSON.parse((await readBody(req, 4 * 1024 * 1024)).toString('utf8')); } catch { return fail(res, 400, 'invalid_argument', 'Body must be a JSON object'); }
       if (!data || typeof data !== 'object' || Array.isArray(data)) return fail(res, 400, 'invalid_argument', 'Body must be a JSON object');
       await writeAtomic(file, JSON.stringify(data));
+      markChanged();
       broadcast({ type: 'doc', id, origin: req.headers['x-client-id'] || '' });
       return send(res, 200, { ok: true });
     }
     if (req.method === 'DELETE') {
       await fsp.rm(file, { force: true });
+      markChanged();
       broadcast({ type: 'doc', id, origin: req.headers['x-client-id'] || '' });
       return send(res, 200, { ok: true });
     }
@@ -466,6 +514,16 @@ async function handle(req, res) {
   if (p === '/api/ask' && req.method === 'POST') return handleAsk(req, res);
   if (p === '/api/lookup' && req.method === 'GET') return handleLookup(url, res);
   if (p === '/api/version' && req.method === 'GET') return handleVersion(url, res);
+  if (p === '/api/backups' && req.method === 'GET') {
+    const list = await listSnapshots();
+    return send(res, 200, { folder: 'data/backups', keep: BACKUP_KEEP, everyHours: BACKUP_MIN_HOURS, pending: BK.lastChange > BK.lastSnapshot, list: list.slice(0, 50) });
+  }
+  if (p === '/api/backups' && req.method === 'POST') {
+    const name = await takeSnapshot('manual');
+    return send(res, 200, { ok: true, name });
+  }
+  const bkMatch = p.match(/^\/api\/backups\/(notes-[0-9_-]+\.json)$/);
+  if (bkMatch && req.method === 'GET') return serveStatic(res, BACKUP_DIR, bkMatch[1], 'no-store');
   if (p === '/api/update' && req.method === 'POST') return handleUpdate(res);
 
   return fail(res, 404, 'not_found', 'Not found');
@@ -475,6 +533,8 @@ async function handle(req, res) {
 async function main() {
   await fsp.mkdir(DOCS_DIR, { recursive: true });
   await fsp.mkdir(FILES_DIR, { recursive: true });
+  await fsp.mkdir(BACKUP_DIR, { recursive: true });
+  await initBackups();
   detectFonts();
   const server = http.createServer((req, res) => {
     handle(req, res).catch((e) => { log('error', req.method, req.url, e.stack || e.message); if (!res.headersSent) fail(res, 500, 'internal', 'Server error'); else res.end(); });

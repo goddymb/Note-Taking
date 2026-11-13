@@ -90,6 +90,11 @@ GitHub Actions then checks that the server starts, builds the image for Intel/AM
 
 ## 3b. Your data and backups
 
+**Automatic snapshots.** Every 6 hours, if anything changed, the app saves a snapshot of all notes to `data/backups` (the newest 30 are kept; change with `BACKUP_KEEP` and `BACKUP_MIN_HOURS`). Settings → Backups has **Back up now** and one-click **Restore**.
+
+**Off-site copy with Google Drive.** Install Google Drive for desktop, open its Settings → Preferences → My Computer → **Add folder**, choose this app's `data` folder and tick **Sync with Google Drive**. To recover on a new computer, install the app, stop it, copy the `data` folder back from drive.google.com → Computers, and start it again.
+
+
 Everything lives in `./data`:
 
 ```
@@ -141,6 +146,8 @@ The same settings can be given as environment variables (`ANTHROPIC_API_KEY`, `O
 | `CROSSREF_MAILTO` | *(empty)* | Your email, sent to CrossRef with lookups (optional) |
 | `UPDATE_TOKEN` | *(set in .env)* | Shared secret between the app and its updater |
 | `UPDATE_GITHUB_TOKEN` | *(empty)* | Only if the repository is private: a token that can read its releases |
+| `BACKUP_MIN_HOURS` | `6` | Minimum time between automatic note snapshots |
+| `BACKUP_KEEP` | `30` | How many snapshots to keep |
 | `AI_LABEL` | `Claude` / `AI` | Name shown on the Ask buttons |
 
 ## How it is built
