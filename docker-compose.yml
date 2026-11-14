@@ -4,7 +4,7 @@ services:
     container_name: literature-notes
     restart: unless-stopped
     ports:
-      - "127.0.0.1:8080:8080"   # only this computer; use "8080:8080" to open it to your network (set APP_PASSWORD then)
+      - "127.0.0.1:${APP_PORT:-8080}:8080"   # open the app at http://localhost:APP_PORT (set APP_PORT in .env if 8080 is taken). Remove "127.0.0.1:" to open it to your network (set APP_PASSWORD then)
     volumes:
       - ./data:/data            # your notes and PDFs live here — back this folder up
     env_file:

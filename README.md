@@ -132,7 +132,8 @@ The same settings can be given as environment variables (`ANTHROPIC_API_KEY`, `O
 
 | Variable | Default | Meaning |
 |---|---|---|
-| `PORT` | `8080` | Port inside the container |
+| `APP_PORT` | `8080` | Port on your computer — change it in `.env` if 8080 is taken by another app, then open http://localhost:APP_PORT |
+| `PORT` | `8080` | Port inside the container (leave as is) |
 | `DATA_DIR` | `/data` | Where notes and PDFs are stored |
 | `APP_PASSWORD` | *(empty)* | Password for the login prompt; empty = no login |
 | `MAX_UPLOAD_MB` | `50` | Largest PDF accepted |
