@@ -7,6 +7,7 @@ Structured reading notes for literature reviews, running entirely on your own co
 - **Auto-fill**: upload a PDF and the authors, year, title, journal, volume, issue, pages and DOI are filled in (from CrossRef when the PDF has a DOI, otherwise read from the first page by the Ask model)
 - **PDFs** stored on your machine, read **side by side** with your notes
 - **Ask**: question a paper (from its full text) or a whole project (from your notes), using the Claude API *or* a local model through Ollama
+- **Courses**: lecture notes with automatic date/lecturer, Cornell layout, quick marks, slides beside your notes, audio recording with time stamps, timetable, assignments (Word/PDF export), calendar (.ics), grades, revision packs, spaced review and flashcards, study timer
 - **Compare**, **search**, **paper and project reports** (Markdown, Word/PDF via .html), three themes
 - Works **offline**: the PDF reader and fonts are installed inside the container
 

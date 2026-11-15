@@ -1,5 +1,36 @@
 # Changelog
 
+## [2.0.0]
+**Courses: a lecture companion.** A new Study area in the side menu, with Courses and Review.
+
+- **Courses and units.** Each course has a code, colour, term dates, lecturers (with email and office hours) and class times. A course can be split into units, each with its own lecturers and times, or have no units. All settings can be changed at any time.
+- **Timetable and Today.** Your week is built from the class times, and clashing classes are flagged. The Home and Courses pages show the class happening now or next, with **Start today's note**.
+- **Lecture notes.**
+  - The date, time, course, unit and lecturer are filled in for you; you type the topic and subtopic. You can also continue a previous note, which adds a dated "Continued" heading inside it.
+  - Select words and mark them ❓ Ask (added to your questions), ⭐ Key, 🔁 Review, or 💡 Idea.
+  - Write `term :: meaning` on a line to make a flashcard.
+  - A side panel holds the lecture's slides and readings, your questions, and the important and review points.
+  - Optional **Cornell layout**: key words and questions on the left, notes on the right, summary below.
+  - **End lecture** asks for a three-sentence summary.
+  - Export a lecture to Word or PDF.
+- **Slides and readings** open in the reader beside your notes, with highlights. Selected text goes into your notes cited by slide or page, and Ask works on them too.
+- **Record the lecture.** While recording, every new paragraph gets a time stamp; click it to hear that moment again. Recordings are stored with your notes.
+- **Assignments.** Set the brief (text or PDF), due date, weight, word limit and a marking checklist. Write the assignment in the full document editor, with optional notes and citations from a literature project and a word count against the limit. Track its status (not started → graded) and export it to **Word or PDF**.
+- **Calendar.** Assignment deadlines, exams and tests with countdowns. **Export to your phone's calendar (.ics)**, including weekly classes and reminders before deadlines.
+- **Questions tracker.** Every question from every lecture, marked open or answered, with space for the answer.
+- **Grades.** Weighted assessments, your current average, and "what do I need on the rest?".
+- **Revision.**
+  - A topic checklist for each unit (not yet / getting there / confident).
+  - A one-click **revision pack** (summaries, key points, questions, flashcards) as Word or PDF.
+  - AI **practice questions** from your own notes, when Ask is available.
+- **Review.** 🔁 points and flashcards come back after 1 day, 3 days, a week, two weeks and a month. The side menu shows how many are due.
+- **Study timer** (25-minute focus sessions or open timing) with a weekly chart per course.
+- **Attendance.** Counted from your notes against the class times, with placeholders for missed classes ("get notes from a classmate").
+- **Also:**
+  - Documents in Write now export to **Word (.doc)** and **PDF** (via Save as PDF).
+  - Ideas can come from lectures.
+  - Fixed Ask's "New chat" losing track of the document.
+
 ## [1.19.0]
 - **Fill details from a DOI or a link.** "Add paper" has a new box at the top: paste a DOI (e.g. 10.1016/…) or any web link and click **Fill details** (or just paste). This works with or without a PDF.
   - A DOI gets the details from CrossRef.

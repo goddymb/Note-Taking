@@ -164,6 +164,12 @@ const FILE_KINDS = [
   { ext: '.jpg', type: 'image/jpeg', test: (b) => b.length > 3 && b[0] === 0xff && b[1] === 0xd8 && b[2] === 0xff },
   { ext: '.gif', type: 'image/gif', test: (b) => b.toString('latin1', 0, 4) === 'GIF8' },
   { ext: '.webp', type: 'image/webp', test: (b) => b.toString('latin1', 0, 4) === 'RIFF' && b.toString('latin1', 8, 12) === 'WEBP' },
+  // lecture recordings
+  { ext: '.webm', type: 'audio/webm', audio: true, test: (b) => b.length > 4 && b[0] === 0x1a && b[1] === 0x45 && b[2] === 0xdf && b[3] === 0xa3 },
+  { ext: '.ogg', type: 'audio/ogg', audio: true, test: (b) => b.toString('latin1', 0, 4) === 'OggS' },
+  { ext: '.m4a', type: 'audio/mp4', audio: true, test: (b) => b.toString('latin1', 4, 8) === 'ftyp' },
+  { ext: '.wav', type: 'audio/wav', audio: true, test: (b) => b.toString('latin1', 0, 4) === 'RIFF' && b.toString('latin1', 8, 12) === 'WAVE' },
+  { ext: '.mp3', type: 'audio/mpeg', audio: true, test: (b) => b.toString('latin1', 0, 3) === 'ID3' || (b[0] === 0xff && (b[1] & 0xe0) === 0xe0) },
 ];
 const sniffFile = (b) => FILE_KINDS.find((k) => k.test(b)) || null;
 async function findStored(id) {
@@ -579,7 +585,7 @@ async function handle(req, res) {
     try { buf = await readBody(req, MAX_UPLOAD); } catch (e) { return fail(res, 413, 'too_large', `Files are limited to ${MAX_UPLOAD / 1024 / 1024} MB`); }
     if (!buf.length) return fail(res, 400, 'invalid_request', 'Empty file');
     const kind = sniffFile(buf);
-    if (!kind) return fail(res, 415, 'unsupported_type', 'Only PDF, PNG, JPEG, GIF and WebP files are stored');
+    if (!kind) return fail(res, 415, 'unsupported_type', 'Only PDFs, pictures (PNG, JPEG, GIF, WebP) and audio recordings are stored');
     const id = crypto.randomBytes(16).toString('hex');
     await writeAtomic(path.join(FILES_DIR, id + kind.ext), buf);
     log('stored', kind.ext.slice(1), id, buf.length, 'bytes');
@@ -598,6 +604,19 @@ async function handle(req, res) {
     const id = blobMatch[1];
     if (!FILE_ID_RE.test(id)) return fail(res, 404, 'not_found', 'Not found');
     const found = await findStored(id); if (!found) return fail(res, 404, 'not_found', 'Not found');
+    if (found.kind.audio) {   // recordings: support seeking (byte ranges)
+      const size = found.st.size, m = String(req.headers.range || '').match(/bytes=(\d*)-(\d*)/);
+      const base = { 'Content-Type': found.kind.type, 'Accept-Ranges': 'bytes', 'Cache-Control': 'private, max-age=31536000, immutable' };
+      if (m && (m[1] || m[2])) {
+        let start = m[1] ? parseInt(m[1], 10) : size - parseInt(m[2], 10), end = m[1] && m[2] ? parseInt(m[2], 10) : size - 1;
+        if (isNaN(start) || start < 0 || start >= size || end < start) { res.writeHead(416, { 'Content-Range': `bytes */${size}` }); return res.end(); }
+        end = Math.min(end, size - 1);
+        res.writeHead(206, { ...base, 'Content-Range': `bytes ${start}-${end}/${size}`, 'Content-Length': end - start + 1 });
+        return fs.createReadStream(found.file, { start, end }).pipe(res);
+      }
+      res.writeHead(200, { ...base, 'Content-Length': size });
+      return fs.createReadStream(found.file).pipe(res);
+    }
     res.writeHead(200, { 'Content-Type': found.kind.type, 'Content-Length': found.st.size, 'Content-Disposition': 'inline', 'Cache-Control': 'private, max-age=31536000, immutable', ...(found.kind.ext === '.pdf' ? {} : { 'Content-Security-Policy': "default-src 'none'; style-src 'unsafe-inline'; sandbox" }) });
     return fs.createReadStream(found.file).pipe(res);
   }
