@@ -1,5 +1,10 @@
 # Changelog
 
+## [2.4.0]
+- **Unit lecturers come from the course.** When you add or edit a unit, tick which of the course's lecturers teach it. If you rename a lecturer in the course settings, the units follow. A lecturer who isn't in the course list can still be typed in, and a unit with no lecturer ticked uses all the course's lecturers.
+- **Plan a lecture lives under the units.** In the side menu, a course with units shows its units and **Add unit**; **Plan a lecture** sits inside each unit. A course without units shows **Plan a lecture** and **Add unit**. When planning a lecture in a course with units, you always choose a unit.
+- **Report is its own page,** under Study after Review. Choose the course, then the whole course, one unit or one lecture.
+
 ## [2.3.0]
 - **Reflection questions** (right of your lecture notes). Type a question, or select words in your notes and click **❓ Ask** to write a question that leads to them. The words stay marked, and the question remembers them. When you tick a question, a small pop-up asks what answer you got; filling it in is optional. Click an answer to change it.
 - **Important** comes next: words marked ⭐ in your notes, plus important ideas and reflections you type in. **Flashcards** follow: type `term :: meaning`, or write it in your notes as before. The summary stays under the notes.
