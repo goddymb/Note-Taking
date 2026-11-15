@@ -99,7 +99,7 @@ h2{font-size:20px;line-height:1.25}
 :focus-visible{outline:2px solid var(--focus);outline-offset:2px;border-radius:6px}
 
 /* layout */
-.app{display:grid;grid-template-columns:248px minmax(0,1fr);min-height:100vh}
+.app{display:grid;grid-template-columns:268px minmax(0,1fr);min-height:100vh}
 .side{position:sticky;top:0;height:100vh;overflow:auto;padding:18px 14px;display:flex;flex-direction:column;gap:18px;background:var(--side-bg);backdrop-filter:var(--glass);-webkit-backdrop-filter:var(--glass);border-right:1px solid var(--line)}
 .logo{display:flex;align-items:center;gap:11px;padding:4px 8px}
 .logo .mark{width:36px;height:36px;border-radius:11px;background:var(--grad);display:grid;place-items:center;color:#fff;box-shadow:var(--glow)}
@@ -122,6 +122,21 @@ h2{font-size:20px;line-height:1.25}
 .nvsub i{width:7px;height:7px;border-radius:50%;flex:none;background:var(--muted);opacity:.7}
 .nvsub:hover{background:var(--hover);color:var(--ink)}
 .nvsub.on{color:var(--ink);font-weight:600;background:var(--hover)}
+.nvsubs.deep{margin:0 0 1px 7px;padding-left:3px}
+.nav-tree>.nvsubs{margin-left:14px;padding-left:4px}
+.nvsubs.deep .nvsub,.nav-tree .nvsub{padding:5px 6px;gap:5px}
+.nvsub .tl{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nvsub em{font-style:normal;font-size:11px;color:var(--muted);flex:none}
+.nvsub .tchev,.nvsub .tsp{width:16px;height:16px;flex:none;display:grid;place-items:center;border-radius:4px;margin-left:-6px}
+.nvsub .tchev:hover{background:var(--panel-2)}
+.nvsub .tchev svg{width:12px;height:12px;transition:transform .15s}.nvsub .tchev.open svg{transform:rotate(90deg)}
+.nvsub>svg.i{width:14px;height:14px;flex:none;opacity:.75}
+.nvsub.add{color:var(--accent);font-size:12.5px}.nvsub.add>svg.i{opacity:1}
+.nvsub.planned .tl{font-style:italic}
+#nav{overflow-y:auto;min-height:0}
+.ptag{font-size:11px;font-weight:700;color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,transparent);border-radius:999px;padding:1px 8px;margin-left:6px;vertical-align:middle}
+.mgrp{margin-top:8px}.mgh{display:flex;align-items:center;justify-content:space-between;font-size:12px;font-weight:700;color:var(--ink-2);text-transform:uppercase;letter-spacing:.04em}
+.mgh .btn{text-transform:none;letter-spacing:0;font-weight:600}.mnone{font-size:12px;padding:2px 0 4px}
 .slabel{font-size:10.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding:0 12px;margin-bottom:-8px}
 .cur{border:1px solid var(--line);background:var(--panel);border-radius:var(--r);padding:14px;box-shadow:var(--shadow)}
 .cur .ttl{font-weight:700;font-size:14px;line-height:1.3;margin-bottom:2px}
@@ -468,6 +483,8 @@ body.focus .qnav{top:0}
 @media(max-width:1000px){.lgrid.withpanel{grid-template-columns:1fr}}
 .lnotes{min-width:0}
 .rte.lec.main{min-height:58vh}
+.rte.lec{font-family:var(--dfont,inherit);font-size:var(--dsize,inherit);line-height:var(--dlh,inherit)}
+.lnotes .ribbon+.rte,.lnotes .ribbon+.cornell{border-top-left-radius:0;border-top-right-radius:0}
 .cornell{display:grid;grid-template-columns:minmax(150px,30%) minmax(0,1fr);gap:0;border:1px solid var(--line);border-radius:0 0 var(--r-sm) var(--r-sm);overflow:clip}
 .cornell .rte{border:0;border-radius:0;min-height:58vh}.cornell .ccue{border-right:2px solid var(--line);background:color-mix(in srgb,var(--accent) 4%,var(--panel))}
 .cornell .ccue .rte{background:transparent}.clab{font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding:8px 12px 0}
@@ -1550,7 +1567,38 @@ function activeNav(){
   return 'projects';
 }
 let SIDE={}; try{SIDE=JSON.parse(localStorage.getItem('litnotes.side')||'{}')||{}}catch(e){}
-const sideOpen=k=>SIDE[k]!=null?SIDE[k]:activeNav()===k;
+const sideOpen=(k,def)=>SIDE[k]!=null?SIDE[k]:def!==undefined?!!def:activeNav()===k;
+/* Courses → course → unit → lecture → Notes / Readings (Compulsory, Additional, Links) / Slides */
+function courseTree(){
+  const curL=V.view==='lecture'?S.docs[V.lectureId]:null, curM=curL&&LV.mat&&S.docs[LV.mat]?{id:LV.mat,...S.docs[LV.mat]}:null;
+  const curC=curL?curL.courseId:['course','assignment'].includes(V.view)?V.courseId:null;
+  const lecNode=l=>{
+    const ms=materialsOf(l.id), g=k=>ms.filter(m=>matGroup(m)===k), isCur=curL&&V.lectureId===l.id;
+    const item=m=>({key:'m:'+m.id,label:m.name,ic:m.url&&!m.pdf?'external':'doc',act:'sideMat',id:m.id,on:curM&&curM.id===m.id});
+    const add=(k,lab)=>({key:'add:'+k+l.id,label:lab,add:true,act:k==='links'?'matLink':'matAdd',data:{l:l.id,v:k==='slides'?'slides':'reading',g:k}});
+    const fold=(key,lab,k,ic)=>{const xs=g(k);return {key:key+l.id,label:lab,ic,n:xs.length,def:!!(curM&&matGroup(curM)===k&&curM.lectureId===l.id),kids:[...xs.map(item),add(k,k==='links'?'Add a link':'Upload')]}};
+    const rd=['compulsory','additional','links'].reduce((a,k)=>a+g(k).length,0);
+    return {key:'l:'+l.id,label:`${new Date(l.date+'T12:00:00').toLocaleDateString(undefined,{day:'numeric',month:'short'})} · ${l.topic||'Untitled lecture'}`,title:(l.planned?'Planned: ':'')+(l.topic||'Lecture')+' — '+longDate(l.date),act:'openLecture',id:l.id,tk:'l:'+l.id,on:isCur&&!curM,planned:l.planned,def:isCur,kids:[
+      {key:'n:'+l.id,label:'Notes',ic:'edit',act:'openLecture',id:l.id,on:isCur&&!curM},
+      {key:'r:'+l.id,label:'Readings',ic:'folder',n:rd,def:!!(curM&&curM.lectureId===l.id&&matGroup(curM)!=='slides'),kids:[fold('rc:','Compulsory','compulsory','folder'),fold('ra:','Additional','additional','folder'),fold('rl:','Links','links','external')]},
+      {...fold('s:','Slides','slides','folder')}]};
+  };
+  const asc=xs=>xs.slice().sort((a,b)=>(a.date||'').localeCompare(b.date||'')||(a.time||'').localeCompare(b.time||''));
+  const plan=(cid,uid2)=>({key:'plan:'+cid+(uid2||''),label:'Plan a lecture',add:true,act:'planLecture',data:{c:cid,unit:uid2||''}});
+  return coursesAll().map(c=>{
+    const us=unitsOf(c.id), loose=asc(lecturesOf(c.id,null));
+    const kids=us.length?[...us.map(u=>({key:'u:'+u.id,label:u.code||u.name,title:(u.code?u.code+' · ':'')+u.name,act:'openCourse',id:c.id,data:{unit:u.id},tk:'u:'+u.id,def:!!(curL&&curL.unitId===u.id),n:lecturesOf(c.id,u.id).length,kids:[...asc(lecturesOf(c.id,u.id)).map(lecNode),plan(c.id,u.id)]})),...loose.map(lecNode),plan(c.id)]:[...loose.map(lecNode),plan(c.id)];
+    return {key:'c:'+c.id,label:c.code||c.name||'Untitled course',title:courseLabel(c),col:ccol(c),act:'openCourse',id:c.id,tk:'c:'+c.id,on:V.view==='course'&&V.courseId===c.id,def:curC===c.id,kids};
+  });
+}
+function treeHTML(nodes,depth){
+  return `<div class="nvsubs ${depth?'deep':''}">${nodes.map(n=>{
+    const fold=!!n.kids, open=fold&&sideOpen(n.key,n.def);
+    const data=Object.entries(n.data||{}).map(([k,v])=>`data-${k}="${esc(v)}"`).join(' ');
+    const act=n.act?`data-act="${n.act}"${n.id?` data-id="${n.id}"`:''}`:`data-act="sideFold" data-v="${n.key}"`;
+    return `<button class="nvsub ${n.on?'on':''} ${n.add?'add':''} ${n.planned?'planned':''}" ${act} ${data} ${n.tk?`data-tk="${n.tk}"`:''} title="${esc(n.title||n.label)}">${fold?`<span class="tchev ${open?'open':''}" data-act="sideFold" data-v="${n.key}" role="button" aria-label="${open?'Fold':'Unfold'}">${ico('chev')}</span>`:'<span class="tsp"></span>'}${n.add?ico('plus'):n.col?`<i style="background:${n.col}"></i>`:n.ic?ico(n.ic):''}<span class="tl">${esc(n.label)}</span>${n.n?`<em>${n.n}</em>`:''}</button>${open?treeHTML(n.kids,(depth||0)+1):''}`;
+  }).join('')}</div>`;
+}
 function setSide(k,v){SIDE[k]=v;try{localStorage.setItem('litnotes.side',JSON.stringify(SIDE))}catch(e){}}
 function renderSide(){
   const n=activeNav(), all=allPapers();
@@ -1562,7 +1610,7 @@ function renderSide(){
     if(k==='__')return i?`<div class="slabel nvsep">${i}</div>`:'<div class="nvgap"></div>';
     const ks=kids(k), fold=ks&&ks.length, open=fold&&sideOpen(k);
     return `<button class="nv ${n===k?'on':''}" data-act="nav" data-v="${k}" ${n===k?'aria-current="page"':''}>${ico(i)}<span>${l}</span>${c!=null?`<span class="k" ${c==='●'?'style="color:var(--accent);font-size:14px" title="Update available"':''}>${c}</span>`:''}${fold?`<span class="nvfold ${open?'open':''}" data-act="sideFold" data-v="${k}" role="button" aria-label="${open?'Hide':'Show'} ${l.toLowerCase()}" title="${open?'Hide':'Show'} ${l.toLowerCase()}">${ico('chev')}</span>`:''}</button>`
-      +(open?`<div class="nvsubs">${ks.map(x=>`<button class="nvsub ${x.on?'on':''}" data-act="${x.act}" data-id="${x.id}" title="${esc(x.title||x.label)}">${x.col?`<i style="background:${x.col}"></i>`:'<i></i>'}<span>${esc(x.label)}</span></button>`).join('')}</div>`:'');
+      +(open?(k==='courses'?`<div class="nav-tree">${treeHTML(courseTree(),0)}</div>`:`<div class="nvsubs">${ks.map(x=>`<button class="nvsub ${x.on?'on':''}" data-act="${x.act}" data-id="${x.id}" title="${esc(x.title||x.label)}">${x.col?`<i style="background:${x.col}"></i>`:'<i></i>'}<span>${esc(x.label)}</span></button>`).join('')}</div>`):'');
   }).join(''));
   // current project card (not needed while the project list is shown)
   if(sideOpen('projects')&&projects().length){setHTML($('#curProj'),'');return}
@@ -2597,7 +2645,7 @@ function rteToolbar(qid,opts){
     <button type="button" data-fmt="clear" title="Clear formatting" aria-label="Clear formatting" style="font-size:12px;font-weight:700">T<sub style="font-size:9px">x</sub></button>
     <span style="flex:1"></span>
     ${opts.headings?'':`<button type="button" class="chk" data-tagq="${qid}" title="Tag the selected passage (or the whole answer) with a theme, debate or other dimension" aria-label="Tag"><svg class="i" viewBox="0 0 24 24" style="width:15px;height:15px"><path d="M20.6 13.4 12 22l-9-9V4a1 1 0 0 1 1-1h9z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg><span>Tag</span></button>`}
-    ${opts.lecture?'':`<button type="button" class="chk" data-abbr="${qid}" title="Abbreviation: select it (e.g. WHO) and give its full form, for the list of abbreviations" aria-label="Abbreviation"><span style="font-weight:800;font-size:11px;letter-spacing:.02em">A.B.</span><span>Abbr.</span></button>`}
+    ${`<button type="button" class="chk" data-abbr="${qid}" title="Abbreviation: select it (e.g. WHO) and give its full form, for the list of abbreviations" aria-label="Abbreviation"><span style="font-weight:800;font-size:11px;letter-spacing:.02em">A.B.</span><span>Abbr.</span></button>`}
     <button type="button" class="chk" data-check="${qid}" title="Check spelling and grammar — suggestions to accept or ignore" aria-label="Check spelling and grammar"><svg class="i" viewBox="0 0 24 24" style="width:16px;height:16px"><path d="M4 16 8 6l4 10M5.5 12.5h5M14 14l2.5 2.5L21 11"/></svg><span>Check</span></button>${opts.headings?'':`<button type="button" class="chk" data-act="nqToggle" data-v="bar" title="Hide the formatting toolbars (bring them back with Toolbar at the top)" aria-label="Hide toolbar" style="padding:0 6px"><svg class="i" viewBox="0 0 24 24" style="width:15px;height:15px"><path d="m6 15 6-6 6 6"/></svg></button>`}
   </div>`;
 }
@@ -2789,7 +2837,7 @@ function bindRte(root){
   root.querySelectorAll('.rtebar button').forEach(b=>{
     b.addEventListener('mousedown',e=>e.preventDefault()); // keep the text selection
     b.addEventListener('click',()=>{
-      const ed=document.querySelector(`.rte[data-ans="${b.closest('.rtebar').dataset.for}"]`); if(!ed)return;
+      const bf=b.closest('.rtebar').dataset.for, ed=bf==='__lec'?draftEd():document.querySelector(`.rte[data-ans="${bf}"]`); if(!ed)return;
       if(document.activeElement!==ed)ed.focus();
       try{document.execCommand('styleWithCSS',false,false)}catch(e){}
       if(b.dataset.block){document.execCommand('formatBlock',false,'<'+b.dataset.block+'>')}
@@ -3112,6 +3160,7 @@ function insertIntoDraft(ed,text){
   draftRange=s.getRangeAt(0).cloneRange();
 }
 function draftCommit(ed){
+  if(ed&&ed.dataset.lecture){lectureCommit(ed);return}
   const d=S.docs[ed.dataset.draft]; if(!d)return;
   if(!ed.textContent.trim()&&!ed.querySelector('ul,ol,h2,h3'))ed.innerHTML='<p><br></p>';
   d.html=cleanRich(ed.innerHTML); d.text=richToText(d.html);
@@ -3143,7 +3192,7 @@ try{const r=JSON.parse(localStorage.getItem('litnotes.ribbon')||'{}');Object.ass
 const saveRB=()=>{try{localStorage.setItem('litnotes.ribbon',JSON.stringify({tab:RB.tab,collapsed:RB.collapsed}))}catch(e){}};
 const LINE_SPACINGS=[['1','Single (1.0)'],['1.15','1.15'],['1.5','1.5'],['2','Double (2.0)']];
 const docStyle=d=>Object.assign({font:'default',size:12,lh:'1.5'},d.style||{});
-function docStyleVars(d){const st=docStyle(d);const f=FONTS.find(x=>x[0]===st.font)||FONTS[0];return `--dfont:${f[2]};--dsize:${st.size}pt;--dlh:${st.lh}`}
+function docStyleVars(d){const st=docStyle(d);const f=FONTS.find(x=>x[0]===st.font)||FONTS[0];return `${d.kind==='lecture'&&st.font==='default'?'':`--dfont:${f[2]};`}--dsize:${st.size}pt;--dlh:${st.lh}`}
 const IC2={abbr:'<path d="M4 6h3M4 12h3M4 18h3M10 6h10M10 12h10M10 18h7"/>',abbrEdit:'<path d="M4 7h9M4 12h6M4 17h4"/><path d="m14 19 1-4 5-5 3 3-5 5z"/>',
   alLeft:'<path d="M4 6h16M4 10h10M4 14h16M4 18h10"/>',alCenter:'<path d="M4 6h16M7 10h10M4 14h16M7 18h10"/>',alRight:'<path d="M4 6h16M10 10h10M4 14h16M10 18h10"/>',alJustify:'<path d="M4 6h16M4 10h16M4 14h16M4 18h16"/>',
   image:'<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m21 16-5-5-9 9"/>',
@@ -3155,13 +3204,13 @@ const IC2={abbr:'<path d="M4 6h3M4 12h3M4 18h3M10 6h10M10 12h10M10 18h7"/>',abbr
   chevUp:'<path d="m6 15 6-6 6 6"/>'
 };
 const ic2=n=>`<svg class="i" viewBox="0 0 24 24">${IC2[n]}</svg>`;
-function ribbonHTML(d){
-  const st=docStyle(d);
+function ribbonHTML(d,o){
+  o=o||{}; const st=docStyle(d);
   const tabs=[['home','Home'],['format','Format'],['insert','Insert']];
   return `<div class="ribbon ${RB.collapsed?'collapsed':''}" id="ribbon">
     <div class="rtabs" role="tablist">${tabs.map(([k,l])=>`<button class="${RB.tab===k&&!RB.collapsed?'on':''}" data-rtab2="${k}" role="tab" aria-selected="${RB.tab===k}">${l}</button>`).join('')}<span style="flex:1"></span>
       <button class="rcol" data-rcollapse title="${RB.collapsed?'Show the toolbar':'Hide the toolbar'}" aria-label="${RB.collapsed?'Show toolbar':'Hide toolbar'}" aria-expanded="${!RB.collapsed}">${ic2('chevUp')}</button></div>
-    <div class="rpane" data-pane="home" ${RB.tab==='home'?'':'hidden'}>${rteToolbar('__draft',{headings:true})}</div>
+    <div class="rpane" data-pane="home" ${RB.tab==='home'?'':'hidden'}>${rteToolbar(o.lecture?'__lec':'__draft',{headings:true,lecture:o.lecture})}</div>
     <div class="rpane rgroups" data-pane="format" ${RB.tab==='format'?'':'hidden'}>
       <div class="rg"><div class="rgl">Selected text</div><div class="rgc">
         <select class="rsel" data-ff aria-label="Font of selected text" title="Font of the selected text"><option value="">Font…</option>${FONTS.map(([k,l,css])=>`<option value="${k}" style="font-family:${css.replace(/"/g,"'")}">${l}</option>`).join('')}</select>
@@ -3171,8 +3220,8 @@ function ribbonHTML(d){
       <div class="rg"><div class="rgl">Paragraph</div><div class="rgc">
         ${[['left','alLeft','Align left'],['center','alCenter','Centre'],['right','alRight','Align right'],['justify','alJustify','Justify']].map(([k,i,l])=>`<button class="rb" data-al="${k}" title="${l}" aria-label="${l}">${ic2(i)}</button>`).join('')}
       </div></div>
-      <div class="rg"><div class="rgl">Whole document</div><div class="rgc">
-        <select class="rsel" data-dff aria-label="Document font" title="Font for the whole document">${FONTS.map(([k,l])=>`<option value="${k}" ${st.font===k?'selected':''}>${l}</option>`).join('')}</select>
+      <div class="rg"><div class="rgl">Whole ${o.lecture?'note':'document'}</div><div class="rgc">
+        <select class="rsel" data-dff aria-label="Document font" title="Font for the whole ${o.lecture?'note':'document'}">${FONTS.map(([k,l])=>`<option value="${k}" ${st.font===k?'selected':''}>${l}</option>`).join('')}</select>
         <select class="rsel small" data-dfs aria-label="Document size" title="Text size for the whole document">${[10,11,12,13,14,16].map(z=>`<option value="${z}" ${+st.size===z?'selected':''}>${z} pt</option>`).join('')}</select>
         <select class="rsel" data-dlh aria-label="Line spacing" title="Line spacing for the whole document">${LINE_SPACINGS.map(([k,l])=>`<option value="${k}" ${String(st.lh)===k?'selected':''}>Spacing ${l}</option>`).join('')}</select>
       </div></div>
@@ -3189,13 +3238,17 @@ function ribbonHTML(d){
         <button class="rbig" data-ins2="pb">${ic2('pb')}<span>Page break</span></button>
       </div></div>
       <div class="rg"><div class="rgl">Lists</div><div class="rgc">
-        <button class="rbig" data-ins2="abbr" title="Insert an alphabetical list of the abbreviations used in this document">${ic2('abbr')}<span>Abbreviations</span></button>
+        <button class="rbig" data-ins2="abbr" title="Insert an alphabetical list of the abbreviations used in this ${o.lecture?'note':'document'}">${ic2('abbr')}<span>Abbreviations</span></button>
         <button class="rbig" data-abbrmgr="" title="Define, edit or find abbreviations">${ic2('abbrEdit')}<span>Edit list</span></button>
       </div></div>
     </div>
   </div>`;
 }
-function draftEd(){return document.querySelector('.rte.draft')}
+/* the ribbon works on the document being written: a draft, or a lecture note (main notes or Cornell cues) */
+const richDocId=()=>V.view==='lecture'?V.lectureId:V.draftId;
+const richDoc=()=>S.docs[richDocId()];
+let lastLecEd=null;
+function draftEd(){if(V.view==='lecture')return lastLecEd&&document.contains(lastLecEd)?lastLecEd:document.querySelector('.rte.lec.main');return document.querySelector('.rte.draft')}
 function restoreDraftSel(){
   const ed=draftEd(); if(!ed)return null; const saved=draftRange; ed.focus();
   const s=getSelection();
@@ -3376,7 +3429,7 @@ function drawShape(cv,spec){
 }
 const SHAPE_COLORS=[['#e0e7ff','#4338ca'],['#dcfce7','#15803d'],['#fef3c7','#b45309'],['#fee2e2','#b91c1c'],['#f3e8ff','#7e22ce'],['#e0f2fe','#0369a1'],['#ffffff','#111827'],['#111827','#111827']];
 function figureDialog(kind,existing){
-  const d=S.docs[V.draftId];
+  const d=richDoc();
   const spec=Object.assign(kind==='chart'?{type:'bar',title:'',data:'Category, Value\nA, 12\nB, 19\nC, 7',ratio:0.56}:{kind:'round',text:'Your text',fill:SHAPE_COLORS[0][0],stroke:SHAPE_COLORS[0][1],textColor:'#111827',size:40},existing&&existing.spec||{});
   let caption=existing?existing.caption||'':'', size=existing?existing.size||'m':(kind==='chart'?'l':'s');
   const ov=modal('',true);
@@ -3443,7 +3496,7 @@ function placeFloat(){
   bar.style.top=Math.max(8,r.top-bar.offsetHeight-8)+'px';
 }
 function showImgBar(img){
-  hideFloat(); const d=S.docs[V.draftId]; const id=img.getAttribute('src').split('/').pop(); const fig=(d.figs||{})[id];
+  hideFloat(); const d=richDoc(); const id=img.getAttribute('src').split('/').pop(); const fig=(d.figs||{})[id];
   const bar=document.createElement('div'); bar.id='floatbar'; bar.className='floatbar';
   bar.innerHTML=`${[['s','S'],['m','M'],['l','L'],['full','Full']].map(([k,l])=>`<button data-isz="${k}" class="${img.classList.contains('img-'+k)?'on':''}" title="${{s:'Small',m:'Medium',l:'Large',full:'Full width'}[k]}">${l}</button>`).join('')}<span class="sep"></span>${fig?`<button data-iedit>Edit ${fig.kind}</button>`:''}<button data-idel title="Remove picture">${ico('trash')}</button>`;
   document.body.appendChild(bar);
@@ -3474,8 +3527,8 @@ function bindRibbon(){
   rb.addEventListener('mousedown',e=>{if(e.target.closest('button'))e.preventDefault()});
   rb.addEventListener('click',e=>{
     const b=e.target.closest('button'); if(!b)return;
-    if(b.dataset.rtab2){RB.tab=b.dataset.rtab2;RB.collapsed=false;saveRB();rb.outerHTML=ribbonHTML(S.docs[V.draftId]);bindRibbon();bindRte($('#ribbon'));return}
-    if(b.hasAttribute('data-rcollapse')){RB.collapsed=!RB.collapsed;saveRB();rb.outerHTML=ribbonHTML(S.docs[V.draftId]);bindRibbon();bindRte($('#ribbon'));return}
+    if(b.dataset.rtab2){RB.tab=b.dataset.rtab2;RB.collapsed=false;saveRB();rb.outerHTML=ribbonHTML(richDoc(),{lecture:V.view==='lecture'});bindRibbon();bindRte($('#ribbon'));return}
+    if(b.hasAttribute('data-rcollapse')){RB.collapsed=!RB.collapsed;saveRB();rb.outerHTML=ribbonHTML(richDoc(),{lecture:V.view==='lecture'});bindRibbon();bindRte($('#ribbon'));return}
     if(b.dataset.tc)applyInline('tc',b.dataset.tc);
     if(b.dataset.al)applyAlign(b.dataset.al);
     const k=b.dataset.ins2;
@@ -3488,19 +3541,22 @@ function bindRibbon(){
     if(k==='abbr')insertAbbrList();
   });
   rb.addEventListener('change',e=>{
-    const t=e.target, d=S.docs[V.draftId];
+    const t=e.target, d=richDoc();
     if(t.hasAttribute('data-ff')&&t.value){applyInline('ff',t.value);t.value=''}
     if(t.hasAttribute('data-fs')&&t.value){applyInline('fs',+t.value);t.value=''}
     if(t.hasAttribute('data-dff')||t.hasAttribute('data-dfs')||t.hasAttribute('data-dlh')){
       d.style=docStyle(d); if(t.hasAttribute('data-dff'))d.style.font=t.value; if(t.hasAttribute('data-dfs'))d.style.size=+t.value; if(t.hasAttribute('data-dlh'))d.style.lh=t.value;
-      ed.setAttribute('style',docStyleVars(d)); save(V.draftId,300); flashSave();
+      document.querySelectorAll(V.view==='lecture'?'.rte.lec':'.rte.draft').forEach(x=>x.setAttribute('style',docStyleVars(d))); save(richDocId(),300); flashSave();
     }
   });
 }
-function bindDraftObjects(){
-  const ed=draftEd(); if(!ed)return;
+function bindDraftObjects(eds){
+  (eds||[draftEd()]).filter(Boolean).forEach(ed=>bindObjectsIn(ed));
+  if(!bindDraftObjects._on){bindDraftObjects._on=1;document.addEventListener('scroll',placeFloat,{passive:true,capture:true}); window.addEventListener('resize',placeFloat)}
+}
+function bindObjectsIn(ed){
   ed.addEventListener('click',e=>{const img=e.target.closest('img');if(img){showImgBar(img);return}const cell=e.target.closest('td,th');if(cell){showTableBar(cell);return}hideFloat()});
-  ed.addEventListener('dblclick',e=>{const img=e.target.closest('img');if(!img)return;const id=img.getAttribute('src').split('/').pop();const fig=(S.docs[V.draftId].figs||{})[id];if(fig){hideFloat();figureDialog(fig.kind,{...fig,img})}});
+  ed.addEventListener('dblclick',e=>{const img=e.target.closest('img');if(!img)return;const id=img.getAttribute('src').split('/').pop();const fig=(richDoc().figs||{})[id];if(fig){hideFloat();figureDialog(fig.kind,{...fig,img})}});
   ed.addEventListener('keydown',e=>{
     if(e.key!=='Tab')return; const s=getSelection(); let c=s.anchorNode; while(c&&c!==ed&&!/^(TD|TH)$/.test(c.nodeName))c=c.parentNode;
     if(!c||c===ed)return; e.preventDefault(); e.stopPropagation();
@@ -3508,7 +3564,6 @@ function bindDraftObjects(){
     if(i>=cells.length){const row=c.closest('tr');const nr=document.createElement('tr');[...row.children].forEach(()=>{const td=document.createElement('td');td.appendChild(document.createElement('br'));nr.appendChild(td)});row.after(nr);draftCommit(ed);i=cells.length;cells.push(...nr.children)}
     const tgt=cells[Math.max(0,i)]; const r=document.createRange(); r.selectNodeContents(tgt); r.collapse(false); s.removeAllRanges(); s.addRange(r);
   },true);
-  document.addEventListener('scroll',placeFloat,{passive:true,capture:true}); window.addEventListener('resize',placeFloat);
 }
 async function embedImages(html){
   const ids=[...new Set((html.match(/\/_blob\/[A-Za-z0-9_-]+/g)||[]))];
@@ -3572,6 +3627,7 @@ function projectTexts(pid){
   const texts=[];
   papersOf(pid).forEach(x=>Object.values(x.answers||{}).forEach(a=>texts.push(a)));
   draftsOf(pid).forEach(d=>texts.push(d.text||''));
+  if((S.docs[pid]||{}).kind==='course')lecturesOf(pid).forEach(l=>texts.push(l.text||'',l.cuesText||''));
   return texts.join('\n');
 }
 function undefinedAbbrs(pid){
@@ -3586,7 +3642,7 @@ function upsertAbbr(pid,short,full){
   p.abbrIgnore=(p.abbrIgnore||[]).filter(x=>x!==short);
   save(pid); return true;
 }
-const curPid=()=>V.view==='draft'?(S.docs[V.draftId]||{}).projectId:V.view==='paper'?(S.docs[V.paperId]||{}).projectId:V.pid;
+const curPid=()=>V.view==='lecture'?(S.docs[V.lectureId]||{}).courseId:V.view==='draft'?(S.docs[V.draftId]||{}).projectId:V.view==='paper'?(S.docs[V.paperId]||{}).projectId:V.pid;
 
 /* ---------- define one abbreviation (from the toolbar) ---------- */
 function openAbbrDialog(pid,selText){
@@ -3666,8 +3722,8 @@ let _abT; function scheduleAbbrSuggest(ed){clearTimeout(_abT);_abT=setTimeout(()
 function abbrsUsedIn(pid,text){const toks=abbrTokens(text);return abbrsOf(pid).filter(a=>toks.has(a.short)||String(text).includes(a.short))}
 function abbrTableHTML(list){return `<table class="dtable"><tr><th>Abbreviation</th><th>Full form</th></tr>${list.map(a=>`<tr><td><b>${esc(a.short)}</b></td><td>${esc(a.full)}</td></tr>`).join('')}</table>`}
 function insertAbbrList(){
-  const d=S.docs[V.draftId], pid=d.projectId;
-  let list=abbrsUsedIn(pid,d.text||''); const all=abbrsOf(pid);
+  const d=richDoc(), pid=curPid();
+  let list=abbrsUsedIn(pid,(d.text||'')+'\n'+(d.cuesText||'')); const all=abbrsOf(pid);
   if(!all.length){toast('No abbreviations yet — select one in your text and click Abbr., or open the list to add them');openAbbrManager(pid);return}
   if(!list.length)list=all;
   insertBlockHTML(`<h2>List of abbreviations</h2>${abbrTableHTML(list)}`);
@@ -4076,7 +4132,7 @@ function updateStickyTops(){
   const px=v=>{const n=parseFloat(v);return isNaN(n)?0:n};
   const nav=$('#qnav'), col=document.querySelector('#paperEditor .notescol');
   if(nav&&col){const c=getComputedStyle(nav);const top=(c.position==='sticky'?px(c.top):0)+nav.offsetHeight+6;col.style.setProperty('--rtetop',top+'px')}
-  const de=$('#draftEditor'), tb=de&&de.querySelector('.ptoolbar');
+  const de=$('#draftEditor')||$('#lectureView'), tb=de&&de.querySelector('.ptoolbar');
   if(de&&tb){const c=getComputedStyle(tb);de.style.setProperty('--ribtop',(c.position==='sticky'?px(c.top)+tb.offsetHeight:0)+'px')}
 }
 window.addEventListener('resize',()=>{clearTimeout(updateStickyTops._t);updateStickyTops._t=setTimeout(updateStickyTops,120)});
@@ -4493,6 +4549,9 @@ const coursesAll=()=>docsOf('course').sort((a,b)=>(a.code||a.name||'').localeCom
 const unitsOf=cid=>docsOf('unit',u=>u.courseId===cid).sort((a,b)=>(a.order||0)-(b.order||0)||(a.createdAt||0)-(b.createdAt||0));
 const lecturesOf=(cid,unit)=>docsOf('lecture',l=>(!cid||l.courseId===cid)&&(unit===undefined||unit==='all'||(l.unitId||null)===(unit||null))).sort((a,b)=>(b.date||'').localeCompare(a.date||'')||(b.time||'').localeCompare(a.time||''));
 const materialsOf=lid=>docsOf('material',m=>m.lectureId===lid).sort((a,b)=>(a.createdAt||0)-(b.createdAt||0));
+/* where a material sits: slides, compulsory or additional reading, or a link */
+const matGroup=m=>m.type==='slides'?'slides':(m.url&&!m.pdf)?'links':(m.group==='additional'?'additional':'compulsory');
+const MAT_GROUPS=[['slides','Slides','Slides for this lecture (PDF)'],['compulsory','Compulsory readings','Readings you must do'],['additional','Additional readings','Extra, optional readings'],['links','Links','Web pages, videos and online readings']];
 const assignmentsOf=cid=>docsOf('assignment',a=>!cid||a.courseId===cid).sort((a,b)=>(a.due||'9').localeCompare(b.due||'9'));
 const eventsOf=cid=>docsOf('event',e=>!cid||e.courseId===cid).sort((a,b)=>(a.date||'').localeCompare(b.date||''));
 const courseOf=id=>{const c=S.docs[id];return c&&c.kind==='course'?{id,...c}:null};
@@ -4662,9 +4721,11 @@ function startLectureDialog(cid,unitId){
   const units=unitsOf(cid);
   let uSel=unitId!==undefined?unitId:(units.length?((nextClass()||{}).slot||{}).courseId===cid?(nextClass().slot.unitId||null):null:null);
   const draw=()=>{
-    const prev=lecturesOf(cid,uSel||null).filter(l=>!l.missed).slice(0,5);
+    const todays=lecturesOf(cid,units.length?(uSel||undefined):undefined).filter(l=>l.date===todayISO()&&!l.missed);
+    const prev=lecturesOf(cid,uSel||null).filter(l=>!l.missed&&!todays.some(t=>t.id===l.id)&&l.date<=todayISO()).slice(0,5);
     ov.querySelector('.modal').innerHTML=`<h3 style="display:flex;align-items:center;gap:10px"><span class="cbar" style="--x:${ccol(c)}"></span>${esc(courseLabel(c))}</h3>
     ${units.length?`<div class="field"><label>Unit</label><select class="inp" id="slU"><option value="">— No particular unit —</option>${units.map(u=>`<option value="${u.id}" ${uSel===u.id?'selected':''}>${esc((u.code?u.code+' · ':'')+u.name)}</option>`).join('')}</select></div>`:''}
+    ${todays.length?`<div class="field"><label>Planned for today</label><div class="contlist">${todays.map(l=>`<button class="controw" data-open="${l.id}"><b>${esc(l.topic||'Untitled lecture')}</b>${l.subtopic?`<span>${esc(l.subtopic)}</span>`:''}<em>${materialsOf(l.id).length} slides &amp; readings</em></button>`).join('')}</div></div><div class="ordiv"><span>or</span></div>`:''}
     ${prev.length?`<div class="field"><label>Continue a previous note</label><div class="contlist">${prev.map(l=>`<button class="controw" data-cont="${l.id}"><b>${esc(l.topic||'Untitled lecture')}</b>${l.subtopic?`<span>${esc(l.subtopic)}</span>`:''}<em>${esc(longDate(l.date))}</em></button>`).join('')}</div><div class="help">Continuing adds today's date inside that note, so the topic stays in one place.</div></div><div class="ordiv"><span>or</span></div>`:''}
     <div class="field"><label>New note for today</label>
       <div class="grid2" style="grid-template-columns:1fr 1fr"><input class="inp" type="date" id="slD" value="${todayISO()}" aria-label="Date"><input class="inp" type="time" id="slT" value="${nowHM()}" aria-label="Time"></div>
@@ -4672,6 +4733,7 @@ function startLectureDialog(cid,unitId){
     <div class="mfoot"><button class="btn" data-x>Cancel</button><button class="btn pri" data-ok>${ico('plus')}Start new note</button></div>`;
     const su=ov.querySelector('#slU'); if(su)su.onchange=()=>{uSel=su.value||null;draw()};
     ov.querySelectorAll('[data-cont]').forEach(b=>b.onclick=()=>{continueLecture(b.dataset.cont);ov.remove()});
+    ov.querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>{const l=S.docs[b.dataset.open];l.sessions=l.sessions||[];if(!l.sessions.includes(todayISO()))l.sessions.push(todayISO());save(b.dataset.open);ov.remove();LV.mat=null;go({view:'lecture',lectureId:b.dataset.open})});
     ov.querySelector('[data-x]').onclick=()=>ov.remove();
     const ok=()=>{const id=uid('lecture_');const date=ov.querySelector('#slD').value||todayISO();S.docs[id]={kind:'lecture',courseId:cid,unitId:uSel||null,date,time:ov.querySelector('#slT').value||nowHM(),topic:trim(ov.querySelector('#slTopic').value),subtopic:trim(ov.querySelector('#slSub').value),html:'',text:'',layout:LAYOUT_PREF(),questions:[],sessions:[date],createdAt:Date.now()};save(id);ov.remove();go({view:'lecture',lectureId:id})};
     ov.querySelector('[data-ok]').onclick=ok;
@@ -4679,6 +4741,31 @@ function startLectureDialog(cid,unitId){
     setTimeout(()=>ov.querySelector('#slTopic').focus(),40);
   };
   const ov=modal('');
+  draw();
+}
+/* plan a lecture before it happens: date, topic, then slides and readings */
+function planLectureDialog(cid,unitId){
+  const c=courseOf(cid); if(!c){toast('Create a course first');return}
+  const units=unitsOf(cid); let uSel=unitId!==undefined?unitId:(V.view==='course'&&V.unitF&&V.unitF!=='all'&&V.unitF!=='none'?V.unitF:null);
+  const nextFree=()=>{const taken=new Set(lecturesOf(cid).map(l=>l.date));const ups=upcomingSlots(slotsAll().filter(s=>s.courseId===cid&&(!s.unitId||!uSel||s.unitId===uSel)),30);return ups.find(x=>!taken.has(x.date))||null};
+  const ov=modal('');
+  const draw=()=>{const nx=nextFree();
+    ov.querySelector('.modal').innerHTML=`<h3 style="display:flex;align-items:center;gap:10px"><span class="cbar" style="--x:${ccol(c)}"></span>Plan a lecture · ${esc(c.code||c.name)}</h3>
+    <p class="help" style="margin-top:-4px">Set it up before class: the topic, then the slides and readings. On the day, open it and take your notes in it.</p>
+    ${units.length?`<div class="field"><label>Unit</label><select class="inp" id="plU"><option value="">— No particular unit —</option>${units.map(u=>`<option value="${u.id}" ${uSel===u.id?'selected':''}>${esc((u.code?u.code+' · ':'')+u.name)}</option>`).join('')}</select></div>`:''}
+    <div class="grid2"><div class="field"><label>Date</label><input class="inp" type="date" id="plD" value="${nx?nx.date:addDays(todayISO(),1)}"></div><div class="field"><label>Time</label><input class="inp" type="time" id="plT" value="${nx?esc(nx.s.start):'08:00'}"></div></div>
+    ${nx?`<div class="help" style="margin:-6px 0 10px">Filled in from your next class date without a note.</div>`:''}
+    <div class="field"><label>Topic</label><input class="inp" id="plTopic" placeholder="e.g. Speed management"></div>
+    <div class="field"><label>Subtopic (optional)</label><input class="inp" id="plSub"></div>
+    <div class="mfoot"><button class="btn" data-x>Cancel</button><button class="btn pri" data-ok>${ico('plus')}Plan lecture</button></div>`;
+    const su=ov.querySelector('#plU'); if(su)su.onchange=()=>{uSel=su.value||null;draw()};
+    ov.querySelector('[data-x]').onclick=()=>ov.remove();
+    const ok=()=>{const id=uid('lecture_');S.docs[id]={kind:'lecture',courseId:cid,unitId:uSel||null,date:ov.querySelector('#plD').value||todayISO(),time:ov.querySelector('#plT').value||'',topic:trim(ov.querySelector('#plTopic').value),subtopic:trim(ov.querySelector('#plSub').value),html:'',text:'',layout:LAYOUT_PREF(),questions:[],sessions:[],planned:true,createdAt:Date.now()};
+      save(id);ov.remove();setSide('c:'+cid,true);if(uSel)setSide('u:'+uSel,true);setSide('l:'+id,true);LV.mat=null;LV.panel=true;go({view:'lecture',lectureId:id});toast('Lecture planned — now add the slides and readings')};
+    ov.querySelector('[data-ok]').onclick=ok;
+    ['#plTopic','#plSub'].forEach(x=>ov.querySelector(x).addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();ok()}}));
+    setTimeout(()=>ov.querySelector('#plTopic').focus(),40);
+  };
   draw();
 }
 function continueLecture(id){
@@ -4782,7 +4869,7 @@ function courseView(){
   const head=`<div class="crumbs"><button data-act="nav" data-v="courses">Courses</button>${ico('chev')}<span>${esc(c.code||c.name)}</span></div>
   <div class="chead" style="--x:${ccol(c)}"><div class="grow"><div class="ccode">${esc(c.code||'')}${c.term?` · ${esc(c.term)}`:''}</div><h1>${esc(c.name)}</h1>
     <div class="cinfo">${L.length?`<span>${ico('user')}${L.map(l=>`${esc(l.name)}${l.email?` <a class="link" href="mailto:${esc(l.email)}">✉</a>`:''}${l.office?` <span class="muted">(${esc(l.office)})</span>`:''}`).join(', ')}</span>`:''}${(()=>{const up=upcomingSlots(slotsAll().filter(s=>s.courseId===c.id),3);return up.length?`<span>${ico('clock')}Next: ${up.map(({s,date})=>`${esc(shortDate(date))} ${esc(s.start)}–${esc(s.end||'')}${s.room?' '+esc(s.room):''}${s.unitId?` <span class="muted">(${esc((unitOf(s.unitId)||{}).code||(unitOf(s.unitId)||{}).name||'')})</span>`:''}`).join(' · ')}</span>`:(sched.length?`<span class="muted">${ico('clock')}No more classes this term</span>`:'')})()}</div></div>
-    <button class="btn pri" data-act="startLecture" data-c="${c.id}">${ico('plus')}Start lecture note</button></div>
+    <div class="row" style="gap:8px"><button class="btn" data-act="planLecture" data-c="${c.id}">${ico('cal')}Plan a lecture</button><button class="btn pri" data-act="startLecture" data-c="${c.id}">${ico('plus')}Start lecture note</button></div></div>
   <div class="subtabs" role="tablist">${tabs.map(([k,l])=>`<button role="tab" class="${tab===k?'on':''}" aria-selected="${tab===k}" data-act="ctab" data-v="${k}">${l}</button>`).join('')}</div>`;
   let b='';
   if(tab==='lectures') b=courseLecturesHTML(c,units);
@@ -4803,16 +4890,16 @@ function attendance(c,unitId){
   if(!slots.length)return null;
   const t=todayISO(), first=[c.termStart,...slots.map(s=>s.date)].filter(Boolean).sort()[0]; if(!first)return null;
   const end=c.termEnd&&c.termEnd<t?c.termEnd:t, missing=[];let held=0;
-  for(let d=first;d<=end;d=addDays(d,1)){slots.filter(s=>slotOn(s,d)).forEach(s=>{if(d===t&&hm2min(s.end||s.start)>hm2min(nowHM()))return;held++;const has=ls.some(l=>(l.date===d||(l.sessions||[]).includes(d))&&(unitId!==undefined||(l.unitId||null)===(s.unitId||null)));if(!has)missing.push({date:d,slot:s})})}
+  for(let d=first;d<=end;d=addDays(d,1)){slots.filter(s=>slotOn(s,d)).forEach(s=>{if(d===t&&hm2min(s.end||s.start)>hm2min(nowHM()))return;held++;const has=ls.some(l=>!(l.planned&&!trim(l.text||''))&&(l.date===d||(l.sessions||[]).includes(d))&&(unitId!==undefined||(l.unitId||null)===(s.unitId||null)));if(!has)missing.push({date:d,slot:s})})}
   return {held,attended:held-missing.length,missing};
 }
 function courseLecturesHTML(c,units){
   const uf=V.unitF||'all', ls=lecturesOf(c.id,uf==='all'?undefined:(uf==='none'?null:uf));
   const att=attendance(c);
   const chips=units.length?`<div class="chips" style="margin-bottom:14px"><button class="chip ${uf==='all'?'on':''}" data-act="unitF" data-v="all">All</button>${units.map(u=>`<button class="chip ${uf===u.id?'on':''}" data-act="unitF" data-v="${u.id}">${esc(u.code||u.name)} <span style="opacity:.6">${lecturesOf(c.id,u.id).length}</span></button>`).join('')}${lecturesOf(c.id,null).length?`<button class="chip ${uf==='none'?'on':''}" data-act="unitF" data-v="none">No unit</button>`:''}</div>`:'';
-  const attHTML=att?`<div class="attline"><b>Attendance:</b> notes for ${att.attended} of ${att.held} class${att.held===1?'':'es'} so far${att.missing.length?` · <button class="link" data-act="showMissed" data-id="${c.id}">${att.missing.length} without notes</button>`:''}</div>`:(c.termStart?'':`<div class="attline muted">Add class dates in Settings to track attendance.</div>`);
+  const attHTML=att&&att.held?`<div class="attline"><b>Attendance:</b> notes for ${att.attended} of ${att.held} class${att.held===1?'':'es'} so far${att.missing.length?` · <button class="link" data-act="showMissed" data-id="${c.id}">${att.missing.length} without notes</button>`:''}</div>`:((att?'':`<div class="attline muted">Add class dates in Settings to track attendance.</div>`));
   const row=l=>{const u=unitOf(l.unitId),q=(l.questions||[]).filter(z=>z.status!=='answered').length,r=marksOf(l,'rev').length,im=marksOf(l,'imp').length,fc=cardsOf(l).length,mats=materialsOf(l.id).length;
-    return `<button class="lrowb ${l.missed?'missed':''}" data-act="openLecture" data-id="${l.id}"><span class="cdate"><b>${new Date(l.date+'T12:00:00').getDate()}</b>${esc(new Date(l.date+'T12:00:00').toLocaleDateString(undefined,{month:'short'}))}</span><span class="cbody"><b>${l.missed?'Missed — get notes from a classmate':esc(l.topic||'Untitled lecture')}</b><span>${l.subtopic?esc(l.subtopic)+' · ':''}${u&&uf==='all'?esc(u.code||u.name)+' · ':''}${esc(l.time||'')}${(l.sessions||[]).length>1?` · ${l.sessions.length} sessions`:''}</span></span><span class="lbadges">${q?`<i title="Open questions">❓${q}</i>`:''}${im?`<i title="Important">⭐${im}</i>`:''}${r?`<i title="To review">🔁${r}</i>`:''}${fc?`<i title="Flashcards">🃏${fc}</i>`:''}${mats?`<i title="Slides and readings">📎${mats}</i>`:''}${l.summary?'<i title="Has a summary">✓ sum</i>':''}${l.audio?'<i title="Recording">🎙</i>':''}</span></button>`};
+    return `<button class="lrowb ${l.missed?'missed':''}" data-act="openLecture" data-id="${l.id}"><span class="cdate"><b>${new Date(l.date+'T12:00:00').getDate()}</b>${esc(new Date(l.date+'T12:00:00').toLocaleDateString(undefined,{month:'short'}))}</span><span class="cbody"><b>${l.missed?'Missed — get notes from a classmate':esc(l.topic||'Untitled lecture')}${l.planned?` <span class="ptag">${l.date>=todayISO()?'Planned':'Planned · no notes'}</span>`:''}</b><span>${l.subtopic?esc(l.subtopic)+' · ':''}${u&&uf==='all'?esc(u.code||u.name)+' · ':''}${esc(l.time||'')}${(l.sessions||[]).length>1?` · ${l.sessions.length} sessions`:''}</span></span><span class="lbadges">${q?`<i title="Open questions">❓${q}</i>`:''}${im?`<i title="Important">⭐${im}</i>`:''}${r?`<i title="To review">🔁${r}</i>`:''}${fc?`<i title="Flashcards">🃏${fc}</i>`:''}${mats?`<i title="Slides and readings">📎${mats}</i>`:''}${l.summary?'<i title="Has a summary">✓ sum</i>':''}${l.audio?'<i title="Recording">🎙</i>':''}</span></button>`};
   return chips+attHTML+(ls.length?`<div class="llist">${ls.map(row).join('')}</div>`:`<div class="empty" style="padding:30px"><p>No lecture notes yet. When you're in class, click <b>Start lecture note</b>.</p></div>`);
 }
 function showMissedDialog(cid){
@@ -5105,10 +5192,10 @@ function lectureView(){
   const mat=LV.mat&&S.docs[LV.mat]&&S.docs[LV.mat].pdf&&S.docs[LV.mat].lectureId===V.lectureId?{id:LV.mat,...S.docs[LV.mat]}:null;
   if(!mat)LV.mat=null;
   const cornell=l.layout==='cornell', rec=REC.rec&&REC.lectureId===V.lectureId;
-  const editor=(part,ans,ph,cls)=>`<div class="rte lec ${cls||''}" contenteditable="true" role="textbox" aria-multiline="true" aria-label="${esc(ph)}" data-ans="${ans}" data-lecture="${V.lectureId}" data-part="${part}" data-ph="${esc(ph)}" spellcheck="${WR.lang!=='off'}" ${WR.lang!=='off'?`lang="${WR.lang}"`:''}>${l[part]||''}</div>`;
+  const editor=(part,ans,ph,cls)=>`<div class="rte lec ${cls||''}" contenteditable="true" role="textbox" aria-multiline="true" aria-label="${esc(ph)}" data-ans="${ans}" data-lecture="${V.lectureId}" data-part="${part}" data-ph="${esc(ph)}" ${l.style?`style="${docStyleVars(l)}"`:''} spellcheck="${WR.lang!=='off'}" ${WR.lang!=='off'?`lang="${WR.lang}"`:''}>${l[part]||''}</div>`;
   const notes=`<div class="lnotes">
     ${recordingsHTML(l)}
-    ${rteToolbar('__lec',{headings:true,lecture:true})}
+    ${ribbonHTML(l,{lecture:true})}
     ${cornell?`<div class="cornell"><div class="ccue"><div class="clab">Key words &amp; questions</div>${editor('cues','__cue','Cues: key words, questions…','cues')}</div><div class="cmain"><div class="clab">Notes</div>${editor('html','__lec','Take your notes here…','main')}</div></div>`:editor('html','__lec','Take your notes here… Select words and use ❓ ⭐ 🔁 💡 above to mark them. Write term :: meaning on a line to make a flashcard.','main')}
     <div class="lsum"><label for="lSum">Summary${cornell?'':''} <span class="muted">— in about three sentences, what was today's lecture about?</span></label><textarea class="inp" id="lSum" rows="3" placeholder="Write this at the end of the lecture, or the same evening — it makes revision much easier.">${esc(l.summary||'')}</textarea></div>
   </div>`;
@@ -5126,7 +5213,7 @@ function lectureView(){
     <div class="lmeta">${ico('cal')}<input type="date" id="lDate" value="${esc(l.date)}" aria-label="Date"><input type="time" id="lTime" value="${esc(l.time||'')}" aria-label="Time">${(l.sessions||[]).length>1?`<span class="muted">· ${l.sessions.length} sessions</span>`:''}${L.length?`<span>· ${ico('user')}${esc(L.map(x=>x.name).join(', '))}</span>`:''}</div>
     <input class="ltopic" id="lTopic" value="${esc(l.topic||'')}" placeholder="Topic of today's lecture" aria-label="Topic">
     <input class="lsub" id="lSub" value="${esc(l.subtopic||'')}" placeholder="Subtopic (optional)" aria-label="Subtopic">
-  </div>`;
+  </div>${l.planned?`<div class="fillnote" style="margin:0 0 12px">${ico('cal')}<span><b>Planned${l.date>todayISO()?` for ${esc(longDate(l.date))}`:''}.</b> Add the slides, compulsory and additional readings and links in the panel (or from the side menu). You can write preparation notes now; in class, take your notes here.</span></div>`:''}`;
   if(mat){
     return `<div id="lectureView">${head}${toolbar}<div class="pe split ${V.swap?'swap':''}" id="pe" style="--lw:${paneWidth()}%">${readerHTML(mat)}<div class="gutter" id="gutter" role="separator" aria-orientation="vertical" aria-label="Drag to resize" tabindex="0"></div><div class="notescol">${LV.panel?`<aside class="lpanel inline" id="lpanel">${lecturePanelHTML(l)}</aside>`:''}${notes}</div></div></div>`;
   }
@@ -5135,9 +5222,9 @@ function lectureView(){
 function lecturePanelHTML(l){
   const mats=materialsOf(V.lectureId), qs=l.questions||[];
   const imp=marksOf(l,'imp'), rev=marksOf(l,'rev'), cards=cardsOf(l);
-  return `<div class="lpsec"><div class="lph"><b>${ico('doc')}Slides &amp; readings</b></div>
-      ${mats.map(m=>`<div class="matrow ${LV.mat===m.id?'on':''}"><span class="pdfic ${m.type==='slides'?'sl':''}">${m.type==='slides'?'SL':m.url?'URL':'PDF'}</span><button class="link mname" data-act="matOpen" data-id="${m.id}" title="${esc(m.name)}">${esc(m.name)}</button><button class="btn sm ghost danger" data-act="matDel" data-id="${m.id}" aria-label="Remove">✕</button></div>`).join('')||'<div class="muted" style="font-size:12.5px">Attach today\'s slides and assigned readings, then read them beside your notes.</div>'}
-      <div class="row" style="gap:6px;margin-top:8px"><button class="btn sm" data-act="matAdd" data-v="slides">${ico('upload')}Slides</button><button class="btn sm" data-act="matAdd" data-v="reading">${ico('upload')}Reading</button><button class="btn sm" data-act="matLink">${ico('external')}Link</button></div></div>
+  const mrow=m=>`<div class="matrow ${LV.mat===m.id?'on':''}"><span class="pdfic ${m.type==='slides'?'sl':''}">${m.type==='slides'?'SL':m.url&&!m.pdf?'URL':'PDF'}</span><button class="link mname" data-act="matOpen" data-id="${m.id}" title="${esc(m.name)}">${esc(m.name)}</button>${matGroup(m)==='compulsory'||matGroup(m)==='additional'?`<button class="btn sm ghost" data-act="matMove" data-id="${m.id}" title="Move to ${matGroup(m)==='compulsory'?'additional':'compulsory'} readings" aria-label="Move">⇄</button>`:''}<button class="btn sm ghost danger" data-act="matDel" data-id="${m.id}" aria-label="Remove">✕</button></div>`;
+  return `<div class="lpsec"><div class="lph"><b>${ico('doc')}Slides &amp; readings</b><span class="muted">${mats.length||''}</span></div>
+      ${MAT_GROUPS.map(([g,lab])=>{const ms=mats.filter(m=>matGroup(m)===g);return `<div class="mgrp"><div class="mgh"><span>${lab}</span><button class="btn sm ghost" data-act="${g==='links'?'matLink':'matAdd'}" data-v="${g==='slides'?'slides':'reading'}" data-g="${g}" title="${g==='links'?'Add a link':'Upload a PDF'}">${ico(g==='links'?'external':'upload')}${g==='links'?'Add':'Upload'}</button></div>${ms.map(mrow).join('')||`<div class="muted mnone">None yet</div>`}</div>`}).join('')}</div>
     <div class="lpsec"><div class="lph"><b>❓ Questions</b><span class="muted">${qs.filter(q=>q.status!=='answered').length} open</span></div>
       ${qs.map(q=>`<div class="lq ${q.status==='answered'?'done':''}"><input type="checkbox" data-lqdone="${q.id}" ${q.status==='answered'?'checked':''} title="Answered"><span>${esc(q.text)}</span><button class="btn sm ghost danger" data-lqdel="${q.id}" aria-label="Remove">✕</button></div>`).join('')}
       <input class="inp" id="lqNew" placeholder="Type a question to ask, press Enter" style="margin-top:6px"></div>
@@ -5159,7 +5246,10 @@ function bindLecture(){
   root.addEventListener('change',e=>{const t=e.target;if(t.dataset.lqdone){const q=(l.questions||[]).find(z=>z.id===t.dataset.lqdone);if(q){q.status=t.checked?'answered':'open';save(V.lectureId);refreshLPanel()}}});
   root.addEventListener('click',e=>{const d=e.target.closest('[data-lqdel]');if(d){l.questions=(l.questions||[]).filter(z=>z.id!==d.dataset.lqdel);save(V.lectureId);refreshLPanel()}
     const ts=e.target.closest('.rte.lec span.ts');if(ts){const a=document.querySelector(`audio[data-rec="${ts.dataset.r||0}"]`)||document.querySelector('audio[data-rec]');if(a){a.currentTime=Math.max(0,(+ts.dataset.t||0)-2);a.play().catch(()=>{});a.scrollIntoView({block:'nearest'})}else toast('The recording for this time stamp is not attached')}});
+  bindRibbon(); bindDraftObjects([...root.querySelectorAll('.rte.lec')]);
   root.querySelectorAll('.rte.lec').forEach(ed=>{
+    const keep=()=>{lastLecEd=ed;const s=getSelection();if(s.rangeCount&&ed.contains(s.getRangeAt(0).commonAncestorContainer))draftRange=s.getRangeAt(0).cloneRange()};
+    ['keyup','mouseup','input','focus'].forEach(ev=>ed.addEventListener(ev,keep));
     ed.addEventListener('focus',()=>{try{document.execCommand('defaultParagraphSeparator',false,'p')}catch(e){}});
     ed.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey&&REC.rec&&REC.lectureId===V.lectureId&&ed.dataset.part==='html')setTimeout(()=>insertStamp(ed),0)});
   });
@@ -5172,7 +5262,8 @@ function lectureCommit(ed){
   if(!ed.textContent.trim()&&!ed.querySelector('ul,ol,h2,h3'))ed.innerHTML='';
   const part=ed.dataset.part, html=cleanRich(ed.innerHTML);
   l[part]=html; if(part==='html')l.text=richToText(html); else l.cuesText=richToText(html);
-  l.updatedAt=Date.now(); save(ed.dataset.lecture,700); flashSave();
+  if(l.planned&&trim(l.text||'')&&l.date<=todayISO()){delete l.planned;l.sessions=l.sessions||[];if(!l.sessions.includes(l.date))l.sessions.push(l.date)}
+  l.updatedAt=Date.now(); save(ed.dataset.lecture,700); flashSave(); scheduleAbbrSuggest(ed);
   clearTimeout(lectureCommit._t); lectureCommit._t=setTimeout(refreshLPanel,900);
 }
 function refreshLPanel(){const p=$('#lpanel'),l=S.docs[V.lectureId];if(p&&l&&!p.contains(document.activeElement))p.innerHTML=lecturePanelHTML(l)}
@@ -5202,24 +5293,26 @@ function lectureQuote(text,loc){
   toast('Added to your notes');
 }
 /* materials */
-async function addMaterial(type){
-  const l=S.docs[V.lectureId]; if(!l)return;
+async function addMaterial(type,group,lid){
+  lid=lid||V.lectureId; const l=S.docs[lid]; if(!l)return;
   pickFile(async f=>{
     const err=checkPdf(f); if(err){toast(err);return}
     const a=await getAssets(); if(!a){toast(unavailable('pdf'));return}
     toast('Uploading…');
     try{
       const res=await a.upload(f,{type:'application/pdf'});
-      const id=uid('mat_'); S.docs[id]={kind:'material',lectureId:V.lectureId,courseId:l.courseId,unitId:l.unitId||null,name:f.name.replace(/\.pdf$/i,''),type,pdf:{id:res.id,name:f.name,size:res.sizeBytes||f.size,addedAt:Date.now()},createdAt:Date.now()};
-      save(id); LV.mat=id; renderMain(); toast(type==='slides'?'Slides attached — select text to quote it into your notes':'Reading attached');
+      const id=uid('mat_'); S.docs[id]={kind:'material',lectureId:lid,courseId:l.courseId,unitId:l.unitId||null,name:f.name.replace(/\.pdf$/i,''),type,...(type==='reading'?{group:group==='additional'?'additional':'compulsory'}:{}),pdf:{id:res.id,name:f.name,size:res.sizeBytes||f.size,addedAt:Date.now()},createdAt:Date.now()};
+      save(id); setSide('l:'+lid,true); setSide((type==='slides'?'s:':'r:')+lid,true); if(type==='reading')setSide((group==='additional'?'ra:':'rc:')+lid,true);
+      if(V.view==='lecture'&&V.lectureId===lid&&!l.planned){LV.mat=id;renderMain()}else{renderSide();if(V.view==='lecture')refreshLPanel()}
+      toast(type==='slides'?'Slides attached':`${group==='additional'?'Additional':'Compulsory'} reading attached`);
     }catch(e){toast(e&&e.code?assetErr(e):'Upload failed — try again')}
   });
 }
-function addMaterialLink(){
-  const l=S.docs[V.lectureId];
-  const ov=modal(`<h3>Add a reading by link</h3><div class="field"><label>Title</label><input class="inp" id="mlName" placeholder="e.g. WHO Global status report, chapter 2"></div><div class="field"><label>Link</label><input class="inp" id="mlUrl" placeholder="https://…"></div><div class="mfoot"><button class="btn" data-x>Cancel</button><button class="btn pri" data-ok>Add</button></div>`);
+function addMaterialLink(lid){
+  lid=lid||V.lectureId; const l=S.docs[lid];
+  const ov=modal(`<h3>Add a link</h3><p class="help" style="margin-top:-4px">A web page, online article or video for this lecture.</p><div class="field"><label>Title</label><input class="inp" id="mlName" placeholder="e.g. WHO Global status report, chapter 2"></div><div class="field"><label>Link</label><input class="inp" id="mlUrl" placeholder="https://…"></div><div class="mfoot"><button class="btn" data-x>Cancel</button><button class="btn pri" data-ok>Add</button></div>`);
   ov.querySelector('[data-x]').onclick=()=>ov.remove();
-  ov.querySelector('[data-ok]').onclick=()=>{const url=normLink(ov.querySelector('#mlUrl').value);if(!isLink(url)){ov.querySelector('#mlUrl').focus();return}const id=uid('mat_');S.docs[id]={kind:'material',lectureId:V.lectureId,courseId:l.courseId,unitId:l.unitId||null,name:trim(ov.querySelector('#mlName').value)||url.replace(/^https?:\/\//,'').slice(0,60),type:'reading',url,createdAt:Date.now()};save(id);ov.remove();refreshLPanel()};
+  ov.querySelector('[data-ok]').onclick=()=>{const url=normLink(ov.querySelector('#mlUrl').value);if(!isLink(url)){ov.querySelector('#mlUrl').focus();return}const id=uid('mat_');S.docs[id]={kind:'material',lectureId:lid,courseId:l.courseId,unitId:l.unitId||null,name:trim(ov.querySelector('#mlName').value)||url.replace(/^https?:\/\//,'').slice(0,60),type:'reading',url,createdAt:Date.now()};save(id);ov.remove();setSide('l:'+lid,true);setSide('r:'+lid,true);setSide('rl:'+lid,true);renderSide();refreshLPanel();toast('Link added')};
   setTimeout(()=>ov.querySelector('#mlName').focus(),40);
 }
 async function deleteMaterial(id){
@@ -5521,6 +5614,7 @@ function restore(file){
 document.addEventListener('click',e=>{
   const b=e.target.closest('[data-act]'); if(!b||b.tagName==='SELECT')return;
   const a=b.dataset.act, id=b.dataset.id;
+  if(b.dataset.tk)setSide(b.dataset.tk,true);
   switch(a){
     case 'menu': $('#side').classList.toggle('show');break;
     case 'sideFold': {e.stopPropagation();setSide(b.dataset.v,!sideOpen(b.dataset.v));renderSide();break}
@@ -5591,7 +5685,7 @@ document.addEventListener('click',e=>{
     case 'startLecture': {const c=b.dataset.c||(V.view==='course'?V.courseId:null);if(!c){const cs=coursesAll();if(!cs.length){courseDialog();break}if(cs.length===1){startLectureDialog(cs[0].id);break}const n=nextClass();if(n&&n.state!=='later'){startLectureDialog(n.slot.courseId,n.slot.unitId||null);break}
         const ov=modal(`<h3>Which course?</h3><div class="contlist">${cs.map(c=>`<button class="controw" data-pick="${c.id}"><b><span class="cbar" style="--x:${ccol(c)}"></span>${esc(courseLabel(c))}</b></button>`).join('')}</div><div class="mfoot"><button class="btn" data-x>Cancel</button></div>`);ov.querySelector('[data-x]').onclick=()=>ov.remove();ov.querySelectorAll('[data-pick]').forEach(x=>x.onclick=()=>{ov.remove();startLectureDialog(x.dataset.pick)});break}
       startLectureDialog(c,b.dataset.u!==undefined?(b.dataset.u||null):undefined);break}
-    case 'openLecture': LV.mat=null;go({view:'lecture',lectureId:id});break;
+    case 'openLecture': LV.mat=null;go({view:'lecture',lectureId:id});renderSide();break;
     case 'lLayout': {const l=S.docs[V.lectureId];l.layout=b.dataset.v;save(V.lectureId);try{localStorage.setItem('litnotes.layout',b.dataset.v)}catch(e){}renderMain();break}
     case 'mark': applyMark(b.dataset.v);break;
     case 'lPanel': LV.panel=!LV.panel;try{localStorage.setItem('litnotes.lpanel',LV.panel?'1':'0')}catch(e){}renderMain();break;
@@ -5602,8 +5696,11 @@ document.addEventListener('click',e=>{
     case 'recStart': recStart();break;
     case 'recStop': recStop();break;
     case 'recDel': {const l=S.docs[V.lectureId],i=+b.dataset.v,r=(l.recordings||[])[i];if(!r||!confirm('Delete this recording? Its time stamps stay in your notes.'))break;getAssets().then(a=>a&&a.delete(r.id).catch(()=>{}));l.recordings[i]=null;l.recordings=l.recordings.some(Boolean)?l.recordings:[];save(V.lectureId);renderMain();break}
-    case 'matAdd': addMaterial(b.dataset.v);break;
-    case 'matLink': addMaterialLink();break;
+    case 'matAdd': addMaterial(b.dataset.v,b.dataset.g,b.dataset.l);break;
+    case 'matMove': {const m=S.docs[id];if(!m)break;m.group=matGroup(m)==='compulsory'?'additional':'compulsory';save(id);refreshLPanel();renderSide();toast('Moved to '+(m.group==='additional'?'additional':'compulsory')+' readings');break}
+    case 'sideMat': {const m=S.docs[id];if(!m)break;if(m.url&&!m.pdf){window.open(m.url,'_blank','noopener');break}LV.mat=id;R.tab='pdf';if(V.view==='lecture'&&V.lectureId===m.lectureId)renderMain();else go({view:'lecture',lectureId:m.lectureId});renderSide();break}
+    case 'planLecture': planLectureDialog(b.dataset.c||V.courseId,b.dataset.unit===undefined?undefined:(b.dataset.unit||null));break;
+    case 'matLink': addMaterialLink(b.dataset.l);break;
     case 'matOpen': {const m=S.docs[id];if(!m)break;if(m.url&&!m.pdf){window.open(m.url,'_blank','noopener');break}LV.mat=LV.mat===id?null:id;R.tab='pdf';renderMain();break}
     case 'matDel': deleteMaterial(id);break;
     case 'newAssign': newAssignment(b.dataset.c||(V.view==='course'?V.courseId:null));break;

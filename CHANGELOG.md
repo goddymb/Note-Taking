@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.2.0]
+- **Plan lectures ahead.** **Plan a lecture** (on the course page, or under a course or unit in the side menu) creates the lecture before it happens: the date and time come from your next class date, and you add the topic. Then attach the slides and readings. On the day, **Start lecture note** offers the lecture planned for today, and your notes go into it.
+- **Readings sorted into Compulsory, Additional and Links.** The lecture panel has four groups: Slides, Compulsory readings, Additional readings and Links, each with its own Upload or Add button. Use **⇄** to move a reading between compulsory and additional.
+- **Courses as a tree in the side menu.** Courses → course → unit → lecture → **Notes**, **Readings** (Compulsory, Additional, Links) and **Slides**. Click a name to open it; click the arrow to fold or unfold it. You can upload files and plan lectures straight from the tree, and clicking a file opens it beside the lecture notes.
+- **The full Write toolbar in lecture notes.** Lecture notes now have the same Home, Format and Insert tabs as Write: fonts, sizes, text colours, alignment, line spacing, pictures, charts, shapes, tables, lines, and the abbreviations list. In the Cornell layout, the toolbar formats whichever side you are typing in. Abbreviations in lecture notes are kept per course.
+
 ## [2.1.0]
 - **Class dates instead of weekdays.** Each class is now set as a date and time. Tick **Repeats every week** only for classes that really meet weekly; you can also set when the repeats end. **+ Add a class date** copies the last class's times and room one week later, so entering an irregular timetable is quick. Class times from earlier versions are kept as weekly repeats.
 - **Timetable by real week.** The timetable shows one week at a time with the dates, plus buttons for the previous and next week. If a week has no classes, it tells you when the next one is.
