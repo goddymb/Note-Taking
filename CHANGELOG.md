@@ -1,5 +1,10 @@
 # Changelog
 
+## [3.2.0]
+- **Project badges in the side menu.** Each project has a small coloured badge with its initials; courses get one in their own colour with their code letters.
+- **A structured project page.** The header shows the project's badge, name and review question (with a link to add one if missing), followed by a summary strip: papers, reading now, up next, finished, % of notes done and drafts. Literature is grouped into **Reading now**, **Up next** and **Finished**. It opens as a tidy list (title, authors, year and journal, where you are, verdict and progress); switch to **Cards** if you prefer. Cards no longer repeat the project name.
+- **A tidier Report page.** Choices sit in a column on the left: course and what to report on, an **Include** checklist, export buttons and your **Saved reports**. The report reads like a document on the right, with contents at the top, a date badge for each lecture, the summary set apart, questions with their answers as Q1, Q2…, and flashcards as small cards. PDF and Word exports use the same structure.
+
 ## [3.1.0]
 - **A flat side menu.** Under Courses you now see only your course names, with no unfolding units and lectures. Units live inside the course page as a list on the left; click one to see its lectures in date order. **Add unit** is there too.
 - **One New lecture button** replaces Plan a lecture and Start lecture note. Pick a date: today opens the notes straight away; a later date plans the lecture so you can add its slides and readings first. The date fills in from your class times. On a day when a lecture is already planned, the button becomes **Open today's lecture**. On a course page the button works for that course.
