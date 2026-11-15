@@ -1,5 +1,10 @@
 # Changelog
 
+## [3.1.0]
+- **A flat side menu.** Under Courses you now see only your course names, with no unfolding units and lectures. Units live inside the course page as a list on the left; click one to see its lectures in date order. **Add unit** is there too.
+- **One New lecture button** replaces Plan a lecture and Start lecture note. Pick a date: today opens the notes straight away; a later date plans the lecture so you can add its slides and readings first. The date fills in from your class times. On a day when a lecture is already planned, the button becomes **Open today's lecture**. On a course page the button works for that course.
+- **Move between lectures** on the lecture page with the **‹ ›** arrows (previous and next lecture of the course) or the lecture menu beside them.
+
 ## [3.0.0]
 **A calmer, tidier app.**
 - **Two workspaces.** A switch at the top of the side menu moves between **Research** (Home, Projects, Library, Ideas) and **Study** (Today, Courses, Review, Resources). Each workspace has its own menu, search and main button: **Add paper** in Research, **Start lecture note** in Study. Each remembers where you were. Settings is pinned at the bottom.

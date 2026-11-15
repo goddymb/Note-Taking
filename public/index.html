@@ -1017,6 +1017,20 @@ mark.hl-yellow{background:rgba(250,204,21,.42)}mark.hl-green{background:rgba(74,
 
 /* ---------- workspace switch ---------- */
 .nv.in{color:var(--ink);font-weight:600}
+.cgrid{display:grid;grid-template-columns:220px minmax(0,1fr);gap:22px;align-items:start}
+@media(max-width:900px){.cgrid{grid-template-columns:1fr}}
+.urail{display:flex;flex-direction:column;gap:2px;position:sticky;top:90px;padding-right:14px;border-right:1px solid var(--line)}
+.urh{font-size:12.5px;font-weight:600;color:var(--muted);padding:0 10px 6px}
+.urail button{display:flex;align-items:center;gap:8px;border:0;background:none;text-align:left;padding:8px 10px;border-radius:8px;font:inherit;font-size:14px;color:var(--ink-2);cursor:pointer}
+.urail button span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.urail button em{font-style:normal;font-size:12px;color:var(--muted)}
+.urail button:hover{background:var(--hover)}
+.urail button.on{background:var(--side-active,var(--hover));color:var(--side-active-ink,var(--ink));font-weight:600}
+.urail .uadd{color:var(--accent);font-size:13px;margin-top:4px}.urail .uadd svg{width:15px;height:15px}
+.crumbs .lnav{margin-left:auto;display:inline-flex;align-items:center;gap:4px}
+.crumbs{display:flex;align-items:center;flex-wrap:wrap}
+.lnav select{width:auto;max-width:300px;padding:4px 8px;font-size:13px;border-radius:8px}
+.lnav .btn{font-size:18px;line-height:1;width:30px;height:30px;justify-content:center}
 .wsw{display:grid;grid-template-columns:1fr 1fr;gap:2px;padding:3px;border-radius:10px;background:var(--panel-2);border:1px solid var(--line);margin:0 2px 6px;position:relative}
 .wsw button{display:flex;align-items:center;justify-content:center;gap:7px;border:0;background:none;border-radius:7px;padding:7px 6px;font:inherit;font-size:13.5px;font-weight:600;color:var(--muted);cursor:pointer;position:relative;z-index:1;transition:color .2s}
 .wsw button svg{width:15px;height:15px}
@@ -1843,9 +1857,9 @@ function renderSide(){
   setHTML($('#nav'),`<div class="wsw" role="tablist" aria-label="Workspace"><button role="tab" class="${ws==='research'?'on':''}" aria-selected="${ws==='research'}" data-act="ws" data-v="research" title="Projects, papers and ideas">${ico('library')}Research</button><button role="tab" class="${ws==='study'?'on':''}" aria-selected="${ws==='study'}" data-act="ws" data-v="study" title="Courses, lectures and revision">${ico('cap')}Study</button></div>`+items.map(([k,i,l,c])=>{
     if(k==='__')return i?`<div class="slabel nvsep">${i}</div>`:'<div class="nvgap"></div>';
     const ks=kids(k), fold=ks&&ks.length, open=fold&&sideOpen(k);
-    const childOn=open&&n===k&&((k==='courses'&&V.view!=='courses')||(k==='projects'&&V.view!=='projects')||k==='resources');
+    const childOn=open&&n===k&&ks&&ks.some(x=>x.on);
     return `<button class="nv ${n===k?(childOn?'in':'on'):''}" data-act="nav" data-v="${k}" ${n===k?'aria-current="page"':''}>${ico(i)}<span>${l}</span>${c!=null?`<span class="k" ${c==='●'?'style="color:var(--accent);font-size:14px" title="Update available"':''}>${c}</span>`:''}${fold?`<span class="nvfold ${open?'open':''}" data-act="sideFold" data-v="${k}" role="button" aria-label="${open?'Hide':'Show'} ${l.toLowerCase()}" title="${open?'Hide':'Show'} ${l.toLowerCase()}">${ico('chev')}</span>`:''}</button>`
-      +(open?(k==='courses'?`<div class="nav-tree">${treeHTML(courseTree(),0)}</div>`:`<div class="nvsubs">${ks.map(x=>`<button class="nvsub ${x.on?'on':''}" data-act="${x.act}" ${x.act==='resTab'?`data-v="${x.id}"`:`data-id="${x.id}"`} title="${esc(x.title||x.label)}">${x.ic?ico(x.ic):x.col?`<i style="background:${x.col}"></i>`:'<i></i>'}<span>${esc(x.label)}</span></button>`).join('')}</div>`):'');
+      +(open?(`<div class="nvsubs">${ks.map(x=>`<button class="nvsub ${x.on?'on':''}" data-act="${x.act}" ${x.act==='resTab'?`data-v="${x.id}"`:`data-id="${x.id}"`} title="${esc(x.title||x.label)}">${x.ic?ico(x.ic):x.col?`<i style="background:${x.col}"></i>`:'<i></i>'}<span>${esc(x.label)}</span></button>`).join('')}</div>`):'');
   }).join(''));
   setHTML($('#sideSet'),`<button class="nv ${n==='settings'?'on':''}" data-act="nav" data-v="settings" ${n==='settings'?'aria-current="page"':''}>${ico('settings')}<span>Settings</span>${updBadge?'<span class="k" style="color:var(--accent);font-size:14px" title="Update available">●</span>':''}</button>`);
   document.body.dataset.ws=ws;
@@ -1912,7 +1926,7 @@ function renderMain(soft){
 /* ---------- Home ---------- */
 function updateTopbar(){
   const ws=V.ws||wsOfView(), b=$('#topAct'), qi=$('#q');
-  if(b){if(ws==='study'){b.dataset.act='startLecture';b.querySelector('.addlbl').textContent='Start lecture note';b.title='Start notes for a lecture'}else{b.dataset.act='quickAdd';b.querySelector('.addlbl').textContent='Add paper';b.title='Add a paper to a project'}}
+  if(b){if(ws==='study'){b.dataset.act='startLecture';const cc=V.view==='course'?V.courseId:null;if(cc)b.dataset.c=cc;else b.removeAttribute('data-c');b.querySelector('.addlbl').textContent=lectureBtnLabel(cc);b.title='Take notes now, or plan a lecture ahead'}else{b.dataset.act='quickAdd';b.querySelector('.addlbl').textContent='Add paper';b.title='Add a paper to a project'}}
   if(qi)qi.placeholder=V.view==='lecture'?'Search this course\'s slides and readings':ws==='study'?'Search courses, lectures and readings':'Search papers, authors and notes';
 }
 /* ---------- Study home: Today ---------- */
@@ -1929,7 +1943,7 @@ function todayView(){
       <div class="tsec"><h2>Recent lecture notes</h2>${recent.length?`<div class="mini-l">${recent.map(row).join('')}</div>`:`<p class="muted">Your lecture notes will appear here.</p>`}</div>
       ${planned.length?`<div class="tsec"><h2>Planned lectures</h2><div class="mini-l">${planned.map(row).join('')}</div></div>`:''}
     </div><div>
-      <div class="tsec"><h2>Quick actions</h2><div class="qacts"><button class="btn" data-act="planLecture">${ico('cal')}Plan a lecture</button><button class="btn" data-act="sketchNew">${ico('pen')}New sketch</button><button class="btn" data-act="resTab" data-v="reports">${ico('doc')}Make a report</button><button class="btn" data-act="nav" data-v="review">${ico('cards')}Review${dueReviews().length?` (${dueReviews().length} due)`:''}</button></div></div>
+      <div class="tsec"><h2>Quick actions</h2><div class="qacts"><button class="btn" data-act="startLecture">${ico('plus')}${lectureBtnLabel()}</button><button class="btn" data-act="sketchNew">${ico('pen')}New sketch</button><button class="btn" data-act="resTab" data-v="reports">${ico('doc')}Make a report</button><button class="btn" data-act="nav" data-v="review">${ico('cards')}Review${dueReviews().length?` (${dueReviews().length} due)`:''}</button></div></div>
       ${openQ?`<div class="tsec"><h2>Open reflection questions</h2><button class="btn" data-act="openCourses" data-v="questions">${ico('help')}${openQ} question${openQ===1?'':'s'} still to answer</button></div>`:''}
     </div></div>`;
 }
@@ -2242,7 +2256,7 @@ function cmdkItems(){
   const ws=V.ws||wsOfView(), out=[];
   const A=(g,label,ic,act,data,hint)=>out.push({g,label,ic,act,data:data||{},hint:hint||''});
   if(ws==='research'){A('Actions','Add a paper','plus','quickAdd');A('Actions','New project','folder','newProject');A('Actions','New idea','bulb','newIdea');A('Go to','Library','library','nav',{v:'library'});A('Go to','Ideas','bulb','nav',{v:'ideas'})}
-  else{A('Actions','Start lecture note','plus','startLecture');A('Actions','Plan a lecture','cal','planLecture');A('Actions','New sketch','pen','sketchNew');A('Actions','Make a report','doc','resTab',{v:'reports'});A('Actions','New course','cap','newCourse');A('Go to','Today','sun','nav',{v:'today'});A('Go to','Review','cards','nav',{v:'review'});A('Go to','Timetable','cal','openCourses',{v:'timetable'});A('Go to','Readings & slides','folder','resTab',{v:'readings'})}
+  else{A('Actions',lectureBtnLabel(),'plus','startLecture');A('Actions','Plan a lecture for later','cal','planLecture');A('Actions','New sketch','pen','sketchNew');A('Actions','Make a report','doc','resTab',{v:'reports'});A('Actions','New course','cap','newCourse');A('Go to','Today','sun','nav',{v:'today'});A('Go to','Review','cards','nav',{v:'review'});A('Go to','Timetable','cal','openCourses',{v:'timetable'});A('Go to','Readings & slides','folder','resTab',{v:'readings'})}
   if(V.view==='lecture'){A('This lecture','Focus mode','maximize','focus');A('This lecture','Slides and readings','folder','matCard');A('This lecture','End lecture','check','lEnd');A('This lecture','Export as PDF','download','lExport',{v:'pdf'})}
   A('Actions',ws==='research'?'Switch to Study':'Switch to Research',ws==='research'?'cap':'library','ws',{v:ws==='research'?'study':'research'});
   const dark=(document.documentElement.dataset.theme||'').includes('dark')||document.documentElement.dataset.theme==='midnight';
@@ -5150,7 +5164,17 @@ function startLectureDialog(cid,unitId){
   const ov=modal('');
   draw();
 }
-/* plan a lecture before it happens: date, topic, then slides and readings */
+/* one action for lectures: open today's lecture if there is one, otherwise start or plan a new one */
+const todaysLectures=cid=>lecturesOf(cid||undefined).filter(l=>l.date===todayISO()&&!l.missed);
+function smartLecture(cid,unitId){
+  if(!coursesAll().length){courseDialog();return}
+  const t=todaysLectures(cid);
+  if(t.length===1&&(!unitId||t[0].unitId===unitId)){openTodayLecture(t[0].id);return}
+  planLectureDialog(cid,unitId);
+}
+function openTodayLecture(id){const l=S.docs[id];l.sessions=l.sessions||[];if(!l.sessions.includes(todayISO()))l.sessions.push(todayISO());save(id);LV.mat=null;go({view:'lecture',lectureId:id})}
+function lectureBtnLabel(cid){const t=todaysLectures(cid);return t.length===1?`Open today's lecture`:'New lecture'}
+/* new lecture: today = take notes now, a later date = plan it and add slides and readings */
 function planLectureDialog(cid,unitId){
   const cs=coursesAll(); if(!cs.length){toast('Create a course first');return}
   if(!courseOf(cid)){const n=nextClass();cid=(n&&n.slot.courseId)||(V.lectureId&&(S.docs[V.lectureId]||{}).courseId)||cs[0].id;unitId=undefined}
@@ -5158,23 +5182,28 @@ function planLectureDialog(cid,unitId){
   const c=courseOf(cid);
   const units=unitsOf(cid); let uSel=unitId!==undefined&&unitId!==null?unitId:(V.view==='course'&&V.unitF&&V.unitF!=='all'&&V.unitF!=='none'?V.unitF:null);
   if(units.length&&!units.some(u=>u.id===uSel)){const n=nextClass();uSel=(n&&n.slot.courseId===cid&&n.slot.unitId)||units[0].id}
-  const nextFree=()=>{const taken=new Set(lecturesOf(cid).map(l=>l.date));const ups=upcomingSlots(slotsAll().filter(s=>s.courseId===cid&&(!s.unitId||!uSel||s.unitId===uSel)),30);return ups.find(x=>!taken.has(x.date))||null};
+  const nextFree=()=>{const taken=new Set(lecturesOf(cid).map(l=>l.date)),t=todayISO();const mine=slotsAll().filter(s=>s.courseId===cid&&(!s.unitId||!uSel||s.unitId===uSel));const now=classesOn(t).find(s=>mine.includes(s)||mine.some(m=>m.courseId===s.courseId&&m.start===s.start));if(now&&!taken.has(t))return {date:t,s:now};const ups=upcomingSlots(mine,30);return ups.find(x=>!taken.has(x.date))||null};
   const ov=modal('');
   const draw=()=>{const nx=nextFree();
-    ov.querySelector('.modal').innerHTML=`<h3 style="display:flex;align-items:center;gap:10px"><span class="cbar" style="--x:${ccol(c)}"></span>Plan a lecture · ${esc(c.code||c.name)}</h3>
-    <p class="help" style="margin-top:-4px">Set it up before class: the topic, then the slides and readings. On the day, open it and take your notes in it.</p>
+    ov.querySelector('.modal').innerHTML=`<h3 style="display:flex;align-items:center;gap:10px"><span class="cbar" style="--x:${ccol(c)}"></span>New lecture · ${esc(c.code||c.name)}</h3>
+    <p class="help" style="margin-top:-4px" id="plHelp"></p>
     ${pickCourse?`<div class="field"><label>Course</label><select class="inp" id="plC">${cs.map(x=>`<option value="${x.id}" ${x.id===cid?'selected':''}>${esc(courseLabel(x))}</option>`).join('')}</select></div>`:''}
     ${units.length?`<div class="field"><label>Unit</label><select class="inp" id="plU">${units.map(u=>`<option value="${u.id}" ${uSel===u.id?'selected':''}>${esc((u.code?u.code+' · ':'')+u.name)}</option>`).join('')}</select></div>`:''}
     <div class="grid2"><div class="field"><label>Date</label><input class="inp" type="date" id="plD" value="${nx?nx.date:addDays(todayISO(),1)}"></div><div class="field"><label>Time</label><input class="inp" type="time" id="plT" value="${nx?esc(nx.s.start):'08:00'}"></div></div>
-    ${nx?`<div class="help" style="margin:-6px 0 10px">Filled in from your next class date without a note.</div>`:''}
+    ${nx?`<div class="help" style="margin:-6px 0 10px">${nx.date===todayISO()?'You have this class today.':'Filled in from your next class date without notes.'}</div>`:''}
     <div class="field"><label>Topic</label><input class="inp" id="plTopic" placeholder="e.g. Speed management"></div>
     <div class="field"><label>Subtopic (optional)</label><input class="inp" id="plSub"></div>
-    <div class="mfoot"><button class="btn" data-x>Cancel</button><button class="btn pri" data-ok>${ico('plus')}Plan lecture</button></div>`;
+    <div class="mfoot"><button class="btn" data-x>Cancel</button><button class="btn pri" data-ok id="plOk"></button></div>`;
+    const dI=ov.querySelector('#plD'), syncBtn=()=>{const fut=(dI.value||todayISO())>todayISO();ov.querySelector('#plOk').innerHTML=fut?`${ico('cal')}Plan lecture`:`${ico('edit')}Start taking notes`;ov.querySelector('#plHelp').textContent=fut?'A later date plans the lecture: add its slides and readings now, take notes on the day.':'Today or an earlier date opens the notes straight away.'};
+    dI.addEventListener('input',syncBtn); syncBtn();
     const su=ov.querySelector('#plU'); if(su)su.onchange=()=>{uSel=su.value||null;draw()};
     const sc=ov.querySelector('#plC'); if(sc)sc.onchange=()=>{ov.remove();planLectureDialog(sc.value)};
     ov.querySelector('[data-x]').onclick=()=>ov.remove();
-    const ok=()=>{const id=uid('lecture_');S.docs[id]={kind:'lecture',courseId:cid,unitId:uSel||null,date:ov.querySelector('#plD').value||todayISO(),time:ov.querySelector('#plT').value||'',topic:trim(ov.querySelector('#plTopic').value),subtopic:trim(ov.querySelector('#plSub').value),html:'',text:'',layout:LAYOUT_PREF(),questions:[],sessions:[],planned:true,createdAt:Date.now()};
-      save(id);ov.remove();setSide('c:'+cid,true);if(uSel)setSide('u:'+uSel,true);setSide('l:'+id,true);LV.mat=null;LV.panel=true;go({view:'lecture',lectureId:id});toast('Lecture planned — now add the slides and readings')};
+    const ok=()=>{const id=uid('lecture_'), d=ov.querySelector('#plD').value||todayISO(), fut=d>todayISO();
+      S.docs[id]={kind:'lecture',courseId:cid,unitId:uSel||null,date:d,time:ov.querySelector('#plT').value||'',topic:trim(ov.querySelector('#plTopic').value),subtopic:trim(ov.querySelector('#plSub').value),html:'',text:'',layout:LAYOUT_PREF(),questions:[],sessions:fut?[]:[d],...(fut?{planned:true}:{}),createdAt:Date.now()};
+      save(id);ov.remove();LV.mat=null;if(fut)LV.panel=true;go({view:'lecture',lectureId:id});
+      if(fut)toast('Lecture planned. Add its slides and readings with Materials');
+      else setTimeout(()=>{const e=document.querySelector('.rte.lec.main');if(e)e.focus()},80)};
     ov.querySelector('[data-ok]').onclick=ok;
     ['#plTopic','#plSub'].forEach(x=>ov.querySelector(x).addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();ok()}}));
     setTimeout(()=>ov.querySelector('#plTopic').focus(),40);
@@ -5203,7 +5232,7 @@ function todayCardHTML(){
     cls=`<div class="tcls" style="--x:${ccol(c)}"><div class="tlab">${n.state==='now'?'In class now':n.state==='today'?'Next class today':'Next class · '+esc(longDate(n.date))}</div>
       <div class="tname">${esc(courseLabel({...c}))}${u?` <span>· ${esc(u.code||u.name)}</span>`:''}</div>
       <div class="tmeta">${esc(n.slot.start)}–${esc(n.slot.end||'')} ${n.slot.room?'· '+esc(n.slot.room):''} ${L.length?'· '+esc(L.map(l=>l.name).join(', ')):''} ${n.slot.link?`· <a class="link" href="${esc(n.slot.link)}" target="_blank" rel="noopener noreferrer">Join online</a>`:''}</div>
-      <button class="btn pri" data-act="startLecture" data-c="${n.slot.courseId}" data-u="${n.slot.unitId||''}">${ico('plus')}${n.state==='now'?"Start today's note":'Start a note'}</button></div>`}
+      <button class="btn pri" data-act="startLecture" data-c="${n.slot.courseId}" data-u="${n.slot.unitId||''}">${ico(todaysLectures(n.slot.courseId).length===1?'edit':'plus')}${todaysLectures(n.slot.courseId).length===1?"Open today's lecture":n.state==='now'?'Take notes now':'New lecture'}</button></div>`}
   else cls=`<div class="tcls"><div class="tlab">No class times set</div><div class="tmeta">Add class times in a course's settings to see your next class here.</div><button class="btn" data-act="startLecture">${ico('plus')}Start a lecture note</button></div>`;
   return `<div class="card todaycard">${cls}
     <div class="tside">
@@ -5282,7 +5311,7 @@ function courseView(){
   const head=`<div class="crumbs"><button data-act="nav" data-v="courses">Courses</button>${ico('chev')}<span>${esc(c.code||c.name)}</span></div>
   <div class="chead" style="--x:${ccol(c)}"><div class="grow"><div class="ccode">${esc(c.code||'')}${c.term?` · ${esc(c.term)}`:''}</div><h1>${esc(c.name)}</h1>
     <div class="cinfo">${L.length?`<span>${ico('user')}${L.map(l=>`${esc(l.name)}${l.email?` <a class="link" href="mailto:${esc(l.email)}">✉</a>`:''}${l.office?` <span class="muted">(${esc(l.office)})</span>`:''}`).join(', ')}</span>`:''}${(()=>{const up=upcomingSlots(slotsAll().filter(s=>s.courseId===c.id),3);return up.length?`<span>${ico('clock')}Next: ${up.map(({s,date})=>`${esc(shortDate(date))} ${esc(s.start)}–${esc(s.end||'')}${s.room?' '+esc(s.room):''}${s.unitId?` <span class="muted">(${esc((unitOf(s.unitId)||{}).code||(unitOf(s.unitId)||{}).name||'')})</span>`:''}`).join(' · ')}</span>`:(sched.length?`<span class="muted">${ico('clock')}No more classes this term</span>`:'')})()}</div></div>
-    <div class="row" style="gap:8px"><button class="btn" data-act="planLecture" data-c="${c.id}">${ico('cal')}Plan a lecture</button><button class="btn pri" data-act="startLecture" data-c="${c.id}">${ico('plus')}Start lecture note</button></div></div>
+</div>
   <div class="subtabs" role="tablist">${tabs.map(([k,l])=>`<button role="tab" class="${tab===k?'on':''}" aria-selected="${tab===k}" data-act="ctab" data-v="${k}">${l}</button>`).join('')}</div>`;
   let b='';
   if(tab==='lectures') b=courseLecturesHTML(c,units);
@@ -5309,11 +5338,16 @@ function attendance(c,unitId){
 function courseLecturesHTML(c,units){
   const uf=V.unitF||'all', ls=lecturesOf(c.id,uf==='all'?undefined:(uf==='none'?null:uf));
   const att=attendance(c);
-  const chips=units.length?`<div class="chips" style="margin-bottom:14px"><button class="chip ${uf==='all'?'on':''}" data-act="unitF" data-v="all">All</button>${units.map(u=>`<button class="chip ${uf===u.id?'on':''}" data-act="unitF" data-v="${u.id}">${esc(u.code||u.name)} <span style="opacity:.6">${lecturesOf(c.id,u.id).length}</span></button>`).join('')}${lecturesOf(c.id,null).length?`<button class="chip ${uf==='none'?'on':''}" data-act="unitF" data-v="none">No unit</button>`:''}</div>`:'';
+  const rail=`<nav class="urail" aria-label="Units"><div class="urh">Units</div>
+    <button class="${uf==='all'?'on':''}" data-act="unitF" data-v="all"><span>All lectures</span><em>${lecturesOf(c.id).length}</em></button>
+    ${units.map(u=>`<button class="${uf===u.id?'on':''}" data-act="unitF" data-v="${u.id}" title="${esc((u.code?u.code+' · ':'')+u.name)}"><span>${esc(u.code?u.code+' · '+u.name:u.name)}</span><em>${lecturesOf(c.id,u.id).length}</em></button>`).join('')}
+    ${units.length&&lecturesOf(c.id,null).length?`<button class="${uf==='none'?'on':''}" data-act="unitF" data-v="none"><span>No unit</span><em>${lecturesOf(c.id,null).length}</em></button>`:''}
+    <button class="uadd" data-act="newUnit" data-c="${c.id}">${ico('plus')}Add unit</button></nav>`;
+  const chips='';
   const attHTML=att&&att.held?`<div class="attline"><b>Attendance:</b> notes for ${att.attended} of ${att.held} class${att.held===1?'':'es'} so far${att.missing.length?` · <button class="link" data-act="showMissed" data-id="${c.id}">${att.missing.length} without notes</button>`:''}</div>`:((att?'':`<div class="attline muted">Add class dates in Settings to track attendance.</div>`));
   const row=l=>{const u=unitOf(l.unitId),q=(l.questions||[]).filter(z=>z.status!=='answered').length,r=marksOf(l,'rev').length,im=marksOf(l,'imp').length,fc=cardsOf(l).length,mats=materialsOf(l.id).length;
     return `<button class="lrowb ${l.missed?'missed':''}" data-act="openLecture" data-id="${l.id}"><span class="cdate"><b>${new Date(l.date+'T12:00:00').getDate()}</b>${esc(new Date(l.date+'T12:00:00').toLocaleDateString(undefined,{month:'short'}))}</span><span class="cbody"><b>${l.missed?'Missed — get notes from a classmate':esc(l.topic||'Untitled lecture')}${l.planned?` <span class="ptag">${l.date>=todayISO()?'Planned':'Planned · no notes'}</span>`:''}</b><span>${l.subtopic?esc(l.subtopic)+' · ':''}${u&&uf==='all'?esc(u.code||u.name)+' · ':''}${esc(l.time||'')}${(l.sessions||[]).length>1?` · ${l.sessions.length} sessions`:''}</span></span><span class="lbadges">${q?`<i title="Open questions">${ico('help')}${q}</i>`:''}${im?`<i title="Important">${ico('star')}${im}</i>`:''}${r?`<i title="To review">${ico('repeat')}${r}</i>`:''}${fc?`<i title="Flashcards">${ico('cards')}${fc}</i>`:''}${mats?`<i title="Slides and readings">${ico('folder')}${mats}</i>`:''}${l.summary?`<i title="Has a summary">${ico('check')}Summary</i>`:''}${l.audio?`<i title="Recording">${ico('mic')}</i>`:''}</span></button>`};
-  return chips+attHTML+(ls.length?`<div class="llist">${ls.map(row).join('')}</div>`:`<div class="empty" style="padding:30px"><p>No lecture notes yet. When you're in class, click <b>Start lecture note</b>.</p></div>`);
+  return `<div class="cgrid">${rail}<div class="cmain">`+attHTML+(ls.length?`<div class="llist">${ls.map(row).join('')}</div>`:`<div class="empty" style="padding:30px"><p>No lectures here yet. Click <b>New lecture</b> to take notes now or plan one ahead.</p></div>`)+`</div></div>`;
 }
 function showMissedDialog(cid){
   const c=courseOf(cid), att=attendance(c); if(!att)return;
@@ -5677,7 +5711,8 @@ function lectureView(){
     <button class="btn sm icon ${LV.panel?'on':''}" data-act="lPanel" title="${LV.panel?'Hide':'Show'} reflection questions, important ideas and flashcards" aria-label="Questions panel" aria-pressed="${LV.panel?'true':'false'}">${ico('menu')}</button>
     <button class="btn sm" data-act="lEnd" title="Write the summary and finish today's notes">${ico('check')}End lecture</button>
     <span class="mwrap"><button class="btn sm icon" data-act="moreMenu" aria-haspopup="menu" aria-expanded="false" title="More" aria-label="More actions"><svg class="i" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.4" fill="currentColor"/><circle cx="12" cy="12" r="1.4" fill="currentColor"/><circle cx="19" cy="12" r="1.4" fill="currentColor"/></svg></button><div class="menu" role="menu" hidden><button role="menuitem" data-act="lExport" data-v="doc">${ico('download')}Export as Word</button><button role="menuitem" data-act="lExport" data-v="pdf">${ico('download')}Export as PDF</button><hr><button role="menuitem" class="danger" data-act="lDelete">${ico('trash')}Delete this note</button></div></span></div>`;
-  const head=`<div class="crumbs"><button data-act="nav" data-v="courses">Courses</button>${ico('chev')}<button data-act="openCourse" data-id="${l.courseId}">${esc(c.code||c.name||'Course')}</button>${u?`${ico('chev')}<button data-act="openCourse" data-id="${l.courseId}" data-unit="${u.id}">${esc(u.code||u.name)}</button>`:''}${ico('chev')}<span>${esc(longDate(l.date))}</span></div>
+  const head=`<div class="crumbs"><button data-act="nav" data-v="courses">Courses</button>${ico('chev')}<button data-act="openCourse" data-id="${l.courseId}">${esc(c.code||c.name||'Course')}</button>${u?`${ico('chev')}<button data-act="openCourse" data-id="${l.courseId}" data-unit="${u.id}">${esc(u.code||u.name)}</button>`:''}${ico('chev')}<span>${esc(longDate(l.date))}</span>${(()=>{const all=lecturesOf(l.courseId).slice().sort((a,b)=>(a.date||'').localeCompare(b.date||'')||(a.createdAt||0)-(b.createdAt||0)),i=all.findIndex(x=>x.id===V.lectureId),pv=all[i-1],nx=all[i+1];
+    return all.length>1?`<span class="lnav"><button class="btn sm icon ghost" ${pv?`data-act="openLecture" data-id="${pv.id}" title="Previous: ${esc(pv.topic||'lecture')} (${esc(shortDate(pv.date))})"`:'disabled'} aria-label="Previous lecture">‹</button><select class="inp" id="lJump" aria-label="Go to another lecture of this course">${all.slice().reverse().map(x=>`<option value="${x.id}" ${x.id===V.lectureId?'selected':''}>${esc(shortDate(x.date))} · ${esc(x.topic||'Untitled lecture')}</option>`).join('')}</select><button class="btn sm icon ghost" ${nx?`data-act="openLecture" data-id="${nx.id}" title="Next: ${esc(nx.topic||'lecture')} (${esc(shortDate(nx.date))})"`:'disabled'} aria-label="Next lecture">›</button></span>`:''})()}</div>
   <div class="lhead" style="--x:${ccol(c)}">
     <div class="lmeta">${ico('cal')}<input type="date" id="lDate" value="${esc(l.date)}" aria-label="Date"><input type="time" id="lTime" value="${esc(l.time||'')}" aria-label="Time">${(l.sessions||[]).length>1?`<span class="muted">· ${l.sessions.length} sessions</span>`:''}${L.length?`<span>· ${ico('user')}${esc(L.map(x=>x.name).join(', '))}</span>`:''}</div>
     <input class="ltopic" id="lTopic" value="${esc(l.topic||'')}" placeholder="Topic of today's lecture" aria-label="Topic">
@@ -5741,6 +5776,7 @@ function popMaterial(id){
   if(V.view==='lecture'&&LV.mat===id){LV.mat=null;renderMain()}
 }
 function bindLecture(){
+  const lj=$('#lJump'); if(lj)lj.onchange=()=>{LV.mat=null;go({view:'lecture',lectureId:lj.value})};
   const l=S.docs[V.lectureId]; if(!l)return;
   const root=$('#lectureView'); bindRte(root);
   document.body.classList.toggle('focus',!!V.focus);
@@ -6531,7 +6567,8 @@ document.addEventListener('click',e=>{
     case 'newUnit': unitDialog(b.dataset.c);break;
     case 'editUnit': unitDialog(b.dataset.c,id);break;
     case 'showMissed': showMissedDialog(id);break;
-    case 'startLecture': {const c=b.dataset.c||(V.view==='course'?V.courseId:null);if(!c){const cs=coursesAll();if(!cs.length){courseDialog();break}if(cs.length===1){startLectureDialog(cs[0].id);break}const n=nextClass();if(n&&n.state!=='later'){startLectureDialog(n.slot.courseId,n.slot.unitId||null);break}
+    case 'startLecture': {smartLecture(b.dataset.c||(V.view==='course'?V.courseId:null),b.dataset.u||undefined);break}
+    case 'startLectureOld': {const c=b.dataset.c||(V.view==='course'?V.courseId:null);if(!c){const cs=coursesAll();if(!cs.length){courseDialog();break}if(cs.length===1){startLectureDialog(cs[0].id);break}const n=nextClass();if(n&&n.state!=='later'){startLectureDialog(n.slot.courseId,n.slot.unitId||null);break}
         const ov=modal(`<h3>Which course?</h3><div class="contlist">${cs.map(c=>`<button class="controw" data-pick="${c.id}"><b><span class="cbar" style="--x:${ccol(c)}"></span>${esc(courseLabel(c))}</b></button>`).join('')}</div><div class="mfoot"><button class="btn" data-x>Cancel</button></div>`);ov.querySelector('[data-x]').onclick=()=>ov.remove();ov.querySelectorAll('[data-pick]').forEach(x=>x.onclick=()=>{ov.remove();startLectureDialog(x.dataset.pick)});break}
       startLectureDialog(c,b.dataset.u!==undefined?(b.dataset.u||null):undefined);break}
     case 'openLecture': LV.mat=null;go({view:'lecture',lectureId:id});renderSide();break;
@@ -6548,7 +6585,7 @@ document.addEventListener('click',e=>{
     case 'matAdd': addMaterial(b.dataset.v,b.dataset.g,b.dataset.l);break;
     case 'matMove': {const m=S.docs[id];if(!m)break;m.group=matGroup(m)==='compulsory'?'additional':'compulsory';save(id);refreshLPanel();renderSide();toast('Moved to '+(m.group==='additional'?'additional':'compulsory')+' readings');break}
     case 'sideMat': {const m=S.docs[id];if(!m)break;if(b.dataset.page)R.gotoPage=+b.dataset.page;closeSearch();const qi=$('#q');if(qi)qi.value='';if(m.url&&!m.pdf){window.open(m.url,'_blank','noopener');break}LV.mat=id;R.tab='pdf';if(V.view==='lecture'&&V.lectureId===m.lectureId)renderMain();else go({view:'lecture',lectureId:m.lectureId});renderSide();break}
-    case 'planLecture': planLectureDialog(b.dataset.c||V.courseId,b.dataset.unit===undefined?undefined:(b.dataset.unit||null));break;
+    case 'planLecture': planLectureDialog(b.dataset.c||V.courseId,b.dataset.unit===undefined?(V.view==='course'&&V.unitF&&!['all','none'].includes(V.unitF)?V.unitF:undefined):(b.dataset.unit||null));break;
     case 'matLink': addMaterialLink(b.dataset.l);break;
     case 'matOpen': {const m=S.docs[id];if(!m)break;if(m.url&&!m.pdf){window.open(m.url,'_blank','noopener');break}LV.mat=LV.mat===id?null:id;R.tab='pdf';LV.mcard=false;renderMain();renderSide();break}
     case 'matCard': toggleMatCard();break;
