@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.1.0]
+- **Class dates instead of weekdays.** Each class is now set as a date and time. Tick **Repeats every week** only for classes that really meet weekly; you can also set when the repeats end. **+ Add a class date** copies the last class's times and room one week later, so entering an irregular timetable is quick. Class times from earlier versions are kept as weekly repeats.
+- **Timetable by real week.** The timetable shows one week at a time with the dates, plus buttons for the previous and next week. If a week has no classes, it tells you when the next one is.
+- The course page shows your next three classes, and attendance and the calendar file (.ics) follow the class dates.
+- **Folding side menu.** Click **Projects** or **Courses** to list them in the side menu and open one directly. Click again, or use the arrow, to fold the list.
+
 ## [2.0.0]
 **Courses: a lecture companion.** A new Study area in the side menu, with Courses and Review.
 
