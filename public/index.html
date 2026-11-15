@@ -1017,6 +1017,21 @@ mark.hl-yellow{background:rgba(250,204,21,.42)}mark.hl-green{background:rgba(74,
 
 /* ---------- workspace switch ---------- */
 .nv.in{color:var(--ink);font-weight:600}
+.docpick.on{background:var(--hl);color:var(--hl-ink);border-color:transparent}
+.doccard{position:fixed;width:380px;max-height:min(70vh,620px)}
+.dcg{margin-bottom:8px}.dcrow{display:flex;align-items:center;gap:10px;width:100%;border:0;background:none;text-align:left;padding:7px 8px;border-radius:8px;font:inherit;color:var(--ink);cursor:pointer}
+.dcrow:hover,.dcrow.on{background:var(--hover)}.dct{display:flex;flex-direction:column;min-width:0}.dct b{font-weight:600;font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.dct .muted{font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.nbrowse.docpane{padding:0;overflow:hidden;display:flex;flex-direction:column}
+.dphead{display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid var(--line)}.dphead .dct{flex:1}
+.docpane .rbar [data-act="closeSplit"]{display:none}
+.nbrowse.docpane>.reader,.nbrowse.docpane>.webdoc,.nbrowse.docpane>aside{position:relative;top:0;height:100%;max-height:none;border:0;border-radius:inherit;margin:0;flex:1;min-height:0}
+@keyframes ln-genie-in{0%{opacity:0;transform:scale(.06,.04)}55%{opacity:1;transform:scale(.7,.55)}100%{opacity:1;transform:none}}
+@keyframes ln-genie-out{0%{opacity:1;transform:none;filter:none}45%{opacity:.95;transform:scale(.72,.5) skewX(-3deg)}100%{opacity:0;transform:scale(.04,.03);filter:blur(1px)}}
+.nbrowse.docpane.opening{animation:ln-genie-in .45s cubic-bezier(.2,.8,.2,1) both}
+.nbrowse.docpane.closing{animation:ln-genie-out .42s cubic-bezier(.55,0,.75,.1) both;pointer-events:none}
+.nbrowse.returning{animation:ln-fade .35s ease-out both}
+.brscope{margin:2px 0 8px;width:100%;display:flex}.brscope button{flex:1}
+.nbhead .seg{margin-left:auto}
 .nvav{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:6px;background:var(--c);color:#fff;font:700 9.5px/1 var(--font);letter-spacing:.02em;flex:none}
 .nvav.big{width:44px;height:44px;border-radius:12px;font-size:16px}
 .nvsubs .nvsub{gap:9px}
@@ -3520,12 +3535,13 @@ function refListHTML(d){
 }
 const BR={mode:'question',item:null,q:''};
 function draftView(){
+  if(WV.draft!==V.draftId){WV.draft=V.draftId;WV.doc=null}
   const d=S.docs[V.draftId], p=S.docs[d.projectId], asg=d.assignmentId&&S.docs[d.assignmentId];
   const crumbs=asg?`<button data-act="nav" data-v="courses">Courses</button>${ico('chev')}<button data-act="openCourse" data-id="${asg.courseId}" data-tab="assign">${esc((S.docs[asg.courseId]||{}).code||(S.docs[asg.courseId]||{}).name||'Course')}</button>${ico('chev')}<button data-act="openAssign" data-id="${d.assignmentId}">${esc(asg.title||'Assignment')}</button>${ico('chev')}<span>Writing</span>`
     :`<button data-act="nav" data-v="projects">Projects</button>${ico('chev')}<button data-act="openProject" data-id="${d.projectId}">${esc(p?p.name:'Project')}</button>${ico('chev')}<button data-act="tab" data-v="write" data-pid="${d.projectId}">Write</button>${ico('chev')}<span>Document</span>`;
   return `<div id="draftEditor">
   <div class="crumbs">${crumbs}</div>
-  <div class="ptoolbar"><span class="ftitle"><span>${esc(d.title||'')}</span></span><button class="btn sm ${V.focus?'pri':''}" data-act="focus">${ico(V.focus?'minimize':'maximize')}${V.focus?'Exit focus':'Focus mode'}</button><span class="muted" style="font-size:13px" id="wcount">${words(d.text).toLocaleString()} words${asg&&asg.wordLimit?' / '+esc(asg.wordLimit):''}</span><span class="spacer"></span><span class="save" id="saveNote"></span><button class="btn sm" data-act="draftMd">${ico('download')}.md</button><button class="btn sm" data-act="draftPdf">${ico('download')}PDF</button><button class="btn sm pri" data-act="draftDoc">${ico('download')}Word</button><button class="btn sm ghost danger" data-act="deleteDraft" aria-label="Delete document">${ico('trash')}</button></div>
+  <div class="ptoolbar"><span class="ftitle"><span>${esc(d.title||'')}</span></span><button class="btn sm ${V.focus?'pri':''}" data-act="focus">${ico(V.focus?'minimize':'maximize')}${V.focus?'Exit focus':'Focus mode'}</button><span class="muted" style="font-size:13px" id="wcount">${words(d.text).toLocaleString()} words${asg&&asg.wordLimit?' / '+esc(asg.wordLimit):''}</span><span class="spacer"></span><span class="save" id="saveNote"></span><button class="btn sm" data-act="draftMd">${ico('download')}.md</button><button class="btn sm" data-act="draftPdf">${ico('download')}PDF</button><button class="btn sm" data-act="draftDoc">${ico('download')}Word</button><button class="btn sm docpick ${WV.doc?'on':''}" data-act="docPick" id="docPickBtn" title="${asg?'Open a slide deck or reading from this course beside your writing':'Open a paper from your library beside your writing'}">${ico(asg?'folder':'library')}${asg?'Resources':'Library'}</button><button class="btn sm ghost danger" data-act="deleteDraft" aria-label="Delete document">${ico('trash')}</button></div>
   <div class="wr" id="wr" style="--ww:${writerWidth()}%">
     <div class="wcol">
       <input class="dtitle" id="dTitleIn" value="${esc(d.title||'')}" placeholder="Document title" aria-label="Document title">
@@ -3533,13 +3549,123 @@ function draftView(){
       <div class="refs"><h3>References</h3><div id="refList">${refListHTML(d)}</div></div>
     </div>
     <div class="gutter wgut" id="wgut" role="separator" aria-orientation="vertical" aria-label="Drag to resize" tabindex="0"></div>
-    <aside class="nbrowse" id="nbrowse">${browserHTML()}</aside>
+    ${docPaneHTML()||`<aside class="nbrowse" id="nbrowse">${browserHTML()}</aside>`}
   </div></div>`;
 }
+/* ---------- a document beside your writing (replaces the notes until you close it) ---------- */
+function docPaneHTML(){
+  const x=WV.doc&&S.docs[WV.doc]; if(!x||!hasReadable(x)&&!x.pdf){WV.doc=null;return ''}
+  const nm=x.kind==='material'?x.name:paperTitle(x), sub=x.kind==='material'?((S.docs[x.lectureId]||{}).topic||''):[x.authors,x.year].filter(Boolean).join(' · ');
+  return `<aside class="nbrowse docpane ${WV.anim?'opening':''}" id="nbrowse"><div class="dphead"><span class="pdfic ${x.type==='slides'?'sl':''}">${x.kind==='material'?(x.type==='slides'?'SL':'PDF'):(x.pdf?'PDF':'WEB')}</span><div class="dct"><b title="${esc(nm)}">${esc(nm)}</b><span class="muted">${esc(sub)}</span></div><button class="btn sm" data-act="closeSplit" title="Close the document and bring your notes back (Esc)">${ico('x')}Close</button></div>${x.pdf?readerHTML({id:WV.doc,...x}):webReaderHTML({id:WV.doc,...x})}</aside>`;
+}
+function mountDocPane(){
+  const x=WV.doc&&S.docs[WV.doc]; if(!x)return;
+  const xi={id:WV.doc,...x}; x.pdf?mountReader(xi):mountWeb(xi); bindAsk(xi);
+  if(WV.anim){const pn=$('#nbrowse');const b=$('#docPickBtn');if(pn&&b){const r=b.getBoundingClientRect(),q=pn.getBoundingClientRect();pn.style.transformOrigin=`${r.left+r.width/2-q.left}px ${r.top-q.top}px`}WV.anim=false;setTimeout(()=>{const p2=$('#nbrowse');if(p2)p2.classList.remove('opening')},460)}
+}
+function openDocPane(id){
+  const m=S.docs[id]; if(!m)return;
+  if(m.url&&!m.pdf&&!hasReadable(m)){window.open(m.url,'_blank','noopener');return}
+  closeDocCard(); WV.doc=id; WV.anim=true; R.tab='pdf'; R.token++; renderMain();
+}
+function closeDocPane(){
+  const pn=$('#nbrowse'), b=$('#docPickBtn');
+  const done=()=>{WV.doc=null;R.token++;renderMain();const nb=$('#nbrowse');if(nb){nb.classList.add('returning');setTimeout(()=>nb.classList.remove('returning'),400)}};
+  if(!pn||matchMedia('(prefers-reduced-motion: reduce)').matches){done();return}
+  if(b){const r=b.getBoundingClientRect(),q=pn.getBoundingClientRect();pn.style.transformOrigin=`${r.left+r.width/2-q.left}px ${r.top-q.top}px`}
+  pn.classList.add('closing'); pn.addEventListener('animationend',done,{once:true}); setTimeout(()=>{if(WV.doc)done()},700);
+}
+/* what you can open: this project's papers, or this course's slides and readings */
+function docChoices(){
+  const d=S.docs[V.draftId]||{}, a=d.assignmentId&&S.docs[d.assignmentId], groups=[];
+  if(a){
+    const mats=docsOf('material',m=>m.courseId===a.courseId), unitMats=a.unitId?mats.filter(m=>m.unitId===a.unitId):[];
+    const u=unitOf(a.unitId);
+    if(unitMats.length)groups.push([`${u?(u.code||u.name):'This unit'}`,unitMats]);
+    const rest=a.unitId?mats.filter(m=>m.unitId!==a.unitId):mats;
+    MAT_GROUPS.forEach(([g,lab])=>{const xs=rest.filter(m=>matGroup(m)===g);if(xs.length)groups.push([(a.unitId?'Other units · ':'')+lab,xs])});
+    if(d.projectId&&S.docs[d.projectId])groups.push(['Linked project · '+S.docs[d.projectId].name,papersOf(d.projectId).filter(hasReadable)]);
+  }else if(d.projectId){
+    groups.push([S.docs[d.projectId]?S.docs[d.projectId].name:'This project',papersOf(d.projectId).filter(hasReadable)]);
+    const others=allPapers().filter(x=>x.projectId!==d.projectId&&hasReadable(x));
+    if(others.length)groups.push(['Other projects',others]);
+  }
+  return groups.filter(g=>g[1].length);
+}
+function closeDocCard(){const c=$('#docCard');if(c)c.remove();const b=$('#docPickBtn');if(b)b.setAttribute('aria-expanded','false')}
+function openDocCard(){
+  if($('#docCard')){closeDocCard();return}
+  const b=$('#docPickBtn'); if(!b)return; const r=b.getBoundingClientRect();
+  const d=S.docs[V.draftId]||{}, asg=!!d.assignmentId, groups=docChoices();
+  const item=x=>{const isM=x.kind==='material';return `<button class="dcrow ${WV.doc===x.id?'on':''}" data-docopen="${x.id}"><span class="pdfic ${isM&&x.type==='slides'?'sl':''}">${isM?(x.type==='slides'?'SL':x.url&&!x.pdf?'URL':'PDF'):(x.pdf?'PDF':'WEB')}</span><span class="dct"><b>${esc(isM?x.name:paperTitle(x))}</b><span class="muted">${esc(isM?((S.docs[x.lectureId]||{}).topic||''):[x.authors,x.year].filter(Boolean).join(' · '))}</span></span></button>`};
+  const el=document.createElement('div'); el.id='docCard'; el.className='matcard doccard'; el.setAttribute('role','dialog'); el.setAttribute('aria-label',asg?'Course resources':'Library');
+  el.style.top=(r.bottom+8)+'px'; el.style.right=Math.max(12,innerWidth-r.right)+'px';
+  el.innerHTML=`<div class="mch"><b>${ico(asg?'folder':'library')}${asg?'Course resources':'Library'}</b><button class="btn sm icon ghost" data-dcx aria-label="Close">${ico('x')}</button></div>
+    <input class="inp" id="dcQ" placeholder="${asg?'Find a slide deck or reading':'Find a paper'}" style="margin:4px 0 8px">
+    <div id="dcList">${groups.length?groups.map(([lab,xs])=>`<div class="dcg"><div class="mgh"><span>${esc(lab)}</span><span class="muted">${xs.length}</span></div>${xs.map(item).join('')}</div>`).join(''):`<p class="muted" style="font-size:13.5px">${asg?'No slides or readings in this course yet. Add them from a lecture with Materials, or in Resources.':'No papers with a PDF or web page yet.'}</p>`}</div>`;
+  document.body.appendChild(el); b.setAttribute('aria-expanded','true');
+  const q=el.querySelector('#dcQ'); q.focus();
+  q.addEventListener('input',()=>{const v=q.value.toLowerCase();el.querySelectorAll('.dcrow').forEach(rw=>rw.hidden=!rw.textContent.toLowerCase().includes(v));el.querySelectorAll('.dcg').forEach(g=>g.hidden=![...g.querySelectorAll('.dcrow')].some(rw=>!rw.hidden))});
+  el.addEventListener('click',e=>{if(e.target.closest('[data-dcx]')){closeDocCard();return}const o=e.target.closest('[data-docopen]');if(o)openDocPane(o.dataset.docopen)});
+  setTimeout(()=>document.addEventListener('pointerdown',function off(ev){if(!ev.target.closest('#docCard,#docPickBtn')){closeDocCard();document.removeEventListener('pointerdown',off,true)}},true),0);
+}
+/* quote from the open document straight into your writing, with its citation */
+function draftQuote(x,text,page){
+  const ed=document.querySelector('.rte.draft'), d=S.docs[V.draftId]; if(!ed||!d)return;
+  const where=page?', '+pageStr(page):'';
+  const c=x.kind==='material'?`(${x.name}${where})`:`(${citeCore(x)}${where})`;
+  insertIntoDraft(ed,`“${text.replace(/\s+/g,' ')}” ${c} `);
+  if(x.kind!=='material')d.cites=[...new Set([...(d.cites||[]),x.id])];
+  draftCommit(ed); toast('Quote added to your writing with its citation');
+}
 function writerWidth(){let v=60;try{v=parseFloat(localStorage.getItem('litnotes.ww'))||60}catch(e){}return Math.min(80,Math.max(30,v))}
+function lectureChunks(l){
+  const box=document.createElement('div'); box.innerHTML=cleanRich(l.html||''); const out=[]; let head='';
+  box.querySelectorAll('h1,h2,h3,p,li,blockquote').forEach(n=>{if(n.closest('li')&&n.tagName!=='LI')return;const t=(n.textContent||'').replace(/\s+/g,' ').trim();if(!t)return;if(/^H[123]$/.test(n.tagName)){head=t;return}out.push({head,text:t})});
+  return out;
+}
+function courseBrowserHTML(d,a){
+  const cid=a.courseId, u=unitOf(a.unitId), c=S.docs[cid]||{};
+  const scopeU=BR.cscope!=='course'&&a.unitId;
+  const ls=lecturesOf(cid,scopeU?a.unitId:undefined).filter(l=>!l.missed).slice().sort((x,y)=>(y.date||'').localeCompare(x.date||''));
+  const modes=[['lecture','By lecture'],['questions','Reflection questions'],['important','Important ideas'],['cards','Flashcards'],['search','Search']];
+  if(!['lecture','questions','important','cards','search'].includes(BR.cmode))BR.cmode='lecture';
+  const ins=(txt,lab)=>`<button class="btn sm" data-lins data-txt="${esc(txt)}">${ico('plus')}${lab||'Insert'}</button>`;
+  const card=(h,body,txt)=>`<div class="ncard"><div class="nh"><b>${h}</b></div><div class="nb">${body}</div><div class="nf">${ins(txt)}</div></div>`;
+  const lname=l=>`${esc(shortDate(l.date))} · ${esc(l.topic||'Untitled lecture')}`;
+  let list='', pick='';
+  if(BR.cmode==='lecture'){
+    if(!ls.some(l=>l.id===BR.clec))BR.clec=(ls[0]||{}).id;
+    pick=ls.length?`<select class="inp" id="brLec" aria-label="Lecture">${ls.map(l=>`<option value="${l.id}" ${l.id===BR.clec?'selected':''}>${lname(l)}</option>`).join('')}</select>`:'';
+    const l=ls.find(z=>z.id===BR.clec);
+    if(l){
+      if(l.summary)list+=card('Summary',esc(l.summary),l.summary);
+      lectureChunks(l).forEach(k=>{list+=card(esc(k.head||'Notes'),esc(k.text),k.text)});
+      importantOf(l).forEach(x=>{list+=card(ico('star')+(x.kind==='reflection'?'Reflection':'Important'),esc(x.text),x.text)});
+      (l.questions||[]).filter(q=>q.answer).forEach(q=>{list+=card(ico('help')+esc(q.text),esc(q.answer),q.answer)});
+    }
+  }
+  if(BR.cmode==='questions')ls.forEach(l=>(l.questions||[]).forEach(q=>{list+=`<div class="ncard"><div class="nh"><b>${esc(q.text)}</b><span>${lname(l)}</span></div><div class="nb">${q.answer?esc(q.answer):'<i class="muted">Not answered yet</i>'}</div>${q.answer?`<div class="nf">${ins(q.answer)}</div>`:''}</div>`}));
+  if(BR.cmode==='important')ls.forEach(l=>importantOf(l).forEach(x=>{list+=`<div class="ncard"><div class="nh"><b>${x.kind==='reflection'?'Reflection':'Important'}</b><span>${lname(l)}</span></div><div class="nb">${esc(x.text)}</div><div class="nf">${ins(x.text)}</div></div>`}));
+  if(BR.cmode==='cards')ls.forEach(l=>cardsOf(l).forEach(k=>{list+=`<div class="ncard"><div class="nh"><b>${esc(k.front)}</b><span>${lname(l)}</span></div><div class="nb">${esc(k.back)}</div><div class="nf">${ins(k.front+': '+k.back)}</div></div>`}));
+  if(BR.cmode==='search'){pick=`<input class="inp" id="brQ" placeholder="Search your lecture notes" value="${esc(BR.q)}">`;const ql=BR.q.trim().toLowerCase();if(ql.length>1)ls.forEach(l=>lectureChunks(l).filter(k=>k.text.toLowerCase().includes(ql)).forEach(k=>{list+=`<div class="ncard"><div class="nh"><b>${esc(k.head||'Notes')}</b><span>${lname(l)}</span></div><div class="nb">${hl(k.text,BR.q)}</div><div class="nf">${ins(k.text)}</div></div>`}))}
+  return `${a.unitId?`<div class="seg brscope" role="group" aria-label="Which notes"><button class="${scopeU?'on':''}" data-brscope="unit">${esc(u?(u.code||u.name):'This unit')}</button><button class="${scopeU?'':'on'}" data-brscope="course">Whole course</button></div>`:''}
+    <select class="inp" id="brCMode" aria-label="Browse lecture notes by">${modes.map(([v,lab])=>`<option value="${v}" ${BR.cmode===v?'selected':''}>${lab}</option>`).join('')}</select>
+    ${pick}<div class="nlist">${list||(ls.length?(BR.cmode==='search'?'<p class="help">Type at least two letters.</p>':'<p class="help">Nothing here yet.</p>'):`<p class="help">No lecture notes in ${esc(scopeU&&u?(u.code||u.name):(c.code||c.name||'this course'))} yet.</p>`)}</div>`;
+}
 function browserHTML(){
+  const d0=S.docs[V.draftId], a0=d0.assignmentId&&S.docs[d0.assignmentId];
+  if(a0){
+    if(!BR.src)BR.src='lectures';
+    const sw=`<div class="nbhead"><b>Your notes</b><div class="seg" role="group" aria-label="Notes from"><button class="${BR.src==='lectures'?'on':''}" data-brsrc="lectures">Lectures</button><button class="${BR.src==='project'?'on':''}" data-brsrc="project">Research project</button></div></div>`;
+    if(BR.src==='lectures')return sw+courseBrowserHTML(d0,a0);
+    return sw+projectBrowserHTML();
+  }
+  return projectBrowserHTML(true);
+}
+function projectBrowserHTML(withHead){
   const pid=S.docs[V.draftId].projectId;
-  if(!pid||!S.docs[pid]){const ps=projects();return `<div class="nbhead"><b>Your notes</b></div><p class="help" style="margin:8px 0">Link a literature project to insert your reading notes, quotes and ideas here — with citations and an automatic reference list.</p>${ps.length?`<select class="inp" id="brLink"><option value="">Choose a project…</option>${ps.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join('')}</select>`:'<p class="help">You have no literature projects yet.</p>'}`}
+  if(!pid||!S.docs[pid]){const ps=projects();return `${withHead!==false&&withHead?'<div class="nbhead"><b>Your notes</b></div>':''}<p class="help" style="margin:8px 0">Link a literature project to insert your reading notes, quotes and ideas here — with citations and an automatic reference list.</p>${ps.length?`<select class="inp" id="brLink"><option value="">Choose a project…</option>${ps.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join('')}</select>`:'<p class="help">You have no literature projects yet.</p>'}`}
   const t=tpl(pid), pp=papersOf(pid);
   const modes=[['question','Questions'],['paper','Papers'],['quotes','Quotes'],['ideas','Ideas'],...dimsOf(pid).map(d=>['dim:'+d.id,d.name]),['search','Search']];
   let items=[], list='';
@@ -3558,7 +3684,7 @@ function browserHTML(){
     const one=({x,c})=>card(x,qLabel(pid,c.qid),codeBodyHTML(x,c,pid),codeBodyText(x,c,pid));
     list=d&&d.debate?STANCES.map(([k,l,col])=>{const g=rows.filter(r=>(r.c.stance||'mixed')===k);return g.length?`<div class="stance" style="color:${col}">${l} (${g.length})</div>`+g.map(one).join(''):''}).join(''):rows.map(one).join('')}
   else if(BR.mode==='search'&&BR.q.trim().length>1){const ql=BR.q.toLowerCase();const out=[];pp.forEach(x=>t.questions.forEach(q=>{const a=(x.answers||{})[q.id]||'';if(a.toLowerCase().includes(ql))out.push(card(x,`Q${t.questions.indexOf(q)+1} ${q.text}`,answerHTML(x,q),a))}));list=out.join('')||'<p class="help">No notes match.</p>'}
-  return `<div class="nbhead"><b>Your notes</b><select class="inp" id="brMode" aria-label="Browse notes by">${modes.map(([v,l])=>`<option value="${v}" ${BR.mode===v?'selected':''}>${esc(l)}</option>`).join('')}</select></div>
+  return `<div class="nbhead">${withHead?'<b>Your notes</b>':''}<select class="inp" id="brMode" aria-label="Browse notes by">${modes.map(([v,l])=>`<option value="${v}" ${BR.mode===v?'selected':''}>${esc(l)}</option>`).join('')}</select></div>
     ${BR.mode==='search'?`<input class="inp" id="brQ" placeholder="Search your notes…" value="${esc(BR.q)}">`:items.length?`<select class="inp" id="brItem" aria-label="Choose">${items.map(i=>`<option value="${esc(i.v)}" ${i.v===BR.item?'selected':''}>${esc(i.l)}${i.n!=null?` (${i.n})`:''}</option>`).join('')}</select>`:`<p class="help">Nothing here yet — tag notes with ${esc(BR.mode.startsWith('dim:')?(dimById(pid,BR.mode.slice(4))||{}).name||'':'').toLowerCase()} while reading.</p>`}
     <div class="nlist">${list||(BR.mode==='search'?'<p class="help">Type at least two letters.</p>':'<p class="help">No notes for this yet.</p>')}</div>`;
 }
@@ -3574,11 +3700,19 @@ function bindDraft(){
   const keep=()=>{const s=getSelection();if(s.rangeCount&&ed.contains(s.getRangeAt(0).commonAncestorContainer))draftRange=s.getRangeAt(0).cloneRange()};
   ['keyup','mouseup','input','focus'].forEach(ev=>ed.addEventListener(ev,keep));
   const ti=$('#dTitleIn'); ti.oninput=()=>{d.title=ti.value;save(V.draftId,700);flashSave();const ft=document.querySelector('#draftEditor .ftitle span');if(ft)ft.textContent=ti.value};
-  const nb=$('#nbrowse');
-  nb.addEventListener('change',e=>{if(e.target.id==='brLink'&&e.target.value){d.projectId=e.target.value;save(V.draftId);const a=d.assignmentId&&S.docs[d.assignmentId];if(a){a.projectId=d.projectId;save(d.assignmentId)}nb.innerHTML=browserHTML();return}if(e.target.id==='brMode'){BR.mode=e.target.value;BR.item=null;nb.innerHTML=browserHTML()}if(e.target.id==='brItem'){BR.item=e.target.value;nb.innerHTML=browserHTML()}});
+  if(WV.doc){mountDocPane()}
+  const nb=WV.doc?document.createElement('div'):$('#nbrowse');
+  nb.addEventListener('change',e=>{
+    if(e.target.id==='brCMode'){BR.cmode=e.target.value;nb.innerHTML=browserHTML();return}
+    if(e.target.id==='brLec'){BR.clec=e.target.value;nb.innerHTML=browserHTML();return}
+    if(e.target.id==='brLink'&&e.target.value){d.projectId=e.target.value;save(V.draftId);const a=d.assignmentId&&S.docs[d.assignmentId];if(a){a.projectId=d.projectId;save(d.assignmentId)}nb.innerHTML=browserHTML();return}if(e.target.id==='brMode'){BR.mode=e.target.value;BR.item=null;nb.innerHTML=browserHTML()}if(e.target.id==='brItem'){BR.item=e.target.value;nb.innerHTML=browserHTML()}});
   nb.addEventListener('input',e=>{if(e.target.id==='brQ'){BR.q=e.target.value;const pos=e.target.selectionStart;nb.innerHTML=browserHTML();const q=$('#brQ');q.focus();q.setSelectionRange(pos,pos)}});
   nb.addEventListener('mousedown',e=>{if(e.target.closest('[data-ins],[data-cite],[data-idea]'))e.preventDefault()});
+  nb.addEventListener('mousedown',e=>{if(e.target.closest('[data-lins]'))e.preventDefault()});
   nb.addEventListener('click',e=>{
+    const sw=e.target.closest('[data-brsrc]');if(sw){BR.src=sw.dataset.brsrc;nb.innerHTML=browserHTML();return}
+    const sc=e.target.closest('[data-brscope]');if(sc){BR.cscope=sc.dataset.brscope;nb.innerHTML=browserHTML();return}
+    const li=e.target.closest('[data-lins]');if(li){insertIntoDraft(ed,' '+li.dataset.txt.trim()+' ');draftCommit(ed);toast('Inserted. Now put it in your own words');return}
     const bi=e.target.closest('[data-idea]');
     if(bi){const i=S.docs[bi.dataset.idea];if(!i)return;const src=ideaSource({...i});const txt=i.text.trim().replace(/\s*\n\s*/g,' ')+(src?` (${src.cite})`:'');insertIntoDraft(ed,txt+' ');if(src)d.cites=[...new Set([...(d.cites||[]),i.paperId])];draftCommit(ed);toast('Idea inserted');return}
     const b=e.target.closest('[data-ins],[data-cite]'); if(!b)return;
@@ -4287,7 +4421,7 @@ function showPop(info,hl){
   const x=curPaper(); if(!x)return;
   hidePop(); POP={...info,hl};
   const t=tpl(x.projectId), first=info.pages[0], lastP=info.pages[info.pages.length-1];
-  const isSl=V.view==='lecture'&&x.type==='slides';
+  const isMat=x.kind==='material', isSl=isMat&&x.type==='slides', inDraft=V.view==='draft';
   const pg=info.web?(info.para||''):isSl?(first===lastP?`slide ${first}`:`slides ${first}–${lastP}`):first===lastP?printedPage(x,first):`${printedPage(x,first)}–${printedPage(x,lastP)}`;
   const qsel=defaultQuoteQ(x);
   const host=$('#reader'); if(!host)return;
@@ -4295,13 +4429,13 @@ function showPop(info,hl){
   if(info.loading){el.innerHTML=`<div class="sprow"><span class="spin"></span><span>Reading the text in the box…</span><button class="spx" data-spx aria-label="Close">×</button></div>`;host.appendChild(el);placePop(el,info,host);el.querySelector('[data-spx]').onclick=hidePop;return}
   el.innerHTML=`${info.ocr?`<div class="sprow" style="align-items:flex-start"><textarea class="inp" id="spText" rows="3" aria-label="Recognised text — correct it if needed">${esc(info.text)}</textarea><button class="spx" data-spx aria-label="Close">×</button></div><div class="help" style="margin:-4px 0 0;font-size:12px">Read from the scan — check it against the page and correct any mistakes before adding.</div>`:`<div class="sptext">“${esc(info.text.length>110?info.text.slice(0,108)+'…':info.text)}”<button class="spx" data-spx aria-label="Close">×</button></div>`}
     <div class="sprow" ${info.web?'hidden':''}><span class="spl">Highlight</span>${HLC.map(([k,hex])=>`<button class="hlc ${hl&&hl.color===k?'on':''}" data-hlc="${k}" style="background:${hex}" title="${hl?'Change to':'Highlight in'} ${k}" aria-label="${k}"></button>`).join('')}${hl?`<button class="btn sm ghost danger" data-hldel title="Remove this highlight">${ico('trash')}Remove</button>`:''}</div>
-    <div class="sprow" ${V.view==='lecture'?'hidden':''}><span class="spl">Quote to</span><select class="inp" id="spQ" aria-label="Question to add the quote to">${t.questions.map((q,i)=>`<option value="${q.id}" ${q.id===qsel?'selected':''}>Q${i+1} · ${esc(q.text.length>46?q.text.slice(0,44)+'…':q.text)}</option>`).join('')}</select></div>
-    <div class="sprow"><span class="spl">${info.web?'Where':isSl?'Slide':'Page'}</span><input class="inp" id="spPg" value="${esc(pg)}" style="width:${info.web?96:76}px" aria-label="${info.web?'Paragraph for the citation':'Page number for the citation'}" title="${info.web?'Web pages have no page numbers: APA cites the paragraph (para. N), or a section heading.':`Printed page number used in the citation. PDF page ${first}${first!==lastP?'–'+lastP:''}.`}"><span class="muted" style="font-size:12px;flex:1">${esc(V.view==='lecture'?(x.name||''):citeCore(x))}${pg?', '+esc(pageStr(pg)):''}</span><button class="btn sm" data-spidea title="Save a thought about this passage as an idea">${ico('bulb')}Idea</button><button class="btn sm pri" data-spquote>${ico('plus')}${V.view==='lecture'?'Add to notes':'Add quote'}</button></div>`;
+    <div class="sprow" ${V.view==='lecture'||inDraft?'hidden':''}><span class="spl">Quote to</span><select class="inp" id="spQ" aria-label="Question to add the quote to">${t.questions.map((q,i)=>`<option value="${q.id}" ${q.id===qsel?'selected':''}>Q${i+1} · ${esc(q.text.length>46?q.text.slice(0,44)+'…':q.text)}</option>`).join('')}</select></div>
+    <div class="sprow"><span class="spl">${info.web?'Where':isSl?'Slide':'Page'}</span><input class="inp" id="spPg" value="${esc(pg)}" style="width:${info.web?96:76}px" aria-label="${info.web?'Paragraph for the citation':'Page number for the citation'}" title="${info.web?'Web pages have no page numbers: APA cites the paragraph (para. N), or a section heading.':`Printed page number used in the citation. PDF page ${first}${first!==lastP?'–'+lastP:''}.`}"><span class="muted" style="font-size:12px;flex:1">${esc(V.view==='lecture'?(x.name||''):citeCore(x))}${pg?', '+esc(pageStr(pg)):''}</span><button class="btn sm" data-spidea title="Save a thought about this passage as an idea">${ico('bulb')}Idea</button><button class="btn sm pri" data-spquote>${ico('plus')}${V.view==='lecture'?'Add to notes':V.view==='draft'?'Quote into my writing':'Add quote'}</button></div>`;
   host.appendChild(el); placePop(el,info,host);
   el.querySelector('[data-spx]').onclick=()=>{hidePop();getSelection().removeAllRanges()};
   const spText=el.querySelector('#spText'); if(spText){spText.addEventListener('input',()=>{POP.text=spText.value.trim()});setTimeout(()=>spText.focus(),30)}
   const pgI=el.querySelector('#spPg'), lab=el.querySelector('.sprow:last-child .muted');
-  pgI.addEventListener('input',()=>{const v=pgI.value.trim();lab.textContent=`${V.view==='lecture'?(x.name||''):citeCore(x)}${v?', '+pageStr(v):''}`});
+  pgI.addEventListener('input',()=>{const v=pgI.value.trim();lab.textContent=`${isMat?(x.name||''):citeCore(x)}${v?', '+pageStr(v):''}`});
   el.addEventListener('mousedown',e=>{if(!e.target.closest('input,select,textarea'))e.preventDefault()});
   el.addEventListener('keydown',e=>{if(e.key==='Escape'){hidePop();e.stopPropagation()}if(e.key==='Enter'&&e.target.id==='spPg'){e.preventDefault();el.querySelector('[data-spquote]').click()}});
   el.querySelectorAll('[data-hlc]').forEach(b=>b.onclick=()=>{if(!POP.text){toast('There is no text to highlight');return}hl?recolorHighlight(hl.id,b.dataset.hlc):addHighlight(POP,b.dataset.hlc);hidePop();getSelection().removeAllRanges()});
@@ -4310,6 +4444,7 @@ function showPop(info,hl){
   el.querySelector('[data-spquote]').onclick=()=>{
     const text=(POP.text||'').trim(); if(!text){toast('There is no text to quote');return}
     if(V.view==='lecture'){lectureQuote(text,pgI.value.trim());hidePop();getSelection().removeAllRanges();return}
+    if(inDraft){draftQuote({id:WV.doc,...x},text,pgI.value.trim());hidePop();getSelection().removeAllRanges();return}
     const qid=el.querySelector('#spQ').value, page=pgI.value.trim()||(info.web?'':String(first));
     QUOTE_Q=qid; try{localStorage.setItem('litnotes.quoteQ',qid)}catch(e){}
     addQuoteToNotes(x,qid,text,page); hidePop(); getSelection().removeAllRanges();
@@ -5748,7 +5883,8 @@ async function exportDoc(title,body,fmt,extraCss){
    ============================================================ */
 const LV={mat:null,panel:true};
 try{LV.panel=localStorage.getItem('litnotes.lpanel')!=='0'}catch(e){}
-const readerId=()=>V.view==='paper'?V.paperId:V.view==='lecture'?LV.mat:null;
+const WV={doc:null};
+const readerId=()=>V.view==='paper'?V.paperId:V.view==='lecture'?LV.mat:V.view==='draft'?WV.doc:null;
 function lectureView(){
   const l=S.docs[V.lectureId]; if(!l)return '<p>Lecture note not found.</p>';
   const c=courseOf(l.courseId)||{}, u=unitOf(l.unitId), L=lecturersFor(l.courseId,l.unitId);
@@ -5836,6 +5972,7 @@ function popMaterial(id){
   const w=window.open(url,'ln_'+id,'popup,width=980,height='+Math.min(1100,screen.availHeight||1000));
   if(!w){window.open(url,'_blank','noopener')}
   if(V.view==='lecture'&&LV.mat===id){LV.mat=null;renderMain()}
+  if(V.view==='draft'&&WV.doc===id)closeDocPane();
 }
 function bindLecture(){
   const lj=$('#lJump'); if(lj)lj.onchange=()=>{LV.mat=null;go({view:'lecture',lectureId:lj.value})};
@@ -6577,6 +6714,7 @@ document.addEventListener('click',e=>{
     case 'draftMd': draftExport('md');break;
     case 'draftDoc': draftExport('doc');break;
     case 'draftPdf': draftExport('pdf');break;
+    case 'docPick': openDocCard();break;
     case 'addDim': {const inp=$('#newDim');const name=inp&&inp.value.trim();if(!name){inp&&inp.focus();break}const p=S.docs[V.pid];p.dims=p.dims||[];const cols=['#0d9488','#db2777','#65a30d','#7c3aed','#ea580c','#0284c7'];p.dims.push({id:uid('dim_'),name,color:cols[p.dims.length%cols.length],hint:'Your own dimension'});save(V.pid);renderMain();toast('Dimension added');break}
     case 'backupNow': (async()=>{try{const r=await fetch('/api/backups',{method:'POST'});const j=await r.json();toast(j.name?'Backup saved':'Nothing to back up yet');loadBackups()}catch(e){toast('Backup failed — is the server running?')}})();break;
     case 'restoreSnap': {const name=b.dataset.v;confirmBox('Restore notes from this snapshot? Notes in it replace their current versions; anything added since stays.','Restore',async()=>{try{const r=await fetch('/api/backups/'+encodeURIComponent(name));restoreData(await r.json())}catch(e){toast('That snapshot could not be read.')}});break}
@@ -6586,7 +6724,7 @@ document.addEventListener('click',e=>{
     case 'quickAdd': quickAdd();break;
     case 'jumpQ': openToQuestion(b.dataset.q);break;
     case 'openSplit': {R.tab=b.dataset.v||'pdf';if(!V.split){V.split=true;persistView();renderMain()}else{switchRTab(R.tab)}break}
-    case 'closeSplit': if(V.view==='lecture'){LV.mat=null;R.token++;renderMain();break}V.split=false;persistView();R.token++;renderMain();break;
+    case 'closeSplit': if(V.view==='draft'){closeDocPane();break}if(V.view==='lecture'){LV.mat=null;R.token++;renderMain();break}V.split=false;persistView();R.token++;renderMain();break;
     case 'focus': setFocus(!V.focus);break;
     case 'swap': {V.swap=!V.swap;persistView();const pe=$('#pe');if(pe)pe.classList.toggle('swap',V.swap);refitReader();break}
     case 'rtab': switchRTab(b.dataset.v);break;
@@ -6665,7 +6803,7 @@ document.addEventListener('click',e=>{
     case 'repExport': {const r=S.docs[id];if(r)exportDoc(r.title||'Report',r.html,b.dataset.v);break}
     case 'repDel': {const r=S.docs[id];if(r&&confirm(`Delete the saved report “${r.title}”?`)){remove(id);renderMain()}break}
     case 'matPop': popMaterial(id);break;
-    case 'popReader': {const m=V.view==='lecture'?LV.mat:null;if(m){popMaterial(m);break}window.open(b.dataset.url,'ln_reader','popup,width=980,height=1000');break}
+    case 'popReader': {const m=V.view==='lecture'?LV.mat:(V.view==='draft'&&WV.doc&&(S.docs[WV.doc]||{}).kind==='material')?WV.doc:null;if(m){popMaterial(m);break}window.open(b.dataset.url,'ln_reader','popup,width=980,height=1000');break}
     case 'matDel': deleteMaterial(id);break;
     case 'newAssign': newAssignment(b.dataset.c||(V.view==='course'?V.courseId:null));break;
     case 'openAssign': go({view:'assignment',assignId:id});break;
@@ -6743,7 +6881,7 @@ document.addEventListener('input',e=>{
   if(t.dataset.pf&&S.docs[V.pid]){S.docs[V.pid][t.dataset.pf]=t.value;if(t.tagName==='TEXTAREA')autosize(t);save(V.pid,800);if(t.dataset.pf==='name')renderSide()}
 });
 document.addEventListener('keydown',e=>{
-  if(e.key==='Escape'){const o=document.querySelector('.ov');if(o){o.remove();return}if($('#matCard')){toggleMatCard(false);return}if(V.focus&&V.view==='paper'&&!e.target.isContentEditable&&!['input','textarea','select'].includes((e.target.tagName||'').toLowerCase())){setFocus(false);return}closeSearch();$('#q').blur()}
+  if(e.key==='Escape'){const o=document.querySelector('.ov');if(o){o.remove();return}if($('#matCard')){toggleMatCard(false);return}if($('#docCard')){closeDocCard();return}if(V.view==='draft'&&WV.doc&&!document.querySelector('#selpop')){closeDocPane();return}if(V.focus&&V.view==='paper'&&!e.target.isContentEditable&&!['input','textarea','select'].includes((e.target.tagName||'').toLowerCase())){setFocus(false);return}closeSearch();$('#q').blur()}
   const tag=(e.target.tagName||'').toLowerCase();
   if(e.key==='/'&&!e.target.isContentEditable&&!['input','textarea','select'].includes(tag)&&!document.querySelector('.ov')){e.preventDefault();$('#q').focus()}
 });

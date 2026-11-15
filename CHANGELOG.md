@@ -1,5 +1,11 @@
 # Changelog
 
+## [3.3.0]
+- **Your lecture notes beside your assignment.** When you write an assignment, the notes panel shows your **Lectures**: just the assignment's unit or the whole course, by lecture, reflection questions, important ideas, flashcards, or a search. Each piece has an **Insert** button. Switch to **Research project** for your reading notes from a linked project.
+- **Open a document while you write.** **Library** (research writing) or **Resources** (assignments) sits at the top right. It lists this project's papers, or the course's slides and readings (your assignment's unit first), with a search box. The document opens where the notes were, with its title and a **Close** button.
+  - Select text in it and choose **Quote into my writing**: the quote goes into your text with its citation and page.
+  - **Close** (or Esc) shrinks it back into the button, macOS-style, and your notes slide back into place. ↗ still opens it in its own window.
+
 ## [3.2.0]
 - **Project badges in the side menu.** Each project has a small coloured badge with its initials; courses get one in their own colour with their code letters.
 - **A structured project page.** The header shows the project's badge, name and review question (with a link to add one if missing), followed by a summary strip: papers, reading now, up next, finished, % of notes done and drafts. Literature is grouped into **Reading now**, **Up next** and **Finished**. It opens as a tidy list (title, authors, year and journal, where you are, verdict and progress); switch to **Cards** if you prefer. Cards no longer repeat the project name.
