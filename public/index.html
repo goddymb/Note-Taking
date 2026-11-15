@@ -1495,7 +1495,7 @@ const tpl=pid=>{if(S.docs[pid]&&S.docs[pid].kind==='project'&&(S.docs[pid]._qv||
    ============================================================ */
 const V={view:'home',pid:null,paperId:null,lastPaper:null,tab:'lit',filter:'All',cmpQ:'q1',repLayout:'paper',showEmpty:false,openSec:{},openQ:{},lib:null,split:false,focus:false,swap:false};
 try{Object.assign(V,JSON.parse(localStorage.getItem('litnotes.view')||'{}'))}catch(e){}
-function persistView(){try{localStorage.setItem('litnotes.view',JSON.stringify({view:V.view,pid:V.pid,paperId:V.paperId,lastPaper:V.lastPaper,tab:V.tab,lib:V.lib,split:V.split,focus:V.focus,swap:V.swap,draftId:V.draftId,repLayout:V.repLayout,courseId:V.courseId,lectureId:V.lectureId,assignId:V.assignId,ctab:V.ctab,cstab:V.cstab,unitF:V.unitF,libTab:V.libTab}))}catch(e){}}
+function persistView(){try{localStorage.setItem('litnotes.view',JSON.stringify({view:V.view,pid:V.pid,paperId:V.paperId,lastPaper:V.lastPaper,tab:V.tab,lib:V.lib,split:V.split,focus:V.focus,swap:V.swap,draftId:V.draftId,repLayout:V.repLayout,courseId:V.courseId,lectureId:V.lectureId,assignId:V.assignId,ctab:V.ctab,cstab:V.cstab,unitF:V.unitF,resTab:V.resTab}))}catch(e){}}
 function go(o){Object.assign(V,o);persistView();document.getElementById('side').classList.remove('show');closeSearch();const qi=document.getElementById('q');if(qi&&document.activeElement!==qi)qi.value='';render();window.scrollTo(0,0)}
 
 function onData(){
@@ -1630,7 +1630,7 @@ function activeNav(){
   if(V.view==='ideas')return 'ideas';
   if(['courses','course','lecture','assignment'].includes(V.view)||(V.view==='draft'&&S.docs[V.draftId]&&S.docs[V.draftId].assignmentId))return 'courses';
   if(V.view==='review')return 'review';
-  if(V.view==='report')return 'report';
+  if(V.view==='resources'||V.view==='report')return 'resources';
   if(V.view==='project'&&V.tab==='cmp')return 'compare';
   if(V.view==='project'&&V.tab==='rep')return 'reports';
   return 'projects';
@@ -1648,6 +1648,7 @@ function courseTree(){
     const us=unitsOf(c.id), loose=asc(lecturesOf(c.id,null));
     const addU={key:'addu:'+c.id,label:'Add unit',add:true,act:'newUnit',data:{c:c.id}};
     const kids=us.length?[...us.map(u=>({key:'u:'+u.id,label:u.code||u.name,title:(u.code?u.code+' · ':'')+u.name,act:'openCourse',id:c.id,data:{unit:u.id},tk:'u:'+u.id,def:!!(curL&&curL.unitId===u.id),n:lecturesOf(c.id,u.id).length,kids:[...asc(lecturesOf(c.id,u.id)).map(lecNode),plan(c.id,u.id)]})),...loose.map(lecNode),addU]:[...loose.map(lecNode),plan(c.id),addU];
+    kids.unshift({key:'cres:'+c.id,label:'Resources',ic:'folder',act:'resTab',data:{v:'readings',c:c.id},on:V.view==='resources'&&(V.resTab||'readings')!=='reports'&&(V.libR||{}).course===c.id},{key:'crep:'+c.id,label:'Report',ic:'doc',act:'resTab',data:{v:'reports',c:c.id},on:V.view==='resources'&&V.resTab==='reports'&&(V.libR||{}).course===c.id});
     return {key:'c:'+c.id,label:c.code||c.name||'Untitled course',title:courseLabel(c),col:ccol(c),act:'openCourse',id:c.id,tk:'c:'+c.id,on:V.view==='course'&&V.courseId===c.id,def:curC===c.id,kids};
   });
 }
@@ -1664,16 +1665,16 @@ function renderSide(){
   const n=activeNav(), all=allPapers();
   const updBadge=UPD.info&&UPD.info.newer;
   const dueN=dueReviews().length;
-  const items=[['home','home','Home'],['__','Research'],['projects','folder','Projects',projects().length],['library','library','Library',all.length],['ideas','bulb','Ideas',ideasAll().filter(i=>!isStudyIdea(i)).length||null],['__','Study'],['courses','cap','Courses',coursesAll().length||null],['review','cards','Review',dueN||null],['report','doc','Report'],['__',''],['settings','settings','Settings',updBadge?'●':null]];
-  const kids=k=>k==='library'?LIB_TABS.map(([v,lab,ic])=>({id:v,act:'libTab',label:lab,ic,on:V.view==='library'&&(V.libTab||'papers')===v})):k==='projects'?projects().map(p=>({id:p.id,act:'openProject',label:p.name||'Untitled project',on:['project','paper','paperReport','draft'].includes(V.view)&&V.pid===p.id})):k==='courses'?coursesAll().map(c=>({id:c.id,act:'openCourse',label:c.code||c.name||'Untitled course',title:courseLabel(c),col:ccol(c),on:['course','lecture','assignment'].includes(V.view)&&V.courseId===c.id})):null;
+  const items=[['home','home','Home'],['__','Research'],['projects','folder','Projects',projects().length],['library','library','Library',all.length],['ideas','bulb','Ideas',ideasAll().filter(i=>!isStudyIdea(i)).length||null],['__','Study'],['courses','cap','Courses',coursesAll().length||null],['review','cards','Review',dueN||null],['resources','folder','Course resources'],['__',''],['settings','settings','Settings',updBadge?'●':null]];
+  const kids=k=>k==='resources'?RES_TABS.map(([v,lab,ic])=>({id:v,act:'resTab',label:lab,ic,on:V.view==='resources'&&(V.resTab||'readings')===v})):k==='projects'?projects().map(p=>({id:p.id,act:'openProject',label:p.name||'Untitled project',on:['project','paper','paperReport','draft'].includes(V.view)&&V.pid===p.id})):k==='courses'?coursesAll().map(c=>({id:c.id,act:'openCourse',label:c.code||c.name||'Untitled course',title:courseLabel(c),col:ccol(c),on:['course','lecture','assignment'].includes(V.view)&&V.courseId===c.id})):null;
   setHTML($('#nav'),items.map(([k,i,l,c])=>{
     if(k==='__')return i?`<div class="slabel nvsep">${i}</div>`:'<div class="nvgap"></div>';
     const ks=kids(k), fold=ks&&ks.length, open=fold&&sideOpen(k);
     return `<button class="nv ${n===k?'on':''}" data-act="nav" data-v="${k}" ${n===k?'aria-current="page"':''}>${ico(i)}<span>${l}</span>${c!=null?`<span class="k" ${c==='●'?'style="color:var(--accent);font-size:14px" title="Update available"':''}>${c}</span>`:''}${fold?`<span class="nvfold ${open?'open':''}" data-act="sideFold" data-v="${k}" role="button" aria-label="${open?'Hide':'Show'} ${l.toLowerCase()}" title="${open?'Hide':'Show'} ${l.toLowerCase()}">${ico('chev')}</span>`:''}</button>`
-      +(open?(k==='courses'?`<div class="nav-tree">${treeHTML(courseTree(),0)}</div>`:`<div class="nvsubs">${ks.map(x=>`<button class="nvsub ${x.on?'on':''}" data-act="${x.act}" ${x.act==='libTab'?`data-v="${x.id}"`:`data-id="${x.id}"`} title="${esc(x.title||x.label)}">${x.ic?ico(x.ic):x.col?`<i style="background:${x.col}"></i>`:'<i></i>'}<span>${esc(x.label)}</span></button>`).join('')}</div>`):'');
+      +(open?(k==='courses'?`<div class="nav-tree">${treeHTML(courseTree(),0)}</div>`:`<div class="nvsubs">${ks.map(x=>`<button class="nvsub ${x.on?'on':''}" data-act="${x.act}" ${x.act==='resTab'?`data-v="${x.id}"`:`data-id="${x.id}"`} title="${esc(x.title||x.label)}">${x.ic?ico(x.ic):x.col?`<i style="background:${x.col}"></i>`:'<i></i>'}<span>${esc(x.label)}</span></button>`).join('')}</div>`):'');
   }).join(''));
   // current project card (not needed while the project list is shown)
-  if(sideOpen('projects')&&projects().length){setHTML($('#curProj'),'');return}
+  if((sideOpen('projects')&&projects().length)||['courses','review','resources'].includes(activeNav())){setHTML($('#curProj'),'');return}
   const p=V.pid&&S.docs[V.pid]&&S.docs[V.pid].kind==='project'?{id:V.pid,...S.docs[V.pid]}:projects().slice(-1)[0];
   if(!p){setHTML($('#curProj'),'');return}
   const t=tpl(p.id), pp=papersOf(p.id);
@@ -1707,7 +1708,8 @@ function renderMain(soft){
   else if(V.view==='lecture'&&S.docs[V.lectureId]) html=lectureView();
   else if(V.view==='assignment'&&S.docs[V.assignId]) html=assignmentView();
   else if(V.view==='review') html=reviewView();
-  else if(V.view==='report') html=reportView();
+  else if(V.view==='report'){V.view='resources';V.resTab='reports';html=resourcesView()}
+  else if(V.view==='resources') html=resourcesView();
   else {V.view='home';html=(coursesAll().length?`<div style="margin-bottom:18px">${todayCardHTML()}</div>`:'')+homeView()}
   if(soft&&m._html===html)return;
   m.innerHTML=html; m._html=html;
@@ -1721,7 +1723,7 @@ function renderMain(soft){
   if(V.view==='lecture')bindLecture();
   if(V.view==='assignment')bindAssignment();
   if(V.view==='course'){bindGrades();bindRevision()}
-  if(V.view==='report')bindCourseReport();
+  if(V.view==='resources')bindCourseReport();
   if(V.view==='project'&&V.tab==='ask')bindProjectAsk();
   m.querySelectorAll('textarea.inp').forEach(autosize);
 }
@@ -1783,15 +1785,18 @@ function projectsView(){
   return `<div class="page-head"><div class="grow"><h1>Projects</h1><p class="lede">Each project groups the literature for one review, with its own question set, comparison view and report.</p></div><button class="btn pri" data-act="newProject">${ico('plus')}New project</button></div>
   <div class="pgrid" style="margin-top:20px">${ps.map(projectCard).join('')}<button class="pc add" data-act="newProject">${ico('plus')}<b>New project</b></button></div>`;
 }
-const LIB_TABS=[['papers','Research papers','doc'],['readings','Readings & slides','folder'],['sketches','Sketches','edit'],['reports','Course reports','library']];
-function libraryView(){
-  const tab=V.libTab||'papers';
-  const head=`<div class="page-head"><div class="grow"><h1>Library</h1><p class="lede">${{papers:'Every research paper across your projects.',readings:'Slides, compulsory and additional readings and links from your lectures.',sketches:'Drawings and handwritten notes from your sketch pad.',reports:'Course reports you saved from the Report page. Research reports stay inside each project.'}[tab]}</p></div></div>
-    <div class="subtabs" role="tablist">${LIB_TABS.map(([k,lab])=>`<button role="tab" class="${tab===k?'on':''}" aria-selected="${tab===k}" data-act="libTab" data-v="${k}">${lab}</button>`).join('')}</div>`;
-  if(tab==='readings')return head+`<div class="stabbody">${libReadingsHTML()}</div>`;
+/* Library = research papers only. Course resources = everything that belongs to your courses. */
+function libraryView(){return libraryPapersView()}
+const RES_TABS=[['readings','Readings & slides','folder'],['sketches','Sketches','edit'],['reports','Reports','doc']];
+function resourcesView(){
+  const tab=V.resTab||'readings', cs=coursesAll(), f=V.libR||(V.libR={course:'all',unit:'all'});
+  const head=`<div class="page-head"><div class="grow"><h1>Course resources</h1><p class="lede">${{readings:'Slides, compulsory and additional readings and links from your lectures.',sketches:'Drawings and handwritten notes from your sketch pad.',reports:'Reports of your lecture notes, reflection questions, important ideas and flashcards — for a course, a unit or one lecture.'}[tab]} Separate from your research library.</p></div></div>
+    <div class="subtabs" role="tablist">${RES_TABS.map(([k,lab])=>`<button role="tab" class="${tab===k?'on':''}" aria-selected="${tab===k}" data-act="resTab" data-v="${k}">${lab}</button>`).join('')}</div>`;
+  if(!cs.length)return head+`<div class="empty"><div class="ic">${ico('cap')}</div><div class="big">No courses yet</div><p>Create a course and its resources collect here.</p><button class="btn pri" data-act="newCourse">${ico('plus')}New course</button></div>`;
   if(tab==='sketches')return head+`<div class="stabbody">${libSketchesHTML()}</div>`;
-  if(tab==='reports')return head+`<div class="stabbody">${libReportsHTML()}</div>`;
-  return head+`<div class="stabbody">${libraryPapersView().replace(/^<div class="page-head">[\s\S]*?<\/div><\/div>/,'')}</div>`;
+  if(tab==='reports'){if(f.course!=='all'&&cs.some(c=>c.id===f.course)&&CR.cid!==f.course){CR.cid=f.course;CR.scope='course'}
+    return head+`<div class="stabbody">${reportView().replace(/^<div class="page-head">[\s\S]*?<\/div><\/div>/,'')}<h2 style="margin:28px 0 10px">Saved reports</h2>${libReportsHTML()}</div>`}
+  return head+`<div class="stabbody">${libReadingsHTML()}</div>`;
 }
 function libReadingsHTML(){
   const cs=coursesAll(); if(!cs.length)return `<p class="muted">No courses yet. Readings and slides you attach to lectures appear here.</p>`;
@@ -1805,13 +1810,13 @@ function libReadingsHTML(){
       <div class="libgrps">${MAT_GROUPS.map(([g,lab])=>{const xs=ms.filter(m=>matGroup(m)===g);return `<div class="mgrp"><div class="mgh"><span>${lab}</span><button class="btn sm ghost" data-act="${g==='links'?'matLink':'matAdd'}" data-v="${g==='slides'?'slides':'reading'}" data-g="${g}" data-l="${l.id}">${ico(g==='links'?'external':'upload')}${g==='links'?'Add':'Upload'}</button></div>${xs.map(m=>`<div class="matrow"><span class="pdfic ${m.type==='slides'?'sl':''}">${m.type==='slides'?'SL':m.url&&!m.pdf?'URL':'PDF'}</span><button class="link mname" data-act="sideMat" data-id="${m.id}" title="Open beside the lecture notes">${esc(m.name)}</button><button class="btn sm ghost icon" data-act="matPop" data-id="${m.id}" title="Open in its own window">${ico('external')}</button>${g==='compulsory'||g==='additional'?`<button class="btn sm ghost" data-act="matMove" data-id="${m.id}" title="Move to ${g==='compulsory'?'additional':'compulsory'} readings">⇄</button>`:''}<button class="btn sm ghost danger" data-act="matDel" data-id="${m.id}" aria-label="Remove">✕</button></div>`).join('')||'<div class="muted mnone">—</div>'}</div>`}).join('')}</div></div>`}).join('');
 }
 function libSketchesHTML(){
-  const sk=sketchesAll();
-  return `<div class="row" style="margin-bottom:14px"><button class="btn pri" data-act="sketchNew">✏️ New sketch</button></div>`+(sk.length?`<div class="skgrid">${sk.map(x=>{const c=S.docs[x.courseId]||{},l=S.docs[x.lectureId];return `<div class="card skcard"><button class="skthumb" data-act="sketchOpen" data-id="${x.id}" title="Open and edit">${x.png?`<img src="/_blob/${x.png.id}" alt="${esc(x.name||'Sketch')}">`:'<span>✏️</span>'}</button><div class="skmeta"><b>${esc(x.name||'Sketch')}</b><span class="muted">${esc([c.code||c.name,l&&l.topic].filter(Boolean).join(' · ')||'No lecture')} · ${esc(new Date(x.updatedAt||x.createdAt||Date.now()).toLocaleDateString())}</span></div><div class="row" style="gap:6px"><button class="btn sm" data-act="sketchOpen" data-id="${x.id}">${ico('edit')}Edit</button><button class="btn sm ghost danger" data-act="sketchDel" data-id="${x.id}">${ico('trash')}</button></div></div>`}).join('')}</div>`:`<div class="empty" style="padding:30px"><div class="ic">✏️</div><p>No sketches yet. While taking lecture notes, click <b>✏️ Sketch</b> at the top right.</p></div>`);
+  const f=V.libR||{course:'all'}, sk=sketchesAll().filter(x=>f.course==='all'||x.courseId===f.course);
+  return `<div class="row" style="margin-bottom:14px"><select class="inp" style="width:auto;border-radius:999px" data-libr="course"><option value="all">All courses</option>${coursesAll().map(c=>`<option value="${c.id}" ${f.course===c.id?'selected':''}>${esc(courseLabel(c))}</option>`).join('')}</select><span class="spacer"></span><button class="btn pri" data-act="sketchNew" ${f.course!=='all'?`data-c="${f.course}"`:''}>✏️ New sketch</button></div>`+(sk.length?`<div class="skgrid">${sk.map(x=>{const c=S.docs[x.courseId]||{},l=S.docs[x.lectureId];return `<div class="card skcard"><button class="skthumb" data-act="sketchOpen" data-id="${x.id}" title="Open and edit">${x.png?`<img src="/_blob/${x.png.id}" alt="${esc(x.name||'Sketch')}">`:'<span>✏️</span>'}</button><div class="skmeta"><b>${esc(x.name||'Sketch')}</b><span class="muted">${esc([c.code||c.name,l&&l.topic].filter(Boolean).join(' · ')||'No lecture')} · ${esc(new Date(x.updatedAt||x.createdAt||Date.now()).toLocaleDateString())}</span></div><div class="row" style="gap:6px"><button class="btn sm" data-act="sketchOpen" data-id="${x.id}">${ico('edit')}Edit</button><button class="btn sm ghost danger" data-act="sketchDel" data-id="${x.id}">${ico('trash')}</button></div></div>`}).join('')}</div>`:`<div class="empty" style="padding:30px"><div class="ic">✏️</div><p>No sketches yet. While taking lecture notes, click <b>✏️ Sketch</b> at the top right.</p></div>`);
 }
 const reportsSaved=()=>docsOf('report').sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
 function libReportsHTML(){
   const rs=reportsSaved();
-  return `<div class="row" style="margin-bottom:14px"><button class="btn" data-act="nav" data-v="report">${ico('doc')}Make a report</button></div>`+(rs.length?rs.map(r=>`<div class="card librep"><div class="grow"><b>${esc(r.title||'Report')}</b><div class="muted" style="font-size:13px">Saved ${esc(new Date(r.createdAt).toLocaleString())}</div></div><button class="btn sm" data-act="repOpen" data-id="${r.id}">Read</button><button class="btn sm" data-act="repExport" data-id="${r.id}" data-v="pdf">${ico('download')}PDF</button><button class="btn sm" data-act="repExport" data-id="${r.id}" data-v="doc">Word</button><button class="btn sm ghost danger" data-act="repDel" data-id="${r.id}">${ico('trash')}</button></div>`).join(''):`<div class="empty" style="padding:30px"><p>No saved reports yet. On the <b>Report</b> page, click <b>Save to Library</b> to keep a copy here.</p></div>`);
+  return (rs.length?rs.map(r=>`<div class="card librep"><div class="grow"><b>${esc(r.title||'Report')}</b><div class="muted" style="font-size:13px">Saved ${esc(new Date(r.createdAt).toLocaleString())}</div></div><button class="btn sm" data-act="repOpen" data-id="${r.id}">Read</button><button class="btn sm" data-act="repExport" data-id="${r.id}" data-v="pdf">${ico('download')}PDF</button><button class="btn sm" data-act="repExport" data-id="${r.id}" data-v="doc">Word</button><button class="btn sm ghost danger" data-act="repDel" data-id="${r.id}">${ico('trash')}</button></div>`).join(''):`<p class="muted">No saved reports yet. Click <b>Save a copy</b> above to keep one here.</p>`);
 }
 function libraryPapersView(){
   const all=allPapers();
@@ -5234,7 +5239,7 @@ function courseReportHTML(c,units){
   const lopt=l=>`<option value="l:${l.id}" ${CR.scope==='l:'+l.id?'selected':''}>${esc(longDate(l.date))} · ${esc(l.topic||'Untitled lecture')}</option>`;
   const opts=`<option value="course" ${CR.scope==='course'?'selected':''}>Whole course</option>`+(units.length?units.map(u=>`<optgroup label="${esc((u.code?u.code+' · ':'')+u.name)}"><option value="u:${u.id}" ${CR.scope==='u:'+u.id?'selected':''}>All of ${esc(u.code||u.name)}</option>${ls.filter(l=>l.unitId===u.id).map(lopt).join('')}</optgroup>`).join('')+(ls.some(l=>!l.unitId)?`<optgroup label="No unit">${ls.filter(l=>!l.unitId).map(lopt).join('')}</optgroup>`:''):`<optgroup label="One lecture">${ls.map(lopt).join('')}</optgroup>`);
   return `<div class="card crctl"><div class="row" style="gap:10px;align-items:flex-end"><div class="field" style="margin:0;min-width:220px"><label>Course</label><select class="inp" id="crCourse">${cs.map(x=>`<option value="${x.id}" ${x.id===c.id?'selected':''}>${esc(courseLabel(x))}</option>`).join('')}</select></div><div class="field" style="margin:0;min-width:260px"><label>${units.length?'Unit or lecture':'Lecture'}</label><select class="inp" id="crScope">${opts}</select></div>
-      <span class="spacer"></span><button class="btn" data-act="crSave" title="Keep a copy of this report in Library → Reports">${ico('library')}Save to Library</button><button class="btn" data-act="crExport" data-v="pdf">${ico('download')}Export PDF</button><button class="btn" data-act="crExport" data-v="doc">${ico('download')}Word</button></div>
+      <span class="spacer"></span><button class="btn" data-act="crSave" title="Keep a copy under Saved reports">${ico('library')}Save a copy</button><button class="btn" data-act="crExport" data-v="pdf">${ico('download')}Export PDF</button><button class="btn" data-act="crExport" data-v="doc">${ico('download')}Word</button></div>
     <div class="chips" style="margin-top:12px">${CR_PARTS.map(([k,lab])=>`<label class="chip ${CR.inc[k]?'on':''}"><input type="checkbox" data-crinc="${k}" ${CR.inc[k]?'checked':''} hidden>${lab}</label>`).join('')}</div></div>
   <article class="card crview" id="crView">${courseReportBody(c)}</article>`;
 }
@@ -5266,7 +5271,7 @@ function courseReportBody(c){
 }
 function bindCourseReport(){
   const v=$('#crView'); if(!v)return; const c=courseOf(CR.cid);
-  const cc=$('#crCourse'); if(cc)cc.onchange=()=>{CR.cid=cc.value;CR.scope='course';renderMain()};
+  const cc=$('#crCourse'); if(cc)cc.onchange=()=>{CR.cid=cc.value;CR.scope='course';V.libR=V.libR||{course:'all',unit:'all'};V.libR.course=cc.value;V.libR.unit='all';renderMain()};
   const sc=$('#crScope'); if(sc)sc.onchange=()=>{CR.scope=sc.value;v.innerHTML=courseReportBody(c)};
   document.querySelectorAll('[data-crinc]').forEach(cb=>cb.onchange=()=>{CR.inc[cb.dataset.crinc]=cb.checked;cb.closest('.chip').classList.toggle('on',cb.checked);try{localStorage.setItem('litnotes.crinc',JSON.stringify(CR.inc))}catch(e){}v.innerHTML=courseReportBody(c)});
 }
@@ -5409,7 +5414,7 @@ function lectureView(){
     <div class="lmeta">${ico('cal')}<input type="date" id="lDate" value="${esc(l.date)}" aria-label="Date"><input type="time" id="lTime" value="${esc(l.time||'')}" aria-label="Time">${(l.sessions||[]).length>1?`<span class="muted">· ${l.sessions.length} sessions</span>`:''}${L.length?`<span>· ${ico('user')}${esc(L.map(x=>x.name).join(', '))}</span>`:''}</div>
     <input class="ltopic" id="lTopic" value="${esc(l.topic||'')}" placeholder="Topic of today's lecture" aria-label="Topic">
     <input class="lsub" id="lSub" value="${esc(l.subtopic||'')}" placeholder="Subtopic (optional)" aria-label="Subtopic">
-  </div>${l.planned?`<div class="fillnote" style="margin:0 0 12px">${ico('cal')}<span><b>Planned${l.date>todayISO()?` for ${esc(longDate(l.date))}`:''}.</b> Add the slides, compulsory and additional readings and links with <b>Materials</b> (top right) or in <b>Library → Readings &amp; slides</b>. You can write preparation notes now; in class, take your notes here.</span></div>`:''}`;
+  </div>${l.planned?`<div class="fillnote" style="margin:0 0 12px">${ico('cal')}<span><b>Planned${l.date>todayISO()?` for ${esc(longDate(l.date))}`:''}.</b> Add the slides, compulsory and additional readings and links with <b>Materials</b> (top right) or in <b>Course resources → Readings &amp; slides</b>. You can write preparation notes now; in class, take your notes here.</span></div>`:''}`;
   if(mat){
     return `<div id="lectureView">${head}${toolbar}${fab}<div class="pe split lsplit ${LV.panel?'wp':''}" id="pe" style="--nw:${lecNotesWidth()}%;--pw:${lecPanelWidth()}px"><div class="notescol">${notes}</div><div class="gutter" id="gutter" role="separator" aria-orientation="vertical" aria-label="Drag to resize the notes" tabindex="0"></div>${readerHTML(mat)}${LV.panel?`<div class="gutter g2" id="gutter2" role="separator" aria-orientation="vertical" aria-label="Drag to resize the questions panel" tabindex="0"></div><aside class="lpanel" id="lpanel">${lecturePanelHTML(l)}</aside>`:''}</div>${LV.mcard?matCardHTML():''}</div>`;
   }
@@ -5568,7 +5573,7 @@ async function addMaterial(type,group,lid){
       const id=uid('mat_'); S.docs[id]={kind:'material',lectureId:lid,courseId:l.courseId,unitId:l.unitId||null,name:f.name.replace(/\.pdf$/i,''),type,...(type==='reading'?{group:group==='additional'?'additional':'compulsory'}:{}),pdf:{id:res.id,name:f.name,size:res.sizeBytes||f.size,addedAt:Date.now()},createdAt:Date.now()};
       save(id);
       if(V.view==='lecture'&&V.lectureId===lid&&!l.planned){LV.mat=id;LV.mcard=false;renderMain()}else{renderSide();if(V.view==='lecture')refreshLPanel()}
-      if(V.view==='lecture')refreshMatCard(); if(V.view==='library')renderMain();
+      if(V.view==='lecture')refreshMatCard(); if(V.view==='resources')renderMain();
       toast(type==='slides'?'Slides attached':`${group==='additional'?'Additional':'Compulsory'} reading attached`);
     }catch(e){toast(e&&e.code?assetErr(e):'Upload failed — try again')}
   });
@@ -5577,7 +5582,7 @@ function addMaterialLink(lid){
   lid=lid||V.lectureId; const l=S.docs[lid];
   const ov=modal(`<h3>Add a link</h3><p class="help" style="margin-top:-4px">A web page, online article or video for this lecture.</p><div class="field"><label>Title</label><input class="inp" id="mlName" placeholder="e.g. WHO Global status report, chapter 2"></div><div class="field"><label>Link</label><input class="inp" id="mlUrl" placeholder="https://…"></div><div class="mfoot"><button class="btn" data-x>Cancel</button><button class="btn pri" data-ok>Add</button></div>`);
   ov.querySelector('[data-x]').onclick=()=>ov.remove();
-  ov.querySelector('[data-ok]').onclick=()=>{const url=normLink(ov.querySelector('#mlUrl').value);if(!isLink(url)){ov.querySelector('#mlUrl').focus();return}const id=uid('mat_');S.docs[id]={kind:'material',lectureId:lid,courseId:l.courseId,unitId:l.unitId||null,name:trim(ov.querySelector('#mlName').value)||url.replace(/^https?:\/\//,'').slice(0,60),type:'reading',url,createdAt:Date.now()};save(id);ov.remove();renderSide();refreshLPanel();if(V.view==='library')renderMain();toast('Link added')};
+  ov.querySelector('[data-ok]').onclick=()=>{const url=normLink(ov.querySelector('#mlUrl').value);if(!isLink(url)){ov.querySelector('#mlUrl').focus();return}const id=uid('mat_');S.docs[id]={kind:'material',lectureId:lid,courseId:l.courseId,unitId:l.unitId||null,name:trim(ov.querySelector('#mlName').value)||url.replace(/^https?:\/\//,'').slice(0,60),type:'reading',url,createdAt:Date.now()};save(id);ov.remove();renderSide();refreshLPanel();if(V.view==='resources')renderMain();toast('Link added')};
   setTimeout(()=>ov.querySelector('#mlName').focus(),40);
 }
 async function deleteMaterial(id){
@@ -5961,8 +5966,8 @@ async function saveSketch(ov,cv){
     const ed=draftEd(); if(ed){insertBlockHTML(`<p class="al-center"><img src="/_blob/${png.id}" class="img-l" alt="${esc(name)}"></p>`)}
   }
   document.querySelectorAll('.skov').forEach(o=>o.remove()); SK=null;
-  toast(png?'Sketch saved — find it in Library → Sketches':'Sketch saved (its picture needs the server to be stored)');
-  renderSide(); if(V.view==='library')renderMain();
+  toast(png?'Sketch saved — find it in Course resources → Sketches':'Sketch saved (its picture needs the server to be stored)');
+  renderSide(); if(V.view==='resources')renderMain();
 }
 function deleteSketch(id){
   const s=S.docs[id]; if(!s)return; if(!confirm(`Delete the sketch “${s.name||'Sketch'}”?`))return;
@@ -6195,7 +6200,7 @@ document.addEventListener('click',e=>{
     case 'menu': $('#side').classList.toggle('show');break;
     case 'sideFold': {e.stopPropagation();setSide(b.dataset.v,!sideOpen(b.dataset.v));renderSide();break}
     case 'nav': {const v=b.dataset.v;
-      if(v==='projects'||v==='courses'||v==='library'){if(V.view===v&&sideOpen(v)){setSide(v,false);renderSide();break}setSide(v,true)}
+      if(v==='projects'||v==='courses'||v==='resources'){if(V.view===v&&sideOpen(v)){setSide(v,false);renderSide();break}setSide(v,true)}
       if(v==='compare'||v==='reports'){const pid=(V.pid&&S.docs[V.pid])?V.pid:(projects().slice(-1)[0]||{}).id;if(!pid){go({view:'projects'});toast('Create a project first');break}go({view:'project',pid,tab:v==='compare'?'cmp':'rep'});break}
       go({view:v});break}
     case 'theme': setTheme(b.dataset.v);break;
@@ -6280,11 +6285,11 @@ document.addEventListener('click',e=>{
     case 'matOpen': {const m=S.docs[id];if(!m)break;if(m.url&&!m.pdf){window.open(m.url,'_blank','noopener');break}LV.mat=LV.mat===id?null:id;R.tab='pdf';LV.mcard=false;renderMain();renderSide();break}
     case 'matCard': toggleMatCard();break;
     case 'ideaSide': IV.side=b.dataset.v;IV.proj='all';IV.tag='All';IV.name='';renderMain();break;
-    case 'sketchNew': openSketch(null);break;
+    case 'sketchNew': openSketch(null,b.dataset.c?{courseId:b.dataset.c}:null);break;
     case 'sketchOpen': openSketch(id);break;
     case 'sketchDel': deleteSketch(id);break;
-    case 'libTab': V.libTab=b.dataset.v;setSide('library',true);if(V.view!=='library')go({view:'library'});else{persistView();renderMain();renderSide()}break;
-    case 'crSave': {const c=courseOf(CR.cid);if(!c)break;const {title}=courseReportScope(c);const rid=uid('report_');S.docs[rid]={kind:'report',title:`${courseLabel(c)} — ${title}`,html:courseReportBody(c),courseId:c.id,scope:CR.scope,createdAt:Date.now()};save(rid);toast('Saved to Library → Reports');break}
+    case 'resTab': V.resTab=b.dataset.v;setSide('resources',true);if(b.dataset.c){V.libR={course:b.dataset.c,unit:'all'}}if(V.view!=='resources')go({view:'resources'});else{persistView();renderMain();renderSide()}break;
+    case 'crSave': {const c=courseOf(CR.cid);if(!c)break;const {title}=courseReportScope(c);const rid=uid('report_');S.docs[rid]={kind:'report',title:`${courseLabel(c)} — ${title}`,html:courseReportBody(c),courseId:c.id,scope:CR.scope,createdAt:Date.now()};save(rid);toast('Saved — see Saved reports below');if(V.view==='resources')renderMain();break}
     case 'repOpen': {const r=S.docs[id];if(!r)break;const ov=modal(`<div class="row" style="margin-bottom:10px"><b class="grow">${esc(r.title)}</b><button class="btn sm" data-act="repExport" data-id="${id}" data-v="pdf">${ico('download')}PDF</button><button class="btn sm" data-act="repExport" data-id="${id}" data-v="doc">Word</button><button class="btn sm" data-x>Close</button></div><article class="crview" style="margin:0;padding:10px 6px;max-height:75vh;overflow:auto">${r.html}</article>`,true);ov.querySelector('[data-x]').onclick=()=>ov.remove();break}
     case 'repExport': {const r=S.docs[id];if(r)exportDoc(r.title||'Report',r.html,b.dataset.v);break}
     case 'repDel': {const r=S.docs[id];if(r&&confirm(`Delete the saved report “${r.title}”?`)){remove(id);renderMain()}break}

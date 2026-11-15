@@ -1,5 +1,10 @@
 # Changelog
 
+## [2.6.0]
+- **Course resources, separate from your research Library.** Library (under Research) holds research papers only again. Your study material has its own home under Study: **Course resources**, with **Readings & slides**, **Sketches** and **Reports**. Reports, including saved copies, now live there instead of in a separate Report item in the side menu.
+- In the course tree, each course has **Resources** and **Report** entries that open Course resources for that course.
+- The research **Current project** card is hidden while you work in Courses, Review or Course resources.
+
 ## [2.5.1]
 - **Research and study ideas are kept apart.** The Ideas page has two tabs: **Research** (ideas from papers and projects) and **Lectures** (ideas from your lecture notes, filtered by course). When you write a research paper in Write, only research ideas are offered. An assignment draft offers its course's lecture ideas, plus the research ideas of a project you deliberately linked to it. The suggested theme and concept names are also kept separate.
 - Library → Reports is now called **Course reports**. Research reports stay inside each project.
