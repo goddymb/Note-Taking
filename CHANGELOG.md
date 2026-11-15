@@ -1,5 +1,8 @@
 # Changelog
 
+## [2.4.1]
+- In the side menu, **Settings** now sits below a divider line, so it no longer looks like part of Study.
+
 ## [2.4.0]
 - **Unit lecturers come from the course.** When you add or edit a unit, tick which of the course's lecturers teach it. If you rename a lecturer in the course settings, the units follow. A lecturer who isn't in the course list can still be typed in, and a unit with no lecturer ticked uses all the course's lecturers.
 - **Plan a lecture lives under the units.** In the side menu, a course with units shows its units and **Add unit**; **Plan a lecture** sits inside each unit. A course without units shows **Plan a lecture** and **Add unit**. When planning a lecture in a course with units, you always choose a unit.
