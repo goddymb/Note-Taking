@@ -1,5 +1,9 @@
 # Changelog
 
+## [2.5.1]
+- **Research and study ideas are kept apart.** The Ideas page has two tabs: **Research** (ideas from papers and projects) and **Lectures** (ideas from your lecture notes, filtered by course). When you write a research paper in Write, only research ideas are offered. An assignment draft offers its course's lecture ideas, plus the research ideas of a project you deliberately linked to it. The suggested theme and concept names are also kept separate.
+- Library → Reports is now called **Course reports**. Research reports stay inside each project.
+
 ## [2.5.0]
 - **Shapes behave like in Word.** An inserted shape floats over the page: drag it anywhere, resize it from the corners (Shift for free proportions) or sides, and rotate it with the round handle (Shift for 15° steps). Its small toolbar can rotate it, restore its proportions, bring it to the front or send it back, copy, edit, delete, or put it back in line with the text. Arrow keys nudge a selected shape. Any picture or chart can also be made **Free**. In exports and reports, free objects appear as centred pictures.
 - **Sketch pad.** A **✏️ Sketch** button sits at the top right of your lecture notes, beside Materials.

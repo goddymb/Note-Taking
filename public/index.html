@@ -1664,7 +1664,7 @@ function renderSide(){
   const n=activeNav(), all=allPapers();
   const updBadge=UPD.info&&UPD.info.newer;
   const dueN=dueReviews().length;
-  const items=[['home','home','Home'],['__','Research'],['projects','folder','Projects',projects().length],['library','library','Library',all.length],['ideas','bulb','Ideas',ideasAll().length||null],['__','Study'],['courses','cap','Courses',coursesAll().length||null],['review','cards','Review',dueN||null],['report','doc','Report'],['__',''],['settings','settings','Settings',updBadge?'●':null]];
+  const items=[['home','home','Home'],['__','Research'],['projects','folder','Projects',projects().length],['library','library','Library',all.length],['ideas','bulb','Ideas',ideasAll().filter(i=>!isStudyIdea(i)).length||null],['__','Study'],['courses','cap','Courses',coursesAll().length||null],['review','cards','Review',dueN||null],['report','doc','Report'],['__',''],['settings','settings','Settings',updBadge?'●':null]];
   const kids=k=>k==='library'?LIB_TABS.map(([v,lab,ic])=>({id:v,act:'libTab',label:lab,ic,on:V.view==='library'&&(V.libTab||'papers')===v})):k==='projects'?projects().map(p=>({id:p.id,act:'openProject',label:p.name||'Untitled project',on:['project','paper','paperReport','draft'].includes(V.view)&&V.pid===p.id})):k==='courses'?coursesAll().map(c=>({id:c.id,act:'openCourse',label:c.code||c.name||'Untitled course',title:courseLabel(c),col:ccol(c),on:['course','lecture','assignment'].includes(V.view)&&V.courseId===c.id})):null;
   setHTML($('#nav'),items.map(([k,i,l,c])=>{
     if(k==='__')return i?`<div class="slabel nvsep">${i}</div>`:'<div class="nvgap"></div>';
@@ -1783,10 +1783,10 @@ function projectsView(){
   return `<div class="page-head"><div class="grow"><h1>Projects</h1><p class="lede">Each project groups the literature for one review, with its own question set, comparison view and report.</p></div><button class="btn pri" data-act="newProject">${ico('plus')}New project</button></div>
   <div class="pgrid" style="margin-top:20px">${ps.map(projectCard).join('')}<button class="pc add" data-act="newProject">${ico('plus')}<b>New project</b></button></div>`;
 }
-const LIB_TABS=[['papers','Research papers','doc'],['readings','Readings & slides','folder'],['sketches','Sketches','edit'],['reports','Reports','library']];
+const LIB_TABS=[['papers','Research papers','doc'],['readings','Readings & slides','folder'],['sketches','Sketches','edit'],['reports','Course reports','library']];
 function libraryView(){
   const tab=V.libTab||'papers';
-  const head=`<div class="page-head"><div class="grow"><h1>Library</h1><p class="lede">${{papers:'Every research paper across your projects.',readings:'Slides, compulsory and additional readings and links from your lectures.',sketches:'Drawings and handwritten notes from your sketch pad.',reports:'Reports you saved from the Report page.'}[tab]}</p></div></div>
+  const head=`<div class="page-head"><div class="grow"><h1>Library</h1><p class="lede">${{papers:'Every research paper across your projects.',readings:'Slides, compulsory and additional readings and links from your lectures.',sketches:'Drawings and handwritten notes from your sketch pad.',reports:'Course reports you saved from the Report page. Research reports stay inside each project.'}[tab]}</p></div></div>
     <div class="subtabs" role="tablist">${LIB_TABS.map(([k,lab])=>`<button role="tab" class="${tab===k?'on':''}" aria-selected="${tab===k}" data-act="libTab" data-v="${k}">${lab}</button>`).join('')}</div>`;
   if(tab==='readings')return head+`<div class="stabbody">${libReadingsHTML()}</div>`;
   if(tab==='sketches')return head+`<div class="stabbody">${libSketchesHTML()}</div>`;
@@ -3204,13 +3204,13 @@ function browserHTML(){
   let items=[], list='';
   if(BR.mode==='question') items=t.questions.map(q=>({v:q.id,l:`Q${t.questions.indexOf(q)+1} · ${q.text}`,n:pp.filter(x=>answered(x,q)).length}));
   else if(BR.mode==='paper') items=pp.map(x=>({v:x.id,l:`${cite(x)} · ${paperTitle(x)}`,n:progress(x,t).n}));
-  else if(BR.mode==='ideas'){const pi=ideasAll().filter(i=>i.projectId===pid||!i.projectId);const tc={};pi.forEach(i=>(i.tags||[]).forEach(t=>{tc[t]=(tc[t]||0)+1;if(i.named&&i.named[t]){const k=t+': '+i.named[t];tc[k]=(tc[k]||0)+1}}));items=[{v:'__all',l:'All ideas',n:pi.length},...Object.keys(tc).sort().map(t=>({v:t,l:t,n:tc[t]}))]}
+  else if(BR.mode==='ideas'){const pi=ideasAll().filter(ideaInDraft);const tc={};pi.forEach(i=>(i.tags||[]).forEach(t=>{tc[t]=(tc[t]||0)+1;if(i.named&&i.named[t]){const k=t+': '+i.named[t];tc[k]=(tc[k]||0)+1}}));items=[{v:'__all',l:'All ideas',n:pi.length},...Object.keys(tc).sort().map(t=>({v:t,l:t,n:tc[t]}))]}
   else if(BR.mode==='quotes') items=[{v:'__all',l:'All papers',n:pp.reduce((s,x)=>s+quotesOf(x).length,0)},...pp.map(x=>({v:x.id,l:`${cite(x)} · ${paperTitle(x)}`,n:quotesOf(x).length}))];
   else if(BR.mode.startsWith('dim:')) items=sortedTags(pid,BR.mode.slice(4)).map(o=>({v:o.t.id,l:o.t.name,n:o.n}));
   if(BR.mode!=='search'&&!items.some(i=>i.v===BR.item)) BR.item=(items.find(i=>i.n)||items[0]||{}).v||null;
   const card=(x,head,bodyHTML,plain)=>`<div class="ncard"><div class="nh"><b>${esc(cite(x))}</b><span>${esc(head)}</span></div><div class="nb">${bodyHTML}</div><div class="na-row"><button class="btn sm" data-ins="${x.id}" data-txt="${esc(plain)}">${ico('plus')}Insert</button><button class="btn sm ghost" data-cite="${x.id}">Cite</button></div></div>`;
   if(BR.mode==='question'&&BR.item){const q=t.questions.find(z=>z.id===BR.item);list=pp.filter(x=>answered(x,q)).map(x=>card(x,paperTitle(x),answerHTML(x,q)||esc(x[q.choiceKey]||''),(x.answers||{})[q.id]||x[q.choiceKey]||'')).join('')}
-  else if(BR.mode==='ideas'&&BR.item){list=ideasAll().filter(i=>(i.projectId===pid||!i.projectId)&&(BR.item==='__all'||(i.tags||[]).includes(BR.item)||(i.tags||[]).some(t=>ideaLabel(i,t)===BR.item))).map(i=>{const src=ideaSource(i);return `<div class="ncard"><div class="nh"><b>${esc(src?'('+src.cite+')':'My idea')}</b><span>${(i.tags||[]).map(t=>esc(ideaLabel(i,t))).join(' · ')}</span></div><div class="nb">${esc(i.text).replace(/\n/g,'<br>')}</div><div class="na-row"><button class="btn sm" data-idea="${i.id}">${ico('plus')}Insert</button></div></div>`}).join('')||'<p class="help">No ideas yet. While reading, click <b>Idea</b> to jot one down.</p>'}
+  else if(BR.mode==='ideas'&&BR.item){list=ideasAll().filter(i=>ideaInDraft(i)&&(BR.item==='__all'||(i.tags||[]).includes(BR.item)||(i.tags||[]).some(t=>ideaLabel(i,t)===BR.item))).map(i=>{const src=ideaSource(i);return `<div class="ncard"><div class="nh"><b>${esc(src?'('+src.cite+')':'My idea')}</b><span>${(i.tags||[]).map(t=>esc(ideaLabel(i,t))).join(' · ')}</span></div><div class="nb">${esc(i.text).replace(/\n/g,'<br>')}</div><div class="na-row"><button class="btn sm" data-idea="${i.id}">${ico('plus')}Insert</button></div></div>`}).join('')||'<p class="help">No ideas yet. While reading, click <b>Idea</b> to jot one down.</p>'}
   else if(BR.mode==='quotes'&&BR.item){list=pp.filter(x=>BR.item==='__all'||x.id===BR.item).flatMap(x=>quotesOf(x).map(qu=>`<div class="ncard"><div class="nh"><b>${esc(cite(x))}</b><span>${esc(qu.page)} · ${esc(qLabel(pid,qu.qid))}</span></div><div class="nb">“${esc(qu.text)}”</div><div class="na-row"><button class="btn sm" data-ins="${x.id}" data-txt="${esc(qu.full)}">${ico('plus')}Insert quote</button></div></div>`)).join('')||'<p class="help">No quotes yet. In the PDF reader, select text with the Text tool and choose <b>Add quote</b>.</p>'}
   else if(BR.mode==='paper'&&BR.item){const x=S.docs[BR.item];if(x){const xx={id:BR.item,...x};list=t.questions.filter(q=>answered(xx,q)).map(q=>card(xx,`Q${t.questions.indexOf(q)+1} ${q.text}`,answerHTML(xx,q)||esc(xx[q.choiceKey]||''),(xx.answers||{})[q.id]||xx[q.choiceKey]||'')).join('')}}
   else if(BR.mode.startsWith('dim:')&&BR.item){const d=dimById(pid,BR.mode.slice(4));const rows=codingsFor(pid,BR.item);
@@ -4281,14 +4281,21 @@ const IDEA_COL={Theme:'#7c5cff',Concept:'#2f8cff',Method:'#13a89e',Gap:'#e0703a'
 const ideaColor=t=>IDEA_COL[t]||'#6b7280';
 /* types that get a name: which theme, which concept… (linked to the project's tags of the same kind) */
 const IDEA_NAMED={Theme:'theme',Concept:'concept',Method:'method',Gap:null};
-function ideaNames(type,pid){
+function ideaNames(type,pid,study){
   const set=new Map();
-  ideasAll().forEach(i=>{const n=i.named&&i.named[type];if(n)set.set(n.toLowerCase(),n)});
+  ideasAll().filter(i=>isStudyIdea(i)===!!study).forEach(i=>{const n=i.named&&i.named[type];if(n)set.set(n.toLowerCase(),n)});
   const dim=IDEA_NAMED[type]; if(dim&&pid&&typeof tagsOf==='function')tagsOf(pid,dim).forEach(t=>{if(!set.has(t.name.toLowerCase()))set.set(t.name.toLowerCase(),t.name)});
   return [...set.values()].sort((a,b)=>a.localeCompare(b));
 }
 const ideaLabel=(i,t)=>i.named&&i.named[t]?`${t}: ${i.named[t]}`:t;
+const isStudyIdea=i=>!!(i&&(i.lectureId||i.courseId));
 const ideasAll=()=>Object.entries(S.docs).filter(([k,v])=>v&&v.kind==='idea').map(([k,v])=>({id:k,...v})).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+/* which ideas a document in Write may use */
+function ideaInDraft(i){
+  const d=S.docs[V.draftId]||{}, a=d.assignmentId&&S.docs[d.assignmentId], cid=a&&a.courseId;
+  if(isStudyIdea(i))return !!cid&&i.courseId===cid;
+  return d.projectId?(i.projectId===d.projectId||!i.projectId):!i.projectId;
+}
 function ideaTagList(){const set=new Set(IDEA_TAGS);ideasAll().forEach(i=>(i.tags||[]).forEach(t=>set.add(t)));return [...set]}
 function ideaSource(i){if(!i.paperId&&i.lectureId&&S.docs[i.lectureId]){const l=S.docs[i.lectureId],c=S.docs[l.courseId]||{};return {lecture:true,lectureId:i.lectureId,cite:`${c.code||c.name||'Lecture'}, ${longDate(l.date)}`}}const x=i.paperId&&S.docs[i.paperId];if(!x)return null;return {x:{id:i.paperId,...x},cite:citeCore({id:i.paperId,...x})+(i.page?', '+pageStr(i.page):'')}}
 const ICON_BULB=ico('bulb');
@@ -4321,9 +4328,9 @@ function openIdeaDialog(opts){
     const ni=ov.querySelector('#idNewTag'); ni.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.ctrlKey&&!e.metaKey){e.preventDefault();addTag()}}); ni.addEventListener('blur',()=>{if(trim(ni.value))addTag()});
     ov.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{const t=b.dataset.t;tags.has(t)?tags.delete(t):tags.add(t);drawTags();const nb=ov.querySelector(`[data-t="${CSS.escape(t)}"]`);if(nb)nb.focus()})};
   function drawNamed(){
-    const box=ov.querySelector('#idNamed'); const pidN=x?x.projectId:(V.pid||null);
+    const box=ov.querySelector('#idNamed'); const pidN=x?x.projectId:(V.view==='lecture'?null:V.pid||null);
     const types=[...tags].filter(t=>t in IDEA_NAMED);
-    box.innerHTML=types.map(t=>{const sug=ideaNames(t,pidN).filter(n=>n!==named[t]).slice(0,14);return `<div class="idnamed" style="--x:${ideaColor(t)}"><label>Which ${t.toLowerCase()}?</label><input class="inp" data-named="${esc(t)}" value="${esc(named[t]||'')}" placeholder="${t==='Gap'?'e.g. No studies in francophone Africa':'Name it, e.g. '+({Theme:'Enforcement',Concept:'Risk compensation',Method:'Survey'}[t])}">${sug.length?`<div class="idsug">${sug.map(n=>`<button type="button" data-pick="${esc(t)}" data-n="${esc(n)}">${esc(n)}</button>`).join('')}</div>`:''}</div>`}).join('');
+    box.innerHTML=types.map(t=>{const sug=ideaNames(t,lec?null:pidN,!!lec).filter(n=>n!==named[t]).slice(0,14);return `<div class="idnamed" style="--x:${ideaColor(t)}"><label>Which ${t.toLowerCase()}?</label><input class="inp" data-named="${esc(t)}" value="${esc(named[t]||'')}" placeholder="${t==='Gap'?'e.g. No studies in francophone Africa':'Name it, e.g. '+({Theme:'Enforcement',Concept:'Risk compensation',Method:'Survey'}[t])}">${sug.length?`<div class="idsug">${sug.map(n=>`<button type="button" data-pick="${esc(t)}" data-n="${esc(n)}">${esc(n)}</button>`).join('')}</div>`:''}</div>`}).join('');
     box.querySelectorAll('[data-named]').forEach(i=>i.addEventListener('input',()=>{named[i.dataset.named]=i.value}));
     box.querySelectorAll('[data-pick]').forEach(b=>b.onclick=()=>{named[b.dataset.pick]=b.dataset.n;drawNamed()});
   }
@@ -4351,7 +4358,7 @@ function openIdeaDialog(opts){
 }
 
 /* ---------- the Ideas page ---------- */
-const IV={tag:'All',name:'',proj:'all',q:''};
+const IV={tag:'All',name:'',proj:'all',q:'',side:'research'};
 function ideaCardHTML(i){
   const src=ideaSource(i);
   return `<div class="card ideacard">
@@ -4364,10 +4371,12 @@ function ideaCardHTML(i){
   </div>`;
 }
 function ideasView(){
-  const all=ideasAll();
-  const head=`<div class="page-head"><div class="grow"><h1>Ideas</h1><p class="lede">Thoughts you jotted down while reading, with the paper they came from.</p></div><button class="btn pri" data-act="newIdea">${ICON_BULB}New idea</button></div>`;
+  const study=IV.side==='study', all=ideasAll().filter(i=>isStudyIdea(i)===study);
+  const nS=ideasAll().filter(isStudyIdea).length, nR=ideasAll().length-nS;
+  const head=`<div class="page-head"><div class="grow"><h1>Ideas</h1><p class="lede">${study?'Ideas from your lectures, with the lecture they came from. They stay separate from your research.':'Thoughts you jotted down while reading for your research, with the paper they came from.'}</p></div>${study?'':`<button class="btn pri" data-act="newIdea">${ICON_BULB}New idea</button>`}</div>
+    <div class="subtabs" role="tablist"><button role="tab" class="${study?'':'on'}" data-act="ideaSide" data-v="research">Research <span class="muted">${nR||''}</span></button><button role="tab" class="${study?'on':''}" data-act="ideaSide" data-v="study">Lectures <span class="muted">${nS||''}</span></button></div>`;
   if(!all.length) return head+`<div class="empty"><div class="ic">${ICON_BULB}</div><div class="big">No ideas yet</div><p>While reading a paper, click <b>Idea</b> in the toolbar to jot down a thought — it is saved with a citation to that paper.</p></div>`;
-  const inProj=all.filter(i=>IV.proj==='all'||i.projectId===IV.proj);
+  const inProj=all.filter(i=>IV.proj==='all'||(study?i.courseId===IV.proj:i.projectId===IV.proj));
   const counts={}; inProj.forEach(i=>(i.tags||[]).forEach(t=>counts[t]=(counts[t]||0)+1));
   const untagged=inProj.filter(i=>!(i.tags||[]).length).length;
   const ql=IV.q.trim().toLowerCase();
@@ -4376,7 +4385,7 @@ function ideasView(){
   if(IV.name&&!nameCounts[IV.name])IV.name='';
   const list=byTag.filter(i=>(!IV.name||(i.named&&i.named[IV.tag])===IV.name)&&(!ql||i.text.toLowerCase().includes(ql)||(ideaSource(i)||{cite:''}).cite.toLowerCase().includes(ql)));
   return head+`<div class="row" style="margin:18px 0 14px">
-    <select class="inp" style="width:auto;border-radius:999px" data-act="ideaProj"><option value="all">All projects</option>${projects().map(p=>`<option value="${p.id}" ${IV.proj===p.id?'selected':''}>${esc(p.name)}</option>`).join('')}</select>
+    <select class="inp" style="width:auto;border-radius:999px" data-act="ideaProj">${study?`<option value="all">All courses</option>${coursesAll().map(c=>`<option value="${c.id}" ${IV.proj===c.id?'selected':''}>${esc(courseLabel(c))}</option>`).join('')}`:`<option value="all">All projects</option>${projects().map(p=>`<option value="${p.id}" ${IV.proj===p.id?'selected':''}>${esc(p.name)}</option>`).join('')}`}</select>
     <input class="inp" id="ideaQ" placeholder="Search ideas…" value="${esc(IV.q)}" style="max-width:260px;border-radius:999px">
   </div>
   <div class="chips" style="margin-bottom:16px"><button class="chip ${IV.tag==='All'?'on':''}" data-act="ideaTag" data-v="All">All <span style="opacity:.6">${inProj.length}</span></button>${Object.keys(counts).sort((a,b)=>counts[b]-counts[a]).map(t=>`<button class="chip ${IV.tag===t?'on':''}" data-act="ideaTag" data-v="${esc(t)}"><i style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${ideaColor(t)};margin-right:5px"></i>${esc(t)} <span style="opacity:.6">${counts[t]}</span></button>`).join('')}${untagged?`<button class="chip ${IV.tag==='Untagged'?'on':''}" data-act="ideaTag" data-v="Untagged">Untagged <span style="opacity:.6">${untagged}</span></button>`:''}</div>
@@ -6270,6 +6279,7 @@ document.addEventListener('click',e=>{
     case 'matLink': addMaterialLink(b.dataset.l);break;
     case 'matOpen': {const m=S.docs[id];if(!m)break;if(m.url&&!m.pdf){window.open(m.url,'_blank','noopener');break}LV.mat=LV.mat===id?null:id;R.tab='pdf';LV.mcard=false;renderMain();renderSide();break}
     case 'matCard': toggleMatCard();break;
+    case 'ideaSide': IV.side=b.dataset.v;IV.proj='all';IV.tag='All';IV.name='';renderMain();break;
     case 'sketchNew': openSketch(null);break;
     case 'sketchOpen': openSketch(id);break;
     case 'sketchDel': deleteSketch(id);break;
