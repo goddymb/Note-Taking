@@ -1,5 +1,15 @@
 # Changelog
 
+## [2.5.0]
+- **Shapes behave like in Word.** An inserted shape floats over the page: drag it anywhere, resize it from the corners (Shift for free proportions) or sides, and rotate it with the round handle (Shift for 15° steps). Its small toolbar can rotate it, restore its proportions, bring it to the front or send it back, copy, edit, delete, or put it back in line with the text. Arrow keys nudge a selected shape. Any picture or chart can also be made **Free**. In exports and reports, free objects appear as centred pictures.
+- **Sketch pad.** A **✏️ Sketch** button sits at the top right of your lecture notes, beside Materials.
+  - Tools: pen (pressure-sensitive with a stylus), highlighter, eraser (rub out part of a stroke), stroke eraser (remove whole strokes), select and move, line, arrow, rectangle, ellipse and text.
+  - Also: colours with a custom picker, thickness, filled shapes, and blank, lined, grid or dotted paper.
+  - Undo and redo work, and there are keyboard shortcuts for every tool.
+  - Save it with a name; it can go straight into your notes. Sketches stay editable later.
+- **Library holds your study material too.** It now has four sections, also in the side menu: **Research papers**, **Readings & slides** (by course and unit, with upload buttons for each lecture), **Sketches**, and **Reports**. On the Report page, **Save to Library** keeps a copy under Library → Reports.
+- In the side menu, each lecture is now a single entry: readings and slides live in Library and in the **Materials** card, which also lists the lecture's sketches.
+
 ## [2.4.2]
 - **Resize both sides of the reader.** With a reading or slides open beside your lecture notes, drag the divider on the left of the document to resize your notes, and the one on the right to resize the questions panel. Double-click a divider to reset it. The app remembers your sizes.
 
