@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.3.0]
+- **Reflection questions** (right of your lecture notes). Type a question, or select words in your notes and click **❓ Ask** to write a question that leads to them. The words stay marked, and the question remembers them. When you tick a question, a small pop-up asks what answer you got; filling it in is optional. Click an answer to change it.
+- **Important** comes next: words marked ⭐ in your notes, plus important ideas and reflections you type in. **Flashcards** follow: type `term :: meaning`, or write it in your notes as before. The summary stays under the notes.
+- **Materials button** (top right, also in focus mode). It opens a card with this lecture's Slides, Compulsory readings, Additional readings and Links, where you can upload, open, move or delete them.
+- **Reading beside your notes.** When you open a reading or slides, your notes move to a narrow column on the left, the document opens large in the centre, and the questions panel stays on the right. Drag the divider to resize. **Open in its own window** (↗) moves the document into a separate window.
+- **Course reports.** A new **Report** tab in each course, also in the side menu, shows the whole course, one unit or one lecture. Choose what to include: lecture notes, summaries, reflection questions and answers, important ideas and reflections, flashcards, and the slides and readings list. Read it in the app or export it as PDF or Word.
+- **On the lecture page,** the search bar searches the course's slides and readings, including the text inside the PDFs, and opens the document at the right page. The **Add paper** button is hidden there.
+
 ## [2.2.0]
 - **Plan lectures ahead.** **Plan a lecture** (on the course page, or under a course or unit in the side menu) creates the lecture before it happens: the date and time come from your next class date, and you add the topic. Then attach the slides and readings. On the day, **Start lecture note** offers the lecture planned for today, and your notes go into it.
 - **Readings sorted into Compulsory, Additional and Links.** The lecture panel has four groups: Slides, Compulsory readings, Additional readings and Links, each with its own Upload or Add button. Use **⇄** to move a reading between compulsory and additional.
