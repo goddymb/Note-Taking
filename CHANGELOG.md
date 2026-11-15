@@ -1,5 +1,8 @@
 # Changelog
 
+## [2.4.2]
+- **Resize both sides of the reader.** With a reading or slides open beside your lecture notes, drag the divider on the left of the document to resize your notes, and the one on the right to resize the questions panel. Double-click a divider to reset it. The app remembers your sizes.
+
 ## [2.4.1]
 - In the side menu, **Settings** now sits below a divider line, so it no longer looks like part of Study.
 
