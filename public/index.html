@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="aurora">
+<html lang="en" data-theme="calm">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -7,16 +7,54 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Manrope:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,400;6..72,600&display=swap" rel="stylesheet">
-<script>try{document.documentElement.dataset.theme=localStorage.getItem('litnotes.theme')||'aurora'}catch(e){}</script>
+<script>try{if(!localStorage.getItem('litnotes.calm1')){localStorage.setItem('litnotes.calm1','1');localStorage.setItem('litnotes.theme',matchMedia('(prefers-color-scheme: dark)').matches?'calmdark':'calm')}document.documentElement.dataset.theme=localStorage.getItem('litnotes.theme')||'calm'}catch(e){document.documentElement.dataset.theme='calm'}</script>
 <style>
 /* =========================================================
-   DESIGN TOKENS — three themes
+   DESIGN TOKENS — calm (default), calm dark, and three older themes
    ========================================================= */
 :root{
   --r:14px; --r-sm:10px; --r-lg:22px;
   --serif:'Newsreader','Newsreader Variable',Georgia,serif;
   --ease:cubic-bezier(.2,.7,.2,1);
   --success:#22a06b; --warn:#c98a12; --danger:#d64545;
+}
+
+/* ---------- 0. CALM (default): quiet neutral surfaces, one ink-blue accent, highlighter for "selected" ---------- */
+[data-theme="calm"]{
+  color-scheme:light;
+  --font:'Inter','Inter Variable',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif; --font-head:'Inter','Inter Variable',system-ui,-apple-system,'Segoe UI',sans-serif; --head-w:650; --head-ls:-.022em;
+  --r:12px; --r-sm:8px; --r-lg:16px;
+  --bg:#f5f6f8; --wash:none;
+  --panel:#ffffff; --panel-solid:#ffffff; --panel-2:#f2f4f7; --hover:#eceff3;
+  --line:#e2e5ea; --line-2:#cdd2da;
+  --ink:#1e2531; --ink-2:#3d4655; --muted:#687384;
+  --accent:#3346c2; --accent-2:#283a9f; --accent-ink:#fff; --grad:linear-gradient(#3346c2,#3346c2);
+  --hl:#f6e49b; --hl-ink:#4d3b00;
+  --banner:#ffffff; --banner-ink:#1e2531;
+  --glow:none; --shadow:0 1px 2px rgba(30,37,49,.05);
+  --glass:none;
+  --side-bg:#fafbfc; --side-active:linear-gradient(100deg,transparent 1.5%,var(--hl) 3.5%,var(--hl) 96.5%,transparent 98.5%); --side-active-ink:#1e2531;
+  --input:#ffffff; --focus:rgba(51,70,194,.25);
+  --c-pass1:#3346c2; --c-pass2:#178a6b; --c-pass3:#c2620f; --c-research:#7a4fc2; --c-paper:#4b5563;
+  --y:#e0b21b; --coral:#d9485f;
+}
+[data-theme="calmdark"]{
+  color-scheme:dark;
+  --font:'Inter','Inter Variable',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif; --font-head:'Inter','Inter Variable',system-ui,-apple-system,'Segoe UI',sans-serif; --head-w:650; --head-ls:-.022em;
+  --r:12px; --r-sm:8px; --r-lg:16px;
+  --bg:#14171c; --wash:none;
+  --panel:#1b1f26; --panel-solid:#1b1f26; --panel-2:#222731; --hover:#262c36;
+  --line:#2b313c; --line-2:#3b4351;
+  --ink:#e8ebf1; --ink-2:#c4cad5; --muted:#949dad;
+  --accent:#8ea0f7; --accent-2:#a7b5fa; --accent-ink:#0f1320; --grad:linear-gradient(#5266e3,#5266e3);
+  --hl:#5c4b14; --hl-ink:#fbe8a6;
+  --banner:#1b1f26; --banner-ink:#e8ebf1;
+  --glow:none; --shadow:0 1px 2px rgba(0,0,0,.35);
+  --glass:none;
+  --side-bg:#171a20; --side-active:linear-gradient(100deg,transparent 1.5%,var(--hl) 3.5%,var(--hl) 96.5%,transparent 98.5%); --side-active-ink:#fbe8a6;
+  --input:#1b1f26; --focus:rgba(142,160,247,.35);
+  --c-pass1:#8ea0f7; --c-pass2:#4cc79f; --c-pass3:#f0a35e; --c-research:#c49bf2; --c-paper:#a3abb9;
+  --y:#f2c94c; --coral:#f07a8c;
 }
 /* ---------- 1. MIDNIGHT ---------- */
 [data-theme="midnight"]{
@@ -436,7 +474,7 @@ body.focus .qnav{top:0}
 .lrowb:hover,.calrow:hover{border-color:var(--accent)}.lrowb.missed{opacity:.75;border-style:dashed}
 .cdate{display:flex;flex-direction:column;align-items:center;width:42px;font-size:11.5px;color:var(--muted);text-transform:uppercase;font-weight:700}.cdate b{font-size:20px;color:var(--ink);line-height:1.1}
 .cbody{flex:1;display:flex;flex-direction:column;min-width:0}.cbody span{font-size:12.5px;color:var(--muted)}
-.lbadges{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}.lbadges i{font-style:normal;font-size:12px;background:var(--panel-2);border:1px solid var(--line);border-radius:999px;padding:1px 8px}
+.lbadges{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}.lbadges i svg{width:12px;height:12px;vertical-align:-2px;margin-right:3px}.lbadges i{font-style:normal;font-size:12px;background:var(--panel-2);border:1px solid var(--line);border-radius:999px;padding:1px 8px}
 .cwhen{font-size:12.5px;font-weight:700;color:var(--muted);white-space:nowrap}
 .calrow.warn .cwhen{color:#c98a00}.calrow.late .cwhen{color:var(--danger)}.calrow.done{opacity:.6}
 .calweek{font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:16px 0 6px}
@@ -520,7 +558,7 @@ body.focus .qnav{top:0}
 .libl{border-left:4px solid var(--x,var(--accent));margin-bottom:12px}
 .libgrps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:4px 18px}
 .librep{display:flex;align-items:center;gap:8px;margin-bottom:10px}
-body.lecview .top [data-act="quickAdd"]{display:none}
+body.lecview #topAct{display:none}body.lecview .topcmd{margin-right:230px}
 .fabs{position:fixed;top:16px;right:20px;z-index:41;display:flex;gap:8px}body.focus .fabs{top:8px;right:14px}
 .matfab{display:inline-flex;align-items:center;gap:7px;padding:9px 14px;border-radius:999px;border:1px solid var(--line);background:var(--panel-solid,var(--panel));color:var(--ink);font:inherit;font-weight:600;font-size:14px;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.08)}
 .matfab:hover,.matfab.on{border-color:var(--accent);color:var(--accent)}.matfab svg{width:16px;height:16px}
@@ -569,7 +607,8 @@ body.focus .pe.lsplit>.lpanel{position:relative;top:0;height:100%;max-height:non
 .rte .mk-q{background:color-mix(in srgb,#2f8cff 18%,transparent);border-bottom:2px solid #2f8cff;border-radius:3px}
 .rte .mk-imp{background:color-mix(in srgb,#ffd60a 35%,transparent);border-bottom:2px solid #d9a400;border-radius:3px}
 .rte .mk-rev{background:color-mix(in srgb,#13a89e 18%,transparent);border-bottom:2px solid #13a89e;border-radius:3px}
-.rte .mk-q::before{content:'❓';font-size:.75em;margin-right:2px}.rte .mk-imp::before{content:'⭐';font-size:.75em;margin-right:2px}.rte .mk-rev::before{content:'🔁';font-size:.75em;margin-right:2px}
+.rte .mk-q::before,.rte .mk-imp::before,.rte .mk-rev::before{display:inline-block;font-size:.72em;font-weight:800;margin-right:3px;vertical-align:.12em;font-family:var(--font)}
+.rte .mk-q::before{content:'?';color:#2f6fe0}.rte .mk-imp::before{content:'\2605';color:#c79400}.rte .mk-rev::before{content:'\21BB';color:#13a89e}
 .rte span.ts{display:inline-block;font:600 11px var(--sans,system-ui);background:#d64545;color:#fff;border-radius:999px;padding:1px 7px;margin-right:4px;cursor:pointer;vertical-align:1px;user-select:none}
 .recbar{border:1px solid var(--line);border-radius:12px;background:var(--panel);padding:8px 12px;margin-bottom:10px;display:flex;flex-direction:column;gap:6px}
 .recon{display:flex;align-items:center;gap:8px;font-size:13.5px}.recrow{display:flex;align-items:center;gap:10px}.recrow audio{flex:1;height:34px}
@@ -905,6 +944,8 @@ mark.hl-yellow{background:rgba(250,204,21,.42)}mark.hl-green{background:rgba(74,
 .look .lb span{font-size:12.5px;color:var(--muted)}
 .pv-midnight{background:radial-gradient(200px 120px at 0 0,rgba(124,92,255,.5),transparent),#0a0a1c}
 .pv-midnight .bn{background:linear-gradient(120deg,#7c5cff,#ff4fa3)}.pv-midnight .cd i{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1)}
+.pv-calm{background:#f5f6f8}.pv-calm .bn{background:#fff;border:1px solid #e2e5ea;box-shadow:inset 0 -10px 0 -4px #f6e49b}.pv-calm .cd i{background:#fff;border:1px solid #e2e5ea}
+.pv-calmdark{background:#14171c}.pv-calmdark .bn{background:#1b1f26;border:1px solid #2b313c;box-shadow:inset 0 -10px 0 -4px #5c4b14}.pv-calmdark .cd i{background:#1b1f26;border:1px solid #2b313c}
 .pv-vibrant{background:#f2f6fc}.pv-vibrant .bn{background:linear-gradient(120deg,#2563eb,#14b8a6)}.pv-vibrant .cd i{background:#fff;border-left:4px solid #fbbf24}.pv-vibrant .cd i+i{border-left-color:#fb7185}
 .pv-aurora{background:radial-gradient(180px 120px at 0 0,#e9ddff,transparent),radial-gradient(180px 120px at 100% 0,#fde2f1,transparent),#fbf9ff}.pv-aurora .bn{background:linear-gradient(120deg,#f1e8ff,#fde6f3)}.pv-aurora .cd i{background:#fff;box-shadow:0 6px 16px -8px rgba(80,40,140,.3)}
 
@@ -925,14 +966,126 @@ mark.hl-yellow{background:rgba(250,204,21,.42)}mark.hl-green{background:rgba(74,
 }
 @media (max-width:560px){.stats{grid-template-columns:1fr}.steps{grid-template-columns:1fr}.tbl .hide-s{display:none}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* =========================================================
+   CALM LAYER — quieter controls, one main button per screen,
+   sentence-case labels, highlighter for what is selected
+   ========================================================= */
+[data-theme^="calm"]{--serif:var(--font-head)}
+[data-theme^="calm"] :is(.crview,.webdoc,.rte.draft){--serif:'Newsreader','Newsreader Variable',Georgia,serif}
+[data-theme^="calm"] body{background-image:none}
+[data-theme^="calm"] h1{font-size:clamp(23px,2.3vw,28px);line-height:1.2}
+[data-theme^="calm"] h2{font-size:18px}
+[data-theme^="calm"] .btn{box-shadow:none}
+[data-theme^="calm"] .btn.pri{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:none}
+[data-theme="calmdark"] .btn.pri{background:#5266e3;border-color:#5266e3}
+[data-theme^="calm"] .btn.pri:hover{background:var(--accent-2);border-color:var(--accent-2)}
+[data-theme="calmdark"] .btn.pri:hover{background:#6274ea}
+[data-theme^="calm"] .btn.pri svg{stroke:#fff}
+[data-theme^="calm"] .logo .mark{background:var(--ink);box-shadow:none;border-radius:9px;width:32px;height:32px}
+[data-theme^="calm"] .logo .mark svg{stroke:var(--bg)}
+[data-theme^="calm"] .side{gap:14px;padding:16px 12px}
+[data-theme^="calm"] .nv{gap:10px;padding:7px 10px;font-size:14.5px;border-radius:7px}
+[data-theme^="calm"] .nv.on{background:var(--side-active);color:var(--side-active-ink);font-weight:600}
+[data-theme^="calm"] .nv.on svg{stroke:currentColor}
+[data-theme^="calm"] .nvsub.on{background:var(--side-active);color:var(--side-active-ink)}
+[data-theme^="calm"] .card{box-shadow:var(--shadow)}
+[data-theme^="calm"] .banner{border:1px solid var(--line);box-shadow:none}
+[data-theme^="calm"] .banner::before,[data-theme^="calm"] .banner::after{display:none}
+[data-theme^="calm"] .top{background:color-mix(in srgb,var(--bg) 88%,transparent);border-bottom:1px solid var(--line)}
+[data-theme^="calm"] .subtabs button.on{color:var(--ink);border-bottom-color:transparent;box-shadow:inset 0 -8px 0 -1px var(--hl)}
+[data-theme^="calm"] .tabs{box-shadow:none;background:var(--panel-2);border-color:transparent}
+[data-theme^="calm"] .tabs button.on,[data-theme^="calm"] .tabs .on{background:var(--panel);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+[data-theme^="calm"] .chip.on{background:var(--hl);border-color:transparent;color:var(--hl-ink)}
+[data-theme^="calm"] :is(.slabel,.tag,.sres .h,.banner .eyebrow,.field>label,.tbl th,.outline .gh,.tlab,.ccode,.cdate,.calweek,.crview h3,.clab,.webdoc .website,.hint b,.rgl,.stance,.rtebar .lbl,.mgh){text-transform:none;letter-spacing:0}
+[data-theme^="calm"] .field>label{font-size:13px;color:var(--ink-2);font-weight:600}
+[data-theme^="calm"] .mgh{font-size:13px}
+[data-theme^="calm"] .slabel{font-size:12.5px;font-weight:600}
+[data-theme^="calm"] .tag{letter-spacing:.02em}
+[data-theme^="calm"] .inp:focus,[data-theme^="calm"] .btn:focus-visible{outline:none;box-shadow:0 0 0 3px var(--focus)}
+[data-theme^="calm"] ::selection{background:color-mix(in srgb,var(--hl) 80%,transparent)}
+[data-theme^="calm"] .matfab{box-shadow:none;font-size:13.5px;padding:7px 12px}
+[data-theme^="calm"] .crumbs{font-size:13px}
+.lmeta{gap:6px!important;color:var(--muted)}
+.lmeta input{border:1px solid transparent;border-radius:6px;padding:3px 6px;background:none;color:var(--ink-2);font:inherit;font-size:13.5px}
+.lmeta input:hover,.lmeta input:focus{border-color:var(--line);background:var(--panel)}
+.lmeta input::-webkit-calendar-picker-indicator{opacity:.35;cursor:pointer}
+.lmeta input:hover::-webkit-calendar-picker-indicator{opacity:.8}
+.lmeta svg{width:15px;height:15px}
+/* scrollbars */
+[data-theme^="calm"] *{scrollbar-width:thin;scrollbar-color:var(--line-2) transparent}
+
+/* ---------- workspace switch ---------- */
+.nv.in{color:var(--ink);font-weight:600}
+.wsw{display:grid;grid-template-columns:1fr 1fr;gap:2px;padding:3px;border-radius:10px;background:var(--panel-2);border:1px solid var(--line);margin:0 2px 6px;position:relative}
+.wsw button{display:flex;align-items:center;justify-content:center;gap:7px;border:0;background:none;border-radius:7px;padding:7px 6px;font:inherit;font-size:13.5px;font-weight:600;color:var(--muted);cursor:pointer;position:relative;z-index:1;transition:color .2s}
+.wsw button svg{width:15px;height:15px}
+.wsw button.on{color:var(--ink)}
+.wsw::before{content:"";position:absolute;top:3px;bottom:3px;left:3px;width:calc(50% - 4px);border-radius:7px;background:var(--panel);box-shadow:0 1px 3px rgba(0,0,0,.1);transition:transform .25s var(--ease)}
+body[data-ws="study"] .wsw::before{transform:translateX(calc(100% + 2px))}
+#sideSet{margin-top:auto;border-top:1px solid var(--line);padding-top:10px;display:flex;flex-direction:column;gap:2px}
+.side-foot{margin-top:0}
+.topcmd{display:inline-flex;align-items:center;gap:6px;color:var(--muted);font-size:12.5px}
+@media(max-width:760px){.topcmd{display:none}}
+.topcmd kbd,.search kbd{font:600 11px/1 var(--font);padding:4px 6px;border-radius:5px;border:1px solid var(--line);background:var(--panel-2);color:var(--muted)}
+
+/* ---------- Today (study home) ---------- */
+.todaygrid{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(260px,1fr);gap:18px;align-items:start}
+@media(max-width:1000px){.todaygrid{grid-template-columns:1fr}}
+.tsec{margin-bottom:22px}.tsec h2{font-size:15px;margin:0 0 10px;color:var(--ink-2)}
+.qacts{display:grid;gap:8px}.qacts .btn{justify-content:flex-start}
+.mini-l{display:flex;flex-direction:column;gap:6px}
+
+/* ---------- command bar ---------- */
+.cmdk-ov{align-items:flex-start;padding-top:12vh}
+.cmdk{width:min(640px,94vw);background:var(--panel-solid);border:1px solid var(--line);border-radius:14px;box-shadow:0 30px 80px -20px rgba(0,0,0,.45);overflow:hidden}
+.cmdk input{width:100%;border:0;border-bottom:1px solid var(--line);background:none;padding:16px 18px;font:inherit;font-size:16px;color:var(--ink);outline:none}
+.cmdk-list{max-height:52vh;overflow:auto;padding:6px}
+.cmdk-g{font-size:12px;color:var(--muted);font-weight:600;padding:10px 12px 4px}
+.cmdk-i{display:flex;align-items:center;gap:10px;width:100%;border:0;background:none;text-align:left;padding:9px 12px;border-radius:8px;font:inherit;font-size:14.5px;color:var(--ink);cursor:pointer}
+.cmdk-i svg{width:16px;height:16px;color:var(--muted);flex:none}
+.cmdk-i small{margin-left:auto;color:var(--muted);font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:45%}
+.cmdk-i.on{background:var(--hover)}
+.cmdk-i.on svg{color:var(--accent)}
+.cmdk-foot{border-top:1px solid var(--line);padding:8px 14px;font-size:12px;color:var(--muted);display:flex;gap:14px}
+
+/* ---------- lecture toolbar: quieter ---------- */
+.ptoolbar .btn.on{background:var(--hl);color:var(--hl-ink);border-color:transparent}
+.ptoolbar .btn.on svg{stroke:currentColor}
+.mkb svg{width:15px;height:15px}
+.lph b svg{width:16px;height:16px;vertical-align:-3px;margin-right:2px}
+.lph b{display:flex;align-items:center;gap:6px}
+.sktool svg{width:19px;height:19px}
+
+/* =========================================================
+   MOTION — only in answer to what you do
+   ========================================================= */
+@keyframes ln-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@keyframes ln-pop{from{opacity:0;transform:translateY(6px) scale(.985)}to{opacity:1;transform:none}}
+@keyframes ln-fade{from{opacity:0}to{opacity:1}}
+@keyframes ln-slide{from{opacity:0;transform:translateX(12px)}to{opacity:1;transform:none}}
+#main.view-in{animation:ln-in .24s var(--ease) both}
+.ov{animation:ln-fade .16s ease-out both}
+.ov>.modal,.ov>.cmdk,.ov>.skpad{animation:ln-pop .2s var(--ease) both}
+.menu:not([hidden]){animation:ln-pop .14s var(--ease) both;transform-origin:top right}
+.matcard{animation:ln-pop .18s var(--ease) both;transform-origin:top right}
+.lpanel{animation:ln-slide .22s var(--ease) both}
+.nvsubs{animation:ln-fade .18s ease-out both}
+.sres.show{animation:ln-pop .14s var(--ease) both}
+.floatbar{animation:ln-fade .12s ease-out both}
+.btn{transition:background-color .15s,border-color .15s,color .15s,box-shadow .15s,transform .1s}
+.btn:active{transform:translateY(1px)}
+.nvfold svg,.tchev svg{transition:transform .2s var(--ease)}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
 </style>
 </head>
 <body>
 <div class="app">
   <aside class="side" id="side">
-    <div class="logo"><span class="mark"><svg class="i" viewBox="0 0 24 24"><path d="M4 19.5V5a2 2 0 0 1 2-2h12v15H6.5A2.5 2.5 0 0 0 4 20.5 2.5 2.5 0 0 0 6.5 23H18"/><path d="M9 7h6M9 11h4"/></svg></span><div><b>Literature Notes</b><small>Read · Critique · Synthesise</small></div></div>
+    <div class="logo"><span class="mark"><svg class="i" viewBox="0 0 24 24"><path d="M4 19.5V5a2 2 0 0 1 2-2h12v15H6.5A2.5 2.5 0 0 0 4 20.5 2.5 2.5 0 0 0 6.5 23H18"/><path d="M9 7h6M9 11h4"/></svg></span><div><b>Literature Notes</b><small hidden>Read · Critique · Synthesise</small></div></div>
     <nav class="nav" id="nav"></nav>
-    <div id="curProj"></div>
+    <div id="curProj" hidden></div>
+    <div id="sideSet"></div>
     <div class="side-foot" id="storeStatus"></div>
   </aside>
   <div class="shell">
@@ -944,7 +1097,8 @@ mark.hl-yellow{background:rgba(250,204,21,.42)}mark.hl-green{background:rgba(74,
         <kbd>/</kbd>
         <div class="sres" id="sres"></div>
       </div>
-      <button class="btn pri" data-act="quickAdd"><svg class="i" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg><span class="addlbl">Add paper</span></button>
+      <button class="btn ghost topcmd" data-act="cmdk" title="Command bar: type what you want to do (Ctrl+K)"><kbd>Ctrl K</kbd></button>
+      <button class="btn pri" data-act="quickAdd" id="topAct"><svg class="i" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg><span class="addlbl">Add paper</span></button>
     </header>
     <main class="main" id="main"></main>
   </div>
@@ -1495,7 +1649,7 @@ const tpl=pid=>{if(S.docs[pid]&&S.docs[pid].kind==='project'&&(S.docs[pid]._qv||
    ============================================================ */
 const V={view:'home',pid:null,paperId:null,lastPaper:null,tab:'lit',filter:'All',cmpQ:'q1',repLayout:'paper',showEmpty:false,openSec:{},openQ:{},lib:null,split:false,focus:false,swap:false};
 try{Object.assign(V,JSON.parse(localStorage.getItem('litnotes.view')||'{}'))}catch(e){}
-function persistView(){try{localStorage.setItem('litnotes.view',JSON.stringify({view:V.view,pid:V.pid,paperId:V.paperId,lastPaper:V.lastPaper,tab:V.tab,lib:V.lib,split:V.split,focus:V.focus,swap:V.swap,draftId:V.draftId,repLayout:V.repLayout,courseId:V.courseId,lectureId:V.lectureId,assignId:V.assignId,ctab:V.ctab,cstab:V.cstab,unitF:V.unitF,resTab:V.resTab}))}catch(e){}}
+function persistView(){try{localStorage.setItem('litnotes.view',JSON.stringify({view:V.view,pid:V.pid,paperId:V.paperId,lastPaper:V.lastPaper,tab:V.tab,lib:V.lib,split:V.split,focus:V.focus,swap:V.swap,draftId:V.draftId,repLayout:V.repLayout,courseId:V.courseId,lectureId:V.lectureId,assignId:V.assignId,ctab:V.ctab,cstab:V.cstab,unitF:V.unitF,resTab:V.resTab,ws:V.ws}))}catch(e){}}
 function go(o){Object.assign(V,o);persistView();document.getElementById('side').classList.remove('show');closeSearch();const qi=document.getElementById('q');if(qi&&document.activeElement!==qi)qi.value='';render();window.scrollTo(0,0)}
 
 function onData(){
@@ -1551,7 +1705,7 @@ function confirmBox(msg,okLabel,cb){
 /* ============================================================
    ICONS, THEMES, SMALL UI HELPERS
    ============================================================ */
-const IC={user:'<circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/>',menu:'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M15 4v16"/>',cap:'<path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c3 2 9 2 12 0v-5"/><path d="M22 9v5"/>',cal:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',mic:'<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/>',cards:'<rect x="3" y="6" width="14" height="14" rx="2"/><path d="M7 3h12a2 2 0 0 1 2 2v12"/>',timer:'<circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M9 2h6"/>',bulb:'<path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.6 10.8c.7.6 1.1 1.3 1.1 2.2v.5h5V16c0-.9.4-1.6 1.1-2.2A6 6 0 0 0 12 3z"/>',
+const IC={help:'<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.6 2.2c-.7.4-1.1.9-1.1 1.7v.3"/><circle cx="12" cy="17" r=".6" fill="currentColor"/>',star:'<path d="m12 3.5 2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8L3.5 9.7l5.9-.9z"/>',repeat:'<path d="M17 2l3 3-3 3"/><path d="M4 11V9a4 4 0 0 1 4-4h12"/><path d="M7 22l-3-3 3-3"/><path d="M20 13v2a4 4 0 0 1-4 4H4"/>',pen:'<path d="M15.5 4.5l4 4L8 20H4v-4z"/><path d="M13.5 6.5l4 4"/>',marker:'<path d="M9 15l-4 4h5l2-2"/><path d="M14.5 4.5l5 5-7.5 7.5-5-5z"/><path d="M12 7l5 5"/>',eraser:'<path d="M7 20h13"/><path d="M4.5 15.5l9-9a2 2 0 0 1 2.8 0l2.2 2.2a2 2 0 0 1 0 2.8L11 19H7.5z"/><path d="M9 11l4.5 4.5"/>',scissors:'<circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M8.1 8.1 20 20M8.1 15.9 20 4"/>',hand:'<path d="M8 13V5.5a1.5 1.5 0 0 1 3 0V12"/><path d="M11 11.5V4.5a1.5 1.5 0 0 1 3 0V12"/><path d="M14 11.5V6a1.5 1.5 0 0 1 3 0v8a6 6 0 0 1-6 6h-.5a6 6 0 0 1-4.6-2.2L3.6 14.6a1.5 1.5 0 0 1 2.3-1.9L8 15"/>',sline:'<path d="M5 19 19 5"/>',sarrow:'<path d="M5 19 19 5"/><path d="M10 5h9v9"/>',srect:'<rect x="4" y="6" width="16" height="12" rx="1"/>',sellipse:'<ellipse cx="12" cy="12" rx="8.5" ry="6.5"/>',stext:'<path d="M5 6V5h14v1"/><path d="M12 5v14"/><path d="M9 19h6"/>',sfill:'<rect x="4" y="5" width="16" height="14" rx="1.5"/><path d="M4 13 13 5M8 19 20 8M14 19l6-5.5"/>',command:'<path d="M9 6a3 3 0 1 0-3 3h12a3 3 0 1 0-3-3v12a3 3 0 1 0 3-3H6a3 3 0 1 0 3 3z"/>',sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',moon:'<path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/>',user:'<circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/>',menu:'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M15 4v16"/>',cap:'<path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c3 2 9 2 12 0v-5"/><path d="M22 9v5"/>',cal:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',mic:'<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/>',cards:'<rect x="3" y="6" width="14" height="14" rx="2"/><path d="M7 3h12a2 2 0 0 1 2 2v12"/>',timer:'<circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M9 2h6"/>',bulb:'<path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.6 10.8c.7.6 1.1 1.3 1.1 2.2v.5h5V16c0-.9.4-1.6 1.1-2.2A6 6 0 0 0 12 3z"/>',
   home:'<path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/>',
   folder:'<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
   library:'<path d="M4 4h4v16H4zM10 4h4v16h-4z"/><path d="m16.5 4.8 3.8-1 3.2 15.5-3.8.9z" transform="translate(-2.5 0)"/>',
@@ -1589,7 +1743,7 @@ const IC={user:'<circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6
   palette:'<circle cx="12" cy="12" r="9"/><circle cx="8" cy="10" r="1.2"/><circle cx="12" cy="7.5" r="1.2"/><circle cx="16" cy="10" r="1.2"/><path d="M12 21a2.5 2.5 0 0 1 0-5h2a3 3 0 0 0 3-3"/>'
 };
 const ico=(n,cls)=>`<svg class="i ${cls||''}" viewBox="0 0 24 24" aria-hidden="true">${IC[n]||''}</svg>`;
-const THEMES=[['midnight','Midnight','Dark, premium, violet-to-pink glow, glassy panels'],['vibrant','Vibrant','Bright blue-to-teal, warm yellow and coral accents'],['aurora','Aurora','Light and elegant, soft purple-pink washes']];
+const THEMES=[['calm','Calm','Quiet neutral pages, one blue accent — your notes stand out'],['calmdark','Calm dark','The calm look for evenings and dim rooms'],['midnight','Midnight','Dark, premium, violet-to-pink glow, glassy panels'],['vibrant','Vibrant','Bright blue-to-teal, warm yellow and coral accents'],['aurora','Aurora','Light and elegant, soft purple-pink washes']];
 function theme(){return document.documentElement.dataset.theme||'aurora'}
 function setTheme(t){document.documentElement.dataset.theme=t;try{localStorage.setItem('litnotes.theme',t)}catch(e){}renderThemeSw();if(V.view==='settings')renderMain()}
 function renderThemeSw(){const el=$('#themeSw');if(!el)return;el.innerHTML=THEMES.map(([k,l])=>`<button class="${theme()===k?'on':''}" data-act="theme" data-v="${k}" title="${l} theme" aria-pressed="${theme()===k}"><i class="sw ${k}"></i><span>${l}</span></button>`).join('')}
@@ -1623,8 +1777,26 @@ function stageTag(s){return s?`<span class="tag" style="--x:${secColor(s)}">${SE
 /* ============================================================
    RENDER: SIDEBAR
    ============================================================ */
+/* two workspaces: Research (projects, papers, ideas) and Study (courses, lectures, review) */
+const STUDY_VIEWS=['today','courses','course','lecture','assignment','review','resources','report'];
+function wsOfView(){
+  if(V.view==='settings')return V.ws||'research';
+  if(STUDY_VIEWS.includes(V.view))return 'study';
+  if(V.view==='draft'&&S.docs[V.draftId]&&S.docs[V.draftId].assignmentId)return 'study';
+  return 'research';
+}
+function switchWs(to){
+  const cur=V.ws||wsOfView(); if(cur===to)return;
+  V.wsLast=V.wsLast||{};
+  V.wsLast[cur]={view:V.view,pid:V.pid,paperId:V.paperId,draftId:V.draftId,courseId:V.courseId,lectureId:V.lectureId,assignId:V.assignId,tab:V.tab,ctab:V.ctab,resTab:V.resTab};
+  const back=V.wsLast[to];
+  V.ws=to;
+  if(back&&back.view&&back.view!=='settings'&&(to==='study'?STUDY_VIEWS.includes(back.view)||back.view==='draft':!STUDY_VIEWS.includes(back.view)))go(back);
+  else go({view:to==='study'?'today':'home'});
+}
 function activeNav(){
   if(V.view==='home')return 'home';
+  if(V.view==='today')return 'today';
   if(V.view==='library')return 'library';
   if(V.view==='settings')return 'settings';
   if(V.view==='ideas')return 'ideas';
@@ -1648,7 +1820,6 @@ function courseTree(){
     const us=unitsOf(c.id), loose=asc(lecturesOf(c.id,null));
     const addU={key:'addu:'+c.id,label:'Add unit',add:true,act:'newUnit',data:{c:c.id}};
     const kids=us.length?[...us.map(u=>({key:'u:'+u.id,label:u.code||u.name,title:(u.code?u.code+' · ':'')+u.name,act:'openCourse',id:c.id,data:{unit:u.id},tk:'u:'+u.id,def:!!(curL&&curL.unitId===u.id),n:lecturesOf(c.id,u.id).length,kids:[...asc(lecturesOf(c.id,u.id)).map(lecNode),plan(c.id,u.id)]})),...loose.map(lecNode),addU]:[...loose.map(lecNode),plan(c.id),addU];
-    kids.unshift({key:'cres:'+c.id,label:'Resources',ic:'folder',act:'resTab',data:{v:'readings',c:c.id},on:V.view==='resources'&&(V.resTab||'readings')!=='reports'&&(V.libR||{}).course===c.id},{key:'crep:'+c.id,label:'Report',ic:'doc',act:'resTab',data:{v:'reports',c:c.id},on:V.view==='resources'&&V.resTab==='reports'&&(V.libR||{}).course===c.id});
     return {key:'c:'+c.id,label:c.code||c.name||'Untitled course',title:courseLabel(c),col:ccol(c),act:'openCourse',id:c.id,tk:'c:'+c.id,on:V.view==='course'&&V.courseId===c.id,def:curC===c.id,kids};
   });
 }
@@ -1665,14 +1836,20 @@ function renderSide(){
   const n=activeNav(), all=allPapers();
   const updBadge=UPD.info&&UPD.info.newer;
   const dueN=dueReviews().length;
-  const items=[['home','home','Home'],['__','Research'],['projects','folder','Projects',projects().length],['library','library','Library',all.length],['ideas','bulb','Ideas',ideasAll().filter(i=>!isStudyIdea(i)).length||null],['__','Study'],['courses','cap','Courses',coursesAll().length||null],['review','cards','Review',dueN||null],['resources','folder','Course resources'],['__',''],['settings','settings','Settings',updBadge?'●':null]];
+  const ws=V.ws=wsOfView();
+  const items=ws==='study'?[['today','sun','Today'],['courses','cap','Courses',coursesAll().length||null],['review','cards','Review',dueN||null],['resources','folder','Resources']]
+    :[['home','home','Home'],['projects','folder','Projects',projects().length],['library','library','Library',all.length],['ideas','bulb','Ideas',ideasAll().filter(i=>!isStudyIdea(i)).length||null]];
   const kids=k=>k==='resources'?RES_TABS.map(([v,lab,ic])=>({id:v,act:'resTab',label:lab,ic,on:V.view==='resources'&&(V.resTab||'readings')===v})):k==='projects'?projects().map(p=>({id:p.id,act:'openProject',label:p.name||'Untitled project',on:['project','paper','paperReport','draft'].includes(V.view)&&V.pid===p.id})):k==='courses'?coursesAll().map(c=>({id:c.id,act:'openCourse',label:c.code||c.name||'Untitled course',title:courseLabel(c),col:ccol(c),on:['course','lecture','assignment'].includes(V.view)&&V.courseId===c.id})):null;
-  setHTML($('#nav'),items.map(([k,i,l,c])=>{
+  setHTML($('#nav'),`<div class="wsw" role="tablist" aria-label="Workspace"><button role="tab" class="${ws==='research'?'on':''}" aria-selected="${ws==='research'}" data-act="ws" data-v="research" title="Projects, papers and ideas">${ico('library')}Research</button><button role="tab" class="${ws==='study'?'on':''}" aria-selected="${ws==='study'}" data-act="ws" data-v="study" title="Courses, lectures and revision">${ico('cap')}Study</button></div>`+items.map(([k,i,l,c])=>{
     if(k==='__')return i?`<div class="slabel nvsep">${i}</div>`:'<div class="nvgap"></div>';
     const ks=kids(k), fold=ks&&ks.length, open=fold&&sideOpen(k);
-    return `<button class="nv ${n===k?'on':''}" data-act="nav" data-v="${k}" ${n===k?'aria-current="page"':''}>${ico(i)}<span>${l}</span>${c!=null?`<span class="k" ${c==='●'?'style="color:var(--accent);font-size:14px" title="Update available"':''}>${c}</span>`:''}${fold?`<span class="nvfold ${open?'open':''}" data-act="sideFold" data-v="${k}" role="button" aria-label="${open?'Hide':'Show'} ${l.toLowerCase()}" title="${open?'Hide':'Show'} ${l.toLowerCase()}">${ico('chev')}</span>`:''}</button>`
+    const childOn=open&&n===k&&((k==='courses'&&V.view!=='courses')||(k==='projects'&&V.view!=='projects')||k==='resources');
+    return `<button class="nv ${n===k?(childOn?'in':'on'):''}" data-act="nav" data-v="${k}" ${n===k?'aria-current="page"':''}>${ico(i)}<span>${l}</span>${c!=null?`<span class="k" ${c==='●'?'style="color:var(--accent);font-size:14px" title="Update available"':''}>${c}</span>`:''}${fold?`<span class="nvfold ${open?'open':''}" data-act="sideFold" data-v="${k}" role="button" aria-label="${open?'Hide':'Show'} ${l.toLowerCase()}" title="${open?'Hide':'Show'} ${l.toLowerCase()}">${ico('chev')}</span>`:''}</button>`
       +(open?(k==='courses'?`<div class="nav-tree">${treeHTML(courseTree(),0)}</div>`:`<div class="nvsubs">${ks.map(x=>`<button class="nvsub ${x.on?'on':''}" data-act="${x.act}" ${x.act==='resTab'?`data-v="${x.id}"`:`data-id="${x.id}"`} title="${esc(x.title||x.label)}">${x.ic?ico(x.ic):x.col?`<i style="background:${x.col}"></i>`:'<i></i>'}<span>${esc(x.label)}</span></button>`).join('')}</div>`):'');
   }).join(''));
+  setHTML($('#sideSet'),`<button class="nv ${n==='settings'?'on':''}" data-act="nav" data-v="settings" ${n==='settings'?'aria-current="page"':''}>${ico('settings')}<span>Settings</span>${updBadge?'<span class="k" style="color:var(--accent);font-size:14px" title="Update available">●</span>':''}</button>`);
+  document.body.dataset.ws=ws;
+  setHTML($('#curProj'),''); return;
   // current project card (not needed while the project list is shown)
   if((sideOpen('projects')&&projects().length)||['courses','review','resources'].includes(activeNav())){setHTML($('#curProj'),'');return}
   const p=V.pid&&S.docs[V.pid]&&S.docs[V.pid].kind==='project'?{id:V.pid,...S.docs[V.pid]}:projects().slice(-1)[0];
@@ -1710,11 +1887,15 @@ function renderMain(soft){
   else if(V.view==='review') html=reviewView();
   else if(V.view==='report'){V.view='resources';V.resTab='reports';html=resourcesView()}
   else if(V.view==='resources') html=resourcesView();
-  else {V.view='home';html=(coursesAll().length?`<div style="margin-bottom:18px">${todayCardHTML()}</div>`:'')+homeView()}
+  else if(V.view==='today') html=todayView();
+  else {V.view='home';html=homeView()}
   if(soft&&m._html===html)return;
+  V.ws=wsOfView();
+  const vkey=[V.view,V.pid,V.paperId,V.courseId,V.lectureId,V.draftId,V.assignId,V.tab,V.ctab,V.cstab,V.resTab].join('|');
   m.innerHTML=html; m._html=html;
+  if(m._vkey!==vkey){m._vkey=vkey;m.classList.remove('view-in');void m.offsetWidth;m.classList.add('view-in');clearTimeout(m._vt);m._vt=setTimeout(()=>m.classList.remove('view-in'),320)}
+  updateTopbar();
   document.body.classList.toggle('lecview',V.view==='lecture');
-  const qi=$('#q'); if(qi)qi.placeholder=V.view==='lecture'?'Search slides and readings':'Search papers, authors and notes';
   if(V.view!=='draft')hideFloat();
   if(V.view!=='paper'&&V.view!=='draft'&&V.view!=='lecture'){document.body.classList.remove('wide','focus');if(V.focus){V.focus=false;persistView();leaveFullscreen()}}
   if(V.view!=='lecture'&&V.view!=='paper')hidePop();
@@ -1729,6 +1910,29 @@ function renderMain(soft){
 }
 
 /* ---------- Home ---------- */
+function updateTopbar(){
+  const ws=V.ws||wsOfView(), b=$('#topAct'), qi=$('#q');
+  if(b){if(ws==='study'){b.dataset.act='startLecture';b.querySelector('.addlbl').textContent='Start lecture note';b.title='Start notes for a lecture'}else{b.dataset.act='quickAdd';b.querySelector('.addlbl').textContent='Add paper';b.title='Add a paper to a project'}}
+  if(qi)qi.placeholder=V.view==='lecture'?'Search this course\'s slides and readings':ws==='study'?'Search courses, lectures and readings':'Search papers, authors and notes';
+}
+/* ---------- Study home: Today ---------- */
+function todayView(){
+  const cs=coursesAll(), t=todayISO();
+  const head=`<div class="page-head"><div class="grow"><h1>Today</h1><p class="lede">${esc(new Date().toLocaleDateString(undefined,{weekday:'long',day:'numeric',month:'long'}))}</p></div></div>`;
+  if(!cs.length)return head+`<div class="empty"><div class="ic">${ico('cap')}</div><div class="big">Set up your first course</div><p>Add a course with its units, lecturers and class dates. Your next class, lecture notes and revision then appear here.</p><button class="btn pri" data-act="newCourse">${ico('plus')}New course</button></div>`;
+  const all=lecturesOf().filter(l=>!l.missed);
+  const recent=all.filter(l=>l.date<=t&&!(l.planned&&!trim(l.text||''))).sort((a,b)=>(b.date||'').localeCompare(a.date||'')||(b.updatedAt||0)-(a.updatedAt||0)).slice(0,6);
+  const planned=all.filter(l=>l.planned&&l.date>=t).sort((a,b)=>(a.date||'').localeCompare(b.date||'')).slice(0,5);
+  const openQ=all.reduce((n,l)=>n+(l.questions||[]).filter(q=>q.status!=='answered').length,0);
+  const row=l=>{const c=S.docs[l.courseId]||{},u=unitOf(l.unitId);return `<button class="lrowb" style="--x:${ccol(c)}" data-act="openLecture" data-id="${l.id}"><span class="cdate"><b>${new Date(l.date+'T12:00:00').getDate()}</b>${esc(new Date(l.date+'T12:00:00').toLocaleDateString(undefined,{month:'short'}))}</span><span class="grow"><b>${esc(l.topic||'Untitled lecture')}</b><span class="muted" style="display:block;font-size:13px">${esc(c.code||c.name||'')}${u?' · '+esc(u.code||u.name):''}</span></span></button>`};
+  return head+todayCardHTML()+`<div class="todaygrid" style="margin-top:22px"><div>
+      <div class="tsec"><h2>Recent lecture notes</h2>${recent.length?`<div class="mini-l">${recent.map(row).join('')}</div>`:`<p class="muted">Your lecture notes will appear here.</p>`}</div>
+      ${planned.length?`<div class="tsec"><h2>Planned lectures</h2><div class="mini-l">${planned.map(row).join('')}</div></div>`:''}
+    </div><div>
+      <div class="tsec"><h2>Quick actions</h2><div class="qacts"><button class="btn" data-act="planLecture">${ico('cal')}Plan a lecture</button><button class="btn" data-act="sketchNew">${ico('pen')}New sketch</button><button class="btn" data-act="resTab" data-v="reports">${ico('doc')}Make a report</button><button class="btn" data-act="nav" data-v="review">${ico('cards')}Review${dueReviews().length?` (${dueReviews().length} due)`:''}</button></div></div>
+      ${openQ?`<div class="tsec"><h2>Open reflection questions</h2><button class="btn" data-act="openCourses" data-v="questions">${ico('help')}${openQ} question${openQ===1?'':'s'} still to answer</button></div>`:''}
+    </div></div>`;
+}
 function homeView(){
   const ps=projects(), all=allPapers();
   if(!ps.length) return `<section class="banner"><div><div class="eyebrow">Welcome</div><h1>Turn every paper into structured insight</h1><p>Create a project for your review, add the literature you read, and work through three guided reading passes. Reports and APA references are generated for you.</p><div class="row"><button class="btn pri" data-act="newProject">${ico('plus')}Create your first project</button></div></div><div class="ring">${ring(0,132,12,theme()!=='aurora')}<div class="v"><div><b>0%</b><small>questions answered</small></div></div></div></section>
@@ -1811,7 +2015,7 @@ function libReadingsHTML(){
 }
 function libSketchesHTML(){
   const f=V.libR||{course:'all'}, sk=sketchesAll().filter(x=>f.course==='all'||x.courseId===f.course);
-  return `<div class="row" style="margin-bottom:14px"><select class="inp" style="width:auto;border-radius:999px" data-libr="course"><option value="all">All courses</option>${coursesAll().map(c=>`<option value="${c.id}" ${f.course===c.id?'selected':''}>${esc(courseLabel(c))}</option>`).join('')}</select><span class="spacer"></span><button class="btn pri" data-act="sketchNew" ${f.course!=='all'?`data-c="${f.course}"`:''}>✏️ New sketch</button></div>`+(sk.length?`<div class="skgrid">${sk.map(x=>{const c=S.docs[x.courseId]||{},l=S.docs[x.lectureId];return `<div class="card skcard"><button class="skthumb" data-act="sketchOpen" data-id="${x.id}" title="Open and edit">${x.png?`<img src="/_blob/${x.png.id}" alt="${esc(x.name||'Sketch')}">`:'<span>✏️</span>'}</button><div class="skmeta"><b>${esc(x.name||'Sketch')}</b><span class="muted">${esc([c.code||c.name,l&&l.topic].filter(Boolean).join(' · ')||'No lecture')} · ${esc(new Date(x.updatedAt||x.createdAt||Date.now()).toLocaleDateString())}</span></div><div class="row" style="gap:6px"><button class="btn sm" data-act="sketchOpen" data-id="${x.id}">${ico('edit')}Edit</button><button class="btn sm ghost danger" data-act="sketchDel" data-id="${x.id}">${ico('trash')}</button></div></div>`}).join('')}</div>`:`<div class="empty" style="padding:30px"><div class="ic">✏️</div><p>No sketches yet. While taking lecture notes, click <b>✏️ Sketch</b> at the top right.</p></div>`);
+  return `<div class="row" style="margin-bottom:14px"><select class="inp" style="width:auto;border-radius:999px" data-libr="course"><option value="all">All courses</option>${coursesAll().map(c=>`<option value="${c.id}" ${f.course===c.id?'selected':''}>${esc(courseLabel(c))}</option>`).join('')}</select><span class="spacer"></span><button class="btn pri" data-act="sketchNew" ${f.course!=='all'?`data-c="${f.course}"`:''}>${ico('pen')}New sketch</button></div>`+(sk.length?`<div class="skgrid">${sk.map(x=>{const c=S.docs[x.courseId]||{},l=S.docs[x.lectureId];return `<div class="card skcard"><button class="skthumb" data-act="sketchOpen" data-id="${x.id}" title="Open and edit">${x.png?`<img src="/_blob/${x.png.id}" alt="${esc(x.name||'Sketch')}">`:ico('pen')}</button><div class="skmeta"><b>${esc(x.name||'Sketch')}</b><span class="muted">${esc([c.code||c.name,l&&l.topic].filter(Boolean).join(' · ')||'No lecture')} · ${esc(new Date(x.updatedAt||x.createdAt||Date.now()).toLocaleDateString())}</span></div><div class="row" style="gap:6px"><button class="btn sm" data-act="sketchOpen" data-id="${x.id}">${ico('edit')}Edit</button><button class="btn sm ghost danger" data-act="sketchDel" data-id="${x.id}">${ico('trash')}</button></div></div>`}).join('')}</div>`:`<div class="empty" style="padding:30px"><div class="ic">${ico('pen')}</div><p>No sketches yet. While taking lecture notes, click <b>Sketch</b> at the top right.</p></div>`);
 }
 const reportsSaved=()=>docsOf('report').sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
 function libReportsHTML(){
@@ -1938,7 +2142,7 @@ function paperView(){
         return `<div class="q ${op?'open':''}" data-q="${q.id}">
         <button class="qhead" data-act="toggleQ" data-id="${q.id}" aria-expanded="${op}">${ico('chev','chev')}<span class="qn">${n}</span><span class="qt">${esc(q.text)}<span class="prev" data-prev="${q.id}">${ch?esc(ch)+(a?' — ':''):''}${esc(a.split('\n')[0].slice(0,160))}</span></span><span class="qa ${answered(x,q)?'done':''}" data-dot="${q.id}"></span></button>
         <div class="qbody">
-          ${q.where||q.how||q.ex||q.avoid?`<div class="hintbar">${q.where?`<button type="button" class="hchip" data-act="hint" data-h="where" aria-expanded="false">📍 Where to look</button>`:''}${q.how?`<button type="button" class="hchip" data-act="hint" data-h="how" aria-expanded="false">✎ How to answer</button>`:''}${q.ex?`<button type="button" class="hchip" data-act="hint" data-h="ex" aria-expanded="false">💡 Example</button>`:''}${q.avoid?`<button type="button" class="hchip" data-act="hint" data-h="avoid" aria-expanded="false">⚠ Avoid</button>`:''}</div>
+          ${q.where||q.how||q.ex||q.avoid?`<div class="hintbar">${q.where?`<button type="button" class="hchip" data-act="hint" data-h="where" aria-expanded="false">Where to look</button>`:''}${q.how?`<button type="button" class="hchip" data-act="hint" data-h="how" aria-expanded="false">How to answer</button>`:''}${q.ex?`<button type="button" class="hchip" data-act="hint" data-h="ex" aria-expanded="false">Example</button>`:''}${q.avoid?`<button type="button" class="hchip" data-act="hint" data-h="avoid" aria-expanded="false">Avoid</button>`:''}</div>
           <div class="hints">${q.where?`<div class="hint" data-hc="where" hidden>${esc(q.where)}</div>`:''}${q.how?`<div class="hint" data-hc="how" hidden>${esc(q.how)}</div>`:''}${q.ex?`<div class="hint ex" data-hc="ex" hidden>${esc(q.ex)}</div>`:''}${q.avoid?`<div class="hint avoid" data-hc="avoid" hidden>${esc(q.avoid)}</div>`:''}</div>`:''}
           ${x.pdf?`<button class="link qask" data-act="askThisQ" data-q="${q.id}">${ico('spark')}Ask ${AIN} where the paper answers this</button>`:''}
           ${q.showChain&&p&&p.chain?`<div class="chain"><b>My causal chain:</b> ${esc(p.chain)}</div>`:''}
@@ -2016,6 +2220,64 @@ function updateQState(qid){
    SEARCH
    ============================================================ */
 function hl(text,q){const i=text.toLowerCase().indexOf(q.toLowerCase());if(i<0)return esc(text.slice(0,120));const s=Math.max(0,i-40);return (s?'…':'')+esc(text.slice(s,i))+'<mark>'+esc(text.slice(i,i+q.length))+'</mark>'+esc(text.slice(i+q.length,i+q.length+80))}
+function studySearch(q){
+  const box=$('#sres'), ql=q.toLowerCase(), has=t=>String(t||'').toLowerCase().includes(ql);
+  const cs=coursesAll().filter(c=>has(c.name)||has(c.code)).slice(0,5);
+  const ls=lecturesOf().filter(l=>has(l.topic)||has(l.subtopic)||has(l.text)||has(l.cuesText)).slice(0,8);
+  const ms=docsOf('material').filter(m=>has(m.name)).slice(0,8);
+  const sk=sketchesAll().filter(x=>has(x.name)).slice(0,5);
+  const as=assignmentsOf().filter(a=>has(a.title)).slice(0,5);
+  const snip=l=>{const t=String(l.text||''),i=t.toLowerCase().indexOf(ql);return i<0?'':hl((i>40?'…':'')+t.slice(Math.max(0,i-40),i+80),q)};
+  let h='';
+  if(cs.length)h+=`<div class="h">Courses</div>`+cs.map(c=>`<button data-act="openCourse" data-id="${c.id}"><div class="t">${hl(courseLabel(c),q)}</div></button>`).join('');
+  if(ls.length)h+=`<div class="h">Lectures</div>`+ls.map(l=>`<button data-act="openLecture" data-id="${l.id}"><div class="t">${hl(l.topic||'Untitled lecture',q)}</div><div class="s">${esc((S.docs[l.courseId]||{}).code||'')} · ${esc(longDate(l.date))}${snip(l)?' — '+snip(l):''}</div></button>`).join('');
+  if(ms.length)h+=`<div class="h">Slides &amp; readings</div>`+ms.map(m=>`<button data-act="sideMat" data-id="${m.id}"><div class="t">${hl(m.name,q)}</div><div class="s">${esc(MAT_GROUPS.find(g=>g[0]===matGroup(m))[1])} · ${esc((S.docs[m.lectureId]||{}).topic||'')}</div></button>`).join('');
+  if(sk.length)h+=`<div class="h">Sketches</div>`+sk.map(x=>`<button data-act="sketchOpen" data-id="${x.id}"><div class="t">${hl(x.name||'Sketch',q)}</div></button>`).join('');
+  if(as.length)h+=`<div class="h">Assignments</div>`+as.map(a=>`<button data-act="openAssign" data-id="${a.id}"><div class="t">${hl(a.title||'Assignment',q)}</div></button>`).join('');
+  box.innerHTML=h||`<div class="s" style="padding:10px 12px;color:var(--muted);font-size:13px">Nothing in your courses matches “${esc(q)}”.</div>`;
+  box.classList.add('show');
+}
+/* ---------- command bar (Ctrl+K) ---------- */
+function cmdkItems(){
+  const ws=V.ws||wsOfView(), out=[];
+  const A=(g,label,ic,act,data,hint)=>out.push({g,label,ic,act,data:data||{},hint:hint||''});
+  if(ws==='research'){A('Actions','Add a paper','plus','quickAdd');A('Actions','New project','folder','newProject');A('Actions','New idea','bulb','newIdea');A('Go to','Library','library','nav',{v:'library'});A('Go to','Ideas','bulb','nav',{v:'ideas'})}
+  else{A('Actions','Start lecture note','plus','startLecture');A('Actions','Plan a lecture','cal','planLecture');A('Actions','New sketch','pen','sketchNew');A('Actions','Make a report','doc','resTab',{v:'reports'});A('Actions','New course','cap','newCourse');A('Go to','Today','sun','nav',{v:'today'});A('Go to','Review','cards','nav',{v:'review'});A('Go to','Timetable','cal','openCourses',{v:'timetable'});A('Go to','Readings & slides','folder','resTab',{v:'readings'})}
+  if(V.view==='lecture'){A('This lecture','Focus mode','maximize','focus');A('This lecture','Slides and readings','folder','matCard');A('This lecture','End lecture','check','lEnd');A('This lecture','Export as PDF','download','lExport',{v:'pdf'})}
+  A('Actions',ws==='research'?'Switch to Study':'Switch to Research',ws==='research'?'cap':'library','ws',{v:ws==='research'?'study':'research'});
+  const dark=(document.documentElement.dataset.theme||'').includes('dark')||document.documentElement.dataset.theme==='midnight';
+  A('Actions',dark?'Light theme':'Dark theme',dark?'sun':'moon','theme',{v:dark?'calm':'calmdark'});
+  A('Go to','Settings','settings','nav',{v:'settings'});
+  if(ws==='research'){projects().forEach(p=>A('Projects',p.name||'Untitled project','folder','openProject',{id:p.id},papersOf(p.id).length+' papers'));allPapers().slice(0,60).forEach(x=>A('Papers',paperTitle(x),'doc','openPaper',{id:x.id,pid:x.projectId},cite(x)))}
+  else{coursesAll().forEach(c=>A('Courses',courseLabel(c),'cap','openCourse',{id:c.id}));lecturesOf().slice().sort((a,b)=>(b.date||'').localeCompare(a.date||'')).slice(0,40).forEach(l=>A('Lectures',l.topic||'Untitled lecture','edit','openLecture',{id:l.id},((S.docs[l.courseId]||{}).code||'')+' · '+longDate(l.date)))}
+  return out;
+}
+function openCmdk(){
+  if($('.cmdk'))return;
+  const ov=document.createElement('div'); ov.className='ov cmdk-ov';
+  ov.innerHTML=`<div class="cmdk" role="dialog" aria-label="Command bar"><input id="cmdkQ" placeholder="Type a command or a name… e.g. plan lecture, TS 501" autocomplete="off" aria-label="Command"><div class="cmdk-list" id="cmdkL" role="listbox"></div><div class="cmdk-foot"><span>↑↓ to move</span><span>Enter to open</span><span>Esc to close</span></div></div>`;
+  document.body.appendChild(ov);
+  const inp=ov.querySelector('#cmdkQ'), list=ov.querySelector('#cmdkL'), items=cmdkItems(); let sel=0, shown=[];
+  const draw=()=>{const ws=inp.value.trim().toLowerCase().split(/\s+/).filter(Boolean);
+    shown=items.filter(it=>{const t=(it.label+' '+it.g+' '+it.hint).toLowerCase();return ws.every(w=>t.includes(w))});
+    if(!ws.length)shown=shown.filter(it=>it.g==='Actions'||it.g==='Go to'||it.g==='This lecture').concat(shown.filter(it=>!['Actions','Go to','This lecture'].includes(it.g)).slice(0,8));
+    const RK={'This lecture':0,'Actions':1,'Go to':2};shown=shown.map((it,i)=>[it,i]).sort((x,y)=>((RK[x[0].g]??3)-(RK[y[0].g]??3))||x[1]-y[1]).map(x=>x[0]);
+    shown=shown.slice(0,60); if(sel>=shown.length)sel=0;
+    let g='',h='';shown.forEach((it,i)=>{if(it.g!==g){g=it.g;h+=`<div class="cmdk-g">${esc(g)}</div>`}h+=`<button class="cmdk-i ${i===sel?'on':''}" data-i="${i}" role="option" aria-selected="${i===sel}">${ico(it.ic)}<span>${esc(it.label)}</span>${it.hint?`<small>${esc(it.hint)}</small>`:''}</button>`});
+    list.innerHTML=h||'<div class="cmdk-g">Nothing matches</div>';const on=list.querySelector('.on');if(on)on.scrollIntoView({block:'nearest'})};
+  const close=()=>ov.remove();
+  const run=i=>{const it=shown[i];if(!it)return;close();
+    if(it.act==='theme'){setTheme(it.data.v);return}
+    if(it.act==='openPaper'){go({view:'paper',pid:it.data.pid,paperId:it.data.id});return}
+    const b=document.createElement('button');b.dataset.act=it.act;Object.entries(it.data).forEach(([k,v])=>b.dataset[k]=v);b.hidden=true;document.body.appendChild(b);b.click();b.remove()};
+  inp.addEventListener('input',()=>{sel=0;draw()});
+  inp.addEventListener('keydown',e=>{if(e.key==='ArrowDown'){e.preventDefault();sel=Math.min(shown.length-1,sel+1);draw()}else if(e.key==='ArrowUp'){e.preventDefault();sel=Math.max(0,sel-1);draw()}else if(e.key==='Enter'){e.preventDefault();run(sel)}else if(e.key==='Escape'){e.preventDefault();e.stopPropagation();close()}});
+  list.addEventListener('click',e=>{const b=e.target.closest('[data-i]');if(b)run(+b.dataset.i)});
+  list.addEventListener('mousemove',e=>{const b=e.target.closest('[data-i]');if(b&&+b.dataset.i!==sel){sel=+b.dataset.i;list.querySelectorAll('.cmdk-i').forEach(x=>x.classList.toggle('on',x===b))}});
+  ov.addEventListener('mousedown',e=>{if(e.target===ov)close()});
+  draw(); inp.focus();
+}
+document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&!e.shiftKey&&e.key.toLowerCase()==='k'){e.preventDefault();openCmdk()}},true);
 const MTX={};
 function lectureSearch(q){
   const box=$('#sres'), l=S.docs[V.lectureId]; if(!l)return;
@@ -2036,6 +2298,7 @@ function runSearch(q){
   const box=$('#sres'); q=q.trim();
   if(q.length<2){box.classList.remove('show');box.innerHTML='';return}
   if(V.view==='lecture'){lectureSearch(q);return}
+  if((V.ws||wsOfView())==='study'){studySearch(q);return}
   const ql=q.toLowerCase(), out=[];
   projects().forEach(p=>{if((p.name+' '+(p.description||'')).toLowerCase().includes(ql))out.push({k:'Projects',html:`<button data-act="openProject" data-id="${p.id}"><div class="t">${hl(p.name||'',q)}</div><div class="s">${papersOf(p.id).length} papers</div></button>`})});
   allPapers().forEach(x=>{
@@ -4370,7 +4633,7 @@ function ideaCardHTML(i){
     <div class="itext">${esc(i.text).replace(/\n/g,'<br>')}</div>
     ${(i.tags||[]).length?`<div class="row" style="gap:6px;margin-top:10px">${i.tags.map(t=>`<span class="itag on sm" style="--x:${ideaColor(t)}">${esc(ideaLabel(i,t))}</span>`).join('')}</div>`:''}
     <div class="row" style="gap:6px;margin-top:8px;flex-wrap:nowrap">
-      ${src&&src.lecture?`<button class="link" style="font-size:12.5px" data-act="openLecture" data-id="${src.lectureId}">🎓 ${esc(src.cite)}</button>`:src?`<button class="link" style="font-size:12.5px" data-act="openPaper" data-id="${i.paperId}" title="${esc(paperTitle(src.x))}">${esc(src.cite)}</button>`:'<span class="muted" style="font-size:12.5px">My own idea</span>'}
+      ${src&&src.lecture?`<button class="link" style="font-size:12.5px" data-act="openLecture" data-id="${src.lectureId}">${ico('cap')}${esc(src.cite)}</button>`:src?`<button class="link" style="font-size:12.5px" data-act="openPaper" data-id="${i.paperId}" title="${esc(paperTitle(src.x))}">${esc(src.cite)}</button>`:'<span class="muted" style="font-size:12.5px">My own idea</span>'}
       <span class="muted" style="font-size:12px">· ${esc(ago(i.createdAt))}</span>
       <span class="spacer"></span><button class="btn sm ghost" data-ideaedit="${i.id}" aria-label="Edit idea">${ico('edit')}</button></div>
   </div>`;
@@ -4751,7 +5014,7 @@ function weekOcc(off){const m=weekStart(off),out=[];for(let i=0;i<7;i++){const d
 const slotName=s=>{const c=S.docs[s.courseId]||{},u=unitOf(s.unitId);return (c.code||c.name||'Course')+(u?' · '+(u.code||u.name):'')};
 
 /* ---------- small marks found in lecture notes ---------- */
-const MARKS=[['q','❓','Question to ask','#2f8cff'],['imp','⭐','Important','#d9a400'],['rev','🔁','Review later','#13a89e']];
+const MARKS=[['q','help','Question to ask','#2f8cff'],['imp','star','Important','#d9a400'],['rev','repeat','Review later','#13a89e']];
 function hashStr(s){let h=5381;for(let i=0;i<s.length;i++)h=((h<<5)+h+s.charCodeAt(i))|0;return 'k'+(h>>>0).toString(36)}
 function marksOf(l,kind){
   const t=document.createElement('template'); t.innerHTML=(l.html||'')+(l.cues||'');
@@ -4889,7 +5152,10 @@ function startLectureDialog(cid,unitId){
 }
 /* plan a lecture before it happens: date, topic, then slides and readings */
 function planLectureDialog(cid,unitId){
-  const c=courseOf(cid); if(!c){toast('Create a course first');return}
+  const cs=coursesAll(); if(!cs.length){toast('Create a course first');return}
+  if(!courseOf(cid)){const n=nextClass();cid=(n&&n.slot.courseId)||(V.lectureId&&(S.docs[V.lectureId]||{}).courseId)||cs[0].id;unitId=undefined}
+  const pickCourse=cs.length>1;
+  const c=courseOf(cid);
   const units=unitsOf(cid); let uSel=unitId!==undefined&&unitId!==null?unitId:(V.view==='course'&&V.unitF&&V.unitF!=='all'&&V.unitF!=='none'?V.unitF:null);
   if(units.length&&!units.some(u=>u.id===uSel)){const n=nextClass();uSel=(n&&n.slot.courseId===cid&&n.slot.unitId)||units[0].id}
   const nextFree=()=>{const taken=new Set(lecturesOf(cid).map(l=>l.date));const ups=upcomingSlots(slotsAll().filter(s=>s.courseId===cid&&(!s.unitId||!uSel||s.unitId===uSel)),30);return ups.find(x=>!taken.has(x.date))||null};
@@ -4897,6 +5163,7 @@ function planLectureDialog(cid,unitId){
   const draw=()=>{const nx=nextFree();
     ov.querySelector('.modal').innerHTML=`<h3 style="display:flex;align-items:center;gap:10px"><span class="cbar" style="--x:${ccol(c)}"></span>Plan a lecture · ${esc(c.code||c.name)}</h3>
     <p class="help" style="margin-top:-4px">Set it up before class: the topic, then the slides and readings. On the day, open it and take your notes in it.</p>
+    ${pickCourse?`<div class="field"><label>Course</label><select class="inp" id="plC">${cs.map(x=>`<option value="${x.id}" ${x.id===cid?'selected':''}>${esc(courseLabel(x))}</option>`).join('')}</select></div>`:''}
     ${units.length?`<div class="field"><label>Unit</label><select class="inp" id="plU">${units.map(u=>`<option value="${u.id}" ${uSel===u.id?'selected':''}>${esc((u.code?u.code+' · ':'')+u.name)}</option>`).join('')}</select></div>`:''}
     <div class="grid2"><div class="field"><label>Date</label><input class="inp" type="date" id="plD" value="${nx?nx.date:addDays(todayISO(),1)}"></div><div class="field"><label>Time</label><input class="inp" type="time" id="plT" value="${nx?esc(nx.s.start):'08:00'}"></div></div>
     ${nx?`<div class="help" style="margin:-6px 0 10px">Filled in from your next class date without a note.</div>`:''}
@@ -4904,6 +5171,7 @@ function planLectureDialog(cid,unitId){
     <div class="field"><label>Subtopic (optional)</label><input class="inp" id="plSub"></div>
     <div class="mfoot"><button class="btn" data-x>Cancel</button><button class="btn pri" data-ok>${ico('plus')}Plan lecture</button></div>`;
     const su=ov.querySelector('#plU'); if(su)su.onchange=()=>{uSel=su.value||null;draw()};
+    const sc=ov.querySelector('#plC'); if(sc)sc.onchange=()=>{ov.remove();planLectureDialog(sc.value)};
     ov.querySelector('[data-x]').onclick=()=>ov.remove();
     const ok=()=>{const id=uid('lecture_');S.docs[id]={kind:'lecture',courseId:cid,unitId:uSel||null,date:ov.querySelector('#plD').value||todayISO(),time:ov.querySelector('#plT').value||'',topic:trim(ov.querySelector('#plTopic').value),subtopic:trim(ov.querySelector('#plSub').value),html:'',text:'',layout:LAYOUT_PREF(),questions:[],sessions:[],planned:true,createdAt:Date.now()};
       save(id);ov.remove();setSide('c:'+cid,true);if(uSel)setSide('u:'+uSel,true);setSide('l:'+id,true);LV.mat=null;LV.panel=true;go({view:'lecture',lectureId:id});toast('Lecture planned — now add the slides and readings')};
@@ -4952,7 +5220,7 @@ function coursesView(){
   <div class="subtabs" role="tablist">${tabs.map(([k,l])=>`<button role="tab" class="${tab===k?'on':''}" aria-selected="${tab===k}" data-act="cstab" data-v="${k}">${l}</button>`).join('')}</div>`;
   if(!cs.length&&tab==='overview')return head+`<div class="empty"><div class="ic">${ico('cap')}</div><div class="big">Set up your first course</div><p>Add a course with its lecturers and class times. Then, when you go to class, start a note — the date, time, course and lecturer are filled in for you.</p><button class="btn pri" data-act="newCourse">${ico('plus')}New course</button></div>`;
   let b='';
-  if(tab==='overview') b=todayCardHTML()+`<div class="sec-title"><h2>Your courses</h2></div><div class="cgrid">${cs.map(c=>{const ls=lecturesOf(c.id),as=assignmentsOf(c.id).filter(a=>a.status!=='submitted'&&a.status!=='graded'),us=unitsOf(c.id),oq=ls.reduce((s,l)=>s+(l.questions||[]).filter(q=>q.status!=='answered').length,0);
+  if(tab==='overview') b=`<div class="sec-title" style="margin-top:0"><h2>Your courses</h2></div><div class="cgrid">${cs.map(c=>{const ls=lecturesOf(c.id),as=assignmentsOf(c.id).filter(a=>a.status!=='submitted'&&a.status!=='graded'),us=unitsOf(c.id),oq=ls.reduce((s,l)=>s+(l.questions||[]).filter(q=>q.status!=='answered').length,0);
     return `<button class="card ccard" style="--x:${ccol(c)}" data-act="openCourse" data-id="${c.id}"><div class="cstripe"></div><div class="ccode">${esc(c.code||'')}</div><div class="cname">${esc(c.name||'')}</div><div class="cmeta">${us.length?`${us.length} unit${us.length===1?'':'s'} · `:''}${ls.length} lecture note${ls.length===1?'':'s'}${as.length?` · ${as.length} assignment${as.length===1?'':'s'} open`:''}${oq?` · ${oq} open question${oq===1?'':'s'}`:''}</div><div class="cmeta">${esc(lecturersFor(c.id).map(l=>l.name).join(', '))}</div></button>`}).join('')}</div>`;
   else if(tab==='timetable') b=timetableHTML();
   else if(tab==='calendar') b=calendarHTML();
@@ -5002,7 +5270,7 @@ function questionsHTML(){
   const list=all.filter(({l,q})=>(cf==='all'||l.courseId===cf)&&(f==='all'||(f==='open'?q.status!=='answered':q.status==='answered')));
   return `<div class="row" style="margin-bottom:14px"><select class="inp" style="width:auto;border-radius:999px" data-act="qc"><option value="all">All courses</option>${coursesAll().map(c=>`<option value="${c.id}" ${cf===c.id?'selected':''}>${esc(courseLabel(c))}</option>`).join('')}</select>
     <div class="chips">${[['open','Open'],['answered','Answered'],['all','All']].map(([k,l])=>`<button class="chip ${f===k?'on':''}" data-act="qf" data-v="${k}">${l} <span style="opacity:.6">${all.filter(({l:L,q})=>(cf==='all'||L.courseId===cf)&&(k==='all'||(k==='open'?q.status!=='answered':q.status==='answered'))).length}</span></button>`).join('')}</div></div>
-  ${list.length?list.map(({l,q})=>{const c=S.docs[l.courseId]||{};return `<div class="card qtrack" style="--x:${ccol(c)}"><div class="row" style="flex-wrap:nowrap;align-items:flex-start"><label class="qchk"><input type="checkbox" data-qdone="${l.id}|${q.id}" ${q.status==='answered'?'checked':''}> </label><div style="flex:1"><div class="qtext">${esc(q.text)}</div><div class="muted" style="font-size:12.5px;margin:2px 0 8px"><button class="link" data-act="openLecture" data-id="${l.id}">${esc((c.code||c.name||'')+' · '+(l.topic||'Lecture')+' · '+longDate(l.date))}</button></div><textarea class="inp" rows="2" data-qans="${l.id}|${q.id}" placeholder="Answer, once you know it (from the lecturer, a book, office hours…)">${esc(q.answer||'')}</textarea></div></div></div>`}).join(''):`<p class="muted">${f==='open'?'No open questions — mark ❓ in your lecture notes, or add questions in the side panel while taking notes.':'Nothing here yet.'}</p>`}`;
+  ${list.length?list.map(({l,q})=>{const c=S.docs[l.courseId]||{};return `<div class="card qtrack" style="--x:${ccol(c)}"><div class="row" style="flex-wrap:nowrap;align-items:flex-start"><label class="qchk"><input type="checkbox" data-qdone="${l.id}|${q.id}" ${q.status==='answered'?'checked':''}> </label><div style="flex:1"><div class="qtext">${esc(q.text)}</div><div class="muted" style="font-size:12.5px;margin:2px 0 8px"><button class="link" data-act="openLecture" data-id="${l.id}">${esc((c.code||c.name||'')+' · '+(l.topic||'Lecture')+' · '+longDate(l.date))}</button></div><textarea class="inp" rows="2" data-qans="${l.id}|${q.id}" placeholder="Answer, once you know it (from the lecturer, a book, office hours…)">${esc(q.answer||'')}</textarea></div></div></div>`}).join(''):`<p class="muted">${f==='open'?'No open questions. Use Ask in your lecture notes, or add questions in the side panel while taking notes.':'Nothing here yet.'}</p>`}`;
 }
 
 /* ---------- Course page ---------- */
@@ -5044,7 +5312,7 @@ function courseLecturesHTML(c,units){
   const chips=units.length?`<div class="chips" style="margin-bottom:14px"><button class="chip ${uf==='all'?'on':''}" data-act="unitF" data-v="all">All</button>${units.map(u=>`<button class="chip ${uf===u.id?'on':''}" data-act="unitF" data-v="${u.id}">${esc(u.code||u.name)} <span style="opacity:.6">${lecturesOf(c.id,u.id).length}</span></button>`).join('')}${lecturesOf(c.id,null).length?`<button class="chip ${uf==='none'?'on':''}" data-act="unitF" data-v="none">No unit</button>`:''}</div>`:'';
   const attHTML=att&&att.held?`<div class="attline"><b>Attendance:</b> notes for ${att.attended} of ${att.held} class${att.held===1?'':'es'} so far${att.missing.length?` · <button class="link" data-act="showMissed" data-id="${c.id}">${att.missing.length} without notes</button>`:''}</div>`:((att?'':`<div class="attline muted">Add class dates in Settings to track attendance.</div>`));
   const row=l=>{const u=unitOf(l.unitId),q=(l.questions||[]).filter(z=>z.status!=='answered').length,r=marksOf(l,'rev').length,im=marksOf(l,'imp').length,fc=cardsOf(l).length,mats=materialsOf(l.id).length;
-    return `<button class="lrowb ${l.missed?'missed':''}" data-act="openLecture" data-id="${l.id}"><span class="cdate"><b>${new Date(l.date+'T12:00:00').getDate()}</b>${esc(new Date(l.date+'T12:00:00').toLocaleDateString(undefined,{month:'short'}))}</span><span class="cbody"><b>${l.missed?'Missed — get notes from a classmate':esc(l.topic||'Untitled lecture')}${l.planned?` <span class="ptag">${l.date>=todayISO()?'Planned':'Planned · no notes'}</span>`:''}</b><span>${l.subtopic?esc(l.subtopic)+' · ':''}${u&&uf==='all'?esc(u.code||u.name)+' · ':''}${esc(l.time||'')}${(l.sessions||[]).length>1?` · ${l.sessions.length} sessions`:''}</span></span><span class="lbadges">${q?`<i title="Open questions">❓${q}</i>`:''}${im?`<i title="Important">⭐${im}</i>`:''}${r?`<i title="To review">🔁${r}</i>`:''}${fc?`<i title="Flashcards">🃏${fc}</i>`:''}${mats?`<i title="Slides and readings">📎${mats}</i>`:''}${l.summary?'<i title="Has a summary">✓ sum</i>':''}${l.audio?'<i title="Recording">🎙</i>':''}</span></button>`};
+    return `<button class="lrowb ${l.missed?'missed':''}" data-act="openLecture" data-id="${l.id}"><span class="cdate"><b>${new Date(l.date+'T12:00:00').getDate()}</b>${esc(new Date(l.date+'T12:00:00').toLocaleDateString(undefined,{month:'short'}))}</span><span class="cbody"><b>${l.missed?'Missed — get notes from a classmate':esc(l.topic||'Untitled lecture')}${l.planned?` <span class="ptag">${l.date>=todayISO()?'Planned':'Planned · no notes'}</span>`:''}</b><span>${l.subtopic?esc(l.subtopic)+' · ':''}${u&&uf==='all'?esc(u.code||u.name)+' · ':''}${esc(l.time||'')}${(l.sessions||[]).length>1?` · ${l.sessions.length} sessions`:''}</span></span><span class="lbadges">${q?`<i title="Open questions">${ico('help')}${q}</i>`:''}${im?`<i title="Important">${ico('star')}${im}</i>`:''}${r?`<i title="To review">${ico('repeat')}${r}</i>`:''}${fc?`<i title="Flashcards">${ico('cards')}${fc}</i>`:''}${mats?`<i title="Slides and readings">${ico('folder')}${mats}</i>`:''}${l.summary?`<i title="Has a summary">${ico('check')}Summary</i>`:''}${l.audio?`<i title="Recording">${ico('mic')}</i>`:''}</span></button>`};
   return chips+attHTML+(ls.length?`<div class="llist">${ls.map(row).join('')}</div>`:`<div class="empty" style="padding:30px"><p>No lecture notes yet. When you're in class, click <b>Start lecture note</b>.</p></div>`);
 }
 function showMissedDialog(cid){
@@ -5192,7 +5460,7 @@ function revisionHTML(c,units){
   const groups=units.length?units.map(u=>({id:u.id,label:(u.code?u.code+' · ':'')+u.name,topics:u.topics||[]})).concat([{id:null,label:'Whole course',topics:c.topics||[]}]):[{id:null,label:'Topics',topics:c.topics||[]}];
   const ls=lecturesOf(c.id), due=dueReviews(c.id).length, cards=ls.reduce((s,l)=>s+cardsOf(l).length,0);
   return `<div class="grid2" style="max-width:980px">
-    <div class="card"><h2 style="margin-bottom:6px">Revision pack</h2><p class="help" style="margin:0 0 10px">Every lecture's summary, ⭐ important points, open questions, flashcards and your topic checklist, in one document.</p>
+    <div class="card"><h2 style="margin-bottom:6px">Revision pack</h2><p class="help" style="margin:0 0 10px">Every lecture's summary, important points, open questions, flashcards and your topic checklist, in one document.</p>
       <div class="row">${units.length?`<select class="inp" id="rpUnit" style="width:auto"><option value="all">Whole course</option>${units.map(u=>`<option value="${u.id}">${esc(u.code||u.name)}</option>`).join('')}</select>`:''}<button class="btn" data-act="revPack" data-v="doc">${ico('download')}Word</button><button class="btn" data-act="revPack" data-v="pdf">${ico('download')}PDF</button></div></div>
     <div class="card"><h2 style="margin-bottom:6px">Practise</h2><p class="help" style="margin:0 0 10px">${cards} flashcard${cards===1?'':'s'} in your notes (write <code>term :: meaning</code> on a line). ${due} item${due===1?'':'s'} due for review.</p>
       <div class="row"><button class="btn" data-act="nav" data-v="review">${ico('cards')}Review &amp; flashcards</button><button class="btn" data-act="practiceQ" data-c="${c.id}">${ico('spark')}Practice questions</button></div></div>
@@ -5306,7 +5574,7 @@ async function practiceQuestions(cid){
 const RV={course:'all',queue:null,i:0,show:false,mode:'due'};
 function reviewView(){
   const cs=coursesAll();
-  const head=`<div class="page-head"><div class="grow"><h1>Review</h1><p class="lede">Points you marked 🔁 and flashcards from your notes come back after 1 day, 3 days, a week, two weeks and a month — the most reliable way to remember for exams.</p></div></div>
+  const head=`<div class="page-head"><div class="grow"><h1>Review</h1><p class="lede">Points you marked for review and flashcards from your notes come back after 1 day, 3 days, a week, two weeks and a month — the most reliable way to remember for exams.</p></div></div>
   <div class="row" style="margin-bottom:16px"><select class="inp" style="width:auto;border-radius:999px" data-act="rvCourse"><option value="all">All courses</option>${cs.map(c=>`<option value="${c.id}" ${RV.course===c.id?'selected':''}>${esc(courseLabel(c))}</option>`).join('')}</select>
     <div class="chips"><button class="chip ${RV.mode==='due'?'on':''}" data-act="rvMode" data-v="due">Due today</button><button class="chip ${RV.mode==='cards'?'on':''}" data-act="rvMode" data-v="cards">All flashcards</button></div></div>`;
   if(!RV.queue){
@@ -5315,11 +5583,11 @@ function reviewView(){
     RV.i=0; RV.show=false;
   }
   const q=RV.queue, it=q[RV.i];
-  if(!q.length)return head+`<div class="empty"><div class="ic">${ico('cards')}</div><div class="big">${RV.mode==='due'?'Nothing to review today':'No flashcards yet'}</div><p>${RV.mode==='due'?'Mark points with 🔁 in your lecture notes, or write flashcards as <code>term :: meaning</code> on their own line.':'Write a line like <code>Haddon matrix :: a grid of crash phases × factors</code> in any lecture note.'}</p></div>`;
+  if(!q.length)return head+`<div class="empty"><div class="ic">${ico('cards')}</div><div class="big">${RV.mode==='due'?'Nothing to review today':'No flashcards yet'}</div><p>${RV.mode==='due'?'Mark points with Review in your lecture notes, or write flashcards as <code>term :: meaning</code> on their own line.':'Write a line like <code>Haddon matrix :: a grid of crash phases × factors</code> in any lecture note.'}</p></div>`;
   if(!it)return head+`<div class="empty"><div class="ic">${ico('check')}</div><div class="big">Done — ${q.length} reviewed</div><p>Come back tomorrow for the next ones.</p><button class="btn" data-act="rvRestart">Go again</button></div>`;
   const c=S.docs[it.l.courseId]||{};
   return head+`<div class="rvwrap"><div class="rvprog"><i style="width:${Math.round(RV.i/q.length*100)}%"></i></div><div class="muted" style="font-size:13px;margin:6px 0 10px">${RV.i+1} of ${q.length} · <span style="color:${ccol(c)}">●</span> ${esc(c.code||c.name||'')} · <button class="link" data-act="openLecture" data-id="${it.l.id}">${esc(it.l.topic||'Lecture')} (${esc(longDate(it.l.date))})</button></div>
-    <div class="card rvcard">${it.type==='card'?`<div class="tlab">Flashcard</div><div class="rvfront">${esc(it.card.front)}</div>${RV.show?`<div class="rvback">${esc(it.card.back)}</div>`:''}`:`<div class="tlab">🔁 Review this point — can you explain it in your own words?</div><div class="rvfront" style="font-size:19px">${esc(it.text)}</div>`}</div>
+    <div class="card rvcard">${it.type==='card'?`<div class="tlab">Flashcard</div><div class="rvfront">${esc(it.card.front)}</div>${RV.show?`<div class="rvback">${esc(it.card.back)}</div>`:''}`:`<div class="tlab">Review this point — can you explain it in your own words?</div><div class="rvfront" style="font-size:19px">${esc(it.text)}</div>`}</div>
     <div class="row" style="justify-content:center;margin-top:14px">${it.type==='card'&&!RV.show?`<button class="btn pri" data-act="rvShow">Show answer (space)</button>`:`<button class="btn" data-act="rvAns" data-v="0">${it.type==='card'?'Again':'Still unsure'}</button><button class="btn pri" data-act="rvAns" data-v="1">${it.type==='card'?'Got it':'I know this ✓'}</button>`}</div></div>`;
 }
 document.addEventListener('keydown',e=>{if(V.view!=='review'||e.target.matches('input,textarea,select,[contenteditable]'))return;if(e.key===' '){e.preventDefault();const b=document.querySelector('[data-act="rvShow"]')||document.querySelector('[data-act="rvAns"][data-v="1"]');if(b)b.click()}});
@@ -5395,19 +5663,19 @@ function lectureView(){
   const notes=`<div class="lnotes">
     ${recordingsHTML(l)}
     ${ribbonHTML(l,{lecture:true})}
-    ${cornell?`<div class="cornell"><div class="ccue"><div class="clab">Key words &amp; questions</div>${editor('cues','__cue','Cues: key words, questions…','cues')}</div><div class="cmain"><div class="clab">Notes</div>${editor('html','__lec','Take your notes here…','main')}</div></div>`:editor('html','__lec','Take your notes here… Select words and use ❓ ⭐ 🔁 💡 above to mark them. Write term :: meaning on a line to make a flashcard.','main')}
+    ${cornell?`<div class="cornell"><div class="ccue"><div class="clab">Key words &amp; questions</div>${editor('cues','__cue','Cues: key words, questions…','cues')}</div><div class="cmain"><div class="clab">Notes</div>${editor('html','__lec','Take your notes here…','main')}</div></div>`:editor('html','__lec','Take your notes here. Select words and use Ask, Key, Review or Idea above to mark them. Write term :: meaning on a line to make a flashcard.','main')}
     <div class="lsum"><label for="lSum">Summary${cornell?'':''} <span class="muted">— in about three sentences, what was today's lecture about?</span></label><textarea class="inp" id="lSum" rows="3" placeholder="Write this at the end of the lecture, or the same evening — it makes revision much easier.">${esc(l.summary||'')}</textarea></div>
   </div>`;
   const nm=materialsOf(V.lectureId).length;
-  const fab=`<div class="fabs"><button class="matfab" data-act="sketchNew" title="Open a sketch pad: draw, write with a pen, add shapes — then save it">✏️<span>Sketch</span></button><button class="matfab ${LV.mcard?'on':''}" id="matFab" data-act="matCard" title="Slides, readings and sketches for this lecture" aria-label="Slides and readings">${ico('folder')}<span>Materials</span><em>${nm||''}</em></button></div>`;
+  const fab=`<div class="fabs"><button class="matfab" data-act="sketchNew" title="Open a sketch pad: draw, write with a pen, add shapes, then save it">${ico('pen')}<span>Sketch</span></button><button class="matfab ${LV.mcard?'on':''}" id="matFab" data-act="matCard" title="Slides, readings and sketches for this lecture" aria-label="Slides and readings">${ico('folder')}<span>Materials</span><em>${nm||''}</em></button></div>`;
   const toolbar=`<div class="ptoolbar"><span class="ftitle"><span>${esc(l.topic||'Lecture')}</span></span>
-    <button class="btn sm ${V.focus?'pri':''}" data-act="focus" title="${V.focus?'Exit focus mode (Esc)':'Focus mode: hide everything except your notes'}">${ico(V.focus?'minimize':'maximize')}${V.focus?'Exit focus':'Focus'}</button>
+    <button class="btn sm icon ${V.focus?'on':''}" data-act="focus" title="${V.focus?'Exit focus mode (Esc)':'Focus mode: hide everything except your notes'}" aria-label="${V.focus?'Exit focus mode':'Focus mode'}">${ico(V.focus?'minimize':'maximize')}</button>
     <span class="seg" role="group" aria-label="Layout"><button class="${cornell?'':'on'}" data-act="lLayout" data-v="standard" title="One notes area">Standard</button><button class="${cornell?'on':''}" data-act="lLayout" data-v="cornell" title="Cornell method: key words and questions on the left, notes on the right, summary at the bottom">Cornell</button></span>
-    <span class="markbar" role="group" aria-label="Mark the selected words">${MARKS.map(([k,e,lab])=>`<button class="mkb" data-act="mark" data-v="${k}" title="${k==='q'?'Select words in your notes, then write a reflection question that leads to them':'Mark the selected words: '+lab}">${e}<span>${k==='q'?'Ask':k==='imp'?'Key':'Review'}</span></button>`).join('')}<button class="mkb" data-act="mark" data-v="idea" title="Save the selected words (or a thought) as an idea">💡<span>Idea</span></button></span>
+    <span class="markbar" role="group" aria-label="Mark the selected words">${MARKS.map(([k,e,lab])=>`<button class="mkb" data-act="mark" data-v="${k}" title="${k==='q'?'Select words in your notes, then write a reflection question that leads to them':'Mark the selected words: '+lab}">${ico(e)}<span>${k==='q'?'Ask':k==='imp'?'Key':'Review'}</span></button>`).join('')}<button class="mkb" data-act="mark" data-v="idea" title="Save the selected words (or a thought) as an idea">${ico('bulb')}<span>Idea</span></button></span>
     <button class="btn sm ${rec?'danger':''}" data-act="${rec?'recStop':'recStart'}" title="${rec?'Stop recording':'Record the lecture audio — every new paragraph gets a time stamp you can click to listen back'}">${ico('mic')}${rec?'<span id="recTime">Stop</span>':'Record'}</button>
     <span class="spacer"></span><span class="save" id="saveNote"></span>
-    <button class="btn sm ${LV.panel?'pri':''}" data-act="lPanel" title="Materials, questions and marked points">${ico('menu')}Panel</button>
-    <button class="btn sm pri" data-act="lEnd">${ico('check')}End lecture</button>
+    <button class="btn sm icon ${LV.panel?'on':''}" data-act="lPanel" title="${LV.panel?'Hide':'Show'} reflection questions, important ideas and flashcards" aria-label="Questions panel" aria-pressed="${LV.panel?'true':'false'}">${ico('menu')}</button>
+    <button class="btn sm" data-act="lEnd" title="Write the summary and finish today's notes">${ico('check')}End lecture</button>
     <span class="mwrap"><button class="btn sm icon" data-act="moreMenu" aria-haspopup="menu" aria-expanded="false" title="More" aria-label="More actions"><svg class="i" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.4" fill="currentColor"/><circle cx="12" cy="12" r="1.4" fill="currentColor"/><circle cx="19" cy="12" r="1.4" fill="currentColor"/></svg></button><div class="menu" role="menu" hidden><button role="menuitem" data-act="lExport" data-v="doc">${ico('download')}Export as Word</button><button role="menuitem" data-act="lExport" data-v="pdf">${ico('download')}Export as PDF</button><hr><button role="menuitem" class="danger" data-act="lDelete">${ico('trash')}Delete this note</button></div></span></div>`;
   const head=`<div class="crumbs"><button data-act="nav" data-v="courses">Courses</button>${ico('chev')}<button data-act="openCourse" data-id="${l.courseId}">${esc(c.code||c.name||'Course')}</button>${u?`${ico('chev')}<button data-act="openCourse" data-id="${l.courseId}" data-unit="${u.id}">${esc(u.code||u.name)}</button>`:''}${ico('chev')}<span>${esc(longDate(l.date))}</span></div>
   <div class="lhead" style="--x:${ccol(c)}">
@@ -5422,18 +5690,18 @@ function lectureView(){
 }
 function lecturePanelHTML(l){
   const qs=l.questions||[], imp=importantOf(l), rev=marksOf(l,'rev'), cards=cardsOf(l);
-  return `<div class="lpsec"><div class="lph"><b>❓ Reflection questions</b><span class="muted">${qs.filter(q=>q.status!=='answered').length} open</span></div>
+  return `<div class="lpsec"><div class="lph"><b>${ico('help')}Reflection questions</b><span class="muted">${qs.filter(q=>q.status!=='answered').length} open</span></div>
       ${qs.map(q=>`<div class="lq ${q.status==='answered'?'done':''}"><input type="checkbox" data-lqdone="${q.id}" ${q.status==='answered'?'checked':''} title="Tick when you have the answer"><div class="lqb"><span>${esc(q.text)}</span>${q.from?`<div class="lqfrom" title="The part of your notes this question leads to">→ ${esc(q.from.length>90?q.from.slice(0,90)+'…':q.from)}</div>`:''}${q.answer?`<button class="lqans" data-lqans="${q.id}" title="Edit the answer"><b>Answer:</b> ${esc(q.answer)}</button>`:q.status==='answered'?`<button class="link lqadd" data-lqans="${q.id}">+ Add the answer</button>`:''}</div><button class="btn sm ghost danger" data-lqdel="${q.id}" aria-label="Remove">✕</button></div>`).join('')}
       <input class="inp" id="lqNew" placeholder="Type a question, press Enter" style="margin-top:6px">
-      <div class="help" style="margin:4px 0 0">Or select words in your notes and click <b>❓ Ask</b> to write a question that leads to them.</div></div>
-    <div class="lpsec"><div class="lph"><b>⭐ Important</b><span class="muted">${imp.length}</span></div>
-      ${imp.map(x=>`<div class="lmk imp ${x.kind==='reflection'?'refl':''}">${x.kind==='reflection'?'<i>Reflection:</i> ':''}${esc(x.text)}${x.id?`<button class="btn sm ghost danger" data-limpdel="${x.id}" aria-label="Remove">✕</button>`:`<span class="muted" title="Marked ⭐ in your notes" style="font-size:11px"> ⭐ in notes</span>`}</div>`).join('')}
+      <div class="help" style="margin:4px 0 0">Or select words in your notes and click <b>Ask</b> to write a question that leads to them.</div></div>
+    <div class="lpsec"><div class="lph"><b>${ico('star')}Important</b><span class="muted">${imp.length}</span></div>
+      ${imp.map(x=>`<div class="lmk imp ${x.kind==='reflection'?'refl':''}">${x.kind==='reflection'?'<i>Reflection:</i> ':''}${esc(x.text)}${x.id?`<button class="btn sm ghost danger" data-limpdel="${x.id}" aria-label="Remove">✕</button>`:`<span class="muted" title="Marked as key in your notes" style="font-size:11px"> · in notes</span>`}</div>`).join('')}
       <div class="row" style="gap:6px;flex-wrap:nowrap;margin-top:6px"><select class="inp" id="limpKind" style="width:auto;padding:6px 8px" aria-label="Kind"><option value="idea">Idea</option><option value="reflection">Reflection</option></select><input class="inp" id="limpNew" placeholder="An important idea or reflection, press Enter"></div></div>
-    <div class="lpsec"><div class="lph"><b>🃏 Flashcards</b><span class="muted">${cards.length}</span></div>
+    <div class="lpsec"><div class="lph"><b>${ico('cards')}Flashcards</b><span class="muted">${cards.length}</span></div>
       ${cards.map(k=>`<div class="lmk"><b>${esc(k.front)}</b> — ${esc(k.back)}${k.id?`<button class="btn sm ghost danger" data-lfcdel="${k.id}" aria-label="Remove">✕</button>`:''}</div>`).join('')}
       <input class="inp" id="lfcNew" placeholder="term :: meaning, press Enter" style="margin-top:6px">
       ${cards.length?'':'<div class="help" style="margin:4px 0 0">Or write <code>term :: meaning</code> on its own line in your notes.</div>'}</div>
-    ${rev.length?`<div class="lpsec"><div class="lph"><b>🔁 To review</b><span class="muted">${rev.length}</span></div>${rev.map(t=>`<div class="lmk rev">${esc(t)}</div>`).join('')}</div>`:''}`;
+    ${rev.length?`<div class="lpsec"><div class="lph"><b>${ico('repeat')}To review</b><span class="muted">${rev.length}</span></div>${rev.map(t=>`<div class="lmk rev">${esc(t)}</div>`).join('')}</div>`:''}`;
 }
 /* the answer you got, asked for when you tick a question (optional) */
 function answerDialog(lid,qid,onDone){
@@ -5456,7 +5724,7 @@ function matCardHTML(){
   return `<div class="matcard" id="matCard" role="dialog" aria-label="Slides and readings"><div class="mch"><b>${ico('folder')}Slides &amp; readings</b><button class="btn sm icon ghost" data-act="matCard" aria-label="Close">${ico('x')}</button></div>
     ${MAT_GROUPS.map(([g,lab])=>{const ms=mats.filter(m=>matGroup(m)===g);return `<div class="mgrp"><div class="mgh"><span>${lab}</span><button class="btn sm ghost" data-act="${g==='links'?'matLink':'matAdd'}" data-v="${g==='slides'?'slides':'reading'}" data-g="${g}" title="${g==='links'?'Add a link':'Upload a PDF'}">${ico(g==='links'?'external':'upload')}${g==='links'?'Add':'Upload'}</button></div>
       ${ms.map(m=>`<div class="matrow ${LV.mat===m.id?'on':''}"><span class="pdfic ${m.type==='slides'?'sl':''}">${m.type==='slides'?'SL':m.url&&!m.pdf?'URL':'PDF'}</span><button class="link mname" data-act="matOpen" data-id="${m.id}" title="Open beside your notes">${esc(m.name)}</button><button class="btn sm ghost icon" data-act="matPop" data-id="${m.id}" title="Open in its own window" aria-label="Open in its own window">${ico('external')}</button>${g==='compulsory'||g==='additional'?`<button class="btn sm ghost" data-act="matMove" data-id="${m.id}" title="Move to ${g==='compulsory'?'additional':'compulsory'} readings" aria-label="Move">⇄</button>`:''}<button class="btn sm ghost danger" data-act="matDel" data-id="${m.id}" aria-label="Remove">✕</button></div>`).join('')||'<div class="muted mnone">None yet</div>'}</div>`}).join('')}
-    ${(()=>{const sk=sketchesAll().filter(x=>x.lectureId===V.lectureId);return `<div class="mgrp"><div class="mgh"><span>Sketches</span><button class="btn sm ghost" data-act="sketchNew">✏️ New</button></div>${sk.map(x=>`<div class="matrow"><span class="pdfic sk">✏️</span><button class="link mname" data-act="sketchOpen" data-id="${x.id}">${esc(x.name||'Sketch')}</button><button class="btn sm ghost danger" data-act="sketchDel" data-id="${x.id}" aria-label="Delete">✕</button></div>`).join('')||'<div class="muted mnone">None yet</div>'}</div>`})()}</div>`;
+    ${(()=>{const sk=sketchesAll().filter(x=>x.lectureId===V.lectureId);return `<div class="mgrp"><div class="mgh"><span>Sketches</span><button class="btn sm ghost" data-act="sketchNew">${ico('pen')}New</button></div>${sk.map(x=>`<div class="matrow"><span class="pdfic sk">${ico('pen')}</span><button class="link mname" data-act="sketchOpen" data-id="${x.id}">${esc(x.name||'Sketch')}</button><button class="btn sm ghost danger" data-act="sketchDel" data-id="${x.id}" aria-label="Delete">✕</button></div>`).join('')||'<div class="muted mnone">None yet</div>'}</div>`})()}</div>`;
 }
 function toggleMatCard(force){
   const ex=$('#matCard'); const want=force!==undefined?force:!ex;
@@ -5537,7 +5805,7 @@ function applyMark(kind){
 /* select words, click Ask: write the question those words answer */
 function askQuestionFor(ed,range,text){
   if(!text)return;
-  const ov=modal(`<h3>❓ Write a reflection question</h3><p class="help" style="margin-top:-4px">Write a question that leads to the words you selected — the kind of question an exam could ask. The words stay marked in your notes.</p>
+  const ov=modal(`<h3>Write a reflection question</h3><p class="help" style="margin-top:-4px">Write a question that leads to the words you selected — the kind of question an exam could ask. The words stay marked in your notes.</p>
     <blockquote class="askq">${esc(text.length>400?text.slice(0,400)+'…':text)}</blockquote>
     <div class="field"><input class="inp" id="aqTxt" placeholder="e.g. Why does speed increase both crash risk and severity?"></div>
     <div class="mfoot"><button class="btn" data-x>Cancel</button><button class="btn pri" data-ok>Add question</button></div>`);
@@ -5596,7 +5864,7 @@ function endLecture(){
   const ov=modal(`<h3>End of lecture</h3>
     <div class="field"><label>Summary — what was today's lecture about, in about three sentences?</label><textarea class="inp" id="elSum" rows="4" placeholder="1. The main idea… 2. Why it matters… 3. How it connects to last week…">${esc(l.summary||'')}</textarea><div class="help">Writing this now, while it's fresh, is one of the best things you can do for exam time.</div></div>
     ${open.length?`<div class="field"><label>Still open (${open.length})</label><ul class="help" style="margin:0;padding-left:18px">${open.map(q=>`<li>${esc(q.text)}</li>`).join('')}</ul><div class="help">They stay on your Questions list (Courses → Questions) until you answer them.</div></div>`:''}
-    ${rev?`<p class="help">🔁 ${rev} point${rev===1?'':'s'} will come back for review tomorrow.</p>`:''}
+    ${rev?`<p class="help">${rev} point${rev===1?'':'s'} will come back for review tomorrow.</p>`:''}
     <div class="mfoot"><button class="btn" data-x>Keep writing</button><button class="btn pri" data-ok>${ico('check')}Save &amp; finish</button></div>`);
   ov.querySelector('[data-x]').onclick=()=>ov.remove();
   ov.querySelector('[data-ok]').onclick=()=>{l.summary=trim(ov.querySelector('#elSum').value);l.ended=Date.now();save(V.lectureId);ov.remove();if(REC.rec&&REC.lectureId===V.lectureId)recStop();toast('Lecture saved');go({view:'course',courseId:l.courseId,ctab:'lectures'})};
@@ -5609,7 +5877,7 @@ function recordingsHTML(l){
   const rs=l.recordings||[];
   const live=REC.rec&&REC.lectureId===V.lectureId;
   if(!rs.length&&!live)return '';
-  return `<div class="recbar">${live?`<div class="recon"><span class="recdot"></span><b>Recording</b> <span id="recTime2">${fmtSec(Math.floor((Date.now()-REC.start)/1000))}</span> <span class="muted">— each new paragraph gets a time stamp</span></div>`:''}${rs.map((r,i)=>`<div class="recrow"><span class="muted" style="font-size:12px">🎙 ${esc(longDate(r.date||l.date))}${r.dur?' · '+fmtSec(r.dur):''}</span><audio controls preload="metadata" data-rec="${i}" src="${esc(pdfUrl(r))}"></audio><button class="btn sm ghost danger" data-act="recDel" data-v="${i}" aria-label="Delete recording">✕</button></div>`).join('')}</div>`;
+  return `<div class="recbar">${live?`<div class="recon"><span class="recdot"></span><b>Recording</b> <span id="recTime2">${fmtSec(Math.floor((Date.now()-REC.start)/1000))}</span> <span class="muted">— each new paragraph gets a time stamp</span></div>`:''}${rs.map((r,i)=>`<div class="recrow"><span class="muted" style="font-size:12px">${ico('mic')} ${esc(longDate(r.date||l.date))}${r.dur?' · '+fmtSec(r.dur):''}</span><audio controls preload="metadata" data-rec="${i}" src="${esc(pdfUrl(r))}"></audio><button class="btn sm ghost danger" data-act="recDel" data-v="${i}" aria-label="Delete recording">✕</button></div>`).join('')}</div>`;
 }
 const fmtSec=s=>`${Math.floor(s/60)}:${pad2(s%60)}`;
 async function recStart(){
@@ -5801,7 +6069,7 @@ document.addEventListener('pointerdown',e=>{if(FL&&!e.target.closest('.flframe,.
    ============================================================ */
 const SK_W=1600, SK_H=1000;
 const SK_COLORS=['#111827','#2563eb','#dc2626','#16a34a','#ea580c','#9333ea','#0891b2','#ca8a04','#ffffff'];
-const SK_TOOLS=[['pen','✏️','Pen (P)'],['hl','🖍️','Highlighter (H)'],['erase','🧽','Eraser — rub out part of a stroke (E)'],['xstroke','✂️','Stroke eraser — remove whole strokes (X)'],['select','🖐️','Select and move (V)'],['line','╱','Line (L)'],['arrow','➝','Arrow (A)'],['rect','▭','Rectangle (R)'],['ellipse','◯','Ellipse (O)'],['text','T','Text (T)']];
+const SK_TOOLS=[['pen','pen','Pen (P)'],['hl','marker','Highlighter (H)'],['erase','eraser','Eraser: rub out part of a stroke (E)'],['xstroke','scissors','Stroke eraser: remove whole strokes (X)'],['select','hand','Select and move (V)'],['line','sline','Line (L)'],['arrow','sarrow','Arrow (A)'],['rect','srect','Rectangle (R)'],['ellipse','sellipse','Ellipse (O)'],['text','stext','Text (T)']];
 const SK_BGS=[['blank','Blank'],['lined','Lined'],['grid','Grid'],['dots','Dots']];
 const sketchesAll=()=>docsOf('sketch').sort((a,b)=>(b.updatedAt||b.createdAt||0)-(a.updatedAt||a.createdAt||0));
 let SK=null;
@@ -5878,10 +6146,10 @@ function openSketch(id,ctx){
       <button class="btn sm" data-sk="png" title="Download as a picture">${ico('download')}PNG</button>
       ${V.view==='lecture'?`<label class="row" style="gap:5px;font-size:13px"><input type="checkbox" id="skIns" ${ex?'':'checked'}> Put in my notes</label>`:''}
       <button class="btn" data-sk="close">Close</button><button class="btn pri" data-sk="save">${ico('check')}Save</button></div>
-    <div class="skbody"><div class="sktools" role="toolbar" aria-label="Tools">${SK_TOOLS.map(([k,e,lab])=>`<button class="sktool ${SK.tool===k?'on':''}" data-skt="${k}" title="${lab}" aria-label="${lab}">${e}</button>`).join('')}
+    <div class="skbody"><div class="sktools" role="toolbar" aria-label="Tools">${SK_TOOLS.map(([k,e,lab])=>`<button class="sktool ${SK.tool===k?'on':''}" data-skt="${k}" title="${lab}" aria-label="${lab}">${ico(e)}</button>`).join('')}
       <hr><div class="skcols">${SK_COLORS.map(c=>`<button class="skcol ${SK.color===c?'on':''}" data-skc="${c}" style="background:${c}" aria-label="Colour ${c}"></button>`).join('')}<label class="skcol skcustom" title="Any colour"><input type="color" id="skCustom" value="${SK.color}"></label></div>
       <hr><label class="sksz" title="Thickness"><span id="skSzL">${SK.size}</span><input type="range" id="skSize" min="1" max="40" value="${SK.size}" orient="vertical"></label>
-      <button class="sktool ${SK.fill?'on':''}" data-sk="fill" title="Fill rectangles and ellipses">▧</button></div>
+      <button class="sktool ${SK.fill?'on':''}" data-sk="fill" title="Fill rectangles and ellipses">${ico('sfill')}</button></div>
       <div class="skstage"><canvas id="skCv" width="${SK_W}" height="${SK_H}"></canvas><textarea id="skTxt" class="sktxt" hidden></textarea></div></div>
     <div class="skfoot muted">Pen pressure works with a stylus. Hold <b>Shift</b> for straight lines and perfect squares or circles. Select tool: drag to move, <b>Delete</b> to remove.</div></div>`;
   document.body.appendChild(ov);
@@ -6136,8 +6404,8 @@ function editTemplate(){
     ${work.sections.map(s=>`<h4 style="color:${secColor(s)};margin:16px 0 8px;text-transform:uppercase;letter-spacing:.05em;font-size:13px">${esc(s.title)}</h4>
       ${work.questions.filter(q=>q.section===s.id).map(q=>`<div class="tq" data-tq="${q.id}">
         <div class="row"><b style="color:var(--muted)">${work.questions.indexOf(q)+1}.</b><input class="inp" style="flex:1" data-k="text" value="${esc(q.text)}"><button class="btn sm ghost" data-up="${q.id}" title="Move up">↑</button><button class="btn sm ghost danger" data-del="${q.id}">Remove</button></div>
-        <div class="grid2"><textarea class="inp" rows="3" data-k="where" placeholder="📍 Where to look">${esc(q.where||'')}</textarea><textarea class="inp" rows="3" data-k="how" placeholder="✎ How to answer">${esc(q.how||'')}</textarea></div>
-        <div class="grid2" style="margin-top:8px"><textarea class="inp" rows="2" data-k="ex" placeholder="💡 Example answer (optional)">${esc(q.ex||'')}</textarea><textarea class="inp" rows="2" data-k="avoid" placeholder="⚠ Common mistake to avoid (optional)">${esc(q.avoid||'')}</textarea></div>
+        <div class="grid2"><textarea class="inp" rows="3" data-k="where" placeholder="Where to look">${esc(q.where||'')}</textarea><textarea class="inp" rows="3" data-k="how" placeholder="How to answer">${esc(q.how||'')}</textarea></div>
+        <div class="grid2" style="margin-top:8px"><textarea class="inp" rows="2" data-k="ex" placeholder="Example answer (optional)">${esc(q.ex||'')}</textarea><textarea class="inp" rows="2" data-k="avoid" placeholder="Common mistake to avoid (optional)">${esc(q.avoid||'')}</textarea></div>
       </div>`).join('')}
       <button class="btn sm" data-add="${s.id}">+ Add question to ${esc(s.title)}</button>`).join('')}
     <div class="mfoot"><button class="btn" data-x>Cancel</button><button class="btn pri" data-save>Save questions</button></div>`;
@@ -6284,6 +6552,9 @@ document.addEventListener('click',e=>{
     case 'matLink': addMaterialLink(b.dataset.l);break;
     case 'matOpen': {const m=S.docs[id];if(!m)break;if(m.url&&!m.pdf){window.open(m.url,'_blank','noopener');break}LV.mat=LV.mat===id?null:id;R.tab='pdf';LV.mcard=false;renderMain();renderSide();break}
     case 'matCard': toggleMatCard();break;
+    case 'ws': switchWs(b.dataset.v);break;
+    case 'cmdk': openCmdk();break;
+    case 'openCourses': V.cstab=b.dataset.v||'overview';go({view:'courses'});break;
     case 'ideaSide': IV.side=b.dataset.v;IV.proj='all';IV.tag='All';IV.name='';renderMain();break;
     case 'sketchNew': openSketch(null,b.dataset.c?{courseId:b.dataset.c}:null);break;
     case 'sketchOpen': openSketch(id);break;

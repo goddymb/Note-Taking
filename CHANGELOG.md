@@ -1,5 +1,17 @@
 # Changelog
 
+## [3.0.0]
+**A calmer, tidier app.**
+- **Two workspaces.** A switch at the top of the side menu moves between **Research** (Home, Projects, Library, Ideas) and **Study** (Today, Courses, Review, Resources). Each workspace has its own menu, search and main button: **Add paper** in Research, **Start lecture note** in Study. Each remembers where you were. Settings is pinned at the bottom.
+- **Today** is the new Study home: your next class and what's coming up, recent and planned lectures, quick actions, and open reflection questions. The Courses page no longer repeats it.
+- **The calm look** is the new default, in light and **Calm dark** (it follows your computer's setting the first time). It has soft neutral pages, one blue accent and a single main button per screen. What is selected gets a highlighter mark. Titles are in a clean sans-serif; reports keep a serif for reading. The older themes are still in Settings → Appearance.
+- **Consistent line icons** replace the emojis in toolbars, panels, badges and the sketch pad. Marks in your notes use small coloured symbols.
+- **A quieter lecture page.** Focus and the questions panel are icon buttons, End lecture is a normal button, and the date and time line is tidier. Sketch and Materials sit neatly in the top bar.
+- **Command bar: Ctrl+K** (⌘K on Mac). Type what you want, such as "plan lecture", "new sketch", "dark theme", "switch to research" or a course, lecture, project or paper name, and press Enter.
+- **Study search.** In Study, the search bar finds courses, lectures (including words in your notes), slides and readings, sketches and assignments.
+- **Gentle motion.** Pages, dialogs, menus and panels ease in when you open them. Motion is switched off when your computer asks for reduced motion.
+- The research "current project" card and the repeated Resources and Report entries inside each course in the side menu are gone. **Plan a lecture** asks which course if none is open.
+
 ## [2.6.0]
 - **Course resources, separate from your research Library.** Library (under Research) holds research papers only again. Your study material has its own home under Study: **Course resources**, with **Readings & slides**, **Sketches** and **Reports**. Reports, including saved copies, now live there instead of in a separate Report item in the side menu.
 - In the course tree, each course has **Resources** and **Report** entries that open Course resources for that course.
