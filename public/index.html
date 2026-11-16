@@ -992,7 +992,7 @@ mark.hl-yellow{background:rgba(250,204,21,.42)}mark.hl-green{background:rgba(74,
 [data-theme^="calm"] .card{box-shadow:var(--shadow)}
 [data-theme^="calm"] .banner{border:1px solid var(--line);box-shadow:none}
 [data-theme^="calm"] .banner::before,[data-theme^="calm"] .banner::after{display:none}
-[data-theme^="calm"] .top{background:color-mix(in srgb,var(--bg) 88%,transparent);border-bottom:1px solid var(--line)}
+[data-theme^="calm"] .top{background:var(--bg);backdrop-filter:none;-webkit-backdrop-filter:none;border-bottom:1px solid var(--line)}
 [data-theme^="calm"] .subtabs button.on{color:var(--ink);border-bottom-color:transparent;box-shadow:inset 0 -8px 0 -1px var(--hl)}
 [data-theme^="calm"] .tabs{box-shadow:none;background:var(--panel-2);border-color:transparent}
 [data-theme^="calm"] .tabs button.on,[data-theme^="calm"] .tabs .on{background:var(--panel);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
@@ -1017,6 +1017,10 @@ mark.hl-yellow{background:rgba(250,204,21,.42)}mark.hl-green{background:rgba(74,
 
 /* ---------- workspace switch ---------- */
 .nv.in{color:var(--ink);font-weight:600}
+/* sticky bars are solid, so nothing scrolling underneath shows through */
+.ptoolbar{background:var(--bg);box-shadow:0 -6px 0 var(--bg)}
+body.focus .ptoolbar{background:var(--bg)}
+#ribbon{box-shadow:0 -1px 0 var(--bg)}
 /* two columns while reading in a lecture */
 .pe.split.lsplit.two{grid-template-columns:minmax(0,var(--nw,50%)) 14px minmax(0,1fr)}
 .pe.split.lsplit.two>.reader{order:3}
@@ -1031,7 +1035,7 @@ mark.hl-yellow{background:rgba(250,204,21,.42)}mark.hl-green{background:rgba(74,
 .skpi:hover{border-color:var(--accent)}.skpi img{width:100%;aspect-ratio:16/10;object-fit:contain;background:#fff;border-radius:6px}.skpi span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 /* sticky notes: a pinned paper square with one corner lifting */
 .lnotes{position:relative}
-.stklayer{position:absolute;inset:0;pointer-events:none;z-index:30}
+.stklayer{position:absolute;inset:0;pointer-events:none;z-index:8}
 .sticky{position:absolute;pointer-events:auto;color:#2a2618;padding:26px 16px 18px;transform:rotate(var(--rot));cursor:grab;display:flex;flex-direction:column;transition:transform .2s,opacity .2s;filter:drop-shadow(0 1px 1px rgba(0,0,0,.16))}
 /* shadow first, then the paper on top of it, then the writing */
 .sticky::before{content:"";position:absolute;z-index:0;right:4px;bottom:6px;width:60%;height:28%;box-shadow:9px 12px 12px rgba(0,0,0,.32);transform:rotate(3.5deg) skewX(10deg)}

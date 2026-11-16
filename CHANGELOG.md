@@ -1,5 +1,8 @@
 # Changelog
 
+## [3.4.1]
+- **No more leaking at the top while you scroll.** The toolbar above your notes and writing, and the top search bar, now have solid backgrounds, so lines of text no longer show through as they scroll underneath. Sticky notes also slide under the toolbars instead of over them.
+
 ## [3.4.0]
 - **Two sides while reading in a lecture.** Opening a slide deck or reading puts your notes on the left and the document on the right, with the questions panel out of the way. Drag the divider to resize. **Close** (or Esc) shrinks the document back into the Materials button, macOS-style, and the panel slides back.
 - **Sticky notes.** **Sticky** in the lecture toolbar (or Insert → Sticky note) pins a note on top of your notes. Each note is a flat square of paper with its bottom-right corner lifting, held by a black push-pin or a strip of tape (switch on the note). Drag it anywhere in the notes column, resize it from the bottom-right corner, and set its colour: yellow, blue, green, pink, orange or purple. Hide it with the eye button; **N hidden** in the toolbar brings hidden notes back. Sticky notes appear in course reports with your notes.
