@@ -1017,6 +1017,46 @@ mark.hl-yellow{background:rgba(250,204,21,.42)}mark.hl-green{background:rgba(74,
 
 /* ---------- workspace switch ---------- */
 .nv.in{color:var(--ink);font-weight:600}
+/* two columns while reading in a lecture */
+.pe.split.lsplit.two{grid-template-columns:minmax(0,var(--nw,50%)) 14px minmax(0,1fr)}
+.pe.split.lsplit.two>.reader{order:3}
+@keyframes ln-genie-in{0%{opacity:0;transform:scale(.06,.04)}55%{opacity:1;transform:scale(.7,.55)}100%{opacity:1;transform:none}}
+@keyframes ln-genie-out{0%{opacity:1;transform:none;filter:none}45%{opacity:.95;transform:scale(.72,.5) skewX(-3deg)}100%{opacity:0;transform:scale(.04,.03);filter:blur(1px)}}
+.reader.opening{animation:ln-genie-in .45s cubic-bezier(.2,.8,.2,1) both}
+.reader.closing{animation:ln-genie-out .42s cubic-bezier(.55,0,.75,.1) both;pointer-events:none}
+.lpanel.returning{animation:ln-slide .3s var(--ease) both}
+/* sketch picker */
+.skpick{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.skpi{display:flex;flex-direction:column;gap:6px;border:1px solid var(--line);border-radius:10px;background:var(--panel);padding:6px;cursor:pointer;font:inherit;font-size:13px;color:var(--ink);text-align:left}
+.skpi:hover{border-color:var(--accent)}.skpi img{width:100%;aspect-ratio:16/10;object-fit:contain;background:#fff;border-radius:6px}.skpi span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* sticky notes: a pinned paper square with one corner lifting */
+.lnotes{position:relative}
+.stklayer{position:absolute;inset:0;pointer-events:none;z-index:30}
+.sticky{position:absolute;pointer-events:auto;color:#2a2618;padding:26px 16px 18px;transform:rotate(var(--rot));cursor:grab;display:flex;flex-direction:column;transition:transform .2s,opacity .2s;filter:drop-shadow(0 1px 1px rgba(0,0,0,.16))}
+/* shadow first, then the paper on top of it, then the writing */
+.sticky::before{content:"";position:absolute;z-index:0;right:4px;bottom:6px;width:60%;height:28%;box-shadow:9px 12px 12px rgba(0,0,0,.32);transform:rotate(3.5deg) skewX(10deg)}
+.sticky::after{content:"";position:absolute;z-index:0;inset:0;background:var(--c);background-image:linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,0) 28%,rgba(0,0,0,.03));border-radius:1px 1px 22px 1px/1px 1px 3px 1px}
+.sticky>.stkbar,.sticky>.stktxt{position:relative;z-index:1}
+.sticky>.stkrs{z-index:2}
+.sticky.lifted{cursor:grabbing;transform:rotate(calc(var(--rot) + 1deg)) translateY(-3px) scale(1.02);filter:drop-shadow(0 8px 10px rgba(0,0,0,.22))}
+.sticky.new{animation:stk-in .32s cubic-bezier(.2,.9,.3,1.25) both}
+.sticky.leaving{opacity:0;transform:rotate(var(--rot)) scale(.9) translateY(8px)}
+@keyframes stk-in{from{opacity:0;transform:rotate(var(--rot)) translateY(-12px) scale(.94)}to{opacity:1;transform:rotate(var(--rot))}}
+/* black push-pin seen from the front */
+.stkpin{position:absolute;z-index:3!important;top:-6px;left:50%;width:17px;height:17px;margin-left:-8px;border-radius:50%;background:radial-gradient(circle at 38% 32%,#6b6b6b 0,#2a2a2a 38%,#0d0d0d 72%);box-shadow:2px 4px 4px rgba(0,0,0,.38),inset 0 -1px 1px rgba(255,255,255,.12);z-index:2}
+.stkpin::after{content:"";position:absolute;left:5px;top:14px;width:7px;height:8px;border-radius:1px 1px 4px 4px;background:linear-gradient(180deg,#5c5a2a,#2f2e14);box-shadow:1px 2px 2px rgba(0,0,0,.3);z-index:-1}
+/* or a strip of translucent tape */
+.stktape{position:absolute;z-index:3!important;top:-13px;left:50%;width:92px;height:28px;margin-left:-46px;transform:rotate(-2.5deg);background:rgba(246,241,226,.78);box-shadow:0 1px 1.5px rgba(0,0,0,.12);clip-path:polygon(2% 0,6% 8%,3% 18%,7% 30%,2% 42%,6% 55%,3% 68%,6% 80%,2% 92%,5% 100%,96% 100%,99% 90%,95% 78%,98% 66%,94% 54%,98% 42%,95% 30%,99% 18%,95% 8%,98% 0);z-index:2}
+.sticky.taped{padding-top:24px}
+.stkbar{display:flex;align-items:center;gap:5px;margin:-12px 0 8px;opacity:0;transition:opacity .15s}
+.sticky:hover .stkbar,.sticky:focus-within .stkbar{opacity:1}
+.stkc{width:13px;height:13px;border-radius:50%;border:1px solid rgba(0,0,0,.25);padding:0;cursor:pointer}.stkc.on{outline:2px solid rgba(0,0,0,.55);outline-offset:1px}
+.stkb{border:0;background:rgba(255,255,255,.35);border-radius:5px;width:22px;height:22px;display:grid;place-items:center;cursor:pointer;color:#3b3020}.stkb:hover{background:rgba(255,255,255,.7)}.stkb svg{width:13px;height:13px}
+.stktxt{flex:1;outline:none;font-family:'Segoe Print','Bradley Hand','Comic Neue','Segoe UI',sans-serif;font-size:15.5px;line-height:1.5;cursor:text;min-height:60px;word-wrap:break-word}
+.stktxt:empty::before{content:attr(data-ph);color:rgba(43,36,20,.45)}
+.stkrs{position:absolute;right:0;bottom:0;width:18px;height:18px;cursor:nwse-resize;z-index:2}
+.stkctl{display:inline-flex;gap:4px}
+@media (prefers-reduced-motion:reduce){.sticky{transform:none}}
 .docpick.on{background:var(--hl);color:var(--hl-ink);border-color:transparent}
 .doccard{position:fixed;width:380px;max-height:min(70vh,620px)}
 .dcg{margin-bottom:8px}.dcrow{display:flex;align-items:center;gap:10px;width:100%;border:0;background:none;text-align:left;padding:7px 8px;border-radius:8px;font:inherit;color:var(--ink);cursor:pointer}
@@ -1776,7 +1816,7 @@ function confirmBox(msg,okLabel,cb){
 /* ============================================================
    ICONS, THEMES, SMALL UI HELPERS
    ============================================================ */
-const IC={grid:'<rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/>',help:'<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.6 2.2c-.7.4-1.1.9-1.1 1.7v.3"/><circle cx="12" cy="17" r=".6" fill="currentColor"/>',star:'<path d="m12 3.5 2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8L3.5 9.7l5.9-.9z"/>',repeat:'<path d="M17 2l3 3-3 3"/><path d="M4 11V9a4 4 0 0 1 4-4h12"/><path d="M7 22l-3-3 3-3"/><path d="M20 13v2a4 4 0 0 1-4 4H4"/>',pen:'<path d="M15.5 4.5l4 4L8 20H4v-4z"/><path d="M13.5 6.5l4 4"/>',marker:'<path d="M9 15l-4 4h5l2-2"/><path d="M14.5 4.5l5 5-7.5 7.5-5-5z"/><path d="M12 7l5 5"/>',eraser:'<path d="M7 20h13"/><path d="M4.5 15.5l9-9a2 2 0 0 1 2.8 0l2.2 2.2a2 2 0 0 1 0 2.8L11 19H7.5z"/><path d="M9 11l4.5 4.5"/>',scissors:'<circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M8.1 8.1 20 20M8.1 15.9 20 4"/>',hand:'<path d="M8 13V5.5a1.5 1.5 0 0 1 3 0V12"/><path d="M11 11.5V4.5a1.5 1.5 0 0 1 3 0V12"/><path d="M14 11.5V6a1.5 1.5 0 0 1 3 0v8a6 6 0 0 1-6 6h-.5a6 6 0 0 1-4.6-2.2L3.6 14.6a1.5 1.5 0 0 1 2.3-1.9L8 15"/>',sline:'<path d="M5 19 19 5"/>',sarrow:'<path d="M5 19 19 5"/><path d="M10 5h9v9"/>',srect:'<rect x="4" y="6" width="16" height="12" rx="1"/>',sellipse:'<ellipse cx="12" cy="12" rx="8.5" ry="6.5"/>',stext:'<path d="M5 6V5h14v1"/><path d="M12 5v14"/><path d="M9 19h6"/>',sfill:'<rect x="4" y="5" width="16" height="14" rx="1.5"/><path d="M4 13 13 5M8 19 20 8M14 19l6-5.5"/>',command:'<path d="M9 6a3 3 0 1 0-3 3h12a3 3 0 1 0-3-3v12a3 3 0 1 0 3-3H6a3 3 0 1 0 3 3z"/>',sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',moon:'<path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/>',user:'<circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/>',menu:'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M15 4v16"/>',cap:'<path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c3 2 9 2 12 0v-5"/><path d="M22 9v5"/>',cal:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',mic:'<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/>',cards:'<rect x="3" y="6" width="14" height="14" rx="2"/><path d="M7 3h12a2 2 0 0 1 2 2v12"/>',timer:'<circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M9 2h6"/>',bulb:'<path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.6 10.8c.7.6 1.1 1.3 1.1 2.2v.5h5V16c0-.9.4-1.6 1.1-2.2A6 6 0 0 0 12 3z"/>',
+const IC={eye:'<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',sticky:'<path d="M5 4h14v10l-6 6H5z"/><path d="M13 20v-6h6"/>',pin:'<path d="M9 4h6l-1 5 3 3v2H7v-2l3-3z"/><path d="M12 14v6"/>',eyeoff:'<path d="M3 3l18 18"/><path d="M10.6 6.1A9.7 9.7 0 0 1 12 6c5 0 9 6 9 6a16 16 0 0 1-3.2 3.7M6.6 6.6C4.2 8.2 3 12 3 12s4 6 9 6a8.8 8.8 0 0 0 4-.9"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/>',grid:'<rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/>',help:'<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.6 2.2c-.7.4-1.1.9-1.1 1.7v.3"/><circle cx="12" cy="17" r=".6" fill="currentColor"/>',star:'<path d="m12 3.5 2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8L3.5 9.7l5.9-.9z"/>',repeat:'<path d="M17 2l3 3-3 3"/><path d="M4 11V9a4 4 0 0 1 4-4h12"/><path d="M7 22l-3-3 3-3"/><path d="M20 13v2a4 4 0 0 1-4 4H4"/>',pen:'<path d="M15.5 4.5l4 4L8 20H4v-4z"/><path d="M13.5 6.5l4 4"/>',marker:'<path d="M9 15l-4 4h5l2-2"/><path d="M14.5 4.5l5 5-7.5 7.5-5-5z"/><path d="M12 7l5 5"/>',eraser:'<path d="M7 20h13"/><path d="M4.5 15.5l9-9a2 2 0 0 1 2.8 0l2.2 2.2a2 2 0 0 1 0 2.8L11 19H7.5z"/><path d="M9 11l4.5 4.5"/>',scissors:'<circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M8.1 8.1 20 20M8.1 15.9 20 4"/>',hand:'<path d="M8 13V5.5a1.5 1.5 0 0 1 3 0V12"/><path d="M11 11.5V4.5a1.5 1.5 0 0 1 3 0V12"/><path d="M14 11.5V6a1.5 1.5 0 0 1 3 0v8a6 6 0 0 1-6 6h-.5a6 6 0 0 1-4.6-2.2L3.6 14.6a1.5 1.5 0 0 1 2.3-1.9L8 15"/>',sline:'<path d="M5 19 19 5"/>',sarrow:'<path d="M5 19 19 5"/><path d="M10 5h9v9"/>',srect:'<rect x="4" y="6" width="16" height="12" rx="1"/>',sellipse:'<ellipse cx="12" cy="12" rx="8.5" ry="6.5"/>',stext:'<path d="M5 6V5h14v1"/><path d="M12 5v14"/><path d="M9 19h6"/>',sfill:'<rect x="4" y="5" width="16" height="14" rx="1.5"/><path d="M4 13 13 5M8 19 20 8M14 19l6-5.5"/>',command:'<path d="M9 6a3 3 0 1 0-3 3h12a3 3 0 1 0-3-3v12a3 3 0 1 0 3-3H6a3 3 0 1 0 3 3z"/>',sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',moon:'<path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/>',user:'<circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/>',menu:'<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M15 4v16"/>',cap:'<path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c3 2 9 2 12 0v-5"/><path d="M22 9v5"/>',cal:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',mic:'<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/>',cards:'<rect x="3" y="6" width="14" height="14" rx="2"/><path d="M7 3h12a2 2 0 0 1 2 2v12"/>',timer:'<circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M9 2h6"/>',bulb:'<path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.6 10.8c.7.6 1.1 1.3 1.1 2.2v.5h5V16c0-.9.4-1.6 1.1-2.2A6 6 0 0 0 12 3z"/>',
   home:'<path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/>',
   folder:'<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
   library:'<path d="M4 4h4v16H4zM10 4h4v16h-4z"/><path d="m16.5 4.8 3.8-1 3.2 15.5-3.8.9z" transform="translate(-2.5 0)"/>',
@@ -3552,6 +3592,15 @@ function draftView(){
     ${docPaneHTML()||`<aside class="nbrowse" id="nbrowse">${browserHTML()}</aside>`}
   </div></div>`;
 }
+/* lecture: the open reading shrinks back into the Materials button, the panel returns */
+function closeLectureDoc(){
+  const rd=$('#reader'), fb=$('#matFab');
+  const done=()=>{LV.mat=null;R.token++;renderMain();const lp=$('#lpanel');if(lp){lp.classList.add('returning');setTimeout(()=>lp.classList.remove('returning'),400)}};
+  if(!rd||matchMedia('(prefers-reduced-motion: reduce)').matches){done();return}
+  if(fb){const r=fb.getBoundingClientRect(),q=rd.getBoundingClientRect();rd.style.transformOrigin=`${r.left+r.width/2-q.left}px ${r.top-q.top}px`}
+  rd.classList.add('closing'); let fired=false; const go2=()=>{if(!fired){fired=true;done()}};
+  rd.addEventListener('animationend',go2,{once:true}); setTimeout(go2,650);
+}
 /* ---------- a document beside your writing (replaces the notes until you close it) ---------- */
 function docPaneHTML(){
   const x=WV.doc&&S.docs[WV.doc]; if(!x||!hasReadable(x)&&!x.pdf){WV.doc=null;return ''}
@@ -3819,6 +3868,8 @@ function ribbonHTML(d,o){
         <button class="rbig" data-ins2="picture">${ic2('image')}<span>Picture</span></button>
         <button class="rbig" data-ins2="chart">${ic2('chart')}<span>Chart</span></button>
         <button class="rbig" data-ins2="shape">${ic2('shape')}<span>Shape</span></button>
+        <button class="rbig" data-act="sketchInsert" title="Put one of your sketches into the text">${ico('pen')}<span>Sketch</span></button>
+        ${o.lecture?`<button class="rbig" data-act="stickyNew" title="Pin a sticky note on top of your notes">${ico('sticky')}<span>Sticky note</span></button>`:''}
       </div></div>
       <div class="rg"><div class="rgl">Tables</div><div class="rgc"><button class="rbig" data-ins2="table">${ic2('table')}<span>Table</span></button></div></div>
       <div class="rg"><div class="rgl">Layout</div><div class="rgc">
@@ -5756,6 +5807,7 @@ function courseReportBody(c){
     return `<section class="crlec" id="crl-${l.id}"><header class="crlh"><span class="crd"><b>${new Date(l.date+'T12:00:00').getDate()}</b>${esc(new Date(l.date+'T12:00:00').toLocaleDateString(undefined,{month:'short'}))}</span><div><h2>${esc(l.topic||'Untitled lecture')}</h2>${l.subtopic?`<p class="sub">${esc(l.subtopic)}</p>`:''}<p class="meta">${esc(longDate(l.date))}${l.time?' · '+esc(l.time):''}${u?' · '+esc(u.code||u.name):''}${lecturersFor(l.courseId,l.unitId).length?' · '+esc(lecturersFor(l.courseId,l.unitId).map(x=>x.name).join(', ')):''}</p></div></header>
       ${I.summary&&l.summary?`<p class="crsum"><b>Summary.</b> ${esc(l.summary)}</p>`:''}
       ${I.notes&&(trim(l.text||'')||trim(l.cuesText||''))?`<h3>Notes</h3>${l.cues&&trim(l.cuesText||'')?`<div class="crcues"><b>Key words &amp; questions</b>${l.cues}</div>`:''}<div class="crnotes">${floatsInline(l.html||'')}</div>`:''}
+      ${I.notes&&(l.stickies||[]).some(x=>trim(x.text||''))?`<h3>Sticky notes</h3><ul class="crstk">${l.stickies.filter(x=>trim(x.text||'')).map(x=>`<li>${esc(x.text).replace(/\n/g,'<br>')}</li>`).join('')}</ul>`:''}
       ${I.questions&&qs.length?`<h3>Reflection questions</h3><div class="crqs">${qs.map((q,i)=>`<div class="crqa"><p class="q"><span>Q${i+1}</span>${esc(q.text)}</p>${q.answer?`<p class="a">${esc(q.answer)}</p>`:q.status==='answered'?'':'<p class="a open">Not answered yet</p>'}</div>`).join('')}</div>`:''}
       ${I.important&&imp.length?`<h3>Important ideas &amp; reflections</h3><ul>${imp.map(x=>`<li>${x.kind==='reflection'?'<i>Reflection:</i> ':''}${esc(x.text)}</li>`).join('')}</ul>`:''}
       ${I.cards&&cards.length?`<h3>Flashcards</h3><dl class="crfc">${cards.map(k=>`<div><dt>${esc(k.front)}</dt><dd>${esc(k.back)}</dd></div>`).join('')}</dl>`:''}
@@ -5893,6 +5945,7 @@ function lectureView(){
   const cornell=l.layout==='cornell', rec=REC.rec&&REC.lectureId===V.lectureId;
   const editor=(part,ans,ph,cls)=>`<div class="rte lec ${cls||''}" contenteditable="true" role="textbox" aria-multiline="true" aria-label="${esc(ph)}" data-ans="${ans}" data-lecture="${V.lectureId}" data-part="${part}" data-ph="${esc(ph)}" ${l.style?`style="${docStyleVars(l)}"`:''} spellcheck="${WR.lang!=='off'}" ${WR.lang!=='off'?`lang="${WR.lang}"`:''}>${l[part]||''}</div>`;
   const notes=`<div class="lnotes">
+    <div class="stklayer" id="stkLayer" aria-label="Sticky notes">${(l.stickies||[]).filter(x=>!x.hidden).map(stickyHTML).join('')}</div>
     ${recordingsHTML(l)}
     ${ribbonHTML(l,{lecture:true})}
     ${cornell?`<div class="cornell"><div class="ccue"><div class="clab">Key words &amp; questions</div>${editor('cues','__cue','Cues: key words, questions…','cues')}</div><div class="cmain"><div class="clab">Notes</div>${editor('html','__lec','Take your notes here…','main')}</div></div>`:editor('html','__lec','Take your notes here. Select words and use Ask, Key, Review or Idea above to mark them. Write term :: meaning on a line to make a flashcard.','main')}
@@ -5903,6 +5956,7 @@ function lectureView(){
   const toolbar=`<div class="ptoolbar"><span class="ftitle"><span>${esc(l.topic||'Lecture')}</span></span>
     <button class="btn sm icon ${V.focus?'on':''}" data-act="focus" title="${V.focus?'Exit focus mode (Esc)':'Focus mode: hide everything except your notes'}" aria-label="${V.focus?'Exit focus mode':'Focus mode'}">${ico(V.focus?'minimize':'maximize')}</button>
     <span class="seg" role="group" aria-label="Layout"><button class="${cornell?'':'on'}" data-act="lLayout" data-v="standard" title="One notes area">Standard</button><button class="${cornell?'on':''}" data-act="lLayout" data-v="cornell" title="Cornell method: key words and questions on the left, notes on the right, summary at the bottom">Cornell</button></span>
+    <span class="stkctl"><button class="btn sm" data-act="stickyNew" title="Pin a sticky note on top of your notes">${ico('sticky')}Sticky</button>${(l.stickies||[]).some(x=>x.hidden)?`<button class="btn sm ghost" data-act="stickyShow" title="Show your hidden sticky notes">${ico('eye')}${(l.stickies||[]).filter(x=>x.hidden).length} hidden</button>`:''}</span>
     <span class="markbar" role="group" aria-label="Mark the selected words">${MARKS.map(([k,e,lab])=>`<button class="mkb" data-act="mark" data-v="${k}" title="${k==='q'?'Select words in your notes, then write a reflection question that leads to them':'Mark the selected words: '+lab}">${ico(e)}<span>${k==='q'?'Ask':k==='imp'?'Key':'Review'}</span></button>`).join('')}<button class="mkb" data-act="mark" data-v="idea" title="Save the selected words (or a thought) as an idea">${ico('bulb')}<span>Idea</span></button></span>
     <button class="btn sm ${rec?'danger':''}" data-act="${rec?'recStop':'recStart'}" title="${rec?'Stop recording':'Record the lecture audio — every new paragraph gets a time stamp you can click to listen back'}">${ico('mic')}${rec?'<span id="recTime">Stop</span>':'Record'}</button>
     <span class="spacer"></span><span class="save" id="saveNote"></span>
@@ -5917,7 +5971,7 @@ function lectureView(){
     <input class="lsub" id="lSub" value="${esc(l.subtopic||'')}" placeholder="Subtopic (optional)" aria-label="Subtopic">
   </div>${l.planned?`<div class="fillnote" style="margin:0 0 12px">${ico('cal')}<span><b>Planned${l.date>todayISO()?` for ${esc(longDate(l.date))}`:''}.</b> Add the slides, compulsory and additional readings and links with <b>Materials</b> (top right) or in <b>Course resources → Readings &amp; slides</b>. You can write preparation notes now; in class, take your notes here.</span></div>`:''}`;
   if(mat){
-    return `<div id="lectureView">${head}${toolbar}${fab}<div class="pe split lsplit ${LV.panel?'wp':''}" id="pe" style="--nw:${lecNotesWidth()}%;--pw:${lecPanelWidth()}px"><div class="notescol">${notes}</div><div class="gutter" id="gutter" role="separator" aria-orientation="vertical" aria-label="Drag to resize the notes" tabindex="0"></div>${readerHTML(mat)}${LV.panel?`<div class="gutter g2" id="gutter2" role="separator" aria-orientation="vertical" aria-label="Drag to resize the questions panel" tabindex="0"></div><aside class="lpanel" id="lpanel">${lecturePanelHTML(l)}</aside>`:''}</div>${LV.mcard?matCardHTML():''}</div>`;
+    return `<div id="lectureView">${head}${toolbar}${fab}<div class="pe split lsplit two ${LV.anim?'opening':''}" id="pe" style="--nw:${lecNotesWidth()}%"><div class="notescol">${notes}</div><div class="gutter" id="gutter" role="separator" aria-orientation="vertical" aria-label="Drag to resize the notes" tabindex="0"></div>${readerHTML(mat)}</div>${LV.mcard?matCardHTML():''}</div>`;
   }
   return `<div id="lectureView">${LV.mcard?matCardHTML():''}${head}${toolbar}${fab}<div class="lgrid ${LV.panel?'withpanel':''}">${notes}${LV.panel?`<aside class="lpanel" id="lpanel">${lecturePanelHTML(l)}</aside>`:''}</div></div>`;
 }
@@ -5974,7 +6028,57 @@ function popMaterial(id){
   if(V.view==='lecture'&&LV.mat===id){LV.mat=null;renderMain()}
   if(V.view==='draft'&&WV.doc===id)closeDocPane();
 }
+/* ---------- sticky notes: pinned on top of the notes, movable, hideable, in colour ---------- */
+const STK_COLORS=[['yellow','#f4ec9c'],['blue','#bfe2ef'],['green','#a8de62'],['pink','#f7c5d8'],['orange','#fbd09c'],['purple','#d9cff4']];
+function stickyHTML(x){
+  const col=(STK_COLORS.find(c=>c[0]===x.color)||STK_COLORS[0])[1];
+  return `<div class="sticky ${x.attach==='tape'?'taped':''}" data-stk="${x.id}" style="left:${x.x|0}px;top:${x.y|0}px;width:${x.w||220}px;min-height:${x.h||200}px;--c:${col};--rot:${x.rot||0}deg">
+    ${x.attach==='tape'?'<span class="stktape" aria-hidden="true"></span>':'<span class="stkpin" aria-hidden="true"></span>'}
+    <div class="stkbar">${STK_COLORS.map(([k,h])=>`<button class="stkc ${x.color===k?'on':''}" data-stkc="${k}" style="background:${h}" title="${k}" aria-label="Colour: ${k}"></button>`).join('')}<span class="spacer"></span><button class="stkb" data-stkatt title="${x.attach==='tape'?'Use a pin instead':'Use tape instead'}" aria-label="Pin or tape">${x.attach==='tape'?ico('pin'):'<svg class="i" viewBox="0 0 24 24"><rect x="4" y="8" width="16" height="8" rx="1" transform="rotate(-8 12 12)"/></svg>'}</button><button class="stkb" data-stkhide title="Hide this note (Show hidden brings it back)" aria-label="Hide">${ico('eyeoff')}</button><button class="stkb" data-stkdel title="Delete this note" aria-label="Delete">${ico('trash')}</button></div>
+    <div class="stktxt" contenteditable="true" data-ph="Write a note…" spellcheck="true">${esc(x.text||'').replace(/\n/g,'<br>')}</div>
+    <span class="stkrs" title="Drag to resize" aria-hidden="true"></span></div>`;
+}
+function stickySave(){save(V.lectureId,500);flashSave()}
+function stickyNew(){
+  const l=S.docs[V.lectureId], lay=$('#stkLayer'); if(!l||!lay)return;
+  const ed=lay.parentNode.querySelector('.rte.lec.main')||lay, er=ed.getBoundingClientRect(), lr=lay.getBoundingClientRect();
+  const top0=er.top-lr.top, visTop=Math.max(top0+16,90-lr.top+16), n0=(l.stickies||[]).filter(z=>!z.hidden).length;
+  const y=Math.round(Math.min(visTop+n0*26,top0+Math.max(ed.offsetHeight-190,16))), x=Math.round(Math.max(8,er.right-lr.left-240-n0*18));
+  const n={id:uid('stk'),x:Math.round(x),y:Math.round(y),w:220,h:170,text:'',color:(l.stickies||[]).length?STK_COLORS[(l.stickies.length)%STK_COLORS.length][0]:'yellow',rot:+(Math.random()*3-1.5).toFixed(1),hidden:false};
+  l.stickies=[...(l.stickies||[]),n]; stickySave();
+  lay.insertAdjacentHTML('beforeend',stickyHTML(n)); const el=lay.lastElementChild; el.classList.add('new');
+  setTimeout(()=>{const t=el.querySelector('.stktxt');t.focus()},60);
+}
+/* keep every note inside the notes column (display only; your saved position stays) */
+function fitStickies(){
+  const lay=$('#stkLayer'); if(!lay)return; const W=lay.offsetWidth, ed=lay.parentNode.querySelector('.rte.lec.main,.cornell'), minY=ed?ed.offsetTop+4:0;
+  lay.querySelectorAll('.sticky').forEach(el=>{const x=(S.docs[V.lectureId].stickies||[]).find(z=>z.id===el.dataset.stk);if(!x)return;const w=Math.min(x.w||220,W-16);el.style.width=w+'px';el.style.left=Math.max(4,Math.min(x.x,W-w-8))+'px';el.style.top=Math.max(minY,x.y)+'px'});
+}
+function bindStickies(){
+  const lay=$('#stkLayer'); if(!lay)return; requestAnimationFrame(fitStickies);
+  if(!bindStickies._r){bindStickies._r=1;window.addEventListener('resize',()=>{if(V.view==='lecture')fitStickies()})}
+  if(lay._b)return; lay._b=1;
+  const L=()=>S.docs[V.lectureId], find=el=>(L().stickies||[]).find(z=>z.id===el.closest('[data-stk]').dataset.stk);
+  lay.addEventListener('input',e=>{const t=e.target.closest('.stktxt');if(!t)return;const x=find(t);x.text=t.innerText.replace(/\n$/,'');stickySave()});
+  lay.addEventListener('click',e=>{
+    const c=e.target.closest('[data-stkc]');if(c){const el=c.closest('[data-stk]'),x=find(c);x.color=c.dataset.stkc;el.style.setProperty('--c',STK_COLORS.find(k=>k[0]===x.color)[1]);el.querySelectorAll('.stkc').forEach(b=>b.classList.toggle('on',b===c));stickySave();return}
+    if(e.target.closest('[data-stkatt]')){const el=e.target.closest('[data-stk]'),x=find(el);x.attach=x.attach==='tape'?'pin':'tape';stickySave();el.outerHTML=stickyHTML(x);fitStickies();return}
+    if(e.target.closest('[data-stkhide]')){const el=e.target.closest('[data-stk]'),x=find(el);x.hidden=true;stickySave();el.classList.add('leaving');setTimeout(()=>renderMain(),220);toast('Sticky note hidden. Use “hidden” in the toolbar to show it again');return}
+    if(e.target.closest('[data-stkdel]')){const el=e.target.closest('[data-stk]'),x=find(el);if(trim(x.text)&&!confirm('Delete this sticky note?'))return;const l=L();l.stickies=l.stickies.filter(z=>z.id!==x.id);stickySave();el.classList.add('leaving');setTimeout(()=>el.remove(),220);return}
+  });
+  lay.addEventListener('pointerdown',e=>{
+    const el=e.target.closest('[data-stk]'); if(!el||e.target.closest('.stktxt,.stkbar button'))return;
+    e.preventDefault(); const x=find(el), rs=e.target.closest('.stkrs'), sx=e.clientX, sy=e.clientY, x0=el.offsetLeft, y0=el.offsetTop, w0=el.offsetWidth, h0=el.offsetHeight;
+    lay.querySelectorAll('.sticky').forEach(z=>z.style.zIndex='');el.style.zIndex=5;el.classList.add('lifted');
+    const mv=ev=>{const dx=ev.clientX-sx, dy=ev.clientY-sy;
+      if(rs){x.w=Math.max(160,Math.round(w0+dx));x.h=Math.max(110,Math.round(h0+dy));el.style.width=x.w+'px';el.style.minHeight=x.h+'px'}
+      else{const ed=lay.parentNode.querySelector('.rte.lec.main,.cornell'),minY=ed?ed.offsetTop+4:0;x.x=Math.round(Math.max(4,Math.min(lay.offsetWidth-el.offsetWidth-8,x0+dx)));x.y=Math.round(Math.max(minY,y0+dy));el.style.left=x.x+'px';el.style.top=x.y+'px'}};
+    const up=()=>{el.classList.remove('lifted');document.removeEventListener('pointermove',mv);document.removeEventListener('pointerup',up);stickySave()};
+    document.addEventListener('pointermove',mv); document.addEventListener('pointerup',up);
+  });
+}
 function bindLecture(){
+  bindStickies();
   const lj=$('#lJump'); if(lj)lj.onchange=()=>{LV.mat=null;go({view:'lecture',lectureId:lj.value})};
   const l=S.docs[V.lectureId]; if(!l)return;
   const root=$('#lectureView'); bindRte(root);
@@ -6006,7 +6110,8 @@ function bindLecture(){
     ed.addEventListener('focus',()=>{try{document.execCommand('defaultParagraphSeparator',false,'p')}catch(e){}});
     ed.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey&&REC.rec&&REC.lectureId===V.lectureId&&ed.dataset.part==='html')setTimeout(()=>insertStamp(ed),0)});
   });
-  if(LV.mat){const m={id:LV.mat,...S.docs[LV.mat]};mountReader(m);bindAsk(m);bindLGutter()}
+  if(LV.mat){const m={id:LV.mat,...S.docs[LV.mat]};mountReader(m);bindAsk(m);bindLGutter();
+    if(LV.anim){LV.anim=false;const rd=$('#reader'),fb=$('#matFab');if(rd&&fb){const r=fb.getBoundingClientRect(),q=rd.getBoundingClientRect();rd.style.transformOrigin=`${r.left+r.width/2-q.left}px ${r.top-q.top}px`;rd.classList.add('opening');setTimeout(()=>rd.classList.remove('opening'),480)}}}
   root.querySelectorAll('audio[data-rec]').forEach(a=>a.addEventListener('loadedmetadata',()=>{if(a.duration===Infinity){a.currentTime=1e101;a.ontimeupdate=()=>{a.ontimeupdate=null;a.currentTime=0}}}));
   flashSave(true); requestAnimationFrame(updateStickyTops);
 }
@@ -6075,7 +6180,7 @@ async function addMaterial(type,group,lid){
       const res=await a.upload(f,{type:'application/pdf'});
       const id=uid('mat_'); S.docs[id]={kind:'material',lectureId:lid,courseId:l.courseId,unitId:l.unitId||null,name:f.name.replace(/\.pdf$/i,''),type,...(type==='reading'?{group:group==='additional'?'additional':'compulsory'}:{}),pdf:{id:res.id,name:f.name,size:res.sizeBytes||f.size,addedAt:Date.now()},createdAt:Date.now()};
       save(id);
-      if(V.view==='lecture'&&V.lectureId===lid&&!l.planned){LV.mat=id;LV.mcard=false;renderMain()}else{renderSide();if(V.view==='lecture')refreshLPanel()}
+      if(V.view==='lecture'&&V.lectureId===lid&&!l.planned){LV.anim=!LV.mat;LV.mat=id;LV.mcard=false;renderMain()}else{renderSide();if(V.view==='lecture')refreshLPanel()}
       if(V.view==='lecture')refreshMatCard(); if(V.view==='resources')renderMain();
       toast(type==='slides'?'Slides attached':`${group==='additional'?'Additional':'Compulsory'} reading attached`);
     }catch(e){toast(e&&e.code?assetErr(e):'Upload failed — try again')}
@@ -6472,6 +6577,17 @@ async function saveSketch(ov,cv){
   toast(png?'Sketch saved — find it in Course resources → Sketches':'Sketch saved (its picture needs the server to be stored)');
   renderSide(); if(V.view==='resources')renderMain();
 }
+function sketchPicker(){
+  const l=V.view==='lecture'?S.docs[V.lectureId]:null, all=sketchesAll().filter(x=>x.png);
+  const here=l?all.filter(x=>x.lectureId===V.lectureId):[], course=l?all.filter(x=>x.courseId===l.courseId&&x.lectureId!==V.lectureId):[], rest=all.filter(x=>!here.includes(x)&&!course.includes(x));
+  const grp=(lab,xs)=>xs.length?`<div class="crh" style="margin:10px 0 6px">${lab}</div><div class="skpick">${xs.map(x=>`<button class="skpi" data-skins="${x.id}" title="Insert “${esc(x.name||'Sketch')}”"><img src="/_blob/${x.png.id}" alt=""><span>${esc(x.name||'Sketch')}</span></button>`).join('')}</div>`:'';
+  const ov=modal(`<div class="row" style="margin-bottom:4px"><h3 class="grow" style="margin:0">Insert a sketch</h3><button class="btn sm" data-sknew>${ico('pen')}New sketch</button></div>
+    ${all.length?grp('This lecture',here)+grp('This course',course)+grp(l?'Other sketches':'Your sketches',rest):'<p class="muted">No saved sketches yet. Make one with New sketch.</p>'}
+    <div class="mfoot"><button class="btn" data-x>Cancel</button></div>`,true);
+  ov.querySelector('[data-x]').onclick=()=>ov.remove();
+  ov.querySelector('[data-sknew]').onclick=()=>{ov.remove();openSketch(null)};
+  ov.querySelectorAll('[data-skins]').forEach(b=>b.onclick=()=>{const x=S.docs[b.dataset.skins];ov.remove();insertBlockHTML(`<p class="al-center"><img src="/_blob/${x.png.id}" class="img-l" alt="${esc(x.name||'Sketch')}"></p>`);toast('Sketch inserted')});
+}
 function deleteSketch(id){
   const s=S.docs[id]; if(!s)return; if(!confirm(`Delete the sketch “${s.name||'Sketch'}”?`))return;
   if(s.png)getAssets().then(a=>a&&a.delete(s.png.id).catch(()=>{}));
@@ -6724,7 +6840,7 @@ document.addEventListener('click',e=>{
     case 'quickAdd': quickAdd();break;
     case 'jumpQ': openToQuestion(b.dataset.q);break;
     case 'openSplit': {R.tab=b.dataset.v||'pdf';if(!V.split){V.split=true;persistView();renderMain()}else{switchRTab(R.tab)}break}
-    case 'closeSplit': if(V.view==='draft'){closeDocPane();break}if(V.view==='lecture'){LV.mat=null;R.token++;renderMain();break}V.split=false;persistView();R.token++;renderMain();break;
+    case 'closeSplit': if(V.view==='draft'){closeDocPane();break}if(V.view==='lecture'){closeLectureDoc();break}V.split=false;persistView();R.token++;renderMain();break;
     case 'focus': setFocus(!V.focus);break;
     case 'swap': {V.swap=!V.swap;persistView();const pe=$('#pe');if(pe)pe.classList.toggle('swap',V.swap);refitReader();break}
     case 'rtab': switchRTab(b.dataset.v);break;
@@ -6787,8 +6903,11 @@ document.addEventListener('click',e=>{
     case 'sideMat': {const m=S.docs[id];if(!m)break;if(b.dataset.page)R.gotoPage=+b.dataset.page;closeSearch();const qi=$('#q');if(qi)qi.value='';if(m.url&&!m.pdf){window.open(m.url,'_blank','noopener');break}LV.mat=id;R.tab='pdf';if(V.view==='lecture'&&V.lectureId===m.lectureId)renderMain();else go({view:'lecture',lectureId:m.lectureId});renderSide();break}
     case 'planLecture': planLectureDialog(b.dataset.c||V.courseId,b.dataset.unit===undefined?(V.view==='course'&&V.unitF&&!['all','none'].includes(V.unitF)?V.unitF:undefined):(b.dataset.unit||null));break;
     case 'matLink': addMaterialLink(b.dataset.l);break;
-    case 'matOpen': {const m=S.docs[id];if(!m)break;if(m.url&&!m.pdf){window.open(m.url,'_blank','noopener');break}LV.mat=LV.mat===id?null:id;R.tab='pdf';LV.mcard=false;renderMain();renderSide();break}
+    case 'matOpen': {const m=S.docs[id];if(!m)break;if(m.url&&!m.pdf){window.open(m.url,'_blank','noopener');break}if(LV.mat===id){closeLectureDoc();break}LV.anim=!LV.mat;LV.mat=id;R.tab='pdf';LV.mcard=false;renderMain();renderSide();break}
     case 'matCard': toggleMatCard();break;
+    case 'stickyNew': stickyNew();break;
+    case 'stickyShow': {const l=S.docs[V.lectureId];(l.stickies||[]).forEach(x=>x.hidden=false);stickySave();renderMain();break}
+    case 'sketchInsert': sketchPicker();break;
     case 'ws': switchWs(b.dataset.v);break;
     case 'litView': try{localStorage.setItem('litnotes.litview',b.dataset.v)}catch(e){}renderMain();break;
     case 'cmdk': openCmdk();break;
@@ -6881,12 +7000,12 @@ document.addEventListener('input',e=>{
   if(t.dataset.pf&&S.docs[V.pid]){S.docs[V.pid][t.dataset.pf]=t.value;if(t.tagName==='TEXTAREA')autosize(t);save(V.pid,800);if(t.dataset.pf==='name')renderSide()}
 });
 document.addEventListener('keydown',e=>{
-  if(e.key==='Escape'){const o=document.querySelector('.ov');if(o){o.remove();return}if($('#matCard')){toggleMatCard(false);return}if($('#docCard')){closeDocCard();return}if(V.view==='draft'&&WV.doc&&!document.querySelector('#selpop')){closeDocPane();return}if(V.focus&&V.view==='paper'&&!e.target.isContentEditable&&!['input','textarea','select'].includes((e.target.tagName||'').toLowerCase())){setFocus(false);return}closeSearch();$('#q').blur()}
+  if(e.key==='Escape'){const o=document.querySelector('.ov');if(o){o.remove();return}if($('#matCard')){toggleMatCard(false);return}if($('#docCard')){closeDocCard();return}if(V.view==='draft'&&WV.doc&&!document.querySelector('#selpop')){closeDocPane();return}if(V.view==='lecture'&&LV.mat&&!document.querySelector('#selpop')&&!V.focus){closeLectureDoc();return}if(V.focus&&V.view==='paper'&&!e.target.isContentEditable&&!['input','textarea','select'].includes((e.target.tagName||'').toLowerCase())){setFocus(false);return}closeSearch();$('#q').blur()}
   const tag=(e.target.tagName||'').toLowerCase();
   if(e.key==='/'&&!e.target.isContentEditable&&!['input','textarea','select'].includes(tag)&&!document.querySelector('.ov')){e.preventDefault();$('#q').focus()}
 });
 /* ---------- focus mode & resizable panes ---------- */
-function lecNotesWidth(){let v=32;try{v=parseFloat(localStorage.getItem('litnotes.nw'))||32}catch(e){}return Math.min(70,Math.max(18,v))}
+function lecNotesWidth(){let v=50;try{v=parseFloat(localStorage.getItem('litnotes.nw2'))||50}catch(e){}return Math.min(75,Math.max(25,v))}
 function lecPanelWidth(){let v=290;try{v=parseFloat(localStorage.getItem('litnotes.pw'))||290}catch(e){}return Math.min(640,Math.max(200,v))}
 function bindPGutter(){
   const g=$('#gutter2'),pe=$('#pe'); if(!g||!pe)return;
@@ -6901,12 +7020,12 @@ function bindPGutter(){
 function bindLGutter(){
   bindPGutter();
   const g=$('#gutter'),pe=$('#pe'); if(!g||!pe)return;
-  const set=(v,keep)=>{v=Math.min(70,Math.max(18,v));pe.style.setProperty('--nw',v+'%');if(keep)try{localStorage.setItem('litnotes.nw',v)}catch(e){}};
+  const set=(v,keep)=>{v=Math.min(75,Math.max(25,v));pe.style.setProperty('--nw',v+'%');if(keep)try{localStorage.setItem('litnotes.nw2',v)}catch(e){}};
   const at=x=>{const r=pe.getBoundingClientRect();return (x-r.left)/r.width*100};
   g.addEventListener('pointerdown',e=>{e.preventDefault();g.setPointerCapture(e.pointerId);g.classList.add('drag');document.body.classList.add('dragging');
     const mv=ev=>set(at(ev.clientX));const up=ev=>{g.classList.remove('drag');document.body.classList.remove('dragging');g.removeEventListener('pointermove',mv);g.removeEventListener('pointerup',up);set(at(ev.clientX),true)};
     g.addEventListener('pointermove',mv);g.addEventListener('pointerup',up)});
-  g.addEventListener('dblclick',()=>set(32,true));
+  g.addEventListener('dblclick',()=>set(50,true));
   g.addEventListener('keydown',e=>{if(e.key==='ArrowLeft'||e.key==='ArrowRight'){e.preventDefault();set(lecNotesWidth()+(e.key==='ArrowRight'?3:-3),true)}});
 }
 function paneWidth(){let v=52;try{v=parseFloat(localStorage.getItem('litnotes.lw'))||52}catch(e){}return Math.min(80,Math.max(20,v))}

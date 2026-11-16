@@ -1,5 +1,10 @@
 # Changelog
 
+## [3.4.0]
+- **Two sides while reading in a lecture.** Opening a slide deck or reading puts your notes on the left and the document on the right, with the questions panel out of the way. Drag the divider to resize. **Close** (or Esc) shrinks the document back into the Materials button, macOS-style, and the panel slides back.
+- **Sticky notes.** **Sticky** in the lecture toolbar (or Insert → Sticky note) pins a note on top of your notes. Each note is a flat square of paper with its bottom-right corner lifting, held by a black push-pin or a strip of tape (switch on the note). Drag it anywhere in the notes column, resize it from the bottom-right corner, and set its colour: yellow, blue, green, pink, orange or purple. Hide it with the eye button; **N hidden** in the toolbar brings hidden notes back. Sticky notes appear in course reports with your notes.
+- **Insert a sketch.** Insert → **Sketch** puts one of your saved sketches into your notes or writing. Sketches from this lecture come first, then this course, then the rest; **New sketch** is there too.
+
 ## [3.3.0]
 - **Your lecture notes beside your assignment.** When you write an assignment, the notes panel shows your **Lectures**: just the assignment's unit or the whole course, by lecture, reflection questions, important ideas, flashcards, or a search. Each piece has an **Insert** button. Switch to **Research project** for your reading notes from a linked project.
 - **Open a document while you write.** **Library** (research writing) or **Resources** (assignments) sits at the top right. It lists this project's papers, or the course's slides and readings (your assignment's unit first), with a search box. The document opens where the notes were, with its title and a **Close** button.
