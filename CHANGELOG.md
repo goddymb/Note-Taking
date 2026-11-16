@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.7.0] - 2026-11-16
+### Added
+- **Turn selected words in general notes into an item.** Select words in a reading's General notes and a small bar appears. Choose *Claim*, *Concept*, *Reading question*, *For class*, *Needed first*, *Insight* or *Gap*.
+  - The words are added to that section. In the text they stay highlighted in the section's colour, with a small sign: C, K, ?, ←, ★ or ∅.
+  - **Link to…** links the words to something you already noted instead of adding a new item.
+- **Using the highlights.** Point at a highlight to see what it is linked to, for example a claim and how it is supported. Click it to open that section at the item. *Unmark* removes a highlight; the item stays in its section.
+
 ## [3.6.2] - 2026-11-16
 ### Changed
 - The bar of section buttons in reading notes now stays fixed at the top while you scroll, both normally and in focus mode.

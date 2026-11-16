@@ -1068,6 +1068,18 @@ body.focus #lectureView.rmode .rnsolo .rnchips{--rnct:44px}
 .rnopen .rnsec{border:1px solid var(--line);border-radius:12px;background:var(--panel);padding:12px 14px;animation:rnin .18s var(--ease,ease)}
 @keyframes rnin{from{opacity:0;transform:translateY(-4px)}}
 .rngen{border-top:1px solid var(--line);padding-top:12px}
+.rnsel{position:fixed;z-index:60;display:flex;flex-wrap:wrap;gap:3px;align-items:center;max-width:min(560px,94vw);background:var(--panel-solid,var(--panel));border:1px solid var(--line-2);border-radius:12px;padding:4px;box-shadow:0 10px 30px rgba(0,0,0,.16);animation:rnin .14s ease}
+.rnsel button{border:0;background:none;border-radius:8px;padding:5px 9px;font-size:12.5px;font-weight:600;color:var(--ink);cursor:pointer;display:inline-flex;align-items:center;gap:5px}
+.rnsel button::before{content:"";width:8px;height:8px;border-radius:2px;background:var(--mk)}.rnsel button.un::before{display:none}.rnsel button.un{color:var(--muted)}
+.rnsel button:hover{background:var(--hover)}.rnsel select{border:1px solid var(--line);border-radius:8px;padding:4px 6px;font-size:12.5px;background:var(--panel);color:var(--ink);max-width:170px}
+.k-args{--mk:#1d4ed8}.k-concepts{--mk:#0f766e}.k-rq{--mk:#6366f1}.k-questions{--mk:#2563eb}.k-prereq{--mk:#14b8a6}.k-insights{--mk:#ca8a04}.k-gaps{--mk:#9333ea}
+.rte .mk-rn{border-radius:3px;cursor:pointer;padding:0 1px;--mk:#1d4ed8;background:color-mix(in srgb,var(--mk) 13%,transparent);border-bottom:2px solid var(--mk)}
+.rte .mk-rn[data-sec="concepts"]{--mk:#0f766e}.rte .mk-rn[data-sec="prereq"]{--mk:#14b8a6;border-bottom-style:dashed}.rte .mk-rn[data-sec="rq"]{--mk:#6366f1}.rte .mk-rn[data-sec="questions"]{--mk:#2563eb;border-bottom-style:dotted}.rte .mk-rn[data-sec="insights"]{--mk:#ca8a04}.rte .mk-rn[data-sec="gaps"]{--mk:#9333ea}
+.rte .mk-rn::before{display:inline-block;font:800 .66em var(--font);margin-right:3px;vertical-align:.18em;color:var(--mk)}
+.rte .mk-rn[data-sec="args"]::before{content:'C'}.rte .mk-rn[data-sec="concepts"]::before{content:'K'}.rte .mk-rn[data-sec="rq"]::before,.rte .mk-rn[data-sec="questions"]::before{content:'?'}.rte .mk-rn[data-sec="insights"]::before{content:'\2605'}.rte .mk-rn[data-sec="gaps"]::before{content:'\2205'}.rte .mk-rn[data-sec="prereq"]::before{content:'\2190'}
+.crview .mk-rn{background:none;border:0}.crview .mk-rn::before{display:none}
+.rnchip.flash,.rnit.flash{animation:rnflash 1s ease 1}
+@keyframes rnflash{30%{box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 30%,transparent);background:color-mix(in srgb,var(--accent) 10%,var(--panel))}}
 .rngh{display:flex;flex-direction:column;gap:2px;margin-bottom:8px}.rngh b{font-size:14.5px}.rngh .muted{font-size:12.5px}
 .rte.rnmain{min-height:52vh}
 .rnsec header .spacer{flex:1}
@@ -3226,8 +3238,8 @@ function cleanRich(html){
       }
       if(/^(SCRIPT|STYLE|TEMPLATE|IFRAME|OBJECT|SVG|MATH|NOSCRIPT)$/.test(tag))return;
       if(tag==='SPAN'){
-        const mk=String(n.className||'').match(/\bmk-(q|imp|rev|rel)\b/);
-        if(mk){const e=document.createElement('span');e.className='mk-'+mk[1];if(mk[1]==='rel'&&n.dataset.rel){e.dataset.rel=n.dataset.rel;if(n.title)e.title=n.title}if(mk[1]==='q'&&n.dataset.q)e.dataset.q=n.dataset.q;walk(n,e);if(e.textContent.trim())parent.appendChild(e);return}
+        const mk=String(n.className||'').match(/\bmk-(q|imp|rev|rel|rn)\b/);
+        if(mk){const e=document.createElement('span');e.className='mk-'+mk[1];if(mk[1]==='rn'){if(n.dataset.rn)e.dataset.rn=n.dataset.rn;if(/^[a-z]+$/.test(n.dataset.sec||''))e.dataset.sec=n.dataset.sec}if(mk[1]==='rel'&&n.dataset.rel){e.dataset.rel=n.dataset.rel;if(n.title)e.title=n.title}if(mk[1]==='q'&&n.dataset.q)e.dataset.q=n.dataset.q;walk(n,e);if(e.textContent.trim())parent.appendChild(e);return}
         if(/\bts\b/.test(String(n.className||''))&&/^\d{1,6}$/.test(n.getAttribute('data-t')||'')){const e=document.createElement('span');e.className='ts';e.setAttribute('data-t',n.getAttribute('data-t'));if(/^\d{1,3}$/.test(n.getAttribute('data-r')||''))e.setAttribute('data-r',n.getAttribute('data-r'));e.setAttribute('contenteditable','false');e.textContent=n.textContent.trim().slice(0,10);parent.appendChild(e);return}
       }
       let wrap=null,inner=null;
@@ -6292,6 +6304,12 @@ function bindReadingNotes(){
     if(t.matches('textarea.rnin:not(.rnfree)')&&e.key==='Enter'&&!e.shiftKey){e.preventDefault();const s=t.closest('.rnsec');const a=s&&s.querySelector('.rnadd');if(a)a.focus()}
   });
   host.addEventListener('mousedown',e=>{if(e.target.closest('[data-rnchip]'))e.preventDefault()});
+  const gen=box.querySelector('.rnmain'); if(gen){
+    const show=()=>setTimeout(()=>rnSelPop(gen),10);
+    gen.addEventListener('mouseup',show); gen.addEventListener('keyup',e=>{if(e.shiftKey||e.key==='Shift')show()});
+    gen.addEventListener('click',e=>{const mk=e.target.closest('span.mk-rn');if(!mk||!getSelection().isCollapsed)return;rnGoTo(mk)});
+    gen.addEventListener('mouseover',e=>{const mk=e.target.closest('span.mk-rn');if(mk&&!mk.title)mk.title=rnMarkTitle(mk)});
+  }
   host.addEventListener('click',e=>{
     const m=S.docs[mid()]; if(!m)return;
     const d=e.target.closest('[data-rndel]');if(d){const it=d.closest('.rnit');if(it.dataset.sec==='questions'){const l=S.docs[V.lectureId];l.questions=(l.questions||[]).filter(q=>q.id!==it.dataset.iid);save(V.lectureId)}else{const r=rnOf(m);r[it.dataset.sec]=r[it.dataset.sec].filter(x=>x.id!==it.dataset.iid);save(mid())}refreshRN();return}
@@ -6302,6 +6320,52 @@ function bindReadingNotes(){
     const o=e.target.closest('[data-rnok]');if(o){const it=o.closest('.rnit'),x=rnItem(m,it.dataset.sec,it.dataset.iid);if(x){x.ok=x.ok===false;save(mid());refreshRN()}return}
     const a=e.target.closest('[data-lqans]');if(a){answerDialog(V.lectureId,a.dataset.lqans,()=>refreshRN());return}
   });
+}
+/* select words in the general notes → make them a claim, concept, question… (the words stay marked and linked) */
+const RN_MARK=[['args','Claim'],['concepts','Concept'],['rq','Reading question'],['questions','For class'],['prereq','Needed first'],['insights','Insight'],['gaps','Gap']];
+function rnSelPop(gen){
+  const old=$('#rnSel'); if(old)old.remove();
+  const s=getSelection(); if(!s||s.isCollapsed||!s.rangeCount)return;
+  const r=s.getRangeAt(0), n=r.commonAncestorContainer; if(!gen.contains(n))return;
+  const text=s.toString().replace(/\s+/g,' ').trim(); if(text.length<2)return;
+  const m=S.docs[gen.dataset.rnmat], l=S.docs[V.lectureId]; if(!m||!l)return;
+  const inMark=(n.nodeType===1?n:n.parentElement).closest('span.mk-rn');
+  const rect=r.getBoundingClientRect(), range=r.cloneRange();
+  const its=relItems(m,l).filter(x=>!x[0].startsWith('i:')||true);
+  const el=document.createElement('div'); el.id='rnSel'; el.className='rnsel'; el.setAttribute('role','toolbar'); el.setAttribute('aria-label','Make the selected words');
+  el.innerHTML=`${RN_MARK.map(([k,t])=>`<button data-mk="${k}" class="k-${k}">${t}</button>`).join('')}${its.length?`<select aria-label="Link to something you already noted"><option value="">Link to…</option>${(()=>{let h='',g='';its.forEach(([v,t,grp])=>{if(grp!==g){if(g)h+='</optgroup>';h+=`<optgroup label="${esc(grp)}">`;g=grp}h+=`<option value="${esc(v)}">${esc(t.length>60?t.slice(0,58)+'…':t)}</option>`});return h+(g?'</optgroup>':'')})()}</select>`:''}${inMark?`<button data-unmk class="un" title="Remove this mark (the item stays in its section)">Unmark</button>`:''}`;
+  document.body.appendChild(el);
+  const w=el.offsetWidth; el.style.left=Math.max(8,Math.min(innerWidth-w-8,rect.left+rect.width/2-w/2))+'px'; el.style.top=(rect.top>60?rect.top-el.offsetHeight-8:rect.bottom+8)+'px';
+  el.addEventListener('mousedown',e=>{if(!e.target.closest('select'))e.preventDefault()});
+  const wrap=(sec,iid)=>{const sp=document.createElement('span');sp.className='mk-rn';sp.dataset.sec=sec;sp.dataset.rn=iid;try{sp.appendChild(range.extractContents());range.insertNode(sp)}catch(e){}getSelection().removeAllRanges();rnCommit(gen)};
+  const map={a:'args',c:'concepts',p:'prereq',q:'questions',r:'rq',i:'insights',g:'gaps'};
+  el.querySelectorAll('[data-mk]').forEach(b=>b.onclick=()=>{
+    const sec=b.dataset.mk; const before=new Set([...rnOf(m)[sec==='questions'?'args':sec].map(x=>x.id),...(l.questions||[]).map(q=>q.id)]);
+    const t=sec==='concepts'||sec==='prereq'?text.slice(0,120):sec==='questions'||sec==='rq'?text.replace(/[.\s]*$/,'')+(/\?$/.test(text)?'':'?'):text;
+    rnAdd(gen.dataset.rnmat,sec,t,sec==='args'?{page:''}:null);
+    const it=sec==='questions'?(l.questions||[]).find(q=>!before.has(q.id)&&q.readingId===m.id):rnOf(m)[sec].find(x=>!before.has(x.id));
+    el.remove(); if(it)wrap(sec,it.id); refreshRN();
+    const ch=document.querySelector(`[data-rnchip="${sec}"]`); if(ch){ch.classList.remove('flash');void ch.offsetWidth;ch.classList.add('flash')}
+    toast(`Added to ${{args:'claims',concepts:'concepts',rq:'reading questions',questions:'questions for class',prereq:'concepts needed first',insights:'insights',gaps:'gaps'}[sec]}${sec==='args'?' — open Claims to note how it is supported':''}`);
+  });
+  const sel=el.querySelector('select'); if(sel)sel.onchange=()=>{const v=sel.value;if(!v)return;const sec=map[v[0]];el.remove();wrap(sec,v.slice(2));toast('Linked')};
+  const un=el.querySelector('[data-unmk]'); if(un)un.onclick=()=>{const p=inMark.parentNode;while(inMark.firstChild)p.insertBefore(inMark.firstChild,inMark);inMark.remove();el.remove();rnCommit(gen)};
+}
+document.addEventListener('selectionchange',()=>{const el=$('#rnSel');if(!el)return;const s=getSelection();if(document.activeElement&&el.contains(document.activeElement))return;if(!s||s.isCollapsed)el.remove()});
+document.addEventListener('scroll',()=>{const el=$('#rnSel');if(el&&!el.contains(document.activeElement))el.remove()},true);
+function rnFind(mk){
+  const m=S.docs[(mk.closest('.rnmain')||{}).dataset?.rnmat], l=S.docs[V.lectureId]; if(!m||!l)return null;
+  const sec=mk.dataset.sec, id=mk.dataset.rn;
+  const it=sec==='questions'?(l.questions||[]).find(q=>q.id===id):(rnOf(m)[sec]||[]).find(x=>x.id===id);
+  return it?{sec,it,m}:null;
+}
+function rnMarkTitle(mk){const f=rnFind(mk);if(!f)return 'The item this was linked to was removed — select it and choose Unmark';const lab=(RN_MARK.find(x=>x[0]===f.sec)||[,''])[1];
+  return `${lab}: ${f.it.text}${f.sec==='args'?(f.it.sup||trim(f.it.ev||'')?` — supported by ${supLabel(f.it.sup).toLowerCase()||'evidence'}${f.it.ev?': '+f.it.ev:''}`:' — support not noted yet'):''}${(f.sec==='concepts'||f.sec==='prereq')&&f.it.ok===false?' — not understood yet':''} · click to open`}
+function rnGoTo(mk){
+  const f=rnFind(mk); if(!f){toast('The item this was linked to was removed');return}
+  LV.rnOpen.add(f.sec); refreshRN();
+  const row=document.querySelector(`.rnsec[data-s="${f.sec}"] .rnit[data-iid="${f.it.id}"]`); if(!row)return;
+  row.scrollIntoView({block:'center',behavior:'smooth'}); row.classList.remove('flash'); void row.offsetWidth; row.classList.add('flash');
 }
 /* a quote from the open PDF goes into a section of the reading notes */
 function rnQuote(sec,text,page){
