@@ -1,5 +1,13 @@
 # Changelog
 
+## [3.8.0] - 2026-11-16
+### Added
+- **Insight map full screen.** *Full screen* shows only the map. The side panel, the menu and the rest of the page are hidden, and only Add box, Connect, zoom and *Exit full screen* stay visible. Press Esc to leave full screen.
+
+### Changed
+- **Insight map PDF.** *PDF* now puts the whole map on one landscape page, scaled to fit A4 and US Letter, with the map's title and the date.
+- **One section open at a time.** Only one reading-notes section button is open at a time: opening Concepts closes Claims.
+
 ## [3.7.1] - 2026-11-16
 ### Added
 - Highlights in a reading's General notes and the section buttons above are now linked both ways:

@@ -1193,7 +1193,19 @@ textarea.rnin:hover{background:var(--panel-2)}textarea.rnin:focus{background:var
 .imtip{margin-top:14px;font-size:12px}
 .imempty{text-align:center;padding:60px 20px;color:var(--ink-2)}.imempty .ic{display:inline-grid;place-items:center;width:52px;height:52px;border-radius:14px;background:var(--panel-2);color:var(--accent);margin-bottom:10px}.imempty .ic .i{width:26px;height:26px}.imempty .big{font-weight:700;font-size:17px;color:var(--ink);margin-bottom:6px}.imempty p{max-width:52ch;margin:0 auto;line-height:1.55}
 @media (max-width:1000px){.imbody{grid-template-columns:1fr}.imside{max-height:none}}
-@media print{body.printmap *{visibility:hidden}body.printmap #imBoard,body.printmap #imBoard *{visibility:visible}body.printmap #imBoard{position:absolute;left:0;top:0;zoom:1}body.printmap .impop{display:none}body.printmap .imcanvas{overflow:visible;height:auto;border:0}}
+#imPrintHost{display:none}
+@media print{body.printmap>*:not(#imPrintHost){display:none!important}body.printmap{background:#fff!important}
+  body.printmap #imPrintHost{display:block;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  #imPrintHost .imph{display:flex;justify-content:space-between;font:700 13px var(--font);color:#111;margin:0 0 6px}#imPrintHost .imph span{font-weight:500;color:#555}
+  #imPrintHost .imppage{position:relative;overflow:hidden;page-break-inside:avoid;break-inside:avoid}
+  #imPrintHost .imboard{position:absolute;left:0;top:0;background:#fff}#imPrintHost .imn{box-shadow:none;cursor:default}}
+/* full screen: only the map */
+#imWrap.imfull{position:fixed;inset:0;z-index:300;background:var(--bg);padding:10px;gap:8px;overflow:hidden;min-height:0}
+#imWrap.imfull .imbody{grid-template-columns:1fr;height:calc(100vh - 74px)}
+#imWrap.imfull .imside{display:none}
+#imWrap.imfull .imcanvas{height:100%;max-height:none}
+body.imfullon{overflow:hidden}
+#imWrap.imfull .imbar .btn:not(.imfs):not([data-act="imZoom"]):not([data-act="imConnect"]):not([data-act="imAdd"]){display:none}
 
 /* sticky bars are solid, so nothing scrolling underneath shows through */
 .ptoolbar{background:var(--bg);box-shadow:0 -6px 0 var(--bg)}
@@ -1943,7 +1955,7 @@ const tpl=pid=>{if(S.docs[pid]&&S.docs[pid].kind==='project'&&(S.docs[pid]._qv||
 const V={view:'home',pid:null,paperId:null,lastPaper:null,tab:'lit',filter:'All',cmpQ:'q1',repLayout:'paper',showEmpty:false,openSec:{},openQ:{},lib:null,split:false,focus:false,swap:false};
 try{Object.assign(V,JSON.parse(localStorage.getItem('litnotes.view')||'{}'))}catch(e){}
 function persistView(){try{localStorage.setItem('litnotes.view',JSON.stringify({view:V.view,pid:V.pid,paperId:V.paperId,lastPaper:V.lastPaper,tab:V.tab,lib:V.lib,split:V.split,focus:V.focus,swap:V.swap,draftId:V.draftId,repLayout:V.repLayout,courseId:V.courseId,lectureId:V.lectureId,assignId:V.assignId,ctab:V.ctab,cstab:V.cstab,unitF:V.unitF,resTab:V.resTab,ws:V.ws}))}catch(e){}}
-function go(o){Object.assign(V,o);persistView();document.getElementById('side').classList.remove('show');closeSearch();const qi=document.getElementById('q');if(qi&&document.activeElement!==qi)qi.value='';render();window.scrollTo(0,0)}
+function go(o){if(typeof IM!=='undefined'&&IM.full){IM.full=false;document.body.classList.remove('imfullon');if(document.fullscreenElement)document.exitFullscreen().catch(()=>{})}Object.assign(V,o);persistView();document.getElementById('side').classList.remove('show');closeSearch();const qi=document.getElementById('q');if(qi&&document.activeElement!==qi)qi.value='';render();window.scrollTo(0,0)}
 
 function onData(){
   renderSide();
@@ -6249,6 +6261,7 @@ function readingNotesHTML(m,l){
 }
 /* the sections stay closed until you need them */
 LV.rnOpen=LV.rnOpen||new Set();
+function rnOpenOnly(k){LV.rnOpen=new Set([k])}
 function rnHtml(r){if(r.html==null&&trim(r.free||''))r.html=r.free.split(/\n+/).filter(x=>trim(x)).map(x=>`<p>${esc(x)}</p>`).join('');return r.html||''}
 function rnTopHTML(m,l,sec){
   const r=rnOf(m);
@@ -6326,7 +6339,7 @@ function bindReadingNotes(){
     const d=e.target.closest('[data-rndel]');if(d){const it=d.closest('.rnit');if(it.dataset.sec==='questions'){const l=S.docs[V.lectureId];l.questions=(l.questions||[]).filter(q=>q.id!==it.dataset.iid);save(V.lectureId)}else{const r=rnOf(m);r[it.dataset.sec]=r[it.dataset.sec].filter(x=>x.id!==it.dataset.iid);save(mid())}refreshRN();return}
     const ch=e.target.closest('[data-rnchip]');if(ch){const k=ch.dataset.rnchip;const sel=(()=>{const s=getSelection();if(!s||s.isCollapsed||!s.rangeCount)return '';const n=s.getRangeAt(0).commonAncestorContainer;return (n.nodeType===1?n:n.parentElement).closest('.rnmain')?s.toString().replace(/\s+/g,' ').trim():''})();
       if(LV.rnOpen.has(k)&&!sel){LV.rnOpen.delete(k);refreshRN();return}
-      LV.rnOpen.add(k);refreshRN();const a=document.querySelector(`.rnsec[data-s="${k}"] .rnadd`);const sc=document.querySelector(`.rnsec[data-s="${k}"]`);if(sc)sc.scrollIntoView({block:'nearest',behavior:'smooth'});if(a){if(sel)a.value=sel.slice(0,400);a.focus()}return}
+      rnOpenOnly(k);refreshRN();const a=document.querySelector(`.rnsec[data-s="${k}"] .rnadd`);const sc=document.querySelector(`.rnsec[data-s="${k}"]`);if(sc)sc.scrollIntoView({block:'nearest',behavior:'smooth'});if(a){if(sel)a.value=sel.slice(0,400);a.focus()}return}
     const go=e.target.closest('[data-rngo]');if(go){const mk=document.querySelector(`.rnmain span.mk-rn[data-rn="${go.dataset.rngo}"]`);if(mk){mk.scrollIntoView({block:'center',behavior:'smooth'});mk.classList.remove('lit');void mk.offsetWidth;mk.classList.add('lit');setTimeout(()=>mk.classList.remove('lit'),1600)}return}
     const mn=e.target.closest('[data-rnmin]');if(mn){LV.rnOpen.delete(mn.dataset.rnmin);refreshRN();return}
     const o=e.target.closest('[data-rnok]');if(o){const it=o.closest('.rnit'),x=rnItem(m,it.dataset.sec,it.dataset.iid);if(x){x.ok=x.ok===false;save(mid());refreshRN()}return}
@@ -6375,7 +6388,7 @@ function rnMarkTitle(mk){const f=rnFind(mk);if(!f)return 'The item this was link
   return `${lab}: ${f.it.text}${f.sec==='args'?(f.it.sup||trim(f.it.ev||'')?` — supported by ${supLabel(f.it.sup).toLowerCase()||'evidence'}${f.it.ev?': '+f.it.ev:''}`:' — support not noted yet'):''}${(f.sec==='concepts'||f.sec==='prereq')&&f.it.ok===false?' — not understood yet':''} · click to open`}
 function rnGoTo(mk){
   const f=rnFind(mk); if(!f){toast('The item this was linked to was removed');return}
-  LV.rnOpen.add(f.sec); refreshRN();
+  rnOpenOnly(f.sec); refreshRN();
   const row=document.querySelector(`.rnsec[data-s="${f.sec}"] .rnit[data-iid="${f.it.id}"]`); if(!row)return;
   row.scrollIntoView({block:'center',behavior:'smooth'}); row.classList.remove('flash'); void row.offsetWidth; row.classList.add('flash');
 }
@@ -6384,7 +6397,7 @@ function rnQuote(sec,text,page){
   const mid=LV.rn||LV.mat, m=S.docs[mid]; if(!m)return;
   const q=`“${text.replace(/\s+/g,' ')}”`;
   if(sec==='free'){const ed=document.querySelector('.rte.rnmain');if(ed){const p=document.createElement('p');p.textContent=q+' '+matCite(m,page);ed.appendChild(p);rnCommit(ed);p.scrollIntoView({block:'nearest',behavior:'smooth'})}toast('Added to your general notes');return}
-  LV.rnOpen.add(sec);
+  rnOpenOnly(sec);
   if(sec==='concepts')rnAdd(mid,'concepts',text.replace(/\s+/g,' ').slice(0,120));
   else rnAdd(mid,sec,q+(sec==='args'?'':' '+matCite(m,page)),sec==='args'?{page:page||''}:null);
   refreshRN(); const s=document.querySelector(`.rnsec[data-s="${sec}"]`); if(s)s.scrollIntoView({block:'nearest',behavior:'smooth'});
@@ -6572,14 +6585,15 @@ function insightMapHTML(c){
   const cnt=t=>nodes.filter(n=>n.t===t).length;
   const glist=(k,title,help)=>gl[k].length?`<div class="imgl"><h4><span class="imsw g-${k}"></span>${title}<span class="muted">${gl[k].length}</span></h4><p class="muted">${help}</p>${gl[k].map(n=>`<button class="imgi" data-imgo="${esc(n.id)}">${esc(n.label.length>70?n.label.slice(0,68)+'…':n.label)}</button>`).join('')}</div>`:'';
   const totalGaps=Object.values(gl).reduce((a,b)=>a+b.length,0);
-  return `<div class="imwrap" id="imWrap">
+  return `<div class="imwrap ${IM.full?'imfull':''}" id="imWrap">
     <div class="imbar"><div class="imsum"><b>${cnt('reading')}</b> reading${cnt('reading')===1?'':'s'} · <b>${cnt('rq')}</b> reading questions · <b>${cnt('arg')}</b> claims · <b>${cnt('concept')+cnt('prereq')}</b> concepts · <b>${cnt('class')}</b> links from class · <b class="${totalGaps?'gapn':''}">${totalGaps}</b> gap${totalGaps===1?'':'s'}</div><span class="spacer"></span>
       <button class="btn sm" data-act="imAdd" title="Add your own box: a link, a synthesis, a thought">${ico('plus')}Add box</button>
       <button class="btn sm ${IM.connect?'on':''}" data-act="imConnect" title="Draw an arrow: click this, then two boxes">${ico('link2')}${IM.connect?'Pick two boxes…':'Connect'}</button>
       <span class="seg"><button data-act="imZoom" data-v="-" aria-label="Zoom out">−</button><button data-act="imZoom" data-v="0" title="Fit">${Math.round(IM.zoom*100)}%</button><button data-act="imZoom" data-v="+" aria-label="Zoom in">+</button></span>
       ${st.hide.length?`<button class="btn sm ghost" data-act="imShowAll">${ico('eye')}${st.hide.length} hidden</button>`:''}
       <button class="btn sm ghost" data-act="imReset" title="Put every box back where the map placed it">Reset layout</button>
-      <button class="btn sm" data-act="imPrint">${ico('download')}Print / PDF</button></div>
+      <button class="btn sm" data-act="imPrint" title="One landscape page with the whole map">${ico('download')}PDF</button>
+      <button class="btn sm imfs" data-act="imFull" title="${IM.full?'Exit full screen (Esc)':'Show only the map, on the whole screen'}">${ico(IM.full?'minimize':'maximize')}${IM.full?'Exit full screen':'Full screen'}</button></div>
     <div class="imbody"><div class="imcanvas" id="imCanvas"><div class="imboard" id="imBoard" style="zoom:${IM.zoom}">
       <svg class="imedges" id="imEdges"><defs><marker id="imArr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="currentColor"/></marker></defs></svg>
       ${IM_COLS.map(([t,s],i)=>nodes.some(n=>n.col===i)?`<div class="imcol" data-col="${i}" style="left:${20+i*(IM_W+IM_GX)}px"><b>${t}</b>${s?`<span>${s}</span>`:''}</div>`:'').join('')}
@@ -6712,9 +6726,41 @@ function imAct(a,b){
   if(a==='imZoom'){IM.zset=true;const v=b.dataset.v;IM.zoom=v==='+'?Math.min(1.6,IM.zoom+.1):v==='-'?Math.max(.4,IM.zoom-.1):1;IM.zoom=Math.round(IM.zoom*10)/10;bindInsightMap(true)}
   if(a==='imShowAll'){st.hide=[];save(c.id);bindInsightMap(true)}
   if(a==='imReset'){if(!confirm('Put every box back where the map placed it? Your own boxes stay.'))return;st.pos={};save(c.id);bindInsightMap(true)}
-  if(a==='imPrint'){document.body.classList.add('printmap');const z=IM.zoom;IM.zoom=1;bindInsightMap(true);setTimeout(()=>{window.print();document.body.classList.remove('printmap');IM.zoom=z;bindInsightMap(true)},120)}
+  if(a==='imPrint')imPrint();
+  if(a==='imFull')imFull(!IM.full);
 }
+/* the whole map on one landscape page: the map is copied into a print-only host and scaled to fit */
+function imPrint(){
+  const board=$('#imBoard'); if(!board)return;
+  const W=board.scrollWidth||board.offsetWidth, H=board.scrollHeight||board.offsetHeight;
+  // fit A4 and US Letter landscape (the smaller of the two), 8 mm margins, a line for the title
+  const pw=1020, ph=690, z=Math.min(1,pw/W,ph/H);
+  const scopeSel=$('#crScope'), c=courseOf(CR.cid);
+  const title=`Insight map — ${scopeSel&&scopeSel.selectedOptions[0]?scopeSel.selectedOptions[0].textContent.trim():(c&&c.name)||''}`;
+  const host=document.createElement('div'); host.id='imPrintHost';
+  host.innerHTML=`<div class="imph">${esc(title)}<span>${esc(longDate(todayISO()))}</span></div><div class="imppage" style="width:${Math.ceil(W*z)}px;height:${Math.ceil(H*z)}px"></div>`;
+  const clone=board.cloneNode(true); clone.removeAttribute('id'); clone.style.zoom=z; clone.style.width=W+'px'; clone.style.height=H+'px';
+  clone.querySelectorAll('.impop').forEach(x=>x.remove()); clone.querySelectorAll('.sel').forEach(x=>x.classList.remove('sel'));
+  const svg=clone.querySelector('svg'); if(svg){svg.removeAttribute('id');svg.querySelectorAll('marker').forEach(m=>m.id='imArrP');svg.querySelectorAll('[marker-end]').forEach(p=>p.setAttribute('marker-end','url(#imArrP)'))}
+  host.querySelector('.imppage').appendChild(clone);
+  const st=document.createElement('style'); st.id='imPrintPage'; st.textContent='@page{size:landscape;margin:8mm}';
+  document.head.appendChild(st); document.body.appendChild(host); document.body.classList.add('printmap');
+  const done=()=>{document.body.classList.remove('printmap');host.remove();st.remove();window.removeEventListener('afterprint',done)};
+  window.addEventListener('afterprint',done);
+  setTimeout(()=>{window.print();setTimeout(()=>{if(document.body.contains(host))done()},500)},60);
+}
+/* full screen: the map covers the window (and the screen, when the browser allows it) */
+function imFull(on){
+  const w=$('#imWrap'); IM.full=on; if(!w)return;
+  w.classList.toggle('imfull',on); document.body.classList.toggle('imfullon',on);
+  try{if(on&&!document.fullscreenElement&&w.requestFullscreen)w.requestFullscreen().catch(()=>{});else if(!on&&document.fullscreenElement)document.exitFullscreen().catch(()=>{})}catch(e){}
+  const b=w.querySelector('[data-act="imFull"]'); if(b){b.innerHTML=`${ico(on?'minimize':'maximize')}${on?'Exit full screen':'Full screen'}`;b.title=on?'Exit full screen (Esc)':'Show only the map, on the whole screen'}
+  const c=courseOf(CR.cid); if(c&&$('#imBoard'))setTimeout(()=>imEdges(c),60);
+}
+document.addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement&&IM.full)imFull(false)});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&IM.full&&!e.target.isContentEditable){e.stopPropagation();imFull(false)}},true);
 function openInsightMap(lid){
+  IM.full=false; document.body.classList.remove('imfullon');
   const l=S.docs[lid]; if(!l)return;
   CR.cid=l.courseId; CR.scope='l:'+lid; IM.tab='map'; IM.zset=false; V.libR={course:l.courseId,unit:'all'}; V.resTab='reports';
   go({view:'resources'});
@@ -7779,7 +7825,7 @@ document.addEventListener('click',e=>{
     case 'relNew': relateDialog({});break;
     case 'imOpen': openInsightMap(id||V.lectureId);break;
     case 'crTab': IM.tab=b.dataset.v;IM.zset=false;renderMain();break;
-    case 'imAdd': case 'imConnect': case 'imZoom': case 'imShowAll': case 'imReset': case 'imPrint': imAct(b.dataset.act,b);break;
+    case 'imAdd': case 'imConnect': case 'imZoom': case 'imShowAll': case 'imReset': case 'imPrint': case 'imFull': imAct(b.dataset.act,b);break;
     case 'deleteAssign': {const a=S.docs[V.assignId];if(!a||!confirm('Delete this assignment and the document you wrote for it?'))break;if(a.draftId)remove(a.draftId);if(a.briefPdf)getAssets().then(x=>x&&x.delete(a.briefPdf.id).catch(()=>{}));const cid=a.courseId;remove(V.assignId);go({view:'course',courseId:cid,ctab:'assign'});break}
     case 'aRadd': {const a=S.docs[V.assignId],i=$('#aRnew');const v=trim(i.value);if(!v)break;a.rubric=a.rubric||[];a.rubric.push({id:uid('r'),text:v,done:false});save(V.assignId);renderMain();const n=$('#aRnew');if(n)n.focus();break}
     case 'aWrite': assignWrite();break;
