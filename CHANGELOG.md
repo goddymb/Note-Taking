@@ -1,5 +1,13 @@
 # Changelog
 
+## [3.5.1] - 2026-11-16
+### Fixed
+- Scanned books and chapters, for example Internet Archive scans, showed black or blank pages. These PDFs store their pages as JPEG 2000 or JBIG2 images. PDF.js now loads its image decoders, and also its character maps and standard fonts. The server serves these from `/vendor/pdfjs-extra/`.
+
+### Added
+- Upload several PDFs at once: select multiple files in Materials or in Course resources.
+- A reading's reference is read from its file name when the name follows the APA pattern. For example, `Leftwich_A._2011._Theorizing_the_State._In_P._Burnell_V._Randall_eds._Politics_in_the_Developing_World._Oxford_..._pp._223-240.pdf` becomes a full APA book-chapter reference. The reading is also named after its title.
+
 ## [3.5.0] - 2026-11-16
 ### Added
 - **Reading notes and class notes.** Each lecture has two tabs: *Reading notes* for before class and *Class notes* for the lecture itself. Lectures planned for later open on Reading notes.

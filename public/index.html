@@ -1668,9 +1668,9 @@ function pdfToolHTML(x){
   const on=V.split;
   return `<button class="btn sm ${on&&R.tab==='pdf'?'pri':''}" data-act="${on&&R.tab==='pdf'?'closeSplit':'openSplit'}" data-v="pdf">${ico('split')}${on&&R.tab==='pdf'?'Close reader':'Read side by side'}</button><button class="btn sm ${on&&R.tab==='ask'?'pri':''}" data-act="openSplit" data-v="ask">${ico('spark')}Ask ${AIN}</button>`;
 }
-function pickFile(cb){
-  const inp=document.createElement('input');inp.type='file';inp.accept='application/pdf,.pdf';inp.style.display='none';
-  inp.onchange=()=>{const f=inp.files[0];inp.remove();if(f)cb(f)};document.body.appendChild(inp);inp.click();
+function pickFile(cb,multi){
+  const inp=document.createElement('input');inp.type='file';inp.accept='application/pdf,.pdf';inp.style.display='none';if(multi)inp.multiple=true;
+  inp.onchange=()=>{const fs=[...inp.files];inp.remove();if(!fs.length)return;if(multi)cb(fs);else cb(fs[0])};document.body.appendChild(inp);inp.click();
 }
 function bindDrop(el,cb){
   if(!el)return;
@@ -2602,6 +2602,10 @@ function openToQuestion(qid){
    PDF READER (PDF.js, runs on the page) + ASK CLAUDE
    ============================================================ */
 const PDFJS_BASE=(LOCAL&&LOCAL.pdfjsBase)||'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/5.4.149/';
+/* scanned books (Internet Archive, phone scans) use JPEG 2000 / JBIG2 images: PDF.js decodes them with WebAssembly it must be told where to find */
+const PDFJS_EXTRA=(()=>{const abs=u=>new URL(u,location.href).href;
+  if(LOCAL&&LOCAL.pdfjsBase){const b=LOCAL.pdfjsExtra||'/vendor/pdfjs-extra/';return {wasmUrl:abs(b+'wasm/'),cMapUrl:abs(b+'cmaps/'),cMapPacked:true,standardFontDataUrl:abs(b+'standard_fonts/')}}
+  const b='https://cdn.jsdelivr.net/npm/pdfjs-dist@5.4.149/';return {wasmUrl:b+'wasm/',cMapUrl:b+'cmaps/',cMapPacked:true,standardFontDataUrl:b+'standard_fonts/'}})();
 let _pdfjs=null;
 function loadPdfjs(){
   if(_pdfjs)return _pdfjs;
@@ -2617,7 +2621,7 @@ function loadPdfjs(){
 const DOCS={};      // asset id -> Promise<PDFDocumentProxy>
 const TEXT={};      // asset id -> Promise<{text,pages,truncated}>
 function openPdfDoc(p){
-  if(!DOCS[p.id]) DOCS[p.id]=(async()=>{const lib=await loadPdfjs();const r=await fetch(pdfUrl(p));if(!r.ok)throw new Error('missing');const buf=await r.arrayBuffer();return lib.getDocument({data:buf,isEvalSupported:false}).promise})();
+  if(!DOCS[p.id]) DOCS[p.id]=(async()=>{const lib=await loadPdfjs();const r=await fetch(pdfUrl(p));if(!r.ok)throw new Error('missing');const buf=await r.arrayBuffer();return lib.getDocument({data:buf,isEvalSupported:false,...PDFJS_EXTRA}).promise})();
   DOCS[p.id].catch(()=>{delete DOCS[p.id]});
   return DOCS[p.id];
 }
@@ -2937,7 +2941,7 @@ function cleanDoi(d){return d?d.replace(/[.,;:)\]}>]+$/,'').replace(/^doi:\s*/i,
 async function pdfHead(src){
   const lib=await loadPdfjs();
   const data=src.file?await src.file.arrayBuffer():await (await fetch(src.url)).arrayBuffer();
-  const doc=await lib.getDocument({data,isEvalSupported:false}).promise;
+  const doc=await lib.getDocument({data,isEvalSupported:false,...PDFJS_EXTRA}).promise;
   let text='';
   for(let i=1;i<=Math.min(2,doc.numPages);i++){
     const pg=await doc.getPage(i); const tc=await pg.getTextContent();
@@ -6270,6 +6274,7 @@ function editMatRef(id){
 async function autofillMat(id,file){
   try{
     const res=await autofillRef({file}); const m=S.docs[id]; if(!res||!m||hasRef(m))return;
+    if(res.source==='pdf'&&!validPeople(res.patch.authors||[]).length)return;
     m.ref={...newRef(),...res.patch}; if(!validPeople(m.ref.authors).length)m.ref.authors=[{family:'',given:'',org:false}];
     save(id);
     if(V.view==='lecture'){if($('#rnotes')&&$('#rnotes').dataset.mid===id)refreshRN();else if($('.rnhub'))renderMain()}
@@ -6857,21 +6862,47 @@ function lectureQuote(text,loc){
   toast('Added to your notes');
 }
 /* materials */
-async function addMaterial(type,group,lid){
+async function addMaterial(type,group,lid,files){
   lid=lid||V.lectureId; const l=S.docs[lid]; if(!l)return;
-  pickFile(async f=>{
-    const err=checkPdf(f); if(err){toast(err);return}
+  const run=async fs=>{
+    const ok=[]; fs.forEach(f=>{const err=checkPdf(f);if(err)toast(`${f.name}: ${err}`);else ok.push(f)}); if(!ok.length)return;
     const a=await getAssets(); if(!a){toast(unavailable('pdf'));return}
-    toast('Uploading…');
-    try{
-      const res=await a.upload(f,{type:'application/pdf'});
-      const id=uid('mat_'); S.docs[id]={kind:'material',lectureId:lid,courseId:l.courseId,unitId:l.unitId||null,name:f.name.replace(/\.pdf$/i,''),type,...(type==='reading'?{group:group==='additional'?'additional':'compulsory'}:{}),pdf:{id:res.id,name:f.name,size:res.sizeBytes||f.size,addedAt:Date.now()},createdAt:Date.now()};
-      save(id); if(type==='reading')autofillMat(id,f);
-      if(V.view==='lecture'&&V.lectureId===lid&&!l.planned){if(type==='reading'&&lecMode(l)==='read')LV.rn=id;else if(type==='slides')LV.modes[lid]='class';LV.anim=!LV.mat;LV.mat=id;LV.mcard=false;renderMain()}else{renderSide();if(V.view==='lecture')refreshLPanel()}
-      if(V.view==='lecture')refreshMatCard(); if(V.view==='resources')renderMain();
-      toast(type==='slides'?'Slides attached':`${group==='additional'?'Additional':'Compulsory'} reading attached`);
-    }catch(e){toast(e&&e.code?assetErr(e):'Upload failed — try again')}
-  });
+    const ids=[]; let n=0;
+    for(const f of ok){
+      n++; toast(ok.length>1?`Uploading ${n} of ${ok.length}: ${f.name}`:'Uploading…');
+      try{
+        const res=await a.upload(f,{type:'application/pdf'});
+        const fromName=refFromFilename(f.name);
+        const id=uid('mat_'); S.docs[id]={kind:'material',lectureId:lid,courseId:l.courseId,unitId:l.unitId||null,name:fromName&&fromName.title?fromName.title:f.name.replace(/\.pdf$/i,'').replace(/_+/g,' ').trim(),type,...(type==='reading'?{group:group==='additional'?'additional':'compulsory'}:{}),...(fromName&&type==='reading'?{ref:{...newRef(),...fromName}}:{}),pdf:{id:res.id,name:f.name,size:res.sizeBytes||f.size,addedAt:Date.now()},createdAt:Date.now()+n};
+        save(id); ids.push(id); if(type==='reading')autofillMat(id,f);
+      }catch(e){toast(`${f.name}: `+(e&&e.code?assetErr(e):'upload failed — try again'))}
+    }
+    if(!ids.length)return; const id=ids[0];
+    if(V.view==='lecture'&&V.lectureId===lid&&!l.planned){if(type==='reading'&&lecMode(l)==='read')LV.rn=id;else if(type==='slides')LV.modes[lid]='class';LV.anim=!LV.mat;LV.mat=id;LV.mcard=false;renderMain()}else{renderSide();if(V.view==='lecture')refreshLPanel()}
+    if(V.view==='lecture')refreshMatCard(); if(V.view==='resources')renderMain();
+    const what=type==='slides'?'Slides':`${group==='additional'?'Additional':'Compulsory'} reading${ids.length>1?'s':''}`;
+    toast(ids.length>1?`${ids.length} ${what.toLowerCase()} attached`:`${what} attached`);
+  };
+  if(files)run(files); else pickFile(run,true);
+}
+/* "Leftwich_A._2011._Theorizing_the_State._In_P._Burnell_V._Randall_eds._Politics_in_the_Developing_World._Oxford_..._pp._223-240.pdf" → a reference */
+function refFromFilename(fn){
+  let t=String(fn||'').replace(/\.pdf$/i,'').replace(/[_+]+/g,' ').replace(/\s+/g,' ').trim().replace(/^(read|reading|required|compulsory|optional|week\s*\d+|wk\s*\d+)\b[\s:.-]*/i,'');
+  const m=t.match(/^((?:[A-Z][\p{L}'’-]+,?\s+(?:[A-Z]\.\s*){1,3}(?:,|&|and)?\s*)+)\(?((?:1[89]|20)\d{2}[a-z]?)\)?\.?\s+(.+)$/u);
+  if(!m)return null;
+  const authors=[...m[1].matchAll(/([A-Z][\p{L}'’-]+),?\s+((?:[A-Z]\.\s*){1,3})/gu)].map(a=>({family:a[1],given:a[2].trim(),org:false}));
+  let rest=m[3].trim(), r={authors,year:m[2]};
+  const inb=rest.match(/^(.+?)\.?\s+In:?\s+(.+)$/);
+  if(inb){
+    r.type='chapter'; r.title=inb[1].trim();
+    let b=inb[2]; const pp=b.match(/\bpp?\.?\s*(\d+\s*[-–]\s*\d+)/); if(pp){r.pages=pp[1].replace(/\s*[-–]\s*/,'–');b=b.slice(0,pp.index)}
+    const ed=b.match(/^(.+?)\(?\beds?\.?\)?\.?\s+(.+)$/);
+    if(ed){r.editors=[...ed[1].matchAll(/((?:[A-Z]\.\s*){1,3})\s*([A-Z][\p{L}'’-]+)/gu)].map(a=>({family:a[2],given:a[1].trim(),org:false}));b=ed[2]}
+    const parts=b.split(/\.\s+/).map(x=>x.trim()).filter(Boolean);
+    if(parts.length){r.bookTitle=parts[0].replace(/\.$/,'');const pub=parts.slice(1).join('. ').replace(/^[A-Z][a-z]+\s+(?=[A-Z])/,'');if(pub)r.publisher=pub.replace(/[.,\s]+$/,'')}
+  }else{r.type='journal';r.title=rest.split(/\.\s+/)[0].replace(/\.$/,'').trim()}
+  if(!r.title||r.title.length<3||!authors.length)return null;
+  return r;
 }
 function addMaterialLink(lid){
   lid=lid||V.lectureId; const l=S.docs[lid];

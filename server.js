@@ -132,7 +132,7 @@ const MIME = {
   '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.mjs': 'text/javascript; charset=utf-8',
   '.css': 'text/css; charset=utf-8', '.json': 'application/json', '.woff2': 'font/woff2', '.woff': 'font/woff',
   '.ttf': 'font/ttf', '.svg': 'image/svg+xml', '.png': 'image/png', '.ico': 'image/x-icon', '.map': 'application/json',
-  '.bcmap': 'application/octet-stream', '.pfb': 'application/octet-stream',
+  '.bcmap': 'application/octet-stream', '.pfb': 'application/octet-stream', '.wasm': 'application/wasm', '.icc': 'application/vnd.iccprofile',
 };
 
 /* serve a file from inside `root`, refusing anything that escapes it */
@@ -198,6 +198,7 @@ async function indexHtml() {
   const config = {
     version: 1,
     pdfjsBase: '/vendor/pdfjs/',
+    pdfjsExtra: '/vendor/pdfjs-extra/',
     pdflibUrl: '/vendor/pdf-lib/pdf-lib.min.js',
     ocr: OCR.ok,
     ai: AI ? { label: AI.label, provider: AI.provider, model: AI.model } : null,
@@ -535,6 +536,12 @@ async function handle(req, res) {
   if (req.method === 'GET' && p === '/vendor/fonts.css') return send(res, 200, fontsCss(), { 'Content-Type': 'text/css; charset=utf-8', 'Cache-Control': 'public, max-age=86400' });
   if (req.method === 'GET' && p.startsWith('/vendor/pdf-lib/')) return serveStatic(res, PDFLIB_DIR, p.slice('/vendor/pdf-lib/'.length), 'public, max-age=604800');
   if (req.method === 'GET' && p.startsWith('/vendor/pdfjs/')) return serveStatic(res, PDFJS_DIR, p.slice('/vendor/pdfjs/'.length), 'public, max-age=604800');
+  // image decoders (JPEG 2000, JBIG2), colour profiles, CMaps and standard fonts that PDF.js loads on demand
+  if (req.method === 'GET' && p.startsWith('/vendor/pdfjs-extra/')) {
+    const rel = p.slice('/vendor/pdfjs-extra/'.length), top = rel.split('/')[0];
+    if (!['wasm', 'iccs', 'cmaps', 'standard_fonts'].includes(top)) return fail(res, 404, 'not_found', 'Not found');
+    return serveStatic(res, path.dirname(PDFJS_DIR), rel, 'public, max-age=604800');
+  }
   if (req.method === 'GET' && p.startsWith('/vendor/fonts/')) {
     const [pkg, ...rest] = p.slice('/vendor/fonts/'.length).split('/');
     if (!FONT_PACKAGES.includes(pkg)) return fail(res, 404, 'not_found', 'Not found');
