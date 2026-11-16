@@ -1022,6 +1022,147 @@ body.focus #lectureView>.crumbs,body.focus #lectureView>.lhead,body.focus #lectu
 /* an empty subtopic stays out of the way; it appears when you work on the header */
 .lhead .lsub:placeholder-shown{display:none}
 .lhead:hover .lsub:placeholder-shown,.lhead:focus-within .lsub:placeholder-shown{display:block}
+/* ---------- reading vs class notes ---------- */
+.ptoolbar{container-type:inline-size}
+@container (max-width:1180px){.ptoolbar .mkb span{display:none}.ptoolbar .mkb{padding-left:7px;padding-right:7px}#lectureView .ptoolbar #saveNote>span:last-child{display:none}}
+.lmodebar{display:flex;gap:4px;border-bottom:1px solid var(--line);margin:0 0 10px}
+.lmodebar button{display:flex;align-items:center;gap:10px;background:none;border:0;border-bottom:2.5px solid transparent;margin-bottom:-1px;padding:8px 16px 9px 6px;cursor:pointer;color:var(--muted);text-align:left}
+.lmodebar button .i{width:20px;height:20px}.lmodebar button span{display:flex;flex-direction:column;line-height:1.2}.lmodebar b{font-size:14px;font-weight:650}.lmodebar small{font-size:11.5px}
+.lmodebar button:hover{color:var(--ink)}.lmodebar button.on{color:var(--ink);border-bottom-color:var(--accent)}.lmodebar button.on .i{color:var(--accent)}
+body.focus .lmodebar{margin-top:-4px}
+.crlayout.map{grid-template-columns:1fr}.crlayout.map .crside{position:static;display:flex;flex-direction:row;flex-wrap:wrap;gap:10px;align-items:stretch}.crlayout.map .crtabs button{padding:6px 14px}
+.crlayout.map .crside>.crblock{margin:0}.crlayout.map .crside>.crblock:first-child{display:flex;gap:10px;flex:2 1 420px}.crlayout.map .crside>.crblock:first-child .field{flex:1;margin:0}
+.crlayout.map .crside>.crblock:nth-child(2){display:flex;align-items:center}.crlayout.map .crx,.crlayout.map .crside>.crblock:last-child{display:none}
+.seg.lmode button{display:inline-flex;align-items:center;gap:6px}.seg.lmode em{font-style:normal;font-size:11px;font-weight:700;background:var(--panel-2);color:var(--ink-2);border-radius:999px;padding:0 6px;line-height:17px}
+.seg.lmode button.on em{background:color-mix(in srgb,var(--accent) 16%,transparent);color:var(--accent)}
+.ptoolbar.rtool .ftitle{margin-left:4px}
+.rnsolo{max-width:860px;margin:0 auto}
+.rnreopen{display:flex;justify-content:flex-end;margin:0 0 8px}
+.rnhub .rnlede{color:var(--ink-2);margin:2px 0 16px;max-width:66ch;line-height:1.55}
+.rnhgrp h3{font-size:13px;font-weight:650;color:var(--muted);margin:18px 0 8px}
+.rncard{display:flex;gap:14px;align-items:center;width:100%;text-align:left;border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:14px 16px;margin-bottom:8px;cursor:pointer;color:var(--ink);transition:border-color .15s,box-shadow .15s}
+.rncard:hover{border-color:var(--line-2);box-shadow:var(--shadow)}
+.rnci{flex:none;width:38px;height:44px;border-radius:4px 10px 4px 4px;background:color-mix(in srgb,var(--accent) 10%,var(--panel));color:var(--accent);display:grid;place-items:center}
+.rncb{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}.rncb b{font-size:15px}
+.rncref{font-size:12.5px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rnstats{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:12.5px;color:var(--ink-2)}.rnstats .warn{color:#b45309;font-weight:600}
+.rngo{flex:none;font-size:13px;font-weight:600;color:var(--accent)}
+.rncard.fresh .rngo{background:var(--accent);color:#fff;border-radius:999px;padding:6px 12px}
+.rnhfoot{margin-top:16px}
+/* guided reading notes */
+.rnotes{padding:2px 2px 40px}
+.rnhead{display:flex;gap:10px;align-items:flex-start;border-bottom:1px solid var(--line);padding:4px 0 12px;margin-bottom:6px;flex-wrap:wrap}
+.rnref{flex:1;min-width:220px;display:flex;flex-direction:column;gap:3px;font-size:13px;color:var(--ink-2);line-height:1.45}.rnref b{font-size:16px;color:var(--ink)}
+.rnsec{padding:14px 0 12px;border-bottom:1px solid var(--line)}
+.rnsec header{display:flex;align-items:center;gap:8px}.rnsec h3{font-size:14.5px;margin:0;font-weight:650}
+.rnn{font-size:11px;font-weight:700;color:var(--ink-2);background:var(--panel-2);border-radius:999px;padding:0 7px;line-height:18px}
+.rnhelp{margin:3px 0 8px;font-size:12.5px;color:var(--muted)}
+.rnit{display:flex;gap:8px;align-items:flex-start;padding:4px 0}
+.rnb{flex:none;min-width:26px;height:22px;margin-top:5px;border-radius:6px;background:var(--panel-2);color:var(--ink-2);font-size:11px;font-weight:700;display:grid;place-items:center;padding:0 4px}
+.rnb .i{width:13px;height:13px}
+textarea.rnin{flex:1;min-width:0;border:1px solid transparent;background:transparent;border-radius:8px;padding:5px 8px;font:inherit;font-size:14px;line-height:1.5;color:var(--ink);resize:none;overflow:hidden;outline:0}
+textarea.rnin:hover{background:var(--panel-2)}textarea.rnin:focus{background:var(--panel);border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 14%,transparent)}
+.rnfree{width:100%;min-height:60px;border-color:var(--line)!important}
+.rnpg{width:56px;flex:none;padding:5px 7px;font-size:12.5px}
+.rndel{opacity:0;transition:opacity .12s}.rnit:hover .rndel,.rnit:focus-within .rndel{opacity:1}
+.rncw{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.rncw>textarea.rnin,.rnsup>textarea.rnin{flex:none;width:100%}.rnsup>textarea.rnin{flex:1 1 auto;width:auto}
+.rnterm{font-weight:600;padding:5px 8px}
+.rndef,.rnans{font-size:13.5px!important;color:var(--ink-2)!important}
+.rnrq.open .rnans{border:1px dashed color-mix(in srgb,#d97706 45%,var(--line))}
+.rnc.gap .rnterm{border-color:color-mix(in srgb,#d97706 55%,var(--line));background:color-mix(in srgb,#f59e0b 8%,var(--panel))}
+.rnok{flex:none;margin-top:4px;border:1px solid var(--line);background:var(--panel);border-radius:999px;font-size:12px;font-weight:600;padding:3px 10px;cursor:pointer;color:var(--ink-2)}
+.rnok.yes{color:#0f766e;border-color:color-mix(in srgb,#0f766e 30%,var(--line))}
+.rnok.no{color:#b45309;border-color:color-mix(in srgb,#d97706 55%,var(--line));background:color-mix(in srgb,#f59e0b 10%,var(--panel))}
+.rnfor{font-size:12.5px;padding:4px 8px;max-width:100%}
+.rnl{flex-wrap:wrap}.rnl .rnlt{font-size:13px;color:var(--muted);margin-top:8px}.rnl select{width:auto;max-width:240px;padding:5px 8px;font-size:13px}.rnl textarea{flex-basis:100%}
+.rnq input[type=checkbox]{margin-top:10px}.rnq.done textarea{color:var(--ink-2);text-decoration:line-through;text-decoration-color:var(--line-2)}.rnq .lqans{flex-basis:100%;margin-left:26px}.rnq{flex-wrap:wrap}
+.rnsup{display:flex;gap:6px;align-items:flex-start;margin-left:8px;padding-left:8px;border-left:2px solid var(--line)}.rnsup select{width:auto;flex:none;font-size:12.5px;padding:4px 6px}
+.rnarg.weak .rnsup{border-left-color:#9333ea}.rnarg.weak .rnsup select{color:#7e22ce}
+.frev{display:block;color:var(--muted);font-size:11.5px;margin-top:1px}
+.rnadd{margin-top:6px}.rnadd2{display:flex;gap:6px;margin-top:6px}.rnadd2 .rnadd{margin:0}.rnaddno{margin-top:0}
+/* class notes ↔ readings */
+.rte .mk-rel{border-bottom:2px dotted #7c5cff;background:color-mix(in srgb,#7c5cff 9%,transparent);border-radius:3px}
+.rte .mk-rel::before{content:'\21C4';display:inline-block;font-size:.72em;font-weight:800;margin-right:3px;color:#7c5cff;vertical-align:.12em;font-family:var(--font)}
+.crview .mk-rel{background:none;border:0}.crview .mk-rel::before{display:none}
+.lqfrom.rd{display:flex;gap:4px;align-items:center;color:#7c5cff}.lqfrom.rd .i{width:12px;height:12px}
+.fr{border-top:1px solid var(--line);padding:4px 0}.fr:first-of-type{border-top:0}
+.frh{display:flex;gap:6px;align-items:center;width:100%;background:none;border:0;padding:4px 0;font-weight:600;font-size:13px;color:var(--ink);cursor:pointer;text-align:left}
+.frh .i{width:12px;height:12px;transition:transform .15s}.fr.open .frh .i{transform:rotate(90deg)}
+.fri{display:flex;gap:6px;align-items:flex-start;font-size:12.5px;padding:3px 0}.frt{flex:1;line-height:1.45}.fri .rnb{margin-top:0;min-width:24px;height:19px}
+.fri.disc .frt{color:var(--ink-2)}.fri.disc .btn{color:#0f766e}.fri.gap .rnb{background:color-mix(in srgb,#f59e0b 20%,var(--panel));color:#b45309}.fri.gap i{color:#b45309;font-style:normal;font-size:11.5px}
+.fri.ins .rnb{background:color-mix(in srgb,#ffd60a 25%,var(--panel));color:#a16207}
+.lmk.rel{background:color-mix(in srgb,#7c5cff 9%,var(--panel))}.lmk.rel b{color:#6d4ee0}
+.lmk.cap{display:flex;gap:6px;align-items:baseline;flex-wrap:wrap}.captag{font-size:10.5px;font-weight:700;border-radius:4px;padding:0 5px;background:var(--panel);text-transform:capitalize}
+.captag.k-assignment{color:#b91c1c}.captag.k-event{color:#1d4ed8}.captag.k-info{color:#0f766e}
+.cseg{margin:0 0 14px}
+/* report */
+.crtabs{display:flex}.crtabs button{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.crread{border-left:3px solid #7c5cff;padding:2px 0 2px 14px;margin:8px 0 16px}.crread h4{margin:10px 0 4px;font-size:12pt}.crref{margin:0 0 4px}
+.crgap{color:#b45309;font-size:.9em;font-style:italic}.crread .a{color:#4b5563}
+.crview.crmapv{padding:0;background:none;border:0;box-shadow:none;max-width:none}
+/* ---------- insight map ---------- */
+.imwrap{display:flex;flex-direction:column;gap:10px;min-height:70vh}
+.imbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:8px 10px}
+.imsum{font-size:13px;color:var(--ink-2)}.imsum b{color:var(--ink)}.imsum b.gapn{color:#b45309}
+.imbar .seg button{min-width:34px}
+.imbar .btn.on{background:color-mix(in srgb,var(--accent) 14%,var(--panel));border-color:var(--accent);color:var(--accent)}
+.imbody{display:grid;grid-template-columns:minmax(0,1fr) 270px;gap:10px;align-items:start}
+.imcanvas{position:relative;overflow:auto;height:calc(100vh - 230px);min-height:460px;border:1px solid var(--line);border-radius:12px;background-color:var(--bg);background-image:radial-gradient(color-mix(in srgb,var(--ink) 11%,transparent) 1px,transparent 1px);background-size:22px 22px}
+.imboard{position:relative}
+.imedges{position:absolute;left:0;top:0;pointer-events:none;overflow:visible;color:var(--muted)}
+.ime{fill:none;stroke:color-mix(in srgb,var(--ink) 28%,transparent);stroke-width:1.4}
+.ime.k-needs{stroke-dasharray:4 4}.ime.k-rel{stroke:#7c5cff;stroke-width:2;color:#7c5cff}.ime.k-class{stroke:#0f766e;stroke-width:1.6}.ime.k-user{stroke:var(--accent);stroke-width:2;pointer-events:stroke;cursor:pointer}
+.iml rect{fill:var(--panel);stroke:var(--line-2)}.iml text{font:600 11px var(--font);fill:var(--ink-2)}.iml.k-rel rect{stroke:#7c5cff}.iml.k-rel text{fill:#6d4ee0}.iml.k-class text{fill:#0f766e}
+.imcol{position:absolute;top:14px;width:220px;display:flex;flex-direction:column;font-size:12px;color:var(--muted);pointer-events:none}.imcol b{font-size:13px;color:var(--ink);font-weight:650}
+.imn{position:absolute;width:220px;padding:9px 12px 10px;background:var(--panel);border:1.5px solid var(--line-2);border-radius:8px;font-size:13px;line-height:1.42;color:var(--ink);cursor:grab;user-select:none;box-shadow:0 1px 2px rgba(0,0,0,.05);touch-action:none}
+.imn.drag{cursor:grabbing;box-shadow:0 12px 28px rgba(0,0,0,.16);z-index:5}
+.imn.sel{outline:2px solid var(--accent);outline-offset:2px;z-index:4}
+.imn:focus-visible{outline:2px solid var(--focus,var(--accent))}
+.imt{white-space:pre-wrap;word-wrap:break-word}.imt[contenteditable=true]{cursor:text;user-select:text;outline:0;background:var(--panel-2);border-radius:4px;margin:-2px -4px;padding:2px 4px}
+.ims{font-size:12px;color:var(--ink-2);margin-top:4px;line-height:1.4}
+.imnum{float:left;font-size:10.5px;font-weight:700;color:var(--muted);margin:2px 6px 0 0}
+/* shapes */
+.imn.t-reading{border:0;background:color-mix(in srgb,#7c5cff 10%,var(--panel));box-shadow:inset 0 0 0 2px #7c5cff;border-radius:6px 22px 6px 6px;padding:12px 14px}
+.imn.t-reading .imt{font-weight:700;font-size:14px}.imn.t-reading.addl{box-shadow:inset 0 0 0 2px color-mix(in srgb,#7c5cff 50%,transparent)}
+.imn.t-arg{border-left:5px solid #1d4ed8;border-radius:4px}
+.imn.t-rq{border:1.5px solid #1d4ed8;border-radius:16px 16px 16px 4px;background:color-mix(in srgb,#1d4ed8 5%,var(--panel))}.imn.t-rq .imt{font-weight:600}
+.imn.t-concept{border-radius:999px;padding:10px 18px;border-color:#0f766e;background:color-mix(in srgb,#0f766e 7%,var(--panel))}.imn.t-concept .imt{font-weight:650}
+.imn.t-prereq{border-radius:999px;padding:8px 16px;border:1.5px dashed #0f766e;background:var(--panel)}
+.imn.t-class{border-color:#0f766e;border-radius:12px;background:color-mix(in srgb,#14b8a6 7%,var(--panel))}
+.imn.t-insight{border-color:#ca8a04;background:color-mix(in srgb,#facc15 14%,var(--panel));border-radius:4px 14px 4px 14px}
+.imn.t-question{border-color:#2563eb;border-radius:14px 14px 14px 2px}
+.imn.t-litgap{border:2px solid #9333ea;border-radius:20px 4px 20px 4px;background:repeating-linear-gradient(135deg,color-mix(in srgb,#9333ea 9%,var(--panel)) 0 6px,var(--panel) 6px 12px)}
+.imn.t-note{border:1.5px solid var(--accent);background:color-mix(in srgb,var(--accent) 6%,var(--panel));border-radius:10px}
+/* gaps */
+.imn.g-me{box-shadow:0 0 0 3px color-mix(in srgb,#f59e0b 35%,transparent);border-color:#d97706;border-style:dashed}
+.imn.t-reading.g-me{box-shadow:inset 0 0 0 2px #7c5cff,0 0 0 3px color-mix(in srgb,#f59e0b 35%,transparent)}
+.imn.g-class:not(.g-me){opacity:.62;border-style:dotted}
+.imn.g-read{opacity:.6}
+.imgaps{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.imgb{font-size:10.5px;font-weight:650;border-radius:4px;padding:1px 6px;background:var(--panel-2);color:var(--ink-2)}
+.imgb.g-me{background:color-mix(in srgb,#f59e0b 20%,var(--panel));color:#92400e}.imgb.g-lit{background:color-mix(in srgb,#9333ea 14%,var(--panel));color:#7e22ce}.imgb.g-link{background:color-mix(in srgb,#7c5cff 14%,var(--panel));color:#5b3fd0}
+.imn.pulse{animation:impulse 1.1s var(--ease,ease) 2}
+@keyframes impulse{50%{box-shadow:0 0 0 10px color-mix(in srgb,var(--accent) 22%,transparent)}}
+.impop{position:absolute;z-index:6;display:flex;gap:2px;background:var(--panel-solid,var(--panel));border:1px solid var(--line-2);border-radius:10px;padding:3px;box-shadow:var(--shadow)}
+.impop button{display:inline-flex;align-items:center;gap:5px;border:0;background:none;border-radius:7px;padding:5px 8px;font-size:12.5px;color:var(--ink);cursor:pointer;white-space:nowrap}.impop button:hover{background:var(--hover)}.impop .danger{color:var(--danger)}
+.impop .i{width:14px;height:14px}
+.imside{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:12px 14px;max-height:calc(100vh - 230px);overflow:auto;font-size:13px}
+.imside h4{font-size:13px;margin:0 0 6px;display:flex;align-items:center;gap:6px}.imside h4 .muted{margin-left:auto;font-weight:500}
+.imlegend{display:grid;grid-template-columns:1fr 1fr;gap:5px 8px;font-size:12px;color:var(--ink-2)}.imlegend h4{grid-column:1/-1}
+.imlegend span{display:flex;align-items:center;gap:6px}
+.lg{flex:none;width:18px;height:12px;border:1.5px solid var(--line-2);border-radius:3px;background:var(--panel)}
+.lg.t-reading{border-color:#7c5cff;border-radius:2px 6px 2px 2px;background:color-mix(in srgb,#7c5cff 14%,var(--panel))}.lg.t-arg{border-left:4px solid #1d4ed8}.lg.t-rq{border-color:#1d4ed8;border-radius:6px 6px 6px 1px}
+.lg.t-concept{border-color:#0f766e;border-radius:999px}.lg.t-prereq{border:1.5px dashed #0f766e;border-radius:999px}.lg.t-class{border-color:#0f766e;border-radius:5px}
+.lg.t-insight{border-color:#ca8a04;background:color-mix(in srgb,#facc15 20%,var(--panel));border-radius:1px 5px}.lg.t-question{border-color:#2563eb;border-radius:5px 5px 5px 0}
+.lg.t-litgap{border-color:#9333ea;border-radius:6px 1px 6px 1px;background:repeating-linear-gradient(135deg,color-mix(in srgb,#9333ea 30%,var(--panel)) 0 2px,var(--panel) 2px 4px)}.lg.t-note{border-color:var(--accent)}
+.imgl{margin:12px 0 0}.imgl p{margin:0 0 6px;font-size:12px}
+.imsw{width:10px;height:10px;border-radius:3px;display:inline-block}.imsw.g-me{background:#f59e0b}.imsw.g-class{background:var(--line-2)}.imsw.g-link{background:#7c5cff}.imsw.g-lit{background:#9333ea}.imsw.g-read{background:var(--muted)}
+.imgi{display:block;width:100%;text-align:left;border:0;background:var(--panel-2);border-radius:6px;padding:5px 8px;margin-bottom:4px;font-size:12.5px;color:var(--ink);cursor:pointer;line-height:1.35}.imgi:hover{background:var(--hover)}
+.imtip{margin-top:14px;font-size:12px}
+.imempty{text-align:center;padding:60px 20px;color:var(--ink-2)}.imempty .ic{display:inline-grid;place-items:center;width:52px;height:52px;border-radius:14px;background:var(--panel-2);color:var(--accent);margin-bottom:10px}.imempty .ic .i{width:26px;height:26px}.imempty .big{font-weight:700;font-size:17px;color:var(--ink);margin-bottom:6px}.imempty p{max-width:52ch;margin:0 auto;line-height:1.55}
+@media (max-width:1000px){.imbody{grid-template-columns:1fr}.imside{max-height:none}}
+@media print{body.printmap *{visibility:hidden}body.printmap #imBoard,body.printmap #imBoard *{visibility:visible}body.printmap #imBoard{position:absolute;left:0;top:0;zoom:1}body.printmap .impop{display:none}body.printmap .imcanvas{overflow:visible;height:auto;border:0}}
+
 /* sticky bars are solid, so nothing scrolling underneath shows through */
 .ptoolbar{background:var(--bg);box-shadow:0 -6px 0 var(--bg)}
 body.focus .ptoolbar{background:var(--bg)}
@@ -3063,8 +3204,8 @@ function cleanRich(html){
       }
       if(/^(SCRIPT|STYLE|TEMPLATE|IFRAME|OBJECT|SVG|MATH|NOSCRIPT)$/.test(tag))return;
       if(tag==='SPAN'){
-        const mk=String(n.className||'').match(/\bmk-(q|imp|rev)\b/);
-        if(mk){const e=document.createElement('span');e.className='mk-'+mk[1];walk(n,e);if(e.textContent.trim())parent.appendChild(e);return}
+        const mk=String(n.className||'').match(/\bmk-(q|imp|rev|rel)\b/);
+        if(mk){const e=document.createElement('span');e.className='mk-'+mk[1];if(mk[1]==='rel'&&n.dataset.rel){e.dataset.rel=n.dataset.rel;if(n.title)e.title=n.title}if(mk[1]==='q'&&n.dataset.q)e.dataset.q=n.dataset.q;walk(n,e);if(e.textContent.trim())parent.appendChild(e);return}
         if(/\bts\b/.test(String(n.className||''))&&/^\d{1,6}$/.test(n.getAttribute('data-t')||'')){const e=document.createElement('span');e.className='ts';e.setAttribute('data-t',n.getAttribute('data-t'));if(/^\d{1,3}$/.test(n.getAttribute('data-r')||''))e.setAttribute('data-r',n.getAttribute('data-r'));e.setAttribute('contenteditable','false');e.textContent=n.textContent.trim().slice(0,10);parent.appendChild(e);return}
       }
       let wrap=null,inner=null;
@@ -3671,7 +3812,7 @@ function openDocCard(){
 function draftQuote(x,text,page){
   const ed=document.querySelector('.rte.draft'), d=S.docs[V.draftId]; if(!ed||!d)return;
   const where=page?', '+pageStr(page):'';
-  const c=x.kind==='material'?`(${x.name}${where})`:`(${citeCore(x)}${where})`;
+  const c=x.kind==='material'?matCite(x,page):`(${citeCore(x)}${where})`;
   insertIntoDraft(ed,`“${text.replace(/\s+/g,' ')}” ${c} `);
   if(x.kind!=='material')d.cites=[...new Set([...(d.cites||[]),x.id])];
   draftCommit(ed); toast('Quote added to your writing with its citation');
@@ -4489,13 +4630,14 @@ function showPop(info,hl){
   if(info.loading){el.innerHTML=`<div class="sprow"><span class="spin"></span><span>Reading the text in the box…</span><button class="spx" data-spx aria-label="Close">×</button></div>`;host.appendChild(el);placePop(el,info,host);el.querySelector('[data-spx]').onclick=hidePop;return}
   el.innerHTML=`${info.ocr?`<div class="sprow" style="align-items:flex-start"><textarea class="inp" id="spText" rows="3" aria-label="Recognised text — correct it if needed">${esc(info.text)}</textarea><button class="spx" data-spx aria-label="Close">×</button></div><div class="help" style="margin:-4px 0 0;font-size:12px">Read from the scan — check it against the page and correct any mistakes before adding.</div>`:`<div class="sptext">“${esc(info.text.length>110?info.text.slice(0,108)+'…':info.text)}”<button class="spx" data-spx aria-label="Close">×</button></div>`}
     <div class="sprow" ${info.web?'hidden':''}><span class="spl">Highlight</span>${HLC.map(([k,hex])=>`<button class="hlc ${hl&&hl.color===k?'on':''}" data-hlc="${k}" style="background:${hex}" title="${hl?'Change to':'Highlight in'} ${k}" aria-label="${k}"></button>`).join('')}${hl?`<button class="btn sm ghost danger" data-hldel title="Remove this highlight">${ico('trash')}Remove</button>`:''}</div>
+    ${V.view==='lecture'&&lecMode(S.docs[V.lectureId])==='read'&&LV.rn?`<div class="sprow"><span class="spl">Add to</span><select class="inp" id="spSec" aria-label="Section of your reading notes">${[['args','Claims and arguments'],['rq','Questions it wants to answer'],['concepts','Key concepts'],['insights','Key insights'],['gaps','Gaps and limits'],['free','Other notes']].map(([k,t])=>`<option value="${k}" ${k===(R.rnSec||'args')?'selected':''}>${t}</option>`).join('')}</select></div>`:''}
     <div class="sprow" ${V.view==='lecture'||inDraft?'hidden':''}><span class="spl">Quote to</span><select class="inp" id="spQ" aria-label="Question to add the quote to">${t.questions.map((q,i)=>`<option value="${q.id}" ${q.id===qsel?'selected':''}>Q${i+1} · ${esc(q.text.length>46?q.text.slice(0,44)+'…':q.text)}</option>`).join('')}</select></div>
     <div class="sprow"><span class="spl">${info.web?'Where':isSl?'Slide':'Page'}</span><input class="inp" id="spPg" value="${esc(pg)}" style="width:${info.web?96:76}px" aria-label="${info.web?'Paragraph for the citation':'Page number for the citation'}" title="${info.web?'Web pages have no page numbers: APA cites the paragraph (para. N), or a section heading.':`Printed page number used in the citation. PDF page ${first}${first!==lastP?'–'+lastP:''}.`}"><span class="muted" style="font-size:12px;flex:1">${esc(V.view==='lecture'?(x.name||''):citeCore(x))}${pg?', '+esc(pageStr(pg)):''}</span><button class="btn sm" data-spidea title="Save a thought about this passage as an idea">${ico('bulb')}Idea</button><button class="btn sm pri" data-spquote>${ico('plus')}${V.view==='lecture'?'Add to notes':V.view==='draft'?'Quote into my writing':'Add quote'}</button></div>`;
   host.appendChild(el); placePop(el,info,host);
   el.querySelector('[data-spx]').onclick=()=>{hidePop();getSelection().removeAllRanges()};
   const spText=el.querySelector('#spText'); if(spText){spText.addEventListener('input',()=>{POP.text=spText.value.trim()});setTimeout(()=>spText.focus(),30)}
   const pgI=el.querySelector('#spPg'), lab=el.querySelector('.sprow:last-child .muted');
-  pgI.addEventListener('input',()=>{const v=pgI.value.trim();lab.textContent=`${isMat?(x.name||''):citeCore(x)}${v?', '+pageStr(v):''}`});
+  pgI.addEventListener('input',()=>{const v=pgI.value.trim();lab.textContent=isMat?matCite(x,v).slice(1,-1):`${citeCore(x)}${v?', '+pageStr(v):''}`});
   el.addEventListener('mousedown',e=>{if(!e.target.closest('input,select,textarea'))e.preventDefault()});
   el.addEventListener('keydown',e=>{if(e.key==='Escape'){hidePop();e.stopPropagation()}if(e.key==='Enter'&&e.target.id==='spPg'){e.preventDefault();el.querySelector('[data-spquote]').click()}});
   el.querySelectorAll('[data-hlc]').forEach(b=>b.onclick=()=>{if(!POP.text){toast('There is no text to highlight');return}hl?recolorHighlight(hl.id,b.dataset.hlc):addHighlight(POP,b.dataset.hlc);hidePop();getSelection().removeAllRanges()});
@@ -4503,6 +4645,7 @@ function showPop(info,hl){
   el.querySelector('[data-spidea]').onclick=()=>{const text=(POP.text||'').trim();const page=pgI.value.trim();hidePop();getSelection().removeAllRanges();openIdeaDialog({text:text?`“${text}”\n\n`:'',page})};
   el.querySelector('[data-spquote]').onclick=()=>{
     const text=(POP.text||'').trim(); if(!text){toast('There is no text to quote');return}
+    const spS=el.querySelector('#spSec'); if(V.view==='lecture'&&spS){R.rnSec=spS.value;rnQuote(spS.value,text,pgI.value.trim());hidePop();getSelection().removeAllRanges();return}
     if(V.view==='lecture'){lectureQuote(text,pgI.value.trim());hidePop();getSelection().removeAllRanges();return}
     if(inDraft){draftQuote({id:WV.doc,...x},text,pgI.value.trim());hidePop();getSelection().removeAllRanges();return}
     const qid=el.querySelector('#spQ').value, page=pgI.value.trim()||(info.web?'':String(first));
@@ -5778,9 +5921,9 @@ function lectureDocHTML(l,full){
     ${cardsOf(l).length?`<h3>Flashcards</h3><table><tr><th>Term</th><th>Meaning</th></tr>${cardsOf(l).map(k=>`<tr><td>${esc(k.front)}</td><td>${esc(k.back)}</td></tr>`).join('')}</table>`:''}`;
 }
 /* ---------- course report: read it, or export it ---------- */
-const CR={scope:'course',inc:{summary:true,notes:true,questions:true,important:true,cards:true,materials:true}};
+const CR={scope:'course',inc:{readings:true,captured:true,summary:true,notes:true,questions:true,important:true,cards:true,materials:true}};
 try{Object.assign(CR.inc,JSON.parse(localStorage.getItem('litnotes.crinc')||'{}'))}catch(e){}
-const CR_PARTS=[['notes','Lecture notes'],['summary','Summaries'],['questions','Reflection questions & answers'],['important','Important ideas & reflections'],['cards','Flashcards'],['materials','Slides & readings list']];
+const CR_PARTS=[['readings','Reading notes & links to class'],['captured','Captured in class'],['notes','Lecture notes'],['summary','Summaries'],['questions','Reflection questions & answers'],['important','Important ideas & reflections'],['cards','Flashcards'],['materials','Slides & readings list']];
 function reportView(){
   const cs=coursesAll();
   const head=`<div class="page-head"><div class="grow"><h1>Report</h1><p class="lede">Your lecture notes, reflection questions, important ideas and flashcards for a course, a unit or one lecture — to read here or export as PDF or Word.</p></div></div>`;
@@ -5794,13 +5937,14 @@ function courseReportHTML(c,units){
   const cs=coursesAll();
   const lopt=l=>`<option value="l:${l.id}" ${CR.scope==='l:'+l.id?'selected':''}>${esc(longDate(l.date))} · ${esc(l.topic||'Untitled lecture')}</option>`;
   const opts=`<option value="course" ${CR.scope==='course'?'selected':''}>Whole course</option>`+(units.length?units.map(u=>`<optgroup label="${esc((u.code?u.code+' · ':'')+u.name)}"><option value="u:${u.id}" ${CR.scope==='u:'+u.id?'selected':''}>All of ${esc(u.code||u.name)}</option>${ls.filter(l=>l.unitId===u.id).map(lopt).join('')}</optgroup>`).join('')+(ls.some(l=>!l.unitId)?`<optgroup label="No unit">${ls.filter(l=>!l.unitId).map(lopt).join('')}</optgroup>`:''):`<optgroup label="One lecture">${ls.map(lopt).join('')}</optgroup>`);
-  return `<div class="crlayout"><aside class="crside">
+  return `<div class="crlayout ${IM.tab==='map'?'map':''}"><aside class="crside">
     <div class="crblock"><div class="field"><label>Course</label><select class="inp" id="crCourse">${cs.map(x=>`<option value="${x.id}" ${x.id===c.id?'selected':''}>${esc(courseLabel(x))}</option>`).join('')}</select></div><div class="field" style="margin:0"><label>Report on</label><select class="inp" id="crScope">${opts}</select></div></div>
-    <div class="crblock"><div class="crh">Include</div>${CR_PARTS.map(([k,lab])=>`<label class="crinc"><input type="checkbox" data-crinc="${k}" ${CR.inc[k]?'checked':''}><span>${lab}</span></label>`).join('')}</div>
+    <div class="crblock"><span class="seg crtabs" role="tablist"><button class="${IM.tab!=='map'?'on':''}" data-act="crTab" data-v="report">${ico('doc')}Report</button><button class="${IM.tab==='map'?'on':''}" data-act="crTab" data-v="map">${ico('map')}Insight map</button></span></div>
+    <div class="crblock" ${IM.tab==='map'?'hidden':''}><div class="crh">Include</div>${CR_PARTS.map(([k,lab])=>`<label class="crinc"><input type="checkbox" data-crinc="${k}" ${CR.inc[k]?'checked':''}><span>${lab}</span></label>`).join('')}</div>
     <div class="crblock crx"><button class="btn" data-act="crExport" data-v="pdf">${ico('download')}Export PDF</button><button class="btn" data-act="crExport" data-v="doc">${ico('download')}Export Word</button><button class="btn ghost" data-act="crSave" title="Keep a copy under Saved reports">${ico('library')}Save a copy</button></div>
     <div class="crblock"><div class="crh">Saved reports</div>${(()=>{const rs=reportsSaved();return rs.length?rs.map(r=>`<div class="crsaved"><button class="link" data-act="repOpen" data-id="${r.id}" title="${esc(r.title)}">${esc(r.title)}</button><span class="muted">${esc(new Date(r.createdAt).toLocaleDateString())}</span><button class="btn sm ghost icon" data-act="repExport" data-id="${r.id}" data-v="pdf" title="Export PDF" aria-label="Export PDF">${ico('download')}</button><button class="btn sm ghost icon danger" data-act="repDel" data-id="${r.id}" title="Delete" aria-label="Delete">${ico('trash')}</button></div>`).join(''):'<p class="muted" style="margin:0;font-size:13px">None yet. Save a copy to keep this version.</p>'})()}</div>
   </aside>
-  <article class="crview crpage" id="crView">${courseReportBody(c)}</article></div>`;
+  <article class="crview ${IM.tab==='map'?'crmapv':'crpage'}" id="crView">${IM.tab==='map'?insightMapHTML(c):courseReportBody(c)}</article></div>`;
 }
 function courseReportScope(c){
   const all=lecturesOf(c.id).filter(l=>!l.missed).slice().reverse();
@@ -5815,6 +5959,7 @@ function courseReportBody(c){
     const u=unitOf(l.unitId), qs=l.questions||[], imp=importantOf(l), cards=cardsOf(l), ms=materialsOf(l.id);
     return `<section class="crlec" id="crl-${l.id}"><header class="crlh"><span class="crd"><b>${new Date(l.date+'T12:00:00').getDate()}</b>${esc(new Date(l.date+'T12:00:00').toLocaleDateString(undefined,{month:'short'}))}</span><div><h2>${esc(l.topic||'Untitled lecture')}</h2>${l.subtopic?`<p class="sub">${esc(l.subtopic)}</p>`:''}<p class="meta">${esc(longDate(l.date))}${l.time?' · '+esc(l.time):''}${u?' · '+esc(u.code||u.name):''}${lecturersFor(l.courseId,l.unitId).length?' · '+esc(lecturersFor(l.courseId,l.unitId).map(x=>x.name).join(', ')):''}</p></div></header>
       ${I.summary&&l.summary?`<p class="crsum"><b>Summary.</b> ${esc(l.summary)}</p>`:''}
+      ${readingsReportHTML(l,I)}
       ${I.notes&&(trim(l.text||'')||trim(l.cuesText||''))?`<h3>Notes</h3>${l.cues&&trim(l.cuesText||'')?`<div class="crcues"><b>Key words &amp; questions</b>${l.cues}</div>`:''}<div class="crnotes">${floatsInline(l.html||'')}</div>`:''}
       ${I.notes&&(l.stickies||[]).some(x=>trim(x.text||''))?`<h3>Sticky notes</h3><ul class="crstk">${l.stickies.filter(x=>trim(x.text||'')).map(x=>`<li>${esc(x.text).replace(/\n/g,'<br>')}</li>`).join('')}</ul>`:''}
       ${I.questions&&qs.length?`<h3>Reflection questions</h3><div class="crqs">${qs.map((q,i)=>`<div class="crqa"><p class="q"><span>Q${i+1}</span>${esc(q.text)}</p>${q.answer?`<p class="a">${esc(q.answer)}</p>`:q.status==='answered'?'':'<p class="a open">Not answered yet</p>'}</div>`).join('')}</div>`:''}
@@ -5832,7 +5977,8 @@ function courseReportBody(c){
 function bindCourseReport(){
   const v=$('#crView'); if(!v)return; const c=courseOf(CR.cid);
   const cc=$('#crCourse'); if(cc)cc.onchange=()=>{CR.cid=cc.value;CR.scope='course';V.libR=V.libR||{course:'all',unit:'all'};V.libR.course=cc.value;V.libR.unit='all';renderMain()};
-  const sc=$('#crScope'); if(sc)sc.onchange=()=>{CR.scope=sc.value;v.innerHTML=courseReportBody(c)};
+  const sc=$('#crScope'); if(sc)sc.onchange=()=>{CR.scope=sc.value;if(IM.tab==='map')bindInsightMap(true);else v.innerHTML=courseReportBody(c)};
+  if(IM.tab==='map')requestAnimationFrame(()=>bindInsightMap(false));
   document.querySelectorAll('[data-crinc]').forEach(cb=>cb.onchange=()=>{CR.inc[cb.dataset.crinc]=cb.checked;try{localStorage.setItem('litnotes.crinc',JSON.stringify(CR.inc))}catch(e){}v.innerHTML=courseReportBody(c)});
 }
 function revisionPack(fmt){
@@ -5946,6 +6092,521 @@ const LV={mat:null,panel:true};
 try{LV.panel=localStorage.getItem('litnotes.lpanel')!=='0'}catch(e){}
 const WV={doc:null};
 const readerId=()=>V.view==='paper'?V.paperId:V.view==='lecture'?LV.mat:V.view==='draft'?WV.doc:null;
+/* ============================================================
+   READING NOTES · CLASS LINKS · CAPTURE · INSIGHT MAP
+   material.rn = {args:[{id,text,page}], concepts:[{id,text,def,ok}], prereq:[{id,text,ok,for}],
+                  links:[{id,to,kind,text}], insights:[{id,text}], gaps:[{id,text}], free}
+   questions to take to class live in lecture.questions with readingId
+   lecture.rels = [{id,text,mat,item,kind,note,at}]   (class notes related to a reading)
+   lecture.captures = [{id,kind:'assignment'|'event'|'info',ref,text,at}]
+   course.imaps[scope] = {pos,hide,add,edges,gap}   (your edits to the insight map)
+   ============================================================ */
+Object.assign(IC,{
+  link2:'<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
+  flag:'<path d="M5 21V4"/><path d="M5 4h11l-2 4 2 4H5"/>',
+  map:'<circle cx="5" cy="6" r="2.2"/><circle cx="19" cy="6" r="2.2"/><circle cx="12" cy="18" r="2.2"/><path d="M7.2 6h9.6M6.2 8l4.6 8M17.8 8l-4.6 8"/>',
+  book:'<path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5A2.5 2.5 0 0 0 6.5 23H20v-5"/>',
+  readm:'<path d="M3 5h6a3 3 0 0 1 3 3v12a2 2 0 0 0-2-2H3z"/><path d="M21 5h-6a3 3 0 0 0-3 3v12a2 2 0 0 1 2-2h7z"/>'
+});
+const RN_SECTIONS=[
+  ['rq','Questions the reading wants to answer','What is the author trying to find out? When you finish, note how the reading answers each one.','A question the reading asks, press Enter'],
+  ['args','Claims and arguments','What does the author claim, and how is each claim supported?','A claim the author makes, press Enter'],
+  ['concepts','Key concepts','The ideas the reading is built on. Mark the ones you don’t understand yet.','A concept, press Enter'],
+  ['prereq','Concepts I need first','What must you understand before the arguments make sense?','A concept you need first, press Enter'],
+  ['links','How it relates to the other readings','Where it agrees, disagrees or builds on another reading.',''],
+  ['questions','Questions to take to class','They also appear in Reflection questions when you take class notes.','A question for the lecturer or the class, press Enter'],
+  ['insights','Key insights','What you take away from this reading.','An insight, press Enter'],
+  ['gaps','Gaps and limits','What the reading leaves unexplained, or what nobody seems to have studied yet.','A gap or limit, press Enter']
+];
+const SUPPORT=[['','How is it supported?'],['data','Data / statistics'],['case','Case study'],['study','Studies by others'],['theory','Theory / reasoning'],['example','Examples'],['expert','Expert opinion'],['weak','Weak or no support']];
+const supLabel=k=>(SUPPORT.find(x=>x[0]===k)||['',''])[1];
+const REL_KINDS=[['supports','supports'],['challenges','challenges'],['extends','builds on'],['applies','applies'],['contrasts','contrasts with'],['same','uses the same idea as']];
+const CLASS_REL=[['confirms','confirms'],['adds','adds to'],['challenges','challenges'],['example','gives an example of'],['answers','answers'],['explains','explains']];
+const relLabel=(L,k)=>(L.find(x=>x[0]===k)||[,k])[1];
+function rnOf(m){
+  const r=m.rn=m.rn||{};
+  ['rq','args','concepts','prereq','links','insights','gaps'].forEach(k=>{if(!Array.isArray(r[k]))r[k]=[]});
+  if(typeof r.free!=='string')r.free='';
+  return r;
+}
+const readingsOf=lid=>materialsOf(lid).filter(m=>m.type!=='slides');
+const rnQuestions=(l,mid)=>(l.questions||[]).filter(q=>q.readingId===mid);
+function rnCount(m,l){const r=rnOf(m);return r.rq.length+r.args.length+r.concepts.length+r.prereq.length+r.links.length+r.insights.length+r.gaps.length+(trim(r.free)?1:0)+(l?rnQuestions(l,m.id).length:0)}
+const htmlText=s=>{const d=document.createElement('textarea');d.innerHTML=String(s||'').replace(/<[^>]+>/g,'');return d.value};
+function hasRef(m){const r=m&&m.ref;return !!(r&&(validPeople(r.authors).length||trim(r.title)))}
+/* APA in-text citation of a lecture material: (Leftwich, 2000, p. 12) — falls back to its name */
+function matCite(m,page){
+  const core=hasRef(m)?htmlText(inText(m.ref).paren).slice(1,-1):(m.name||'Reading');
+  return `(${core}${page?', '+pageStr(page):''})`;
+}
+function matShort(m){return hasRef(m)?htmlText(inText(m.ref).narr):(m.name||'Reading')}
+/* which side you are on in a lecture: reading (before class) or class notes */
+LV.modes=LV.modes||{};
+function lecMode(l){
+  if(!l)return 'class';
+  const id=V.lectureId;
+  if(LV.modes[id])return LV.modes[id];
+  return (l.planned||(l.date&&l.date>todayISO()))&&readingsOf(id).length?'read':'class';
+}
+function setLecMode(mode){
+  LV.modes[V.lectureId]=mode;
+  const m=LV.mat&&S.docs[LV.mat];
+  if(mode==='read'){if(m&&m.type!=='slides')LV.rn=LV.mat;else{if(m&&m.type==='slides')LV.mat=null}}
+  renderMain();
+}
+function curRN(){
+  const l=S.docs[V.lectureId]; if(!l)return null;
+  const rs=readingsOf(V.lectureId);
+  if(LV.rn&&!rs.some(m=>m.id===LV.rn))LV.rn=null;
+  return LV.rn?{id:LV.rn,...S.docs[LV.rn]}:null;
+}
+/* ---------- the reading hub (reading mode, no reading open yet) ---------- */
+function readingHubHTML(l){
+  const rs=readingsOf(V.lectureId);
+  if(!rs.length)return `<div class="rnhub"><div class="empty" style="margin:0"><div class="ic">${ico('readm')}</div><div class="big">No readings for this lecture yet</div><p>Upload the compulsory and additional readings with <b>Materials</b> (top right). Each reading gets its own guided notes: the questions it asks, its claims and their support, concepts, questions for class and insights.</p><button class="btn pri" data-act="matAdd" data-v="reading" data-g="compulsory">${ico('upload')}Upload a reading</button></div></div>`;
+  const card=m=>{const r=rnOf(m),n=rnCount(m,l),nu=r.concepts.concat(r.prereq).filter(c=>c.ok===false).length,oq=rnQuestions(l,m.id).filter(q=>q.status!=='answered').length;
+    return `<button class="rncard ${n?'':'fresh'}" data-act="rnOpen" data-id="${m.id}">
+      <span class="rnci">${ico(m.url&&!m.pdf?'link2':'book')}</span>
+      <span class="rncb"><b>${esc(m.name)}</b><span class="rncref">${hasRef(m)?esc(htmlText(apaHTML(m.ref))):'<i>Reference details not filled in yet</i>'}</span>
+      <span class="rnstats">${n?`<span>${r.args.length} claim${r.args.length===1?'':'s'}</span><span>${r.concepts.length} concept${r.concepts.length===1?'':'s'}</span>${nu?`<span class="warn">${nu} not understood yet</span>`:''}${oq?`<span>${oq} question${oq===1?'':'s'} for class</span>`:''}${r.links.length?`<span>${r.links.length} link${r.links.length===1?'':'s'} to other readings</span>`:''}`:'<span>Not started</span>'}</span></span>
+      <span class="rngo">${n?'Continue':'Start reading'}</span></button>`};
+  const comp=rs.filter(m=>matGroup(m)!=='additional'), add=rs.filter(m=>matGroup(m)==='additional');
+  return `<div class="rnhub"><p class="rnlede">Read before class. For each reading, note the questions it asks, its claims and how they are supported, the concepts, what you need to understand first, how it relates to the other readings and what to ask in class.</p>
+    ${comp.length?`<div class="rnhgrp"><h3>Compulsory and linked readings</h3>${comp.map(card).join('')}</div>`:''}
+    ${add.length?`<div class="rnhgrp"><h3>Additional readings</h3>${add.map(card).join('')}</div>`:''}
+    <div class="rnhfoot"><button class="btn" data-act="imOpen" data-id="${V.lectureId}">${ico('map')}See the insight map</button></div></div>`;
+}
+/* ---------- guided notes for one reading ---------- */
+function readingNotesHTML(m,l){
+  const r=rnOf(m), rs=readingsOf(V.lectureId), others=rs.filter(x=>x.id!==m.id);
+  const courseOthers=docsOf('material',x=>x.courseId===l.courseId&&x.lectureId!==V.lectureId&&x.type!=='slides');
+  const ta=(sec,it,ph)=>`<textarea class="rnin" rows="1" data-f="text" placeholder="${esc(ph||'')}" aria-label="${esc(ph||sec)}">${esc(it.text||'')}</textarea>`;
+  const del=it=>`<button class="btn sm ghost icon rndel" data-rndel="${it.id}" aria-label="Remove">${ico('x')}</button>`;
+  const ok=it=>`<button class="rnok ${it.ok===false?'no':'yes'}" data-rnok="${it.id}" title="${it.ok===false?'You marked this as not understood yet — click when you understand it':'Click if you don’t understand this yet'}">${it.ok===false?'Not yet':'Understood'}</button>`;
+  const forOpts=it=>`<select class="inp rnfor" data-f="for" aria-label="Needed for"><option value="">Needed for the reading as a whole</option>${r.args.length?`<optgroup label="Claims">${r.args.map((a,i)=>`<option value="a:${a.id}" ${it.for==='a:'+a.id?'selected':''}>C${i+1} · ${esc(a.text.slice(0,60))}</option>`).join('')}</optgroup>`:''}${r.concepts.length?`<optgroup label="Concepts">${r.concepts.map(c=>`<option value="c:${c.id}" ${it.for==='c:'+c.id?'selected':''}>${esc(c.text.slice(0,60))}</option>`).join('')}</optgroup>`:''}</select>`;
+  const sec=([k,lab,help,ph])=>{
+    let rows='';
+    if(k==='rq')rows=r.rq.map((q,i)=>`<div class="rnit rnrq ${trim(q.answer||'')?'':'open'}" data-sec="rq" data-iid="${q.id}"><span class="rnb">Q${i+1}</span><div class="rncw"><textarea class="rnin" rows="1" data-f="text" aria-label="Question the reading asks">${esc(q.text)}</textarea><textarea class="rnin rnans" rows="1" data-f="answer" placeholder="How does the reading answer it? (fill in when you finish)" aria-label="How the reading answers it">${esc(q.answer||'')}</textarea></div>${del(q)}</div>`).join('');
+    else if(k==='args')rows=r.args.map((a,i)=>`<div class="rnit rnarg ${a.sup==='weak'?'weak':''}" data-sec="args" data-iid="${a.id}" data-pg="${esc(a.page||'')}"><span class="rnb">C${i+1}</span><div class="rncw">${ta(k,a,'Claim')}<div class="rnsup"><select class="inp" data-f="sup" aria-label="Kind of support">${SUPPORT.map(([v,t])=>`<option value="${v}" ${(a.sup||'')===v?'selected':''}>${t}</option>`).join('')}</select><textarea class="rnin rnans" rows="1" data-f="ev" placeholder="The evidence: which data, cases or reasoning back it?" aria-label="Evidence">${esc(a.ev||'')}</textarea></div></div><input class="inp rnpg" data-f="page" value="${esc(a.page||'')}" placeholder="p." aria-label="Page" title="Page in the reading">${del(a)}</div>`).join('');
+    else if(k==='concepts')rows=r.concepts.map(c=>`<div class="rnit rnc ${c.ok===false?'gap':''}" data-sec="concepts" data-iid="${c.id}"><div class="rncw"><input class="inp rnterm" data-f="text" value="${esc(c.text)}" aria-label="Concept"><textarea class="rnin rndef" rows="1" data-f="def" placeholder="What it means, in your words" aria-label="Meaning">${esc(c.def||'')}</textarea></div>${ok(c)}${del(c)}</div>`).join('');
+    else if(k==='prereq')rows=r.prereq.map(c=>`<div class="rnit rnc ${c.ok===false?'gap':''}" data-sec="prereq" data-iid="${c.id}"><div class="rncw"><input class="inp rnterm" data-f="text" value="${esc(c.text)}" aria-label="Concept">${forOpts(c)}</div>${ok(c)}${del(c)}</div>`).join('');
+    else if(k==='links')rows=r.links.map(x=>`<div class="rnit rnl" data-sec="links" data-iid="${x.id}"><span class="rnlt">This reading</span><select class="inp" data-f="kind" aria-label="Relation">${REL_KINDS.map(([v,t])=>`<option value="${v}" ${x.kind===v?'selected':''}>${t}</option>`).join('')}</select><select class="inp" data-f="to" aria-label="Other reading">${others.map(o=>`<option value="${o.id}" ${x.to===o.id?'selected':''}>${esc(o.name)}</option>`).join('')}${courseOthers.length?`<optgroup label="Other lectures">${courseOthers.map(o=>`<option value="${o.id}" ${x.to===o.id?'selected':''}>${esc(o.name)}</option>`).join('')}</optgroup>`:''}</select><textarea class="rnin" rows="1" data-f="text" placeholder="How? e.g. both see the state as… but…" aria-label="How">${esc(x.text||'')}</textarea>${del(x)}</div>`).join('');
+    else if(k==='questions')rows=rnQuestions(l,m.id).map(q=>`<div class="rnit rnq ${q.status==='answered'?'done':''}" data-sec="questions" data-iid="${q.id}"><input type="checkbox" data-rnqdone="${q.id}" ${q.status==='answered'?'checked':''} title="Tick when you have the answer">${ta(k,q,'Question')}${q.answer?`<button class="lqans" data-lqans="${q.id}"><b>Answer:</b> ${esc(q.answer)}</button>`:''}${del(q)}</div>`).join('');
+    else rows=r[k].map(x=>`<div class="rnit" data-sec="${k}" data-iid="${x.id}">${ta(k,x,lab)}${del(x)}</div>`).join('');
+    const adder=k==='links'?(others.length||courseOthers.length?`<button class="btn sm" data-act="rnLinkAdd">${ico('link2')}Relate to another reading</button>`:`<div class="help" style="margin:0">Add a second reading to this lecture to relate them.</div>`)
+      :k==='concepts'?`<div class="rnadd2"><input class="inp rnadd" data-sec="concepts" placeholder="${esc(ph)}"><button class="rnok no rnaddno" data-act="rnAddNo" title="Add it marked as not understood yet">Not yet</button></div>`
+      :`<input class="inp rnadd" data-sec="${k}" placeholder="${esc(ph)}">`;
+    const n=k==='questions'?rnQuestions(l,m.id).length:r[k].length;
+    return `<section class="rnsec" data-s="${k}"><header><h3>${lab}</h3>${n?`<span class="rnn">${n}</span>`:''}</header>${help?`<p class="rnhelp">${help}</p>`:''}<div class="rnlist">${rows}</div>${adder}</section>`;
+  };
+  return `<div class="rnotes" id="rnotes" data-cite-mat="${m.id}" data-mid="${m.id}">
+    <div class="rnhead"><button class="btn sm ghost" data-act="rnBack" title="All readings for this lecture">‹ Readings</button>
+      <div class="rnref"><b>${esc(m.name)}</b><span>${hasRef(m)?apaHTML(m.ref):'<i>No reference details yet — fill them in so quotes and copied notes carry the citation.</i>'}</span></div>
+      <button class="btn sm" data-act="rnRef" data-id="${m.id}">${ico('edit')}${hasRef(m)?'Edit':'Add'} reference</button>${m.url&&!m.pdf?`<a class="btn sm" href="${esc(m.url)}" target="_blank" rel="noopener">${ico('external')}Open link</a>`:''}</div>
+    ${RN_SECTIONS.map(sec).join('')}
+    <section class="rnsec" data-s="free"><header><h3>Other notes</h3></header><textarea class="rnin rnfree" data-free="1" rows="3" placeholder="Anything else from this reading">${esc(r.free)}</textarea></section>
+  </div>`;
+}
+function rnFit(t){t.style.height='auto';t.style.height=(t.scrollHeight+2)+'px'}
+function refreshRN(focusSel){
+  const box=$('#rnotes'); if(!box)return; const m=S.docs[box.dataset.mid], l=S.docs[V.lectureId]; if(!m||!l)return;
+  const sc=box.parentElement?box.parentElement.scrollTop:0;
+  box.outerHTML=readingNotesHTML({id:box.dataset.mid,...m},l);
+  const nb=$('#rnotes'); nb.querySelectorAll('textarea.rnin').forEach(rnFit); requestAnimationFrame(()=>nb.querySelectorAll('textarea.rnin').forEach(rnFit));
+  if(nb.parentElement)nb.parentElement.scrollTop=sc;
+  if(focusSel){const f=nb.querySelector(focusSel);if(f){f.focus();if(f.select&&f.tagName==='TEXTAREA'){}}}
+}
+function rnItem(m,sec,iid){const r=rnOf(m);return sec==='questions'?null:(r[sec]||[]).find(x=>x.id===iid)}
+function rnAdd(mid,sec,text,extra){
+  const m=S.docs[mid], l=S.docs[V.lectureId]; if(!m||!trim(text))return;
+  const r=rnOf(m), id=uid('rn');
+  if(sec==='questions'){l.questions=l.questions||[];l.questions.push({id,text:trim(text),status:'open',readingId:mid,at:Date.now()});save(V.lectureId)}
+  else{const it={id,text:trim(text),...(extra||{})};if(sec==='concepts'||sec==='prereq')it.ok=it.ok===false?false:true;r[sec].push(it);save(mid)}
+  flashSave();
+}
+function bindReadingNotes(){
+  const box=$('#rnotes'); if(!box||box._b)return; box._b=true;
+  const host=box.parentElement;
+  const mid=()=>($('#rnotes')||{}).dataset.mid;
+  box.querySelectorAll('textarea.rnin').forEach(rnFit); requestAnimationFrame(()=>box.querySelectorAll('textarea.rnin').forEach(rnFit));
+  if(window.ResizeObserver){let w0=0;const ro=new ResizeObserver(()=>{const b2=$('#rnotes');if(!b2){ro.disconnect();return}const w=b2.clientWidth;if(w!==w0){w0=w;b2.querySelectorAll('textarea.rnin').forEach(rnFit)}});ro.observe(box)}
+  host.addEventListener('input',e=>{
+    const t=e.target, it=t.closest('.rnit'), m=S.docs[mid()]; if(!m)return;
+    if(t.matches('textarea.rnin'))rnFit(t);
+    if(t.dataset.free){rnOf(m).free=t.value;save(mid(),600);flashSave();return}
+    if(!it||!t.dataset.f)return;
+    if(it.dataset.sec==='questions'){const l=S.docs[V.lectureId],q=(l.questions||[]).find(z=>z.id===it.dataset.iid);if(q){q.text=t.value;save(V.lectureId,600);flashSave()}return}
+    const x=rnItem(m,it.dataset.sec,it.dataset.iid); if(!x)return; x[t.dataset.f]=t.value; if(t.dataset.f==='page')it.dataset.pg=t.value; save(mid(),600); flashSave();
+  });
+  host.addEventListener('change',e=>{const t=e.target;if(t.tagName==='SELECT'&&t.closest('.rnit')){const it=t.closest('.rnit'),x=rnItem(S.docs[mid()],it.dataset.sec,it.dataset.iid);if(x){x[t.dataset.f]=t.value;save(mid());flashSave();if(t.dataset.f==='sup')it.classList.toggle('weak',t.value==='weak')}}
+    if(t.dataset.rnqdone){const l=S.docs[V.lectureId],q=(l.questions||[]).find(z=>z.id===t.dataset.rnqdone);if(!q)return;if(t.checked)answerDialog(V.lectureId,q.id,()=>refreshRN());else{q.status='open';save(V.lectureId);refreshRN()}}});
+  host.addEventListener('keydown',e=>{
+    const t=e.target;
+    if(t.classList.contains('rnadd')&&e.key==='Enter'&&trim(t.value)){e.preventDefault();const sec=t.dataset.sec;rnAdd(mid(),sec,t.value);refreshRN(`.rnadd[data-sec="${sec}"]`);return}
+    if(t.matches('textarea.rnin:not(.rnfree)')&&e.key==='Enter'&&!e.shiftKey){e.preventDefault();const s=t.closest('.rnsec');const a=s&&s.querySelector('.rnadd');if(a)a.focus()}
+  });
+  host.addEventListener('click',e=>{
+    const m=S.docs[mid()]; if(!m)return;
+    const d=e.target.closest('[data-rndel]');if(d){const it=d.closest('.rnit');if(it.dataset.sec==='questions'){const l=S.docs[V.lectureId];l.questions=(l.questions||[]).filter(q=>q.id!==it.dataset.iid);save(V.lectureId)}else{const r=rnOf(m);r[it.dataset.sec]=r[it.dataset.sec].filter(x=>x.id!==it.dataset.iid);save(mid())}refreshRN();return}
+    const o=e.target.closest('[data-rnok]');if(o){const it=o.closest('.rnit'),x=rnItem(m,it.dataset.sec,it.dataset.iid);if(x){x.ok=x.ok===false;save(mid());refreshRN()}return}
+    const a=e.target.closest('[data-lqans]');if(a){answerDialog(V.lectureId,a.dataset.lqans,()=>refreshRN());return}
+  });
+}
+/* a quote from the open PDF goes into a section of the reading notes */
+function rnQuote(sec,text,page){
+  const mid=LV.rn||LV.mat, m=S.docs[mid]; if(!m)return;
+  const q=`“${text.replace(/\s+/g,' ')}”`;
+  if(sec==='free'){const r=rnOf(m);r.free=(r.free?r.free.replace(/\s+$/,'')+'\n':'')+q+' '+matCite(m,page);save(mid)}
+  else if(sec==='concepts')rnAdd(mid,'concepts',text.replace(/\s+/g,' ').slice(0,120));
+  else rnAdd(mid,sec,q+(sec==='args'?'':' '+matCite(m,page)),sec==='args'?{page:page||''}:null);
+  refreshRN(); const s=document.querySelector(`.rnsec[data-s="${sec}"]`); if(s)s.scrollIntoView({block:'nearest',behavior:'smooth'});
+  toast('Added to '+(RN_SECTIONS.find(x=>x[0]===sec)||[,'Other notes'])[1].toLowerCase());
+}
+function editMatRef(id){
+  const m=S.docs[id]; if(!m)return;
+  refEditor(m.ref||newRef(),{heading:'Reference for this reading',okLabel:'Save reference',pdf:m.pdf?{current:m.pdf}:null,onSave:ref=>{m.ref=ref;if(trim(ref.title)&&(!m.name||/^[\w\-. ()]+$/.test(m.name)&&/[_\d]{3,}|\.pdf$/i.test(m.name)))m.name=trim(ref.title).slice(0,120);save(id);renderMain();toast('Reference saved — quotes from this reading now carry it')}});
+}
+/* fill in author, year and title when a reading is uploaded */
+async function autofillMat(id,file){
+  try{
+    const res=await autofillRef({file}); const m=S.docs[id]; if(!res||!m||hasRef(m))return;
+    m.ref={...newRef(),...res.patch}; if(!validPeople(m.ref.authors).length)m.ref.authors=[{family:'',given:'',org:false}];
+    save(id);
+    if(V.view==='lecture'){if($('#rnotes')&&$('#rnotes').dataset.mid===id)refreshRN();else if($('.rnhub'))renderMain()}
+    toast(`Reference filled in${res.patch.title?': '+res.patch.title.slice(0,60):''} — check it under Add reference`);
+  }catch(e){}
+}
+/* ---------- class notes: relate what you hear to the readings ---------- */
+function relItems(m,l){
+  const r=rnOf(m), out=[];
+  r.rq.forEach((q,i)=>out.push(['r:'+q.id,`Q${i+1} · ${q.text}`,'Questions the reading asks']));
+  r.args.forEach((a,i)=>out.push(['a:'+a.id,`C${i+1} · ${a.text}`,'Claims']));
+  r.concepts.forEach(c=>out.push(['c:'+c.id,c.text+(c.ok===false?' (not understood yet)':''),'Concepts']));
+  r.prereq.forEach(c=>out.push(['p:'+c.id,c.text+(c.ok===false?' (not understood yet)':''),'Concepts I needed first']));
+  rnQuestions(l,m.id).forEach(q=>out.push(['q:'+q.id,q.text+(q.status==='answered'?' (answered)':''),'My questions']));
+  r.insights.forEach(x=>out.push(['i:'+x.id,x.text,'Insights']));
+  r.gaps.forEach(x=>out.push(['g:'+x.id,x.text,'Gaps and limits']));
+  return out;
+}
+function relateDialog(opts){
+  const l=S.docs[V.lectureId]; const rs=readingsOf(V.lectureId);
+  if(!rs.length){toast('This lecture has no readings yet — add them with Materials');return}
+  const m0=opts.mat||(rs.find(m=>rnCount(m,l))||rs[0]).id;
+  const itemOpts=mid=>{const m=S.docs[mid];const its=relItems(m,l);let html=`<option value="">The reading as a whole</option>`,g='';its.forEach(([v,t,grp])=>{if(grp!==g){if(g)html+='</optgroup>';html+=`<optgroup label="${esc(grp)}">`;g=grp}html+=`<option value="${v}" ${opts.item===v?'selected':''}>${esc(t.length>90?t.slice(0,88)+'…':t)}</option>`});return html+(g?'</optgroup>':'')};
+  const ov=modal(`<h3>Relate to a reading</h3>${opts.text?`<blockquote class="askq">${esc(opts.text.length>300?opts.text.slice(0,300)+'…':opts.text)}</blockquote>`:''}
+    <div class="field"><label>Reading</label><select class="inp" id="rlMat">${rs.map(m=>`<option value="${m.id}" ${m.id===m0?'selected':''}>${esc(m.name)}</option>`).join('')}</select></div>
+    <div class="grid2"><div class="field"><label>What the lecture…</label><select class="inp" id="rlKind">${CLASS_REL.map(([v,t])=>`<option value="${v}">${t}</option>`).join('')}</select></div><div class="field"><label>…in the reading</label><select class="inp" id="rlItem">${itemOpts(m0)}</select></div></div>
+    ${opts.text?'':`<div class="field"><label>What did the lecture say?</label><textarea class="inp" id="rlText" rows="3" placeholder="In your own words"></textarea></div>`}
+    <div class="field"><label>Your note <span class="muted">(optional)</span></label><input class="inp" id="rlNote" placeholder="e.g. the lecturer used Cameroon as the example"></div>
+    <label class="crinc" id="rlOkW" hidden><input type="checkbox" id="rlOk" checked><span>I understand this concept now</span></label>
+    <div class="mfoot"><button class="btn" data-x>Cancel</button><button class="btn pri" data-ok>Relate</button></div>`);
+  const $o=s=>ov.querySelector(s);
+  const sync=()=>{const v=$o('#rlItem').value;const m=S.docs[$o('#rlMat').value];const c=/^[cp]:/.test(v)&&rnOf(m)[v[0]==='c'?'concepts':'prereq'].find(x=>x.id===v.slice(2));$o('#rlOkW').hidden=!(c&&c.ok===false);if(v.startsWith('q:')&&$o('#rlKind').value==='confirms')$o('#rlKind').value='answers'};
+  $o('#rlMat').onchange=()=>{$o('#rlItem').innerHTML=itemOpts($o('#rlMat').value);sync()}; $o('#rlItem').onchange=sync; sync();
+  $o('[data-x]').onclick=()=>ov.remove();
+  $o('[data-ok]').onclick=()=>{
+    const text=opts.text||trim(($o('#rlText')||{}).value||''); if(!text){$o('#rlText').focus();return}
+    const id=uid('rel'), mat=$o('#rlMat').value, item=$o('#rlItem').value, kind=$o('#rlKind').value, m=S.docs[mat];
+    l.rels=l.rels||[]; l.rels.push({id,text,mat,item,kind,note:trim($o('#rlNote').value),at:Date.now()});
+    if(item.startsWith('q:')&&kind==='answers'){const q=(l.questions||[]).find(z=>z.id===item.slice(2));if(q){q.status='answered';q.answeredAt=Date.now();if(!q.answer)q.answer=text}}
+    if(/^[cp]:/.test(item)&&!$o('#rlOkW').hidden&&$o('#rlOk').checked){const c=rnOf(m)[item[0]==='c'?'concepts':'prereq'].find(x=>x.id===item.slice(2));if(c){c.ok=true;save(mat)}}
+    if(opts.range){const span=document.createElement('span');span.className='mk-rel';span.dataset.rel=id;span.title='Related to '+(m.name||'a reading');try{span.appendChild(opts.range.extractContents());opts.range.insertNode(span)}catch(e){}}
+    save(V.lectureId); ov.remove(); if(opts.ed)lectureCommit(opts.ed); refreshLPanel(true); toast('Related to '+matShort(m));
+  };
+}
+/* the readings, at hand while you take class notes */
+function fromReadingsHTML(l){
+  const rs=readingsOf(l.id).filter(m=>rnCount(m,l)); const rels=l.rels||[];
+  if(!rs.length&&!rels.length)return '';
+  const LV2=LV.rdOpen=LV.rdOpen||{};
+  const disc=(item)=>rels.some(r=>r.item===item);
+  return `<div class="lpsec"><div class="lph"><b>${ico('readm')}From the readings</b><span class="muted">${rels.length} related</span></div>
+    ${rs.map(m=>{const r=rnOf(m),open=LV2[m.id]!==false,nu=r.concepts.concat(r.prereq).filter(c=>c.ok===false);
+      return `<div class="fr ${open?'open':''}"><button class="frh" data-frtog="${m.id}" aria-expanded="${open}">${ico('chev')}<span>${esc(matShort(m))}</span></button>${open?`<div class="frb">
+        ${r.args.map((a,i)=>`<div class="fri ${disc('a:'+a.id)?'disc':''}"><span class="rnb">C${i+1}</span><span class="frt">${esc(a.text)}${a.ev?`<span class="frev">${esc(a.ev)}</span>`:''}</span><button class="btn sm ghost" data-frrel="${m.id}" data-item="a:${a.id}" title="Relate something from the lecture to this claim">${disc('a:'+a.id)?ico('check'):ico('link2')}</button></div>`).join('')}
+        ${nu.map(c=>`<div class="fri gap"><span class="rnb">?</span><span class="frt">${esc(c.text)} <i>not understood yet</i></span><button class="btn sm ghost" data-frrel="${m.id}" data-item="${r.concepts.includes(c)?'c':'p'}:${c.id}" title="The lecture explained it">${ico('link2')}</button></div>`).join('')}
+        ${r.insights.map(x=>`<div class="fri ins"><span class="rnb">${ico('bulb')}</span><span class="frt">${esc(x.text)}</span></div>`).join('')}
+      </div>`:''}</div>`}).join('')}
+    ${rels.length?`<div class="frrels">${rels.map(x=>{const m=S.docs[x.mat]||{};return `<div class="lmk rel"><b>${esc(relLabel(CLASS_REL,x.kind))}</b> ${esc(matShort(m))}: ${esc(x.text.length>120?x.text.slice(0,118)+'…':x.text)}<button class="btn sm ghost danger" data-reldel="${x.id}" aria-label="Remove">✕</button></div>`}).join('')}</div>`:''}
+    <button class="link" data-act="relNew" style="margin-top:6px;font-size:13px">+ Relate something from the lecture</button></div>`;
+}
+/* ---------- capture: assignments, dates and course information heard in class ---------- */
+function captureDialog(){
+  const l=S.docs[V.lectureId]; if(!l)return;
+  const sel=(()=>{const s=getSelection();return s&&!s.isCollapsed&&s.anchorNode&&s.anchorNode.parentElement&&s.anchorNode.parentElement.closest('.rte.lec')?s.toString().trim():''})();
+  let tab='assignment';
+  const ov=modal(`<h3>Capture from class</h3><div class="seg cseg" role="tablist"><button class="on" data-ct="assignment">Assignment</button><button data-ct="event">Date or deadline</button><button data-ct="info">Course information</button></div>
+    <div data-cp="assignment"><div class="field"><label>Assignment</label><input class="inp" id="caTitle" placeholder="e.g. Essay on speed management in Douala"></div><div class="grid2"><div class="field"><label>Due</label><input class="inp" type="date" id="caDue"></div><div class="field"><label>Time</label><input class="inp" type="time" id="caTime"></div></div><div class="field"><label>What the lecturer said</label><textarea class="inp" id="caBrief" rows="3">${esc(sel)}</textarea></div></div>
+    <div data-cp="event" hidden><div class="field"><label>What</label><input class="inp" id="ceTitle" placeholder="e.g. Mid-semester test"></div><div class="grid2"><div class="field"><label>Type</label><select class="inp" id="ceType">${['exam','test','quiz','presentation','deadline','field trip','other'].map(t=>`<option>${t}</option>`).join('')}</select></div><div class="field"><label>Date</label><input class="inp" type="date" id="ceDate"></div></div><div class="field"><label>Time</label><input class="inp" type="time" id="ceTime"></div></div>
+    <div data-cp="info" hidden><div class="field"><label>Information about the course</label><textarea class="inp" id="ciText" rows="4" placeholder="e.g. Office hours moved to Thursday 2 pm; readings for week 6 are on the portal">${esc(sel)}</textarea></div></div>
+    <div class="mfoot"><button class="btn" data-x>Cancel</button><button class="btn pri" data-ok>Save</button></div>`);
+  const $o=s=>ov.querySelector(s);
+  ov.querySelectorAll('[data-ct]').forEach(b=>b.onclick=()=>{tab=b.dataset.ct;ov.querySelectorAll('[data-ct]').forEach(z=>z.classList.toggle('on',z===b));ov.querySelectorAll('[data-cp]').forEach(p=>p.hidden=p.dataset.cp!==tab);const f=ov.querySelector(`[data-cp="${tab}"] .inp`);if(f)f.focus()});
+  setTimeout(()=>$o('#caTitle').focus(),40);
+  $o('[data-x]').onclick=()=>ov.remove();
+  $o('[data-ok]').onclick=()=>{
+    l.captures=l.captures||[]; const at=Date.now();
+    if(tab==='assignment'){const t=trim($o('#caTitle').value);if(!t){$o('#caTitle').focus();return}const id=uid('assign_');S.docs[id]={kind:'assignment',courseId:l.courseId,unitId:l.unitId||null,title:t,brief:trim($o('#caBrief').value),due:$o('#caDue').value,dueTime:$o('#caTime').value,weight:'',wordLimit:'',rubric:[],status:'todo',fromLecture:V.lectureId,createdAt:at};save(id);l.captures.push({id:uid('cap'),kind:'assignment',ref:id,text:t,at});toast('Assignment added — find it under Assignments')}
+    else if(tab==='event'){const t=trim($o('#ceTitle').value),d=$o('#ceDate').value;if(!t){$o('#ceTitle').focus();return}if(!d){$o('#ceDate').focus();return}const id=uid('event_');S.docs[id]={kind:'event',courseId:l.courseId,unitId:l.unitId||null,title:t,type:$o('#ceType').value,date:d,time:$o('#ceTime').value,room:'',fromLecture:V.lectureId,createdAt:at};save(id);l.captures.push({id:uid('cap'),kind:'event',ref:id,text:t,at});toast('Added to your calendar')}
+    else{const t=trim($o('#ciText').value);if(!t){$o('#ciText').focus();return}l.captures.push({id:uid('cap'),kind:'info',text:t,at});toast('Saved under Captured in class')}
+    save(V.lectureId); ov.remove(); refreshLPanel(true);
+  };
+}
+function capturedHTML(l){
+  const cs=(l.captures||[]).filter(x=>x.kind==='info'||S.docs[x.ref]); if(!cs.length)return '';
+  return `<div class="lpsec"><div class="lph"><b>${ico('flag')}Captured in class</b><span class="muted">${cs.length}</span></div>${cs.map(x=>{const d=S.docs[x.ref]||{};
+    return `<div class="lmk cap"><span class="captag k-${x.kind}">${x.kind==='assignment'?'Assignment':x.kind==='event'?esc(d.type||'Date'):'Info'}</span>${x.kind==='assignment'?`<button class="link" data-act="openAssign" data-id="${x.ref}">${esc(d.title||x.text)}</button>${d.due?` <span class="muted">· due ${esc(shortDate(d.due))}</span>`:''}`:x.kind==='event'?`${esc(d.title||x.text)} <span class="muted">· ${esc(shortDate(d.date))}${d.time?' '+esc(d.time):''}</span>`:esc(x.text)}<button class="btn sm ghost danger" data-capdel="${x.id}" aria-label="Remove from this list">✕</button></div>`}).join('')}</div>`;
+}
+/* ---------- the report: reading notes, class links and captures ---------- */
+function readingsReportHTML(l,I){
+  const rs=readingsOf(l.id).filter(m=>rnCount(m,l)); let h='';
+  if(I.readings!==false&&rs.length){
+    h+=`<h3>Reading notes</h3>`+rs.map(m=>{const r=rnOf(m),qs=rnQuestions(l,m.id);
+      const li=(xs,f)=>xs.length?`<ul>${xs.map(f).join('')}</ul>`:'';
+      return `<div class="crread"><p class="crref">${hasRef(m)?apaHTML(m.ref):`<b>${esc(m.name)}</b>`}</p>
+        ${r.rq.length?`<h4>Questions the reading wants to answer</h4><ol>${r.rq.map(q=>`<li><b>${esc(q.text)}</b>${trim(q.answer||'')?`<br><span class="a">${esc(q.answer)}</span>`:' <span class="crgap">answer not noted yet</span>'}</li>`).join('')}</ol>`:''}
+        ${r.args.length?`<h4>Claims and how they are supported</h4><ol>${r.args.map(a=>`<li>${esc(a.text)}${a.page?` <span class="muted">(${esc(pageStr(a.page))})</span>`:''}${a.sup||trim(a.ev||'')?`<br><span class="a"><b>Support${a.sup?' ('+esc(supLabel(a.sup).toLowerCase())+')':''}:</b> ${esc(a.ev||'')}</span>`:' <span class="crgap">support not noted</span>'}</li>`).join('')}</ol>`:''}
+        ${r.concepts.length?`<h4>Key concepts</h4>${li(r.concepts,c=>`<li><b>${esc(c.text)}</b>${c.def?' — '+esc(c.def):''}${c.ok===false?' <span class="crgap">not understood yet</span>':''}</li>`)}`:''}
+        ${r.prereq.length?`<h4>Concepts needed first</h4>${li(r.prereq,c=>`<li>${esc(c.text)}${c.ok===false?' <span class="crgap">not understood yet</span>':''}</li>`)}`:''}
+        ${r.links.length?`<h4>Relation to other readings</h4>${li(r.links,x=>`<li>This reading <b>${esc(relLabel(REL_KINDS,x.kind))}</b> ${esc(matShort(S.docs[x.to]||{}))}${x.text?': '+esc(x.text):''}</li>`)}`:''}
+        ${qs.length?`<h4>Questions taken to class</h4>${li(qs,q=>`<li>${esc(q.text)}${q.answer?`<br><span class="a">${esc(q.answer)}</span>`:q.status==='answered'?'':' <span class="crgap">still open</span>'}</li>`)}`:''}
+        ${r.insights.length?`<h4>Key insights</h4>${li(r.insights,x=>`<li>${esc(x.text)}</li>`)}`:''}
+        ${r.gaps.length?`<h4>Gaps and limits</h4>${li(r.gaps,x=>`<li>${esc(x.text)}</li>`)}`:''}
+        ${trim(r.free)?`<p>${esc(r.free).replace(/\n/g,'<br>')}</p>`:''}</div>`}).join('');
+  }
+  if(I.readings!==false&&(l.rels||[]).length)h+=`<h3>What the lecture added to the readings</h3><ul>${l.rels.map(x=>{const m=S.docs[x.mat]||{},it=relItems(m.rn?m:{...m,rn:{}},l).find(z=>z[0]===x.item);return `<li>The lecture <b>${esc(relLabel(CLASS_REL,x.kind))}</b> ${it?`“${esc(it[1].replace(/^[ACQ]\d+ · /,''))}”`:'the reading'} (${esc(matShort(m))}): ${esc(x.text)}${x.note?` <i>— ${esc(x.note)}</i>`:''}</li>`}).join('')}</ul>`;
+  const cs=(l.captures||[]).filter(x=>x.kind==='info'||S.docs[x.ref]);
+  if(I.captured!==false&&cs.length)h+=`<h3>Captured in class</h3><ul>${cs.map(x=>{const d=S.docs[x.ref]||{};return `<li>${x.kind==='assignment'?`<b>Assignment:</b> ${esc(d.title||x.text)}${d.due?', due '+esc(longDate(d.due)):''}`:x.kind==='event'?`<b>${esc(d.type||'Date')}:</b> ${esc(d.title||x.text)}, ${esc(longDate(d.date))}`:esc(x.text)}</li>`}).join('')}</ul>`;
+  return h;
+}
+
+/* ============================================================
+   INSIGHT MAP — built from your reading notes and class notes, then yours to arrange
+   ============================================================ */
+const IM={tab:'report',sel:null,connect:null,zoom:1};
+const IM_COLS=[['Foundations','Concepts you need first'],['Concepts','Ideas the readings use'],['Readings',''],['Questions & claims','What the authors ask, claim and how they support it'],['In class','What the lecture added'],['Takeaways','Insights, questions and gaps']];
+const IM_W=220, IM_GX=60, IM_TOP=64;
+function imStore(cid,key){const c=S.docs[cid];c.imaps=c.imaps||{};const s=c.imaps[key]=c.imaps[key]||{};['pos','gap'].forEach(k=>s[k]=s[k]||{});['hide','add','edges'].forEach(k=>s[k]=s[k]||[]);return s}
+function buildInsight(ls){
+  const N=new Map(), E=[], add=(id,o)=>{if(!N.has(id))N.set(id,{id,...o});return N.get(id)};
+  const ck=t=>'c:'+trim(t).toLowerCase().replace(/\s+/g,' ');
+  const conceptKey=(m,cid)=>{const r=rnOf(m);const c=r.concepts.find(x=>x.id===cid)||r.prereq.find(x=>x.id===cid);return c?ck(c.text):null};
+  const order=[];
+  ls.forEach(l=>{
+    const rs=readingsOf(l.id), held=!l.planned&&l.date<=todayISO();
+    rs.forEach(m=>{
+      const r=rnOf(m), rid='r:'+m.id, n0=rnCount(m,l);
+      const R=add(rid,{t:'reading',col:2,label:matShort(m),sub:hasRef(m)?(m.ref.title||m.name):m.name,mat:m.id,lec:l.id,unread:!n0,group:matGroup(m)}); order.push(R);
+      R.own=[];
+      r.rq.forEach((q,i)=>{add('rq:'+q.id,{t:'rq',col:3,label:q.text,sub:q.answer||'',num:'Q'+(i+1),mat:m.id,src:['rq',q.id],noans:!trim(q.answer||'')});E.push({a:rid,b:'rq:'+q.id});R.own.push('rq:'+q.id)});
+      r.args.forEach((a,i)=>{add('a:'+a.id,{t:'arg',col:3,label:a.text,sub:[a.sup?supLabel(a.sup)+(a.ev?': ':''):'',a.ev||''].join('')+(a.page?` (${pageStr(a.page)})`:''),num:'C'+(i+1),mat:m.id,src:['args',a.id],held,weak:a.sup==='weak',nosup:!a.sup&&!trim(a.ev||'')});E.push({a:rid,b:'a:'+a.id});R.own.push('a:'+a.id)});
+      r.concepts.forEach(c=>{if(!trim(c.text))return;const k=ck(c.text),n=add(k,{t:'concept',col:1,label:trim(c.text),sub:'',mat:m.id,src:['concepts',c.id]});if(n.t==='prereq'){n.t='concept';n.col=1}if(c.def&&!n.sub)n.sub=c.def;if(c.ok===false)n.notok=true;E.push({a:k,b:rid});R.own.push(k)});
+      r.prereq.forEach(p=>{if(!trim(p.text))return;const k=ck(p.text),n=add(k,{t:'prereq',col:0,label:trim(p.text),mat:m.id,src:['prereq',p.id]});if(p.ok===false)n.notok=true;
+        const to=p.for?(p.for.startsWith('a:')?p.for:conceptKey(m,p.for.slice(2))):rid;E.push({a:k,b:to||rid,k:'needs'});R.own.push(k)});
+      r.insights.forEach(x=>{add('i:'+x.id,{t:'insight',col:5,label:x.text,mat:m.id,src:['insights',x.id]});E.push({a:rid,b:'i:'+x.id});R.own.push('i:'+x.id)});
+      rnQuestions(l,m.id).forEach(q=>{add('q:'+q.id,{t:'question',col:5,label:q.text,sub:q.answer||'',open:q.status!=='answered',lec:l.id,qid:q.id});E.push({a:rid,b:'q:'+q.id});R.own.push('q:'+q.id)});
+      r.gaps.forEach(x=>{add('g:'+x.id,{t:'litgap',col:5,label:x.text,mat:m.id,src:['gaps',x.id]});E.push({a:rid,b:'g:'+x.id});R.own.push('g:'+x.id)});
+      r.links.forEach(k=>{if(S.docs[k.to])E.push({a:rid,b:'r:'+k.to,k:'rel',label:relLabel(REL_KINDS,k.kind),note:k.text||''})});
+    });
+    (l.rels||[]).forEach(x=>{const m=S.docs[x.mat];if(!m)return;
+      const n=add('k:'+x.id,{t:'class',col:4,label:x.text,sub:x.note||'',lec:l.id,rel:x.id});
+      let to='r:'+x.mat; if(x.item){const [p,i]=[x.item[0],x.item.slice(2)];to=x.item.startsWith('r:')?'rq:'+i:p==='a'?'a:'+i:p==='q'?'q:'+i:p==='i'?'i:'+i:p==='g'?'g:'+i:(conceptKey(m,i)||to)}
+      E.push({a:to,b:n.id,k:'class',label:relLabel(CLASS_REL,x.kind)});
+      const R=N.get('r:'+x.mat); if(R)R.own.push(n.id);
+    });
+  });
+  const edges=E.filter(e=>N.has(e.a)&&N.has(e.b)&&e.a!==e.b);
+  // what counts as a gap
+  const nRead=[...N.values()].filter(n=>n.t==='reading').length;
+  N.forEach(n=>{
+    n.gaps=[];
+    if(n.notok)n.gaps.push(['me',n.t==='prereq'?'Needed first — not understood yet':'Not understood yet']);
+    if(n.t==='arg'&&n.weak)n.gaps.push(['lit','Weakly supported claim']);
+    if(n.t==='arg'&&n.nosup)n.gaps.push(['me','Support not noted']);
+    if(n.t==='rq'&&n.noans)n.gaps.push(['me','Answer not noted yet']);
+    if(n.t==='question'&&n.open)n.gaps.push(['me','Open question']);
+    if(n.t==='arg'&&n.held&&!edges.some(e=>e.a===n.id&&e.k==='class'))n.gaps.push(['class','Not discussed in class']);
+    if(n.t==='reading'&&nRead>1&&!edges.some(e=>e.k==='rel'&&(e.a===n.id||e.b===n.id)))n.gaps.push(['link','Not related to the other readings']);
+    if(n.t==='reading'&&n.unread)n.gaps.push(['read','No notes yet']);
+    if(n.t==='litgap')n.gaps.push(['lit','Gap in the literature']);
+  });
+  return {nodes:[...N.values()],edges,order};
+}
+function imScopeLectures(c){return courseReportScope(c).ls}
+function insightMapHTML(c){
+  const ls=imScopeLectures(c), M=buildInsight(ls), st=imStore(c.id,CR.scope);
+  const user=st.add.map(u=>({id:u.id,t:'note',col:-1,label:u.text,user:true,gaps:st.gap[u.id]?[['me','Marked as a gap']]:[]}));
+  M.nodes.forEach(n=>{if(st.gap[n.id]&&!n.gaps.some(g=>g[0]==='me'))n.gaps.push(['me','Marked as a gap'])});
+  const hidden=new Set(st.hide), nodes=M.nodes.concat(user).filter(n=>!hidden.has(n.id));
+  if(!M.nodes.length)return `<div class="imempty"><div class="ic">${ico('map')}</div><div class="big">Nothing to map yet</div><p>The insight map is built from your reading notes (arguments, concepts, questions, insights, gaps) and from what you relate to the readings during class. Open a lecture, switch to <b>Reading</b>, and start with one reading.</p></div>`;
+  const gl={me:[],class:[],link:[],read:[],lit:[]}; nodes.forEach(n=>n.gaps.forEach(([k,t])=>gl[k].push(n)));
+  const cnt=t=>nodes.filter(n=>n.t===t).length;
+  const glist=(k,title,help)=>gl[k].length?`<div class="imgl"><h4><span class="imsw g-${k}"></span>${title}<span class="muted">${gl[k].length}</span></h4><p class="muted">${help}</p>${gl[k].map(n=>`<button class="imgi" data-imgo="${esc(n.id)}">${esc(n.label.length>70?n.label.slice(0,68)+'…':n.label)}</button>`).join('')}</div>`:'';
+  const totalGaps=Object.values(gl).reduce((a,b)=>a+b.length,0);
+  return `<div class="imwrap" id="imWrap">
+    <div class="imbar"><div class="imsum"><b>${cnt('reading')}</b> reading${cnt('reading')===1?'':'s'} · <b>${cnt('rq')}</b> reading questions · <b>${cnt('arg')}</b> claims · <b>${cnt('concept')+cnt('prereq')}</b> concepts · <b>${cnt('class')}</b> links from class · <b class="${totalGaps?'gapn':''}">${totalGaps}</b> gap${totalGaps===1?'':'s'}</div><span class="spacer"></span>
+      <button class="btn sm" data-act="imAdd" title="Add your own box: a link, a synthesis, a thought">${ico('plus')}Add box</button>
+      <button class="btn sm ${IM.connect?'on':''}" data-act="imConnect" title="Draw an arrow: click this, then two boxes">${ico('link2')}${IM.connect?'Pick two boxes…':'Connect'}</button>
+      <span class="seg"><button data-act="imZoom" data-v="-" aria-label="Zoom out">−</button><button data-act="imZoom" data-v="0" title="Fit">${Math.round(IM.zoom*100)}%</button><button data-act="imZoom" data-v="+" aria-label="Zoom in">+</button></span>
+      ${st.hide.length?`<button class="btn sm ghost" data-act="imShowAll">${ico('eye')}${st.hide.length} hidden</button>`:''}
+      <button class="btn sm ghost" data-act="imReset" title="Put every box back where the map placed it">Reset layout</button>
+      <button class="btn sm" data-act="imPrint">${ico('download')}Print / PDF</button></div>
+    <div class="imbody"><div class="imcanvas" id="imCanvas"><div class="imboard" id="imBoard" style="zoom:${IM.zoom}">
+      <svg class="imedges" id="imEdges"><defs><marker id="imArr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="currentColor"/></marker></defs></svg>
+      ${IM_COLS.map(([t,s],i)=>nodes.some(n=>n.col===i)?`<div class="imcol" data-col="${i}" style="left:${20+i*(IM_W+IM_GX)}px"><b>${t}</b>${s?`<span>${s}</span>`:''}</div>`:'').join('')}
+      ${nodes.map(n=>`<div class="imn t-${n.t} ${n.gaps.map(g=>'g-'+g[0]).join(' ')} ${n.user?'user':''} ${n.group==='additional'?'addl':''}" data-n="${esc(n.id)}" data-col="${n.col}" tabindex="0">
+        ${n.num?`<span class="imnum">${n.num}</span>`:''}<div class="imt">${esc(n.label||'')}</div>${n.sub&&n.t!=='reading'?`<div class="ims">${esc(n.sub)}</div>`:''}${n.t==='reading'?`<div class="ims">${esc(n.sub||'')}</div>`:''}
+        ${n.gaps.length?`<div class="imgaps">${n.gaps.map(([k,t])=>`<span class="imgb g-${k}">${esc(t)}</span>`).join('')}</div>`:''}</div>`).join('')}
+    </div></div>
+    <aside class="imside"><div class="imlegend"><h4>Shapes</h4>
+      <span><i class="lg t-reading"></i>Reading</span><span><i class="lg t-rq"></i>Question the reading asks</span><span><i class="lg t-arg"></i>Claim + support</span><span><i class="lg t-concept"></i>Concept</span><span><i class="lg t-prereq"></i>Needed first</span><span><i class="lg t-class"></i>From class</span><span><i class="lg t-insight"></i>Insight</span><span><i class="lg t-question"></i>Question</span><span><i class="lg t-litgap"></i>Gap in the literature</span><span><i class="lg t-note"></i>Your box</span></div>
+      <h4 style="margin-top:14px">Gaps</h4>${totalGaps?'':`<p class="muted">No gaps found. Mark concepts you don’t understand yet, keep questions open until answered, and relate the lecture to each argument — the map then shows what’s missing.</p>`}
+      ${glist('me','In my understanding','Concepts not understood yet, open questions, boxes you marked.')}
+      ${glist('class','Not covered in class','Claims nothing from the lecture was related to.')}
+      ${glist('link','Not connected','Readings you haven’t related to the others.')}
+      ${glist('lit','In the literature','What the readings leave unexplained.')}
+      ${glist('read','Still to read','Readings without notes.')}
+      <p class="muted imtip">Drag boxes to arrange them. Double-click a box to edit its text — your notes change too. Click a box for more.</p></aside></div></div>`;
+}
+function imLayout(c){
+  const board=$('#imBoard'); if(!board)return;
+  const ls=imScopeLectures(c), M=buildInsight(ls), st=imStore(c.id,CR.scope);
+  const el=id=>board.querySelector(`.imn[data-n="${CSS.escape(id)}"]`);
+  const P={}, colX=i=>20+i*(IM_W+IM_GX), placed=new Set(); let y0=IM_TOP;
+  const H=id=>{const e=el(id);return e?e.offsetHeight:0};
+  M.order.forEach(R=>{
+    if(!el(R.id))return;
+    const cols=[[],[],[],[],[],[]];
+    R.own.forEach(id=>{if(placed.has(id)||!el(id))return;const n=M.nodes.find(z=>z.id===id);if(!n)return;cols[n.col].push(id);placed.add(id)});
+    // class nodes sit beside the argument they relate to
+    const colH=cols.map(ids=>ids.reduce((a,id)=>a+H(id)+14,0));
+    const blockH=Math.max(H(R.id)+14,...colH);
+    cols.forEach((ids,i)=>{let y=y0+(blockH-colH[i])/2;ids.forEach(id=>{P[id]={x:colX(i),y};y+=H(id)+14})});
+    P[R.id]={x:colX(2),y:y0+(blockH-H(R.id))/2}; placed.add(R.id);
+    y0+=blockH+46;
+  });
+  // anything left (user boxes, stray nodes)
+  let ux=colX(6)+20>1600?colX(5):colX(6), uy=IM_TOP;
+  board.querySelectorAll('.imn').forEach(e=>{const id=e.dataset.n;if(P[id])return;const col=+e.dataset.col;if(col>=0&&!placed.has(id)){P[id]={x:colX(col),y:y0};y0+=e.offsetHeight+14}else{const u=st.add.find(z=>z.id===id);P[id]=u&&u.x!=null?{x:u.x,y:u.y}:{x:ux,y:uy};uy+=e.offsetHeight+14}});
+  let W=0,Ht=0;
+  board.querySelectorAll('.imn').forEach(e=>{const id=e.dataset.n,p=st.pos[id]||P[id]||{x:0,y:0};e.style.left=p.x+'px';e.style.top=p.y+'px';W=Math.max(W,p.x+e.offsetWidth);Ht=Math.max(Ht,p.y+e.offsetHeight)});
+  board.style.width=(W+60)+'px'; board.style.height=(Ht+60)+'px';
+  board._M=M; imEdges(c);
+}
+function imEdges(c){
+  const board=$('#imBoard'), svg=$('#imEdges'); if(!board||!svg)return;
+  const st=imStore(c.id,CR.scope), M=board._M||{edges:[]};
+  svg.setAttribute('width',board.offsetWidth); svg.setAttribute('height',board.offsetHeight);
+  const box=id=>{const e=board.querySelector(`.imn[data-n="${CSS.escape(id)}"]`);if(!e)return null;return {x:e.offsetLeft,y:e.offsetTop,w:e.offsetWidth,h:e.offsetHeight}};
+  const all=M.edges.concat(st.edges.map(e=>({...e,k:'user'})));
+  let out=svg.querySelector('defs').outerHTML;
+  all.forEach(e=>{
+    const A=box(e.a),B=box(e.b); if(!A||!B)return;
+    let d,mx,my;
+    if(e.k==='rel'){ // reading ↔ reading: arc out to the left of the readings column
+      const ax=A.x,ay=A.y+A.h/2,bx=B.x,by=B.y+B.h/2,bend=Math.min(140,40+Math.abs(by-ay)*.25);
+      d=`M${ax} ${ay} C${ax-bend} ${ay},${bx-bend} ${by},${bx} ${by}`; mx=Math.min(ax,bx)-bend*.75; my=(ay+by)/2;
+    }else{
+      const l2r=A.x+A.w/2<=B.x+B.w/2;
+      const ax=l2r?A.x+A.w:A.x, ay=A.y+A.h/2, bx=l2r?B.x:B.x+B.w, by=B.y+B.h/2, dx=Math.max(30,Math.abs(bx-ax)/2)*(l2r?1:-1);
+      if(Math.abs(A.x-B.x)<10){const sx=A.x+A.w/2,sy=A.y+(B.y>A.y?A.h:0),tx=B.x+B.w/2,ty=B.y+(B.y>A.y?0:B.h);d=`M${sx} ${sy} L${tx} ${ty}`;mx=(sx+tx)/2;my=(sy+ty)/2}
+      else{d=`M${ax} ${ay} C${ax+dx} ${ay},${bx-dx} ${by},${bx} ${by}`;mx=(ax+bx)/2;my=(ay+by)/2}
+    }
+    const lab=e.label?`<g class="iml k-${e.k||'has'}"><rect x="${mx-e.label.length*3.4-7}" y="${my-10}" width="${e.label.length*6.8+14}" height="20" rx="10"/><text x="${mx}" y="${my+4}" text-anchor="middle">${esc(e.label)}</text></g>`:'';
+    out+=`<path class="ime k-${e.k||'has'}" d="${d}" ${e.k==='rel'||e.k==='user'||e.k==='needs'||e.k==='class'?'marker-end="url(#imArr)"':''} ${e.k==='user'?`data-ue="${e.id}"`:''}>${e.note?`<title>${esc(e.note)}</title>`:''}</path>${lab}`;
+  });
+  svg.innerHTML=out;
+}
+function imSelect(id){
+  const board=$('#imBoard'); if(!board)return;
+  board.querySelectorAll('.imn.sel').forEach(e=>e.classList.remove('sel'));
+  const old=$('#imPop'); if(old)old.remove(); IM.sel=id; if(!id)return;
+  const e=board.querySelector(`.imn[data-n="${CSS.escape(id)}"]`); if(!e)return; e.classList.add('sel');
+  const n=(board._M.nodes.find(z=>z.id===id))||{id,user:true,t:'note',gaps:[]};
+  const c=courseOf(CR.cid), st=imStore(c.id,CR.scope), isGap=!!st.gap[id]||n.notok;
+  const canGap=n.t!=='litgap'&&n.t!=='question';
+  board.insertAdjacentHTML('beforeend',`<div class="impop" id="imPop" style="left:${e.offsetLeft}px;top:${e.offsetTop+e.offsetHeight+6}px">
+    <button data-imp="edit">${ico('edit')}Edit</button>${canGap?`<button data-imp="gap">${ico('help')}${isGap?'I understand it':'Mark as a gap'}</button>`:''}
+    <button data-imp="conn">${ico('link2')}Connect</button>${n.user?`<button data-imp="del" class="danger">${ico('trash')}Delete</button>`:`<button data-imp="hide">${ico('eyeoff')}Hide</button>`}${n.lec?`<button data-imp="open">${ico('external')}Open notes</button>`:n.mat?`<button data-imp="open">${ico('external')}Open notes</button>`:''}</div>`);
+}
+function imEditText(id){
+  const board=$('#imBoard'), e=board&&board.querySelector(`.imn[data-n="${CSS.escape(id)}"] .imt`); if(!e)return;
+  const c=courseOf(CR.cid), st=imStore(c.id,CR.scope), n=board._M.nodes.find(z=>z.id===id);
+  e.contentEditable='true'; e.focus(); const r=document.createRange(); r.selectNodeContents(e); const s=getSelection(); s.removeAllRanges(); s.addRange(r);
+  const done=()=>{e.contentEditable='false';e.removeEventListener('blur',done);const t=trim(e.textContent);if(!t){bindInsightMap(true);return}
+    if(!n){const u=st.add.find(z=>z.id===id);if(u)u.text=t;save(c.id)}
+    else if(n.src){const m=S.docs[n.mat],r2=rnOf(m),x=(r2[n.src[0]]||[]).find(z=>z.id===n.src[1]);if(x){x.text=t;save(n.mat)}}
+    else if(n.t==='question'){const l=S.docs[n.lec],q=(l.questions||[]).find(z=>z.id===n.qid);if(q){q.text=t;save(n.lec)}}
+    else if(n.t==='class'){const l=S.docs[n.lec],x=(l.rels||[]).find(z=>z.id===n.rel);if(x){x.text=t;save(n.lec)}}
+    else if(n.t==='reading'){toast('Change the reference of a reading from its reading notes');}
+    bindInsightMap(true)};
+  e.addEventListener('blur',done);
+  e.addEventListener('keydown',ev=>{if(ev.key==='Enter'&&!ev.shiftKey){ev.preventDefault();e.blur()}if(ev.key==='Escape'){e.textContent=n?n.label:'';e.blur()}});
+}
+function bindInsightMap(rerender){
+  const c=courseOf(CR.cid); if(!c)return;
+  if(rerender){const v=$('#crView');if(v){const sc=$('#imCanvas'),pos=sc?[sc.scrollLeft,sc.scrollTop]:null;v.innerHTML=insightMapHTML(c);const nc=$('#imCanvas');if(nc&&pos){nc.scrollLeft=pos[0];nc.scrollTop=pos[1]}}}
+  const board=$('#imBoard'); if(!board)return;
+  imLayout(c); const st=imStore(c.id,CR.scope);
+  if(!IM.zset){const cv=$('#imCanvas');if(cv&&board.offsetWidth>cv.clientWidth){IM.zoom=Math.max(.8,Math.floor(cv.clientWidth/board.offsetWidth*20)/20);board.style.zoom=IM.zoom;const zb=document.querySelector('[data-act="imZoom"][data-v="0"]');if(zb)zb.textContent=Math.round(IM.zoom*100)+'%'}IM.zset=true}
+  let drag=null;
+  board.addEventListener('pointerdown',e=>{
+    const n=e.target.closest('.imn'); if(!n||e.target.isContentEditable||e.button!==0)return;
+    if(IM.connect){if(IM.connect===true){IM.connect=n.dataset.n;n.classList.add('sel');toast('Now click the box to point to')}else if(IM.connect!==n.dataset.n){const a=IM.connect,b=n.dataset.n;IM.connect=null;const ov=modal(`<h3>Label the arrow</h3><div class="field"><input class="inp" id="imLab" placeholder="e.g. explains, is an example of, contradicts (optional)"></div><div class="mfoot"><button class="btn" data-x>Cancel</button><button class="btn pri" data-ok>Add arrow</button></div>`);const go2=ok=>{if(ok){st.edges.push({id:uid('ue'),a,b,label:trim(ov.querySelector('#imLab').value)});save(c.id)}ov.remove();bindInsightMap(true)};ov.querySelector('[data-x]').onclick=()=>go2(false);ov.querySelector('[data-ok]').onclick=()=>go2(true);ov.querySelector('#imLab').addEventListener('keydown',k=>{if(k.key==='Enter')go2(true)});setTimeout(()=>ov.querySelector('#imLab').focus(),30)}e.preventDefault();return}
+    const z=IM.zoom; drag={el:n,id:n.dataset.n,sx:e.clientX,sy:e.clientY,x:n.offsetLeft,y:n.offsetTop,moved:false,z};
+    n.setPointerCapture(e.pointerId);
+  });
+  board.addEventListener('pointermove',e=>{if(!drag)return;const dx=(e.clientX-drag.sx)/drag.z,dy=(e.clientY-drag.sy)/drag.z;if(!drag.moved&&Math.hypot(dx,dy)<4)return;if(!drag.moved){drag.moved=true;drag.el.classList.add('drag');const p=$('#imPop');if(p)p.remove()}drag.el.style.left=Math.max(0,drag.x+dx)+'px';drag.el.style.top=Math.max(IM_TOP-20,drag.y+dy)+'px';imEdges(c)});
+  board.addEventListener('pointerup',()=>{if(!drag)return;const d=drag;drag=null;d.el.classList.remove('drag');
+    if(d.moved){const p={x:d.el.offsetLeft,y:d.el.offsetTop};const u=st.add.find(z=>z.id===d.id);if(u){u.x=p.x;u.y=p.y}else st.pos[d.id]=p;save(c.id,400);
+      board.style.width=Math.max(board.offsetWidth,p.x+d.el.offsetWidth+60)+'px';board.style.height=Math.max(board.offsetHeight,p.y+d.el.offsetHeight+60)+'px';imEdges(c)}
+    else imSelect(d.id)});
+  board.addEventListener('dblclick',e=>{const n=e.target.closest('.imn');if(n)imEditText(n.dataset.n)});
+  board.addEventListener('click',e=>{
+    const b=e.target.closest('[data-imp]'); if(b){const id=IM.sel,n=board._M.nodes.find(z=>z.id===id),a=b.dataset.imp;
+      if(a==='edit')imEditText(id);
+      if(a==='gap'){if(n&&n.notok&&n.src){const m=S.docs[n.mat],x=rnOf(m)[n.src[0]].find(z=>z.id===n.src[1]);if(x){x.ok=true;save(n.mat)}}else if(n&&(n.t==='concept'||n.t==='prereq')&&n.src&&!st.gap[id]){const m=S.docs[n.mat],x=rnOf(m)[n.src[0]].find(z=>z.id===n.src[1]);if(x){x.ok=false;save(n.mat)}}else{if(st.gap[id])delete st.gap[id];else st.gap[id]=true;save(c.id)}bindInsightMap(true)}
+      if(a==='conn'){IM.connect=id;toast('Now click the box to point to')}
+      if(a==='hide'){st.hide.push(id);save(c.id);bindInsightMap(true)}
+      if(a==='del'){st.add=st.add.filter(z=>z.id!==id);st.edges=st.edges.filter(z=>z.a!==id&&z.b!==id);delete st.gap[id];save(c.id);bindInsightMap(true)}
+      if(a==='open'&&n){const lid=n.lec||(S.docs[n.mat]||{}).lectureId;if(n.mat&&S.docs[n.mat].type!=='slides'){LV.modes[lid]='read';LV.rn=n.mat;const m=S.docs[n.mat];LV.mat=m.pdf?n.mat:null}else{LV.modes[lid]='class';LV.mat=null}go({view:'lecture',lectureId:lid})}
+      return}
+    if(!e.target.closest('.imn')){imSelect(null);if(IM.connect&&IM.connect!==true){}}
+  });
+  const sv=$('#imEdges'); if(sv)sv.addEventListener('click',e=>{const p=e.target.closest('[data-ue]');if(p&&confirm('Remove this arrow?')){st.edges=st.edges.filter(z=>z.id!==p.dataset.ue);save(c.id);bindInsightMap(true)}});
+  document.querySelectorAll('[data-imgo]').forEach(b=>b.onclick=()=>{const e=board.querySelector(`.imn[data-n="${CSS.escape(b.dataset.imgo)}"]`);if(!e)return;const cv=$('#imCanvas');cv.scrollTo({left:Math.max(0,e.offsetLeft*IM.zoom-cv.clientWidth/3),top:Math.max(0,e.offsetTop*IM.zoom-cv.clientHeight/3),behavior:'smooth'});e.classList.remove('pulse');void e.offsetWidth;e.classList.add('pulse');imSelect(b.dataset.imgo)});
+}
+function imAct(a,b){
+  const c=courseOf(CR.cid); if(!c)return; const st=imStore(c.id,CR.scope);
+  if(a==='imAdd'){const cv=$('#imCanvas'),id=uid('u:');st.add.push({id,text:'New box',x:Math.round((cv.scrollLeft+cv.clientWidth/2)/IM.zoom-110),y:Math.round((cv.scrollTop+80)/IM.zoom)});save(c.id);bindInsightMap(true);setTimeout(()=>imEditText(id),30)}
+  if(a==='imConnect'){IM.connect=IM.connect?null:true;bindInsightMap(true)}
+  if(a==='imZoom'){IM.zset=true;const v=b.dataset.v;IM.zoom=v==='+'?Math.min(1.6,IM.zoom+.1):v==='-'?Math.max(.4,IM.zoom-.1):1;IM.zoom=Math.round(IM.zoom*10)/10;bindInsightMap(true)}
+  if(a==='imShowAll'){st.hide=[];save(c.id);bindInsightMap(true)}
+  if(a==='imReset'){if(!confirm('Put every box back where the map placed it? Your own boxes stay.'))return;st.pos={};save(c.id);bindInsightMap(true)}
+  if(a==='imPrint'){document.body.classList.add('printmap');const z=IM.zoom;IM.zoom=1;bindInsightMap(true);setTimeout(()=>{window.print();document.body.classList.remove('printmap');IM.zoom=z;bindInsightMap(true)},120)}
+}
+function openInsightMap(lid){
+  const l=S.docs[lid]; if(!l)return;
+  CR.cid=l.courseId; CR.scope='l:'+lid; IM.tab='map'; IM.zset=false; V.libR={course:l.courseId,unit:'all'}; V.resTab='reports';
+  go({view:'resources'});
+}
+
+/* copying from a reading (the PDF or your reading notes) carries its APA citation */
+document.addEventListener('copy',e=>{
+  try{
+    const t=e.target, inField=t&&t.closest&&(t.matches('textarea,input'))?t:null;
+    let txt='', node=null;
+    if(inField){if(typeof inField.selectionStart!=='number'||inField.selectionStart===inField.selectionEnd)return;txt=inField.value.slice(inField.selectionStart,inField.selectionEnd);node=inField}
+    else{const s=getSelection();if(!s||s.isCollapsed)return;txt=s.toString();node=s.anchorNode&&(s.anchorNode.nodeType===1?s.anchorNode:s.anchorNode.parentElement)}
+    txt=txt.replace(/\s+/g,' ').trim(); if(!txt||!node)return;
+    let out='';
+    if(node.closest('#rpages')){const x=curPaper();if(!x)return;const info=selectionInPdf();const n=info&&info.pages[0];const pg=n?(x.type==='slides'?'slide '+n:printedPage(x,n)):'';
+      out=`“${txt}” `+(x.kind==='material'?(x.type==='slides'&&!hasRef(x)?`(${x.name}${pg?', '+pageStr(pg):''})`:matCite(x,pg)):`(${citeCore(x)}${pg?', '+pageStr(pg):''})`)}
+    else{const h=node.closest('[data-cite-mat]');if(!h)return;const m=S.docs[h.dataset.citeMat];if(!m)return;const it=node.closest('[data-pg]');if(/\(([^()]*\d{4}|[^()]*n\.d\.)[^()]*\)\s*$/.test(txt))return;out=`${txt} ${matCite(m,it&&it.dataset.pg)}`}
+    e.clipboardData.setData('text/plain',out); e.clipboardData.setData('text/html',`<p>${esc(out)}</p>`); e.preventDefault();
+    toast('Copied with its reference');
+  }catch(err){}
+});
 function lectureView(){
   const l=S.docs[V.lectureId]; if(!l)return '<p>Lecture note not found.</p>';
   const c=courseOf(l.courseId)||{}, u=unitOf(l.unitId), L=lecturersFor(l.courseId,l.unitId);
@@ -5962,16 +6623,22 @@ function lectureView(){
   </div>`;
   const nm=materialsOf(V.lectureId).length;
   const fab=`<div class="fabs"><button class="matfab" data-act="sketchNew" title="Open a sketch pad: draw, write with a pen, add shapes, then save it">${ico('pen')}<span>Sketch</span></button><button class="matfab ${LV.mcard?'on':''}" id="matFab" data-act="matCard" title="Slides, readings and sketches for this lecture" aria-label="Slides and readings">${ico('folder')}<span>Materials</span><em>${nm||''}</em></button></div>`;
-  const toolbar=`<div class="ptoolbar"><span class="ftitle"><span>${esc(l.topic||'Lecture')}</span></span>
-    <button class="btn sm icon ${V.focus?'on':''}" data-act="focus" title="${V.focus?'Exit focus mode (Esc)':'Focus mode: hide everything except your notes'}" aria-label="${V.focus?'Exit focus mode':'Focus mode'}">${ico(V.focus?'minimize':'maximize')}</button>
+  const mode=lecMode(l), nRead=readingsOf(V.lectureId).length;
+  const modeSeg=`<div class="lmodebar" role="tablist" aria-label="What you are taking notes on"><button role="tab" aria-selected="${mode==='read'}" class="${mode==='read'?'on':''}" data-act="lMode" data-v="read" title="Before class: guided notes on each reading">${ico('readm')}<span><b>Reading notes</b><small>Before class${nRead?` · ${nRead} reading${nRead===1?'':'s'}`:''}</small></span></button><button role="tab" aria-selected="${mode==='class'}" class="${mode==='class'?'on':''}" data-act="lMode" data-v="class" title="In class: your lecture notes">${ico('pen')}<span><b>Class notes</b><small>During the lecture</small></span></button></div>`;
+  const focusBtn=`<button class="btn sm icon ${V.focus?'on':''}" data-act="focus" title="${V.focus?'Exit focus mode (Esc)':'Focus mode: hide everything except your notes'}" aria-label="${V.focus?'Exit focus mode':'Focus mode'}">${ico(V.focus?'minimize':'maximize')}</button>`;
+  const moreMenu=`<span class="mwrap"><button class="btn sm icon" data-act="moreMenu" aria-haspopup="menu" aria-expanded="false" title="More" aria-label="More actions"><svg class="i" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.4" fill="currentColor"/><circle cx="12" cy="12" r="1.4" fill="currentColor"/><circle cx="19" cy="12" r="1.4" fill="currentColor"/></svg></button><div class="menu" role="menu" hidden><button role="menuitem" data-act="imOpen" data-id="${V.lectureId}">${ico('map')}Insight map</button><button role="menuitem" data-act="lExport" data-v="doc">${ico('download')}Export as Word</button><button role="menuitem" data-act="lExport" data-v="pdf">${ico('download')}Export as PDF</button><hr><button role="menuitem" class="danger" data-act="lDelete">${ico('trash')}Delete this note</button></div></span>`;
+  const toolbar=modeSeg+(mode==='read'?`<div class="ptoolbar rtool">${focusBtn}<span class="ftitle"><span>${esc(l.topic||'Lecture')}</span></span><span class="spacer"></span><span class="save" id="saveNote"></span><button class="btn sm" data-act="imOpen" data-id="${V.lectureId}" title="See how the readings, concepts and class notes fit together, and where the gaps are">${ico('map')}Insight map</button>${moreMenu}</div>`
+  :`<div class="ptoolbar"><span class="ftitle"><span>${esc(l.topic||'Lecture')}</span></span>
+    ${focusBtn}
     <span class="seg" role="group" aria-label="Layout"><button class="${cornell?'':'on'}" data-act="lLayout" data-v="standard" title="One notes area">Standard</button><button class="${cornell?'on':''}" data-act="lLayout" data-v="cornell" title="Cornell method: key words and questions on the left, notes on the right, summary at the bottom">Cornell</button></span>
     <span class="stkctl"><button class="btn sm" data-act="stickyNew" title="Pin a sticky note on top of your notes">${ico('sticky')}Sticky</button>${(l.stickies||[]).some(x=>x.hidden)?`<button class="btn sm ghost" data-act="stickyShow" title="Show your hidden sticky notes">${ico('eye')}${(l.stickies||[]).filter(x=>x.hidden).length} hidden</button>`:''}</span>
-    <span class="markbar" role="group" aria-label="Mark the selected words">${MARKS.map(([k,e,lab])=>`<button class="mkb" data-act="mark" data-v="${k}" title="${k==='q'?'Select words in your notes, then write a reflection question that leads to them':'Mark the selected words: '+lab}">${ico(e)}<span>${k==='q'?'Ask':k==='imp'?'Key':'Review'}</span></button>`).join('')}<button class="mkb" data-act="mark" data-v="idea" title="Save the selected words (or a thought) as an idea">${ico('bulb')}<span>Idea</span></button></span>
+    <span class="markbar" role="group" aria-label="Mark the selected words">${MARKS.map(([k,e,lab])=>`<button class="mkb" data-act="mark" data-v="${k}" title="${k==='q'?'Select words in your notes, then write a reflection question that leads to them':'Mark the selected words: '+lab}">${ico(e)}<span>${k==='q'?'Ask':k==='imp'?'Key':'Review'}</span></button>`).join('')}<button class="mkb" data-act="mark" data-v="idea" title="Save the selected words (or a thought) as an idea">${ico('bulb')}<span>Idea</span></button><button class="mkb" data-act="mark" data-v="rel" title="Relate the selected words to a claim, concept or question from the readings">${ico('link2')}<span>Relate</span></button></span>
+    <button class="btn sm" data-act="capture" title="Capture an assignment, a date or deadline, or information about the course">${ico('flag')}Capture</button>
     <button class="btn sm ${rec?'danger':''}" data-act="${rec?'recStop':'recStart'}" title="${rec?'Stop recording':'Record the lecture audio — every new paragraph gets a time stamp you can click to listen back'}">${ico('mic')}${rec?'<span id="recTime">Stop</span>':'Record'}</button>
     <span class="spacer"></span><span class="save" id="saveNote"></span>
     <button class="btn sm icon ${LV.panel?'on':''}" data-act="lPanel" title="${LV.panel?'Hide':'Show'} reflection questions, important ideas and flashcards" aria-label="Questions panel" aria-pressed="${LV.panel?'true':'false'}">${ico('menu')}</button>
     <button class="btn sm" data-act="lEnd" title="Write the summary and finish today's notes">${ico('check')}End lecture</button>
-    <span class="mwrap"><button class="btn sm icon" data-act="moreMenu" aria-haspopup="menu" aria-expanded="false" title="More" aria-label="More actions"><svg class="i" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.4" fill="currentColor"/><circle cx="12" cy="12" r="1.4" fill="currentColor"/><circle cx="19" cy="12" r="1.4" fill="currentColor"/></svg></button><div class="menu" role="menu" hidden><button role="menuitem" data-act="lExport" data-v="doc">${ico('download')}Export as Word</button><button role="menuitem" data-act="lExport" data-v="pdf">${ico('download')}Export as PDF</button><hr><button role="menuitem" class="danger" data-act="lDelete">${ico('trash')}Delete this note</button></div></span></div>`;
+    ${moreMenu}</div>`);
   const head=`<div class="crumbs"><button data-act="nav" data-v="courses">Courses</button>${ico('chev')}<button data-act="openCourse" data-id="${l.courseId}">${esc(c.code||c.name||'Course')}</button>${u?`${ico('chev')}<button data-act="openCourse" data-id="${l.courseId}" data-unit="${u.id}">${esc(u.code||u.name)}</button>`:''}${ico('chev')}<span>${esc(longDate(l.date))}</span>${(()=>{const all=lecturesOf(l.courseId).slice().sort((a,b)=>(a.date||'').localeCompare(b.date||'')||(a.createdAt||0)-(b.createdAt||0)),i=all.findIndex(x=>x.id===V.lectureId),pv=all[i-1],nx=all[i+1];
     return all.length>1?`<span class="lnav"><button class="btn sm icon ghost" ${pv?`data-act="openLecture" data-id="${pv.id}" title="Previous: ${esc(pv.topic||'lecture')} (${esc(shortDate(pv.date))})"`:'disabled'} aria-label="Previous lecture">‹</button><select class="inp" id="lJump" aria-label="Go to another lecture of this course">${all.slice().reverse().map(x=>`<option value="${x.id}" ${x.id===V.lectureId?'selected':''}>${esc(shortDate(x.date))} · ${esc(x.topic||'Untitled lecture')}</option>`).join('')}</select><button class="btn sm icon ghost" ${nx?`data-act="openLecture" data-id="${nx.id}" title="Next: ${esc(nx.topic||'lecture')} (${esc(shortDate(nx.date))})"`:'disabled'} aria-label="Next lecture">›</button></span>`:''})()}</div>
   <div class="lhead" style="--x:${ccol(c)}">
@@ -5979,6 +6646,12 @@ function lectureView(){
     <input class="ltopic" id="lTopic" value="${esc(l.topic||'')}" placeholder="Topic of today's lecture" aria-label="Topic">
     <input class="lsub" id="lSub" value="${esc(l.subtopic||'')}" placeholder="Subtopic (optional)" aria-label="Subtopic">
   </div>${l.planned?`<div class="fillnote" style="margin:0 0 12px">${ico('cal')}<span><b>Planned${l.date>todayISO()?` for ${esc(longDate(l.date))}`:''}.</b> Add the slides, compulsory and additional readings and links with <b>Materials</b> (top right) or in <b>Course resources → Readings &amp; slides</b>. You can write preparation notes now; in class, take your notes here.</span></div>`:''}`;
+  if(mode==='read'){
+    const rn=curRN();
+    if(rn&&mat&&mat.id===rn.id)return `<div id="lectureView" class="rmode">${head}${toolbar}${fab}<div class="pe split lsplit two ${LV.anim?'opening':''}" id="pe" style="--nw:${lecNotesWidth()}%"><div class="notescol">${readingNotesHTML(rn,l)}</div><div class="gutter" id="gutter" role="separator" aria-orientation="vertical" aria-label="Drag to resize the notes" tabindex="0"></div>${readerHTML(mat)}</div>${LV.mcard?matCardHTML():''}</div>`;
+    if(mat){LV.mat=null}
+    return `<div id="lectureView" class="rmode">${LV.mcard?matCardHTML():''}${head}${toolbar}${fab}<div class="rnsolo">${rn?`${rn.pdf?`<div class="rnreopen"><button class="btn sm" data-act="matOpen" data-id="${rn.id}">${ico('doc')}Open the PDF beside these notes</button></div>`:''}${readingNotesHTML(rn,l)}`:readingHubHTML(l)}</div></div>`;
+  }
   if(mat){
     return `<div id="lectureView">${head}${toolbar}${fab}<div class="pe split lsplit two ${LV.anim?'opening':''}" id="pe" style="--nw:${lecNotesWidth()}%"><div class="notescol">${notes}</div><div class="gutter" id="gutter" role="separator" aria-orientation="vertical" aria-label="Drag to resize the notes" tabindex="0"></div>${readerHTML(mat)}</div>${LV.mcard?matCardHTML():''}</div>`;
   }
@@ -5987,9 +6660,10 @@ function lectureView(){
 function lecturePanelHTML(l){
   const qs=l.questions||[], imp=importantOf(l), rev=marksOf(l,'rev'), cards=cardsOf(l);
   return `<div class="lpsec"><div class="lph"><b>${ico('help')}Reflection questions</b><span class="muted">${qs.filter(q=>q.status!=='answered').length} open</span></div>
-      ${qs.map(q=>`<div class="lq ${q.status==='answered'?'done':''}"><input type="checkbox" data-lqdone="${q.id}" ${q.status==='answered'?'checked':''} title="Tick when you have the answer"><div class="lqb"><span>${esc(q.text)}</span>${q.from?`<div class="lqfrom" title="The part of your notes this question leads to">→ ${esc(q.from.length>90?q.from.slice(0,90)+'…':q.from)}</div>`:''}${q.answer?`<button class="lqans" data-lqans="${q.id}" title="Edit the answer"><b>Answer:</b> ${esc(q.answer)}</button>`:q.status==='answered'?`<button class="link lqadd" data-lqans="${q.id}">+ Add the answer</button>`:''}</div><button class="btn sm ghost danger" data-lqdel="${q.id}" aria-label="Remove">✕</button></div>`).join('')}
+      ${qs.map(q=>`<div class="lq ${q.status==='answered'?'done':''}"><input type="checkbox" data-lqdone="${q.id}" ${q.status==='answered'?'checked':''} title="Tick when you have the answer"><div class="lqb"><span>${esc(q.text)}</span>${q.readingId&&S.docs[q.readingId]?`<div class="lqfrom rd" title="A question you prepared while reading">${ico('readm')}${esc(matShort(S.docs[q.readingId]))}</div>`:''}${q.from?`<div class="lqfrom" title="The part of your notes this question leads to">→ ${esc(q.from.length>90?q.from.slice(0,90)+'…':q.from)}</div>`:''}${q.answer?`<button class="lqans" data-lqans="${q.id}" title="Edit the answer"><b>Answer:</b> ${esc(q.answer)}</button>`:q.status==='answered'?`<button class="link lqadd" data-lqans="${q.id}">+ Add the answer</button>`:''}</div><button class="btn sm ghost danger" data-lqdel="${q.id}" aria-label="Remove">✕</button></div>`).join('')}
       <input class="inp" id="lqNew" placeholder="Type a question, press Enter" style="margin-top:6px">
       <div class="help" style="margin:4px 0 0">Or select words in your notes and click <b>Ask</b> to write a question that leads to them.</div></div>
+    ${fromReadingsHTML(l)}${capturedHTML(l)}
     <div class="lpsec"><div class="lph"><b>${ico('star')}Important</b><span class="muted">${imp.length}</span></div>
       ${imp.map(x=>`<div class="lmk imp ${x.kind==='reflection'?'refl':''}">${x.kind==='reflection'?'<i>Reflection:</i> ':''}${esc(x.text)}${x.id?`<button class="btn sm ghost danger" data-limpdel="${x.id}" aria-label="Remove">✕</button>`:`<span class="muted" title="Marked as key in your notes" style="font-size:11px"> · in notes</span>`}</div>`).join('')}
       <div class="row" style="gap:6px;flex-wrap:nowrap;margin-top:6px"><select class="inp" id="limpKind" style="width:auto;padding:6px 8px" aria-label="Kind"><option value="idea">Idea</option><option value="reflection">Reflection</option></select><input class="inp" id="limpNew" placeholder="An important idea or reflection, press Enter"></div></div>
@@ -6090,7 +6764,7 @@ function bindLecture(){
   bindStickies();
   const lj=$('#lJump'); if(lj)lj.onchange=()=>{LV.mat=null;go({view:'lecture',lectureId:lj.value})};
   const l=S.docs[V.lectureId]; if(!l)return;
-  const root=$('#lectureView'); bindRte(root);
+  const root=$('#lectureView'); bindRte(root); if($('#rnotes'))bindReadingNotes();
   document.body.classList.toggle('focus',!!V.focus);
   document.body.classList.toggle('wide',!!LV.mat);
   const f=(sel,k,after)=>{const el=$(sel);if(el)el.addEventListener('input',()=>{l[k]=el.value;save(V.lectureId,600);flashSave();if(after)after(el.value)})};
@@ -6110,6 +6784,10 @@ function bindLecture(){
     const d=e.target.closest('[data-lqdel]');if(d){l.questions=(l.questions||[]).filter(z=>z.id!==d.dataset.lqdel);save(V.lectureId);refreshLPanel(true);return}
     const an=e.target.closest('[data-lqans]');if(an){answerDialog(V.lectureId,an.dataset.lqans,()=>refreshLPanel(true));return}
     const di=e.target.closest('[data-limpdel]');if(di){l.important=(l.important||[]).filter(z=>z.id!==di.dataset.limpdel);save(V.lectureId);refreshLPanel(true);return}
+    const ft=e.target.closest('[data-frtog]');if(ft){LV.rdOpen=LV.rdOpen||{};LV.rdOpen[ft.dataset.frtog]=LV.rdOpen[ft.dataset.frtog]===false;refreshLPanel(true);return}
+    const fr=e.target.closest('[data-frrel]');if(fr){relateDialog({mat:fr.dataset.frrel,item:fr.dataset.item});return}
+    const rd=e.target.closest('[data-reldel]');if(rd){l.rels=(l.rels||[]).filter(z=>z.id!==rd.dataset.reldel);const sp=root.querySelector(`span.mk-rel[data-rel="${rd.dataset.reldel}"]`);if(sp){const ed=sp.closest('.rte.lec');const p=sp.parentNode;while(sp.firstChild)p.insertBefore(sp.firstChild,sp);sp.remove();if(ed)lectureCommit(ed)}save(V.lectureId);refreshLPanel(true);return}
+    const cd=e.target.closest('[data-capdel]');if(cd){l.captures=(l.captures||[]).filter(z=>z.id!==cd.dataset.capdel);save(V.lectureId);refreshLPanel(true);return}
     const dk=e.target.closest('[data-lfcdel]');if(dk){l.fc=(l.fc||[]).filter(z=>z.id!==dk.dataset.lfcdel);save(V.lectureId);refreshLPanel(true);return}
     const ts=e.target.closest('.rte.lec span.ts');if(ts){const a=document.querySelector(`audio[data-rec="${ts.dataset.r||0}"]`)||document.querySelector('audio[data-rec]');if(a){a.currentTime=Math.max(0,(+ts.dataset.t||0)-2);a.play().catch(()=>{});a.scrollIntoView({block:'nearest'})}else toast('The recording for this time stamp is not attached')}});
   bindRibbon(); bindDraftObjects([...root.querySelectorAll('.rte.lec')]);
@@ -6139,6 +6817,7 @@ function applyMark(kind){
   const s=getSelection(), ed=s.rangeCount&&s.getRangeAt(0).commonAncestorContainer&&(s.getRangeAt(0).commonAncestorContainer.nodeType===1?s.getRangeAt(0).commonAncestorContainer:s.getRangeAt(0).commonAncestorContainer.parentElement).closest('.rte.lec');
   const l=S.docs[V.lectureId];
   if(kind==='idea'){const t=s&&ed?s.toString().trim():'';openIdeaDialog({text:t?`“${t}”\n\n`:'',lectureId:V.lectureId});return}
+  if(kind==='rel'){if(!ed||s.isCollapsed){relateDialog({});return}relateDialog({text:s.toString().trim(),range:s.getRangeAt(0).cloneRange(),ed});return}
   if(!ed||s.isCollapsed){toast('Select some words in your notes first');return}
   const r=s.getRangeAt(0);
   if(kind==='q'&&!(r.startContainer.nodeType===1?r.startContainer:r.startContainer.parentElement).closest('span.mk-q')){askQuestionFor(ed,r.cloneRange(),s.toString().trim());return}
@@ -6172,8 +6851,7 @@ function askQuestionFor(ed,range,text){
 /* quotes from lecture slides / readings go into the notes */
 function lectureQuote(text,loc){
   const m=S.docs[LV.mat]||{}, ed=document.querySelector('.rte.lec.main'); if(!ed)return;
-  const name=(m.name||'Slides').replace(/\.pdf$/i,'');
-  const p=document.createElement('p'); p.textContent=`“${text}” (${name}${loc?', '+pageStr(loc):''})`;
+  const p=document.createElement('p'); p.textContent=`“${text}” ${m.type==='slides'&&!hasRef(m)?`(${(m.name||'Slides').replace(/\.pdf$/i,'')}${loc?', '+pageStr(loc):''})`:matCite(m,loc)}`;
   if(!ed.textContent.trim())ed.innerHTML='';
   ed.appendChild(p); lectureCommit(ed); p.scrollIntoView({block:'nearest',behavior:'smooth'});
   toast('Added to your notes');
@@ -6188,8 +6866,8 @@ async function addMaterial(type,group,lid){
     try{
       const res=await a.upload(f,{type:'application/pdf'});
       const id=uid('mat_'); S.docs[id]={kind:'material',lectureId:lid,courseId:l.courseId,unitId:l.unitId||null,name:f.name.replace(/\.pdf$/i,''),type,...(type==='reading'?{group:group==='additional'?'additional':'compulsory'}:{}),pdf:{id:res.id,name:f.name,size:res.sizeBytes||f.size,addedAt:Date.now()},createdAt:Date.now()};
-      save(id);
-      if(V.view==='lecture'&&V.lectureId===lid&&!l.planned){LV.anim=!LV.mat;LV.mat=id;LV.mcard=false;renderMain()}else{renderSide();if(V.view==='lecture')refreshLPanel()}
+      save(id); if(type==='reading')autofillMat(id,f);
+      if(V.view==='lecture'&&V.lectureId===lid&&!l.planned){if(type==='reading'&&lecMode(l)==='read')LV.rn=id;else if(type==='slides')LV.modes[lid]='class';LV.anim=!LV.mat;LV.mat=id;LV.mcard=false;renderMain()}else{renderSide();if(V.view==='lecture')refreshLPanel()}
       if(V.view==='lecture')refreshMatCard(); if(V.view==='resources')renderMain();
       toast(type==='slides'?'Slides attached':`${group==='additional'?'Additional':'Compulsory'} reading attached`);
     }catch(e){toast(e&&e.code?assetErr(e):'Upload failed — try again')}
@@ -6912,7 +7590,7 @@ document.addEventListener('click',e=>{
     case 'sideMat': {const m=S.docs[id];if(!m)break;if(b.dataset.page)R.gotoPage=+b.dataset.page;closeSearch();const qi=$('#q');if(qi)qi.value='';if(m.url&&!m.pdf){window.open(m.url,'_blank','noopener');break}LV.mat=id;R.tab='pdf';if(V.view==='lecture'&&V.lectureId===m.lectureId)renderMain();else go({view:'lecture',lectureId:m.lectureId});renderSide();break}
     case 'planLecture': planLectureDialog(b.dataset.c||V.courseId,b.dataset.unit===undefined?(V.view==='course'&&V.unitF&&!['all','none'].includes(V.unitF)?V.unitF:undefined):(b.dataset.unit||null));break;
     case 'matLink': addMaterialLink(b.dataset.l);break;
-    case 'matOpen': {const m=S.docs[id];if(!m)break;if(m.url&&!m.pdf){window.open(m.url,'_blank','noopener');break}if(LV.mat===id){closeLectureDoc();break}LV.anim=!LV.mat;LV.mat=id;R.tab='pdf';LV.mcard=false;renderMain();renderSide();break}
+    case 'matOpen': {const m=S.docs[id];if(!m)break;if(m.url&&!m.pdf){if(V.view==='lecture'&&lecMode(S.docs[V.lectureId])==='read'){LV.rn=id;LV.mcard=false;renderMain()}window.open(m.url,'_blank','noopener');break}if(LV.mat===id){closeLectureDoc();break}if(V.view==='lecture'&&lecMode(S.docs[V.lectureId])==='read'){if(m.type==='slides')LV.modes[V.lectureId]='class';else LV.rn=id}LV.anim=!LV.mat;LV.mat=id;R.tab='pdf';LV.mcard=false;renderMain();renderSide();break}
     case 'matCard': toggleMatCard();break;
     case 'stickyNew': stickyNew();break;
     case 'stickyShow': {const l=S.docs[V.lectureId];(l.stickies||[]).forEach(x=>x.hidden=false);stickySave();renderMain();break}
@@ -6935,6 +7613,17 @@ document.addEventListener('click',e=>{
     case 'matDel': deleteMaterial(id);break;
     case 'newAssign': newAssignment(b.dataset.c||(V.view==='course'?V.courseId:null));break;
     case 'openAssign': go({view:'assignment',assignId:id});break;
+    case 'lMode': setLecMode(b.dataset.v);break;
+    case 'rnOpen': {const m=S.docs[id];if(!m)break;LV.rn=id;LV.mcard=false;if(m.pdf){LV.anim=!LV.mat;LV.mat=id;R.tab='pdf'}else LV.mat=null;renderMain();break}
+    case 'rnBack': LV.rn=null;if(LV.mat){closeLectureDoc()}else renderMain();break;
+    case 'rnRef': editMatRef(id);break;
+    case 'rnLinkAdd': {const box=$('#rnotes'),m=S.docs[box.dataset.mid],l=S.docs[V.lectureId];const o=readingsOf(V.lectureId).find(x=>x.id!==box.dataset.mid)||docsOf('material',x=>x.courseId===l.courseId&&x.lectureId!==V.lectureId&&x.type!=='slides')[0];if(!o)break;rnOf(m).links.push({id:uid('rn'),to:o.id,kind:'supports',text:''});save(box.dataset.mid);refreshRN('.rnsec[data-s="links"] .rnit:last-child textarea');break}
+    case 'rnAddNo': {const i=document.querySelector('.rnadd[data-sec="concepts"]');if(!i||!trim(i.value)){if(i)i.focus();break}rnAdd($('#rnotes').dataset.mid,'concepts',i.value,{ok:false});refreshRN('.rnadd[data-sec="concepts"]');break}
+    case 'capture': captureDialog();break;
+    case 'relNew': relateDialog({});break;
+    case 'imOpen': openInsightMap(id||V.lectureId);break;
+    case 'crTab': IM.tab=b.dataset.v;IM.zset=false;renderMain();break;
+    case 'imAdd': case 'imConnect': case 'imZoom': case 'imShowAll': case 'imReset': case 'imPrint': imAct(b.dataset.act,b);break;
     case 'deleteAssign': {const a=S.docs[V.assignId];if(!a||!confirm('Delete this assignment and the document you wrote for it?'))break;if(a.draftId)remove(a.draftId);if(a.briefPdf)getAssets().then(x=>x&&x.delete(a.briefPdf.id).catch(()=>{}));const cid=a.courseId;remove(V.assignId);go({view:'course',courseId:cid,ctab:'assign'});break}
     case 'aRadd': {const a=S.docs[V.assignId],i=$('#aRnew');const v=trim(i.value);if(!v)break;a.rubric=a.rubric||[];a.rubric.push({id:uid('r'),text:v,done:false});save(V.assignId);renderMain();const n=$('#aRnew');if(n)n.focus();break}
     case 'aWrite': assignWrite();break;

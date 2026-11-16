@@ -1,5 +1,35 @@
 # Changelog
 
+## [3.5.0] - 2026-11-16
+### Added
+- **Reading notes and class notes.** Each lecture has two tabs: *Reading notes* for before class and *Class notes* for the lecture itself. Lectures planned for later open on Reading notes.
+- **Guided reading notes**, one set per reading, beside the open PDF:
+  - questions the reading wants to answer, and how it answers them;
+  - claims, and how each claim is supported (data, case study, theory and so on);
+  - key concepts, marked *Understood* or *Not yet*;
+  - concepts you need first;
+  - how the reading relates to the other readings;
+  - questions to take to class;
+  - key insights;
+  - gaps and limits;
+  - other notes.
+- **Quotes go into reading notes.** A quote taken from the PDF in Reading notes can go straight into a section.
+- **Reading references.** When you upload a reading, the app tries to fill in its reference details. You can edit them with *Add reference*.
+- **Citations on quotes and copies.** Quoting or copying from a reading, or from your notes on it, now adds the APA citation, for example (Leftwich, 2000, p. 12).
+- **Relate in class notes.** Select words and link them to a claim, concept or question from the readings. If the link answers a question, the question is marked answered. If it explains a concept you marked *Not yet*, you can mark it understood.
+- **From the readings panel.** While you take class notes, a panel shows each reading's claims, the concepts you don't understand yet and your insights.
+- **Capture.** Saves an assignment with its due date, an exam or other deadline, or information about the course, heard during the lecture. Captured items are listed in the lecture and in the report.
+- **Insight map** in Reports, beside *Report*, for a lecture, a unit or the whole course.
+  - It is built from your reading and class notes, in columns: foundations, concepts, readings, questions and claims, in class, and takeaways.
+  - Each kind of box has its own shape, and arrows show how the readings relate.
+  - Gaps are marked on the map and listed beside it:
+    - concepts not understood yet, open questions and claims whose support is not noted;
+    - claims not discussed in class;
+    - readings not related to the others;
+    - weakly supported claims and gaps in the literature.
+  - You can drag boxes, double-click to edit (your notes change too), mark gaps, hide boxes, add your own boxes and arrows, and print it.
+- **Lecture reports** now include the reading notes, what the lecture added to the readings, and what you captured in class.
+
 ## [3.4.2] - 2026-11-16
 ### Changed
 - Focus mode on a lecture now starts at the toolbar: the breadcrumbs, date and topic header are hidden. The lecture title stays at the left of the toolbar.
