@@ -1068,6 +1068,8 @@ body.focus #lectureView.rmode .rnsolo .rnchips{--rnct:44px}
 .rnopen .rnsec{border:1px solid var(--line);border-radius:12px;background:var(--panel);padding:12px 14px;animation:rnin .18s var(--ease,ease)}
 @keyframes rnin{from{opacity:0;transform:translateY(-4px)}}
 .rngen{border-top:1px solid var(--line);padding-top:12px}
+.modal.nudge{animation:mnudge .32s ease}
+@keyframes mnudge{25%{transform:translateX(-6px)}50%{transform:translateX(5px)}75%{transform:translateX(-3px)}}
 .rnsel{position:fixed;z-index:60;display:flex;flex-wrap:wrap;gap:3px;align-items:center;max-width:min(560px,94vw);background:var(--panel-solid,var(--panel));border:1px solid var(--line-2);border-radius:12px;padding:4px;box-shadow:0 10px 30px rgba(0,0,0,.16);animation:rnin .14s ease}
 .rnsel button{border:0;background:none;border-radius:8px;padding:5px 9px;font-size:12.5px;font-weight:600;color:var(--ink);cursor:pointer;display:inline-flex;align-items:center;gap:5px}
 .rnsel button::before{content:"";width:8px;height:8px;border-radius:2px;background:var(--mk)}.rnsel button.un::before{display:none}.rnsel button.un{color:var(--muted)}
@@ -1996,7 +1998,9 @@ function fmtDate(d){if(!d)return '';try{return new Date(d+'T00:00:00').toLocaleD
 function modal(html,wide){
   const ov=document.createElement('div');ov.className='ov';
   ov.innerHTML=`<div class="modal ${wide?'wide':''}">${html}</div>`;
-  ov.addEventListener('mousedown',e=>{if(e.target===ov)ov.remove()});
+  // clicking outside closes the dialog — unless you have typed something in it, so nothing you wrote is lost
+  ov.addEventListener('input',()=>{ov._dirty=true});
+  ov.addEventListener('mousedown',e=>{if(e.target!==ov)return;if(ov._dirty){const m=ov.querySelector('.modal');m.classList.remove('nudge');void m.offsetWidth;m.classList.add('nudge');if(!ov._told){ov._told=true;toast('Your text is kept — use Cancel to close without saving')}return}ov.remove()});
   document.body.appendChild(ov);
   const f=ov.querySelector('input,textarea');if(f)setTimeout(()=>f.focus(),30);
   return ov;
@@ -2209,7 +2213,7 @@ function renderMain(soft){
   if(V.view!=='lecture'&&V.view!=='paper')hidePop();
   if(V.view==='paper')bindPaper();
   if(V.view==='draft')bindDraft();
-  if(V.view==='lecture')bindLecture();
+  if(V.view==='lecture'){bindLecture();setTimeout(()=>{if(V.view==='lecture')restoreCaret($('#lectureView'))},40)}
   if(V.view==='assignment')bindAssignment();
   if(V.view==='course'){bindGrades();bindRevision()}
   if(V.view==='resources')bindCourseReport();
@@ -2708,6 +2712,23 @@ function readerHTML(x){
     <div class="rask ${R.tab==='ask'?'':'hide'}" id="rask">${askPaneHTML(x)}</div>
   </aside>`;
 }
+/* where you were in each PDF: the page at the top and how far down it, so it survives re-rendering, zoom and reopening */
+const RPOS=(()=>{try{return JSON.parse(localStorage.getItem('litnotes.rpos')||'{}')}catch(e){return {}}})();
+function readPosSave(id,box){
+  if(!id||!box||!R.pages||!R.pages.length)return;
+  const top=box.scrollTop+4; let p=R.pages[0];
+  for(const q of R.pages){if(q.el&&q.el.offsetTop<=top)p=q;else break}
+  if(!p.el)return; const off=Math.max(0,Math.min(1,(top-p.el.offsetTop)/Math.max(1,p.el.offsetHeight)));
+  RPOS[id]={n:p.n,off:Math.round(off*1000)/1000,at:Date.now()};
+  clearTimeout(readPosSave.t); readPosSave.t=setTimeout(()=>{try{const ks=Object.keys(RPOS);if(ks.length>400)ks.sort((a,b)=>RPOS[a].at-RPOS[b].at).slice(0,ks.length-400).forEach(k=>delete RPOS[k]);localStorage.setItem('litnotes.rpos',JSON.stringify(RPOS))}catch(e){}
+    const d=S.docs[id]; if(d&&(!d.readPos||d.readPos.n!==RPOS[id].n)){d.readPos={n:RPOS[id].n,off:RPOS[id].off};save(id,3000)}},500);
+}
+function readPosRestore(id,box){
+  const p=RPOS[id]||(S.docs[id]&&S.docs[id].readPos); if(!p||!box)return false;
+  const el=box.querySelector(`.pg[data-n="${p.n}"]`); if(!el)return false;
+  box.scrollTop=el.offsetTop+(p.off||0)*el.offsetHeight-4;
+  const g=$('#pgn'); if(g&&R.doc)g.textContent=`${p.n} / ${R.doc.numPages}`; return true;
+}
 async function mountReader(x){
   const token=++R.token, box=$('#rpages'); if(!box)return;
   let doc;
@@ -2732,6 +2753,8 @@ async function mountReader(x){
   const g=$('#pgn'); if(g)g.textContent=`1 / ${doc.numPages}`;
   bindViewerGestures(box); bindQuotes(box); bindArea(box); drawHighlights(); updateHlBar(); updateScanHint();
   if(R.gotoPage){const n=R.gotoPage;R.gotoPage=null;setTimeout(()=>{const el=box.querySelector(`.pg[data-n="${n}"]`);if(el)box.scrollTop=el.offsetTop-8},120)}
+  else if(x.id){readPosRestore(x.id,box);requestAnimationFrame(()=>readPosRestore(x.id,box))}
+  if(x.id){let restoring=true;setTimeout(()=>restoring=false,400);box.addEventListener('scroll',()=>{if(!restoring&&token===R.token)readPosSave(x.id,box)},{passive:true})}
   if(R.tool==='hand'){let seen=false;try{seen=localStorage.getItem('litnotes.quoteTip')}catch(e){}if(!seen){toast('Tip: pick the Text tool (I) to highlight or quote text — or the Area tool for scanned pages');try{localStorage.setItem('litnotes.quoteTip','1')}catch(e){}}}
 }
 function fitScale(mode){
@@ -6244,8 +6267,8 @@ function readingNotesHTML(m,l){
     else if(k==='questions')rows=rnQuestions(l,m.id).map(q=>`<div class="rnit rnq ${q.status==='answered'?'done':''}" data-sec="questions" data-iid="${q.id}"><input type="checkbox" data-rnqdone="${q.id}" ${q.status==='answered'?'checked':''} title="Tick when you have the answer">${ta(k,q,'Question')}${q.answer?`<button class="lqans" data-lqans="${q.id}"><b>Answer:</b> ${esc(q.answer)}</button>`:''}${del(q)}</div>`).join('');
     else rows=r[k].map(x=>`<div class="rnit" data-sec="${k}" data-iid="${x.id}">${ta(k,x,lab)}${del(x)}</div>`).join('');
     const adder=k==='links'?(others.length||courseOthers.length?`<button class="btn sm" data-act="rnLinkAdd">${ico('link2')}Relate to another reading</button>`:`<div class="help" style="margin:0">Add a second reading to this lecture to relate them.</div>`)
-      :k==='concepts'?`<div class="rnadd2"><input class="inp rnadd" data-sec="concepts" placeholder="${esc(ph)}"><button class="rnok no rnaddno" data-act="rnAddNo" title="Add it marked as not understood yet">Not yet</button></div>`
-      :`<input class="inp rnadd" data-sec="${k}" placeholder="${esc(ph)}">`;
+      :k==='concepts'?`<div class="rnadd2"><input class="inp rnadd" data-sec="concepts" placeholder="${esc(ph)}" value="${esc(rnDraft(m.id,'concepts'))}"><button class="rnok no rnaddno" data-act="rnAddNo" title="Add it marked as not understood yet">Not yet</button></div>`
+      :`<input class="inp rnadd" data-sec="${k}" placeholder="${esc(ph)}" value="${esc(rnDraft(m.id,k))}">`;
     const n=k==='questions'?rnQuestions(l,m.id).length:r[k].length;
     return `<section class="rnsec" data-s="${k}"><header><h3>${lab}</h3>${n?`<span class="rnn">${n}</span>`:''}<span class="spacer"></span><button class="btn sm ghost icon" data-rnmin="${k}" title="Minimise — it stays saved; open it again from the bar above" aria-label="Minimise">${ico('minimize')}</button></header>${help?`<p class="rnhelp">${help}</p>`:''}<div class="rnlist">${rows}</div>${adder}</section>`;
   };
@@ -6261,6 +6284,8 @@ function readingNotesHTML(m,l){
 }
 /* the sections stay closed until you need them */
 LV.rnOpen=LV.rnOpen||new Set();
+const RND=(()=>{try{return JSON.parse(localStorage.getItem('litnotes.rndraft')||'{}')}catch(e){return {}}})();
+function rnDraft(mid,sec,v){const k=mid+'|'+sec;if(v===undefined)return RND[k]||'';if(v)RND[k]=v;else delete RND[k];try{localStorage.setItem('litnotes.rndraft',JSON.stringify(RND))}catch(e){}}
 function rnOpenOnly(k){LV.rnOpen=new Set([k])}
 function rnHtml(r){if(r.html==null&&trim(r.free||''))r.html=r.free.split(/\n+/).filter(x=>trim(x)).map(x=>`<p>${esc(x)}</p>`).join('');return r.html||''}
 function rnTopHTML(m,l,sec){
@@ -6285,6 +6310,27 @@ function rnLinkRows(){
   const box=$('#rnotes'); if(!box)return; const gen=box.querySelector('.rnmain'); if(!gen)return;
   const ids=new Set([...gen.querySelectorAll('span.mk-rn')].map(x=>x.dataset.rn));
   box.querySelectorAll('.rnopen .rnit').forEach(r=>{const has=ids.has(r.dataset.iid);let b=r.querySelector('.rnin-notes');if(has&&!b){r.insertAdjacentHTML('beforeend',`<button class="rnin-notes" data-rngo="${r.dataset.iid}" title="Show where this is in your general notes">in notes ↓</button>`)}else if(!has&&b)b.remove()});
+}
+/* where the cursor was in each notes editor (reading general notes, class notes) */
+const CARET=(()=>{try{return JSON.parse(localStorage.getItem('litnotes.caret')||'{}')}catch(e){return {}}})();
+function caretKey(ed){return ed.dataset.rnmat?'rn:'+ed.dataset.rnmat:ed.dataset.lecture?`l:${ed.dataset.lecture}:${ed.dataset.ans||ed.dataset.part||'main'}`:null}
+document.addEventListener('selectionchange',()=>{
+  const s=getSelection(); if(!s||!s.rangeCount)return; const n=s.focusNode; const e0=n&&(n.nodeType===1?n:n.parentElement); const ed=e0&&e0.closest('.rte.lec'); if(!ed)return;
+  const k=caretKey(ed); if(!k)return; const r=document.createRange(); r.selectNodeContents(ed); try{r.setEnd(s.focusNode,s.focusOffset)}catch(e){return}
+  CARET[k]=r.toString().length;
+  clearTimeout(caretKey.t); caretKey.t=setTimeout(()=>{try{localStorage.setItem('litnotes.caret',JSON.stringify(CARET))}catch(e){}},400);
+});
+function restoreCaret(root){
+  if(!root)return; const a=document.activeElement; if(a&&a!==document.body&&document.contains(a))return;
+  const ed=root.querySelector('.rte.rnmain')||root.querySelector('.rte.lec.main'); if(!ed)return;
+  const off=CARET[caretKey(ed)]; if(off==null)return;
+  const w=document.createTreeWalker(ed,NodeFilter.SHOW_TEXT); let left=off, node=null, pos=0;
+  while(w.nextNode()){const t=w.currentNode, L=t.textContent.length; if(left<=L){node=t;pos=left;break} left-=L}
+  const r=document.createRange(); if(node)r.setStart(node,pos);else{r.selectNodeContents(ed);r.collapse(false)} r.collapse(true);
+  ed.focus({preventScroll:true}); const s=getSelection(); s.removeAllRanges(); s.addRange(r);
+  const rc=r.getClientRects()[0]||ed.getBoundingClientRect(); const sc=ed.closest('.notescol');
+  if(sc&&sc.scrollHeight>sc.clientHeight){const cr=sc.getBoundingClientRect();if(rc.top<cr.top+60||rc.bottom>cr.bottom-20)sc.scrollTop+=rc.top-cr.top-cr.height/3}
+  else if(rc.top<90||rc.bottom>innerHeight-20)window.scrollBy(0,rc.top-innerHeight/3);
 }
 function rnFit(t){t.style.height='auto';t.style.height=(t.scrollHeight+2)+'px'}
 function refreshRN(focusSel){
@@ -6311,6 +6357,7 @@ function bindReadingNotes(){
   if(window.ResizeObserver){let w0=0;const ro=new ResizeObserver(()=>{const b2=$('#rnotes');if(!b2){ro.disconnect();return}const w=b2.clientWidth;if(w!==w0){w0=w;b2.querySelectorAll('textarea.rnin').forEach(rnFit)}});ro.observe(box)}
   host.addEventListener('input',e=>{
     const t=e.target, it=t.closest('.rnit'), m=S.docs[mid()]; if(!m)return;
+    if(t.classList.contains('rnadd')){rnDraft(mid(),t.dataset.sec,t.value);return}
     if(t.matches('textarea.rnin'))rnFit(t);
     if(t.dataset.free){rnOf(m).free=t.value;save(mid(),600);flashSave();return}
     if(!it||!t.dataset.f)return;
@@ -6321,7 +6368,7 @@ function bindReadingNotes(){
     if(t.dataset.rnqdone){const l=S.docs[V.lectureId],q=(l.questions||[]).find(z=>z.id===t.dataset.rnqdone);if(!q)return;if(t.checked)answerDialog(V.lectureId,q.id,()=>refreshRN());else{q.status='open';save(V.lectureId);refreshRN()}}});
   host.addEventListener('keydown',e=>{
     const t=e.target;
-    if(t.classList.contains('rnadd')&&e.key==='Enter'&&trim(t.value)){e.preventDefault();const sec=t.dataset.sec;rnAdd(mid(),sec,t.value);refreshRN(`.rnadd[data-sec="${sec}"]`);return}
+    if(t.classList.contains('rnadd')&&e.key==='Enter'&&trim(t.value)){e.preventDefault();const sec=t.dataset.sec;rnDraft(mid(),sec,'');rnAdd(mid(),sec,t.value);refreshRN(`.rnadd[data-sec="${sec}"]`);return}
     if(t.matches('textarea.rnin:not(.rnfree)')&&e.key==='Enter'&&!e.shiftKey){e.preventDefault();const s=t.closest('.rnsec');const a=s&&s.querySelector('.rnadd');if(a)a.focus()}
   });
   host.addEventListener('mousedown',e=>{if(e.target.closest('[data-rnchip]'))e.preventDefault()});
@@ -6339,7 +6386,7 @@ function bindReadingNotes(){
     const d=e.target.closest('[data-rndel]');if(d){const it=d.closest('.rnit');if(it.dataset.sec==='questions'){const l=S.docs[V.lectureId];l.questions=(l.questions||[]).filter(q=>q.id!==it.dataset.iid);save(V.lectureId)}else{const r=rnOf(m);r[it.dataset.sec]=r[it.dataset.sec].filter(x=>x.id!==it.dataset.iid);save(mid())}refreshRN();return}
     const ch=e.target.closest('[data-rnchip]');if(ch){const k=ch.dataset.rnchip;const sel=(()=>{const s=getSelection();if(!s||s.isCollapsed||!s.rangeCount)return '';const n=s.getRangeAt(0).commonAncestorContainer;return (n.nodeType===1?n:n.parentElement).closest('.rnmain')?s.toString().replace(/\s+/g,' ').trim():''})();
       if(LV.rnOpen.has(k)&&!sel){LV.rnOpen.delete(k);refreshRN();return}
-      rnOpenOnly(k);refreshRN();const a=document.querySelector(`.rnsec[data-s="${k}"] .rnadd`);const sc=document.querySelector(`.rnsec[data-s="${k}"]`);if(sc)sc.scrollIntoView({block:'nearest',behavior:'smooth'});if(a){if(sel)a.value=sel.slice(0,400);a.focus()}return}
+      rnOpenOnly(k);refreshRN();const a=document.querySelector(`.rnsec[data-s="${k}"] .rnadd`);const sc=document.querySelector(`.rnsec[data-s="${k}"]`);if(sc)sc.scrollIntoView({block:'nearest',behavior:'smooth'});if(a){if(sel){a.value=sel.slice(0,400);rnDraft(mid(),k,a.value)}a.focus();a.setSelectionRange(a.value.length,a.value.length)}return}
     const go=e.target.closest('[data-rngo]');if(go){const mk=document.querySelector(`.rnmain span.mk-rn[data-rn="${go.dataset.rngo}"]`);if(mk){mk.scrollIntoView({block:'center',behavior:'smooth'});mk.classList.remove('lit');void mk.offsetWidth;mk.classList.add('lit');setTimeout(()=>mk.classList.remove('lit'),1600)}return}
     const mn=e.target.closest('[data-rnmin]');if(mn){LV.rnOpen.delete(mn.dataset.rnmin);refreshRN();return}
     const o=e.target.closest('[data-rnok]');if(o){const it=o.closest('.rnit'),x=rnItem(m,it.dataset.sec,it.dataset.iid);if(x){x.ok=x.ok===false;save(mid());refreshRN()}return}
@@ -6836,7 +6883,7 @@ function lecturePanelHTML(l){
   const qs=l.questions||[], imp=importantOf(l), rev=marksOf(l,'rev'), cards=cardsOf(l);
   return `<div class="lpsec"><div class="lph"><b>${ico('help')}Reflection questions</b><span class="muted">${qs.filter(q=>q.status!=='answered').length} open</span></div>
       ${qs.map(q=>`<div class="lq ${q.status==='answered'?'done':''}"><input type="checkbox" data-lqdone="${q.id}" ${q.status==='answered'?'checked':''} title="Tick when you have the answer"><div class="lqb"><span>${esc(q.text)}</span>${q.readingId&&S.docs[q.readingId]?`<div class="lqfrom rd" title="A question you prepared while reading">${ico('readm')}${esc(matShort(S.docs[q.readingId]))}</div>`:''}${q.from?`<div class="lqfrom" title="The part of your notes this question leads to">→ ${esc(q.from.length>90?q.from.slice(0,90)+'…':q.from)}</div>`:''}${q.answer?`<button class="lqans" data-lqans="${q.id}" title="Edit the answer"><b>Answer:</b> ${esc(q.answer)}</button>`:q.status==='answered'?`<button class="link lqadd" data-lqans="${q.id}">+ Add the answer</button>`:''}</div><button class="btn sm ghost danger" data-lqdel="${q.id}" aria-label="Remove">✕</button></div>`).join('')}
-      <input class="inp" id="lqNew" placeholder="Type a question, press Enter" style="margin-top:6px">
+      <input class="inp" id="lqNew" placeholder="Type a question, press Enter" style="margin-top:6px" value="${esc(rnDraft(l.id||V.lectureId,'lq'))}">
       <div class="help" style="margin:4px 0 0">Or select words in your notes and click <b>Ask</b> to write a question that leads to them.</div></div>
     ${fromReadingsHTML(l)}${capturedHTML(l)}
     <div class="lpsec"><div class="lph"><b>${ico('star')}Important</b><span class="muted">${imp.length}</span></div>
@@ -6947,10 +6994,11 @@ function bindLecture(){
   f('#lSub','subtopic'); f('#lSum','summary');
   ['#lDate','#lTime'].forEach(s=>{const el=$(s);if(el)el.addEventListener('change',()=>{l[s==='#lDate'?'date':'time']=el.value;save(V.lectureId)})});
   const tp=$('#lTopic'); if(tp&&!l.topic&&!trim(l.text))tp.focus();
+  root.addEventListener('input',e=>{if(e.target.id==='lqNew')rnDraft(V.lectureId,'lq',e.target.value)});
   root.addEventListener('keydown',e=>{
     const t=e.target; if(e.key!=='Enter'||!trim(t.value||''))return;
     const L=S.docs[V.lectureId];
-    if(t.id==='lqNew'){e.preventDefault();L.questions=L.questions||[];L.questions.push({id:uid('q'),text:trim(t.value),status:'open',at:Date.now()});save(V.lectureId);refreshLPanel(true);const n=$('#lqNew');if(n)n.focus();return}
+    if(t.id==='lqNew'){e.preventDefault();rnDraft(V.lectureId,'lq','');L.questions=L.questions||[];L.questions.push({id:uid('q'),text:trim(t.value),status:'open',at:Date.now()});save(V.lectureId);refreshLPanel(true);const n=$('#lqNew');if(n)n.focus();return}
     if(t.id==='limpNew'){e.preventDefault();L.important=L.important||[];L.important.push({id:uid('i'),text:trim(t.value),kind:($('#limpKind')||{}).value||'idea',at:Date.now()});save(V.lectureId);const k=($('#limpKind')||{}).value;refreshLPanel(true);const n=$('#limpNew');if(n){n.focus();if(k)$('#limpKind').value=k}return}
     if(t.id==='lfcNew'){e.preventDefault();const m=t.value.split('::');if(m.length<2||!trim(m[0])||!trim(m.slice(1).join('::'))){toast('Write it as term :: meaning');return}L.fc=L.fc||[];L.fc.push({id:uid('k'),front:trim(m[0]),back:trim(m.slice(1).join('::'))});save(V.lectureId);refreshLPanel(true);const n=$('#lfcNew');if(n)n.focus();return}
   });
@@ -7820,7 +7868,7 @@ document.addEventListener('click',e=>{
     case 'rnBack': LV.rn=null;if(LV.mat){closeLectureDoc()}else renderMain();break;
     case 'rnRef': editMatRef(id);break;
     case 'rnLinkAdd': {const box=$('#rnotes'),m=S.docs[box.dataset.mid],l=S.docs[V.lectureId];const o=readingsOf(V.lectureId).find(x=>x.id!==box.dataset.mid)||docsOf('material',x=>x.courseId===l.courseId&&x.lectureId!==V.lectureId&&x.type!=='slides')[0];if(!o)break;rnOf(m).links.push({id:uid('rn'),to:o.id,kind:'supports',text:''});save(box.dataset.mid);refreshRN('.rnsec[data-s="links"] .rnit:last-child textarea');break}
-    case 'rnAddNo': {const i=document.querySelector('.rnadd[data-sec="concepts"]');if(!i||!trim(i.value)){if(i)i.focus();break}rnAdd($('#rnotes').dataset.mid,'concepts',i.value,{ok:false});refreshRN('.rnadd[data-sec="concepts"]');break}
+    case 'rnAddNo': {const i=document.querySelector('.rnadd[data-sec="concepts"]');if(!i||!trim(i.value)){if(i)i.focus();break}rnDraft($('#rnotes').dataset.mid,'concepts','');rnAdd($('#rnotes').dataset.mid,'concepts',i.value,{ok:false});refreshRN('.rnadd[data-sec="concepts"]');break}
     case 'capture': captureDialog();break;
     case 'relNew': relateDialog({});break;
     case 'imOpen': openInsightMap(id||V.lectureId);break;

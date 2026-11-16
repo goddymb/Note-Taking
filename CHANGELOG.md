@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.8.1] - 2026-11-16
+### Fixed
+- Text typed in an *add* box in reading notes (a claim, a concept, a question…) or in the class-notes question box was lost when you clicked elsewhere. It is now kept until you press Enter, even when you switch sections or reload the page.
+- Clicking outside a dialog (Capture, Relate, Answer…) after typing in it no longer closes the dialog. The dialog nudges instead; use Cancel to close it.
+- The PDF jumped back to the first page when the page was redrawn, for example when entering or leaving focus mode. Each PDF now remembers the exact place you were reading: the page and how far down it. This holds through redraws, closing and reopening a reading, and reloading the app.
+- The notes cursor now goes back to where you left it when you return to a reading's general notes or to your class notes.
+
 ## [3.8.0] - 2026-11-16
 ### Added
 - **Insight map full screen.** *Full screen* shows only the map. The side panel, the menu and the rest of the page are hidden, and only Add box, Connect, zoom and *Exit full screen* stay visible. Press Esc to leave full screen.
