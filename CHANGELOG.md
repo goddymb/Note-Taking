@@ -1,5 +1,9 @@
 # Changelog
 
+## [3.6.2] - 2026-11-16
+### Changed
+- The bar of section buttons in reading notes now stays fixed at the top while you scroll, both normally and in focus mode.
+
 ## [3.6.1] - 2026-11-16
 ### Changed
 - In focus mode, reading notes start at the section buttons. The reading/class tabs, the toolbar and the reading's reference header are hidden. Exit focus mode with the *Exit focus* button at the top right, or press Esc.

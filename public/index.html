@@ -1057,7 +1057,9 @@ body.focus #lectureView.rmode .split{margin-top:46px}body.focus #lectureView.rmo
 .rnotes{padding:2px 2px 40px}
 .rnhead{display:flex;gap:10px;align-items:flex-start;border-bottom:1px solid var(--line);padding:4px 0 12px;margin-bottom:6px;flex-wrap:wrap}
 .rnref{flex:1;min-width:220px;display:flex;flex-direction:column;gap:3px;font-size:13px;color:var(--ink-2);line-height:1.45}.rnref b{font-size:16px;color:var(--ink)}
-.rnchips{display:flex;flex-wrap:wrap;gap:6px;padding:10px 0 12px}
+.rnchips{display:flex;flex-wrap:wrap;gap:6px;padding:10px 0 12px;position:sticky;top:var(--rnct,128px);z-index:7;background:var(--bg);box-shadow:0 -10px 0 var(--bg),0 1px 0 var(--line)}
+body.focus #lectureView.rmode .rnchips{--rnct:0px}
+body.focus #lectureView.rmode .rnsolo .rnchips{--rnct:44px}
 .rnchip{position:relative;display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:5px 12px;font-size:13px;font-weight:600;color:var(--ink-2);cursor:pointer;transition:background .12s,border-color .12s}
 .rnchip:hover{border-color:var(--line-2);color:var(--ink)}.rnchip.on{background:color-mix(in srgb,var(--accent) 12%,var(--panel));border-color:var(--accent);color:var(--accent)}
 .rnchip em{font-style:normal;font-size:11px;font-weight:700;background:var(--panel-2);border-radius:999px;padding:0 6px;line-height:17px;color:var(--ink-2)}
