@@ -1053,6 +1053,18 @@ body.focus .lmodebar{margin-top:-4px}
 .rnotes{padding:2px 2px 40px}
 .rnhead{display:flex;gap:10px;align-items:flex-start;border-bottom:1px solid var(--line);padding:4px 0 12px;margin-bottom:6px;flex-wrap:wrap}
 .rnref{flex:1;min-width:220px;display:flex;flex-direction:column;gap:3px;font-size:13px;color:var(--ink-2);line-height:1.45}.rnref b{font-size:16px;color:var(--ink)}
+.rnchips{display:flex;flex-wrap:wrap;gap:6px;padding:10px 0 12px}
+.rnchip{position:relative;display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:5px 12px;font-size:13px;font-weight:600;color:var(--ink-2);cursor:pointer;transition:background .12s,border-color .12s}
+.rnchip:hover{border-color:var(--line-2);color:var(--ink)}.rnchip.on{background:color-mix(in srgb,var(--accent) 12%,var(--panel));border-color:var(--accent);color:var(--accent)}
+.rnchip em{font-style:normal;font-size:11px;font-weight:700;background:var(--panel-2);border-radius:999px;padding:0 6px;line-height:17px;color:var(--ink-2)}
+.rntodo{font-style:normal;position:absolute;top:-6px;right:-5px;min-width:16px;height:16px;border-radius:999px;background:#f59e0b;color:#fff;font-size:10px;font-weight:800;display:grid;place-items:center;padding:0 4px;box-shadow:0 0 0 2px var(--bg)}
+.rnopen{display:flex;flex-direction:column;gap:10px;margin-bottom:14px}
+.rnopen .rnsec{border:1px solid var(--line);border-radius:12px;background:var(--panel);padding:12px 14px;animation:rnin .18s var(--ease,ease)}
+@keyframes rnin{from{opacity:0;transform:translateY(-4px)}}
+.rngen{border-top:1px solid var(--line);padding-top:12px}
+.rngh{display:flex;flex-direction:column;gap:2px;margin-bottom:8px}.rngh b{font-size:14.5px}.rngh .muted{font-size:12.5px}
+.rte.rnmain{min-height:52vh}
+.rnsec header .spacer{flex:1}
 .rnsec{padding:14px 0 12px;border-bottom:1px solid var(--line)}
 .rnsec header{display:flex;align-items:center;gap:8px}.rnsec h3{font-size:14.5px;margin:0;font-weight:650}
 .rnn{font-size:11px;font-weight:700;color:var(--ink-2);background:var(--panel-2);border-radius:999px;padding:0 7px;line-height:18px}
@@ -3446,6 +3458,7 @@ function ensureLine(ed){
   const s=getSelection(); s.removeAllRanges(); s.addRange(r);
 }
 function rteCommit(ed){
+  if(ed.dataset.rnmat){rnCommit(ed);return}
   if(ed.dataset.draft){draftCommit(ed);return}
   if(ed.dataset.lecture){lectureCommit(ed);return}
   const x=S.docs[V.paperId]; if(!x)return;
@@ -3951,6 +3964,7 @@ function insertIntoDraft(ed,text){
   draftRange=s.getRangeAt(0).cloneRange();
 }
 function draftCommit(ed){
+  if(ed&&ed.dataset.rnmat){rnCommit(ed);return}
   if(ed&&ed.dataset.lecture){lectureCommit(ed);return}
   const d=S.docs[ed.dataset.draft]; if(!d)return;
   if(!ed.textContent.trim()&&!ed.querySelector('ul,ol,h2,h3'))ed.innerHTML='<p><br></p>';
@@ -4041,7 +4055,7 @@ function ribbonHTML(d,o){
 const richDocId=()=>V.view==='lecture'?V.lectureId:V.draftId;
 const richDoc=()=>S.docs[richDocId()];
 let lastLecEd=null;
-function draftEd(){if(V.view==='lecture')return lastLecEd&&document.contains(lastLecEd)?lastLecEd:document.querySelector('.rte.lec.main');return document.querySelector('.rte.draft')}
+function draftEd(){if(V.view==='lecture')return lastLecEd&&document.contains(lastLecEd)?lastLecEd:document.querySelector('.rte.lec.main,.rte.rnmain');return document.querySelector('.rte.draft')}
 function restoreDraftSel(){
   const ed=draftEd(); if(!ed)return null; const saved=draftRange; ed.focus();
   const s=getSelection();
@@ -4634,7 +4648,7 @@ function showPop(info,hl){
   if(info.loading){el.innerHTML=`<div class="sprow"><span class="spin"></span><span>Reading the text in the box…</span><button class="spx" data-spx aria-label="Close">×</button></div>`;host.appendChild(el);placePop(el,info,host);el.querySelector('[data-spx]').onclick=hidePop;return}
   el.innerHTML=`${info.ocr?`<div class="sprow" style="align-items:flex-start"><textarea class="inp" id="spText" rows="3" aria-label="Recognised text — correct it if needed">${esc(info.text)}</textarea><button class="spx" data-spx aria-label="Close">×</button></div><div class="help" style="margin:-4px 0 0;font-size:12px">Read from the scan — check it against the page and correct any mistakes before adding.</div>`:`<div class="sptext">“${esc(info.text.length>110?info.text.slice(0,108)+'…':info.text)}”<button class="spx" data-spx aria-label="Close">×</button></div>`}
     <div class="sprow" ${info.web?'hidden':''}><span class="spl">Highlight</span>${HLC.map(([k,hex])=>`<button class="hlc ${hl&&hl.color===k?'on':''}" data-hlc="${k}" style="background:${hex}" title="${hl?'Change to':'Highlight in'} ${k}" aria-label="${k}"></button>`).join('')}${hl?`<button class="btn sm ghost danger" data-hldel title="Remove this highlight">${ico('trash')}Remove</button>`:''}</div>
-    ${V.view==='lecture'&&lecMode(S.docs[V.lectureId])==='read'&&LV.rn?`<div class="sprow"><span class="spl">Add to</span><select class="inp" id="spSec" aria-label="Section of your reading notes">${[['args','Claims and arguments'],['rq','Questions it wants to answer'],['concepts','Key concepts'],['insights','Key insights'],['gaps','Gaps and limits'],['free','Other notes']].map(([k,t])=>`<option value="${k}" ${k===(R.rnSec||'args')?'selected':''}>${t}</option>`).join('')}</select></div>`:''}
+    ${V.view==='lecture'&&lecMode(S.docs[V.lectureId])==='read'&&LV.rn?`<div class="sprow"><span class="spl">Add to</span><select class="inp" id="spSec" aria-label="Section of your reading notes">${[['free','General notes'],['args','Claims and arguments'],['rq','Questions it wants to answer'],['concepts','Key concepts'],['insights','Key insights'],['gaps','Gaps and limits']].map(([k,t])=>`<option value="${k}" ${k===(R.rnSec||'free')?'selected':''}>${t}</option>`).join('')}</select></div>`:''}
     <div class="sprow" ${V.view==='lecture'||inDraft?'hidden':''}><span class="spl">Quote to</span><select class="inp" id="spQ" aria-label="Question to add the quote to">${t.questions.map((q,i)=>`<option value="${q.id}" ${q.id===qsel?'selected':''}>Q${i+1} · ${esc(q.text.length>46?q.text.slice(0,44)+'…':q.text)}</option>`).join('')}</select></div>
     <div class="sprow"><span class="spl">${info.web?'Where':isSl?'Slide':'Page'}</span><input class="inp" id="spPg" value="${esc(pg)}" style="width:${info.web?96:76}px" aria-label="${info.web?'Paragraph for the citation':'Page number for the citation'}" title="${info.web?'Web pages have no page numbers: APA cites the paragraph (para. N), or a section heading.':`Printed page number used in the citation. PDF page ${first}${first!==lastP?'–'+lastP:''}.`}"><span class="muted" style="font-size:12px;flex:1">${esc(V.view==='lecture'?(x.name||''):citeCore(x))}${pg?', '+esc(pageStr(pg)):''}</span><button class="btn sm" data-spidea title="Save a thought about this passage as an idea">${ico('bulb')}Idea</button><button class="btn sm pri" data-spquote>${ico('plus')}${V.view==='lecture'?'Add to notes':V.view==='draft'?'Quote into my writing':'Add quote'}</button></div>`;
   host.appendChild(el); placePop(el,info,host);
@@ -6135,7 +6149,7 @@ function rnOf(m){
 }
 const readingsOf=lid=>materialsOf(lid).filter(m=>m.type!=='slides');
 const rnQuestions=(l,mid)=>(l.questions||[]).filter(q=>q.readingId===mid);
-function rnCount(m,l){const r=rnOf(m);return r.rq.length+r.args.length+r.concepts.length+r.prereq.length+r.links.length+r.insights.length+r.gaps.length+(trim(r.free)?1:0)+(l?rnQuestions(l,m.id).length:0)}
+function rnCount(m,l){const r=rnOf(m);return r.rq.length+r.args.length+r.concepts.length+r.prereq.length+r.links.length+r.insights.length+r.gaps.length+(trim(r.text||r.free||'')?1:0)+(l?rnQuestions(l,m.id).length:0)}
 const htmlText=s=>{const d=document.createElement('textarea');d.innerHTML=String(s||'').replace(/<[^>]+>/g,'');return d.value};
 function hasRef(m){const r=m&&m.ref;return !!(r&&(validPeople(r.authors).length||trim(r.title)))}
 /* APA in-text citation of a lecture material: (Leftwich, 2000, p. 12) — falls back to its name */
@@ -6201,23 +6215,45 @@ function readingNotesHTML(m,l){
       :k==='concepts'?`<div class="rnadd2"><input class="inp rnadd" data-sec="concepts" placeholder="${esc(ph)}"><button class="rnok no rnaddno" data-act="rnAddNo" title="Add it marked as not understood yet">Not yet</button></div>`
       :`<input class="inp rnadd" data-sec="${k}" placeholder="${esc(ph)}">`;
     const n=k==='questions'?rnQuestions(l,m.id).length:r[k].length;
-    return `<section class="rnsec" data-s="${k}"><header><h3>${lab}</h3>${n?`<span class="rnn">${n}</span>`:''}</header>${help?`<p class="rnhelp">${help}</p>`:''}<div class="rnlist">${rows}</div>${adder}</section>`;
+    return `<section class="rnsec" data-s="${k}"><header><h3>${lab}</h3>${n?`<span class="rnn">${n}</span>`:''}<span class="spacer"></span><button class="btn sm ghost icon" data-rnmin="${k}" title="Minimise — it stays saved; open it again from the bar above" aria-label="Minimise">${ico('minimize')}</button></header>${help?`<p class="rnhelp">${help}</p>`:''}<div class="rnlist">${rows}</div>${adder}</section>`;
   };
   return `<div class="rnotes" id="rnotes" data-cite-mat="${m.id}" data-mid="${m.id}">
     <div class="rnhead"><button class="btn sm ghost" data-act="rnBack" title="All readings for this lecture">‹ Readings</button>
       <div class="rnref"><b>${esc(m.name)}</b><span>${hasRef(m)?apaHTML(m.ref):'<i>No reference details yet — fill them in so quotes and copied notes carry the citation.</i>'}</span></div>
       <button class="btn sm" data-act="rnRef" data-id="${m.id}">${ico('edit')}${hasRef(m)?'Edit':'Add'} reference</button>${m.url&&!m.pdf?`<a class="btn sm" href="${esc(m.url)}" target="_blank" rel="noopener">${ico('external')}Open link</a>`:''}</div>
-    ${RN_SECTIONS.map(sec).join('')}
-    <section class="rnsec" data-s="free"><header><h3>Other notes</h3></header><textarea class="rnin rnfree" data-free="1" rows="3" placeholder="Anything else from this reading">${esc(r.free)}</textarea></section>
+    <div id="rnTop">${rnTopHTML(m,l,sec)}</div>
+    <div class="rngen"><div class="rngh"><b>General notes</b><span class="muted">Ideas from the reading, in your own words. Open a section above when you come across a claim, a concept or a question.</span></div>
+      ${ribbonHTML(l,{lecture:true})}
+      <div class="rte lec rnmain" contenteditable="true" role="textbox" aria-multiline="true" aria-label="General notes on this reading" data-rnmat="${m.id}" data-ph="Write the general ideas of the reading here…" ${l.style?`style="${docStyleVars(l)}"`:''} spellcheck="${WR.lang!=='off'}" ${WR.lang!=='off'?`lang="${WR.lang}"`:''}>${rnHtml(r)}</div></div>
   </div>`;
+}
+/* the sections stay closed until you need them */
+LV.rnOpen=LV.rnOpen||new Set();
+function rnHtml(r){if(r.html==null&&trim(r.free||''))r.html=r.free.split(/\n+/).filter(x=>trim(x)).map(x=>`<p>${esc(x)}</p>`).join('');return r.html||''}
+function rnTopHTML(m,l,sec){
+  const r=rnOf(m);
+  const cnt=k=>k==='questions'?rnQuestions(l,m.id).length:r[k].length;
+  const todo=k=>k==='args'?r.args.filter(a=>!a.sup&&!trim(a.ev||'')).length:k==='rq'?r.rq.filter(q=>!trim(q.answer||'')).length:k==='concepts'||k==='prereq'?r[k].filter(c=>c.ok===false).length:k==='questions'?rnQuestions(l,m.id).filter(q=>q.status!=='answered').length:0;
+  const short={rq:'Reading questions',args:'Claims',concepts:'Concepts',prereq:'Needed first',links:'Other readings',questions:'For class',insights:'Insights',gaps:'Gaps'};
+  const tip={args:'without support noted',rq:'not answered yet',concepts:'not understood yet',prereq:'not understood yet',questions:'still open'};
+  const chips=`<div class="rnchips" role="toolbar" aria-label="Open a section">${RN_SECTIONS.map(([k,lab])=>{const n=cnt(k),t=todo(k),on=LV.rnOpen.has(k);
+    return `<button class="rnchip ${on?'on':''}" data-rnchip="${k}" aria-pressed="${on}" title="${on?'Minimise':'Open'}: ${esc(lab)}${t?` · ${t} ${tip[k]}`:''}">${esc(short[k])}${n?`<em>${n}</em>`:''}${t?`<i class="rntodo" aria-label="${t} ${tip[k]}">${t}</i>`:''}</button>`}).join('')}</div>`;
+  const open=RN_SECTIONS.filter(x=>LV.rnOpen.has(x[0]));
+  return chips+(open.length?`<div class="rnopen">${open.map(sec).join('')}</div>`:'');
+}
+function rnCommit(ed){
+  const m=S.docs[ed.dataset.rnmat]; if(!m)return;
+  if(!ed.textContent.trim()&&!ed.querySelector('ul,ol,h2,h3,img,table'))ed.innerHTML='';
+  const r=rnOf(m); r.html=cleanRich(ed.innerHTML); r.text=richToText(r.html); delete r.free;
+  save(ed.dataset.rnmat,700); flashSave();
 }
 function rnFit(t){t.style.height='auto';t.style.height=(t.scrollHeight+2)+'px'}
 function refreshRN(focusSel){
   const box=$('#rnotes'); if(!box)return; const m=S.docs[box.dataset.mid], l=S.docs[V.lectureId]; if(!m||!l)return;
-  const sc=box.parentElement?box.parentElement.scrollTop:0;
-  box.outerHTML=readingNotesHTML({id:box.dataset.mid,...m},l);
-  const nb=$('#rnotes'); nb.querySelectorAll('textarea.rnin').forEach(rnFit); requestAnimationFrame(()=>nb.querySelectorAll('textarea.rnin').forEach(rnFit));
-  if(nb.parentElement)nb.parentElement.scrollTop=sc;
+  const top=$('#rnTop'); if(!top)return;
+  const full=document.createElement('div'); full.innerHTML=readingNotesHTML({id:box.dataset.mid,...m},l);
+  top.innerHTML=full.querySelector('#rnTop').innerHTML;
+  const nb=box; nb.querySelectorAll('textarea.rnin').forEach(rnFit); requestAnimationFrame(()=>nb.querySelectorAll('textarea.rnin').forEach(rnFit));
   if(focusSel){const f=nb.querySelector(focusSel);if(f){f.focus();if(f.select&&f.tagName==='TEXTAREA'){}}}
 }
 function rnItem(m,sec,iid){const r=rnOf(m);return sec==='questions'?null:(r[sec]||[]).find(x=>x.id===iid)}
@@ -6249,9 +6285,14 @@ function bindReadingNotes(){
     if(t.classList.contains('rnadd')&&e.key==='Enter'&&trim(t.value)){e.preventDefault();const sec=t.dataset.sec;rnAdd(mid(),sec,t.value);refreshRN(`.rnadd[data-sec="${sec}"]`);return}
     if(t.matches('textarea.rnin:not(.rnfree)')&&e.key==='Enter'&&!e.shiftKey){e.preventDefault();const s=t.closest('.rnsec');const a=s&&s.querySelector('.rnadd');if(a)a.focus()}
   });
+  host.addEventListener('mousedown',e=>{if(e.target.closest('[data-rnchip]'))e.preventDefault()});
   host.addEventListener('click',e=>{
     const m=S.docs[mid()]; if(!m)return;
     const d=e.target.closest('[data-rndel]');if(d){const it=d.closest('.rnit');if(it.dataset.sec==='questions'){const l=S.docs[V.lectureId];l.questions=(l.questions||[]).filter(q=>q.id!==it.dataset.iid);save(V.lectureId)}else{const r=rnOf(m);r[it.dataset.sec]=r[it.dataset.sec].filter(x=>x.id!==it.dataset.iid);save(mid())}refreshRN();return}
+    const ch=e.target.closest('[data-rnchip]');if(ch){const k=ch.dataset.rnchip;const sel=(()=>{const s=getSelection();if(!s||s.isCollapsed||!s.rangeCount)return '';const n=s.getRangeAt(0).commonAncestorContainer;return (n.nodeType===1?n:n.parentElement).closest('.rnmain')?s.toString().replace(/\s+/g,' ').trim():''})();
+      if(LV.rnOpen.has(k)&&!sel){LV.rnOpen.delete(k);refreshRN();return}
+      LV.rnOpen.add(k);refreshRN();const a=document.querySelector(`.rnsec[data-s="${k}"] .rnadd`);const sc=document.querySelector(`.rnsec[data-s="${k}"]`);if(sc)sc.scrollIntoView({block:'nearest',behavior:'smooth'});if(a){if(sel)a.value=sel.slice(0,400);a.focus()}return}
+    const mn=e.target.closest('[data-rnmin]');if(mn){LV.rnOpen.delete(mn.dataset.rnmin);refreshRN();return}
     const o=e.target.closest('[data-rnok]');if(o){const it=o.closest('.rnit'),x=rnItem(m,it.dataset.sec,it.dataset.iid);if(x){x.ok=x.ok===false;save(mid());refreshRN()}return}
     const a=e.target.closest('[data-lqans]');if(a){answerDialog(V.lectureId,a.dataset.lqans,()=>refreshRN());return}
   });
@@ -6260,8 +6301,9 @@ function bindReadingNotes(){
 function rnQuote(sec,text,page){
   const mid=LV.rn||LV.mat, m=S.docs[mid]; if(!m)return;
   const q=`“${text.replace(/\s+/g,' ')}”`;
-  if(sec==='free'){const r=rnOf(m);r.free=(r.free?r.free.replace(/\s+$/,'')+'\n':'')+q+' '+matCite(m,page);save(mid)}
-  else if(sec==='concepts')rnAdd(mid,'concepts',text.replace(/\s+/g,' ').slice(0,120));
+  if(sec==='free'){const ed=document.querySelector('.rte.rnmain');if(ed){const p=document.createElement('p');p.textContent=q+' '+matCite(m,page);ed.appendChild(p);rnCommit(ed);p.scrollIntoView({block:'nearest',behavior:'smooth'})}toast('Added to your general notes');return}
+  LV.rnOpen.add(sec);
+  if(sec==='concepts')rnAdd(mid,'concepts',text.replace(/\s+/g,' ').slice(0,120));
   else rnAdd(mid,sec,q+(sec==='args'?'':' '+matCite(m,page)),sec==='args'?{page:page||''}:null);
   refreshRN(); const s=document.querySelector(`.rnsec[data-s="${sec}"]`); if(s)s.scrollIntoView({block:'nearest',behavior:'smooth'});
   toast('Added to '+(RN_SECTIONS.find(x=>x[0]===sec)||[,'Other notes'])[1].toLowerCase());
@@ -6377,7 +6419,7 @@ function readingsReportHTML(l,I){
         ${qs.length?`<h4>Questions taken to class</h4>${li(qs,q=>`<li>${esc(q.text)}${q.answer?`<br><span class="a">${esc(q.answer)}</span>`:q.status==='answered'?'':' <span class="crgap">still open</span>'}</li>`)}`:''}
         ${r.insights.length?`<h4>Key insights</h4>${li(r.insights,x=>`<li>${esc(x.text)}</li>`)}`:''}
         ${r.gaps.length?`<h4>Gaps and limits</h4>${li(r.gaps,x=>`<li>${esc(x.text)}</li>`)}`:''}
-        ${trim(r.free)?`<p>${esc(r.free).replace(/\n/g,'<br>')}</p>`:''}</div>`}).join('');
+        ${trim(r.text||'')?`<h4>General notes</h4><div class="crnotes">${floatsInline(r.html||'')}</div>`:trim(r.free||'')?`<h4>General notes</h4><p>${esc(r.free).replace(/\n/g,'<br>')}</p>`:''}</div>`}).join('');
   }
   if(I.readings!==false&&(l.rels||[]).length)h+=`<h3>What the lecture added to the readings</h3><ul>${l.rels.map(x=>{const m=S.docs[x.mat]||{},it=relItems(m.rn?m:{...m,rn:{}},l).find(z=>z[0]===x.item);return `<li>The lecture <b>${esc(relLabel(CLASS_REL,x.kind))}</b> ${it?`“${esc(it[1].replace(/^[ACQ]\d+ · /,''))}”`:'the reading'} (${esc(matShort(m))}): ${esc(x.text)}${x.note?` <i>— ${esc(x.note)}</i>`:''}</li>`}).join('')}</ul>`;
   const cs=(l.captures||[]).filter(x=>x.kind==='info'||S.docs[x.ref]);
@@ -6808,6 +6850,7 @@ function bindLecture(){
   flashSave(true); requestAnimationFrame(updateStickyTops);
 }
 function lectureCommit(ed){
+  if(ed&&ed.dataset.rnmat){rnCommit(ed);return}
   const l=S.docs[ed.dataset.lecture]; if(!l)return;
   if(!ed.textContent.trim()&&!ed.querySelector('ul,ol,h2,h3'))ed.innerHTML='';
   const part=ed.dataset.part, html=cleanRich(ed.innerHTML);
@@ -7013,7 +7056,7 @@ function floatsInline(html){
   });
 }
 function flEditorOf(img){return img&&img.closest('.rte')}
-function flCommit(ed){if(!ed)return;if(ed.dataset.lecture)lectureCommit(ed);else if(ed.dataset.draft)draftCommit(ed)}
+function flCommit(ed){if(!ed)return;if(ed.dataset.rnmat)rnCommit(ed);else if(ed.dataset.lecture)lectureCommit(ed);else if(ed.dataset.draft)draftCommit(ed)}
 /* insert a picture as a free object near the caret */
 function insertFreeImage(id,widthPx,alt){
   const ed=restoreDraftSel(); if(!ed)return;

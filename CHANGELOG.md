@@ -1,5 +1,15 @@
 # Changelog
 
+## [3.6.0] - 2026-11-16
+### Changed
+- **Reading notes have a General notes editor.** Each reading now has a full note editor with the same toolbar as class notes, for the general ideas of the reading. The guided sections are now buttons above the editor:
+  - Reading questions, Claims, Concepts, Needed first, Other readings, For class, Insights, Gaps.
+  - Open a section only when you need it, then minimise it. What you added stays saved.
+  - An orange number on a button shows what is still to finish: claims without their support, reading questions not answered yet, concepts not understood yet, and questions for class still open.
+- **Selected words go into a section.** Select words in your general notes and click a section button: the words are put in that section's box, ready to add.
+- **Quotes from the PDF go into General notes by default.**
+- **Reports include the general notes of each reading.**
+
 ## [3.5.1] - 2026-11-16
 ### Fixed
 - Scanned books and chapters, for example Internet Archive scans, showed black or blank pages. These PDFs store their pages as JPEG 2000 or JBIG2 images. PDF.js now loads its image decoders, and also its character maps and standard fonts. The server serves these from `/vendor/pdfjs-extra/`.
