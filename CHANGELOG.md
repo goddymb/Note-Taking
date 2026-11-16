@@ -1,5 +1,11 @@
 # Changelog
 
+## [3.7.1] - 2026-11-16
+### Added
+- Highlights in a reading's General notes and the section buttons above are now linked both ways:
+  - Hovering a section button lights up that section's highlights in your notes.
+  - A section item that is highlighted in your notes shows **in notes ↓**. Click it to jump to the words.
+
 ## [3.7.0] - 2026-11-16
 ### Added
 - **Turn selected words in general notes into an item.** Select words in a reading's General notes and a small bar appears. Choose *Claim*, *Concept*, *Reading question*, *For class*, *Needed first*, *Insight* or *Gap*.

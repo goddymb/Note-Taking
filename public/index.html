@@ -1077,6 +1077,8 @@ body.focus #lectureView.rmode .rnsolo .rnchips{--rnct:44px}
 .rte .mk-rn[data-sec="concepts"]{--mk:#0f766e}.rte .mk-rn[data-sec="prereq"]{--mk:#14b8a6;border-bottom-style:dashed}.rte .mk-rn[data-sec="rq"]{--mk:#6366f1}.rte .mk-rn[data-sec="questions"]{--mk:#2563eb;border-bottom-style:dotted}.rte .mk-rn[data-sec="insights"]{--mk:#ca8a04}.rte .mk-rn[data-sec="gaps"]{--mk:#9333ea}
 .rte .mk-rn::before{display:inline-block;font:800 .66em var(--font);margin-right:3px;vertical-align:.18em;color:var(--mk)}
 .rte .mk-rn[data-sec="args"]::before{content:'C'}.rte .mk-rn[data-sec="concepts"]::before{content:'K'}.rte .mk-rn[data-sec="rq"]::before,.rte .mk-rn[data-sec="questions"]::before{content:'?'}.rte .mk-rn[data-sec="insights"]::before{content:'\2605'}.rte .mk-rn[data-sec="gaps"]::before{content:'\2205'}.rte .mk-rn[data-sec="prereq"]::before{content:'\2190'}
+.rte .mk-rn.lit{background:color-mix(in srgb,var(--mk) 32%,transparent);box-shadow:0 0 0 2px color-mix(in srgb,var(--mk) 35%,transparent);transition:background .15s,box-shadow .15s}
+.rnin-notes{flex:none;align-self:center;border:0;background:none;color:var(--accent);font-size:11.5px;font-weight:600;cursor:pointer;padding:2px 4px;white-space:nowrap}.rnin-notes:hover{text-decoration:underline}
 .crview .mk-rn{background:none;border:0}.crview .mk-rn::before{display:none}
 .rnchip.flash,.rnit.flash{animation:rnflash 1s ease 1}
 @keyframes rnflash{30%{box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 30%,transparent);background:color-mix(in srgb,var(--accent) 10%,var(--panel))}}
@@ -6265,13 +6267,19 @@ function rnCommit(ed){
   const r=rnOf(m); r.html=cleanRich(ed.innerHTML); r.text=richToText(r.html); delete r.free;
   save(ed.dataset.rnmat,700); flashSave();
 }
+/* the two-way link: a section row shows "in notes" when its words are highlighted below; hovering a section button lights up its highlights */
+function rnLinkRows(){
+  const box=$('#rnotes'); if(!box)return; const gen=box.querySelector('.rnmain'); if(!gen)return;
+  const ids=new Set([...gen.querySelectorAll('span.mk-rn')].map(x=>x.dataset.rn));
+  box.querySelectorAll('.rnopen .rnit').forEach(r=>{const has=ids.has(r.dataset.iid);let b=r.querySelector('.rnin-notes');if(has&&!b){r.insertAdjacentHTML('beforeend',`<button class="rnin-notes" data-rngo="${r.dataset.iid}" title="Show where this is in your general notes">in notes ↓</button>`)}else if(!has&&b)b.remove()});
+}
 function rnFit(t){t.style.height='auto';t.style.height=(t.scrollHeight+2)+'px'}
 function refreshRN(focusSel){
   const box=$('#rnotes'); if(!box)return; const m=S.docs[box.dataset.mid], l=S.docs[V.lectureId]; if(!m||!l)return;
   const top=$('#rnTop'); if(!top)return;
   const full=document.createElement('div'); full.innerHTML=readingNotesHTML({id:box.dataset.mid,...m},l);
   top.innerHTML=full.querySelector('#rnTop').innerHTML;
-  const nb=box; nb.querySelectorAll('textarea.rnin').forEach(rnFit); requestAnimationFrame(()=>nb.querySelectorAll('textarea.rnin').forEach(rnFit));
+  const nb=box; rnLinkRows(); nb.querySelectorAll('textarea.rnin').forEach(rnFit); requestAnimationFrame(()=>nb.querySelectorAll('textarea.rnin').forEach(rnFit));
   if(focusSel){const f=nb.querySelector(focusSel);if(f){f.focus();if(f.select&&f.tagName==='TEXTAREA'){}}}
 }
 function rnItem(m,sec,iid){const r=rnOf(m);return sec==='questions'?null:(r[sec]||[]).find(x=>x.id===iid)}
@@ -6304,6 +6312,9 @@ function bindReadingNotes(){
     if(t.matches('textarea.rnin:not(.rnfree)')&&e.key==='Enter'&&!e.shiftKey){e.preventDefault();const s=t.closest('.rnsec');const a=s&&s.querySelector('.rnadd');if(a)a.focus()}
   });
   host.addEventListener('mousedown',e=>{if(e.target.closest('[data-rnchip]'))e.preventDefault()});
+  rnLinkRows();
+  host.addEventListener('mouseover',e=>{const c=e.target.closest('[data-rnchip]');document.querySelectorAll('.rnmain span.mk-rn.lit').forEach(x=>{if(!c||x.dataset.sec!==c.dataset.rnchip)x.classList.remove('lit')});if(c)document.querySelectorAll(`.rnmain span.mk-rn[data-sec="${c.dataset.rnchip}"]`).forEach(x=>x.classList.add('lit'))});
+  host.addEventListener('mouseout',e=>{if(e.target.closest('[data-rnchip]')&&!(e.relatedTarget&&e.relatedTarget.closest&&e.relatedTarget.closest('[data-rnchip]')))document.querySelectorAll('.rnmain span.mk-rn.lit').forEach(x=>x.classList.remove('lit'))});
   const gen=box.querySelector('.rnmain'); if(gen){
     const show=()=>setTimeout(()=>rnSelPop(gen),10);
     gen.addEventListener('mouseup',show); gen.addEventListener('keyup',e=>{if(e.shiftKey||e.key==='Shift')show()});
@@ -6316,6 +6327,7 @@ function bindReadingNotes(){
     const ch=e.target.closest('[data-rnchip]');if(ch){const k=ch.dataset.rnchip;const sel=(()=>{const s=getSelection();if(!s||s.isCollapsed||!s.rangeCount)return '';const n=s.getRangeAt(0).commonAncestorContainer;return (n.nodeType===1?n:n.parentElement).closest('.rnmain')?s.toString().replace(/\s+/g,' ').trim():''})();
       if(LV.rnOpen.has(k)&&!sel){LV.rnOpen.delete(k);refreshRN();return}
       LV.rnOpen.add(k);refreshRN();const a=document.querySelector(`.rnsec[data-s="${k}"] .rnadd`);const sc=document.querySelector(`.rnsec[data-s="${k}"]`);if(sc)sc.scrollIntoView({block:'nearest',behavior:'smooth'});if(a){if(sel)a.value=sel.slice(0,400);a.focus()}return}
+    const go=e.target.closest('[data-rngo]');if(go){const mk=document.querySelector(`.rnmain span.mk-rn[data-rn="${go.dataset.rngo}"]`);if(mk){mk.scrollIntoView({block:'center',behavior:'smooth'});mk.classList.remove('lit');void mk.offsetWidth;mk.classList.add('lit');setTimeout(()=>mk.classList.remove('lit'),1600)}return}
     const mn=e.target.closest('[data-rnmin]');if(mn){LV.rnOpen.delete(mn.dataset.rnmin);refreshRN();return}
     const o=e.target.closest('[data-rnok]');if(o){const it=o.closest('.rnit'),x=rnItem(m,it.dataset.sec,it.dataset.iid);if(x){x.ok=x.ok===false;save(mid());refreshRN()}return}
     const a=e.target.closest('[data-lqans]');if(a){answerDialog(V.lectureId,a.dataset.lqans,()=>refreshRN());return}
