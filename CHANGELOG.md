@@ -1,5 +1,17 @@
 # Changelog
 
+## [3.9.0] - 2026-11-16
+### Added
+- **Reading notes beside class notes.** A new *Reading notes* button in the class-notes toolbar opens a report of your reading notes on the right, while you take notes on the left. You can drag the divider to resize the two sides.
+  - **Customise** (settings button): choose which readings to show and which sections. The sections are general notes, reading questions, claims (with their support), concepts, needed first, other readings, questions for class, insights and gaps. Your choice is remembered.
+  - **Relate:** select words in your class notes, then click *Relate* on a claim, concept or question. The words are linked to that item, and the item shows *Related in class* with how it was related.
+  - **Insert:** puts an item into your class notes where your cursor is, with its APA citation, for example "**Concept (reading):** developmental state *(Leftwich, 2011)*".
+  - Copying text from the report keeps its reference.
+
+### Fixed
+- The *From the readings* section of the questions panel showed nothing.
+- The class-notes toolbar fits on one line again on smaller screens: Capture and Reading notes show their icon only.
+
 ## [3.8.1] - 2026-11-16
 ### Fixed
 - Text typed in an *add* box in reading notes (a claim, a concept, a question…) or in the class-notes question box was lost when you clicked elsewhere. It is now kept until you press Enter, even when you switch sections or reload the page.

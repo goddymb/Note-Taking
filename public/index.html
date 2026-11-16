@@ -1024,6 +1024,7 @@ body.focus #lectureView>.crumbs,body.focus #lectureView>.lhead,body.focus #lectu
 .lhead:hover .lsub:placeholder-shown,.lhead:focus-within .lsub:placeholder-shown{display:block}
 /* ---------- reading vs class notes ---------- */
 .ptoolbar{container-type:inline-size}
+@container (max-width:1240px){.ptoolbar .bl{display:none}}
 @container (max-width:1180px){.ptoolbar .mkb span{display:none}.ptoolbar .mkb{padding-left:7px;padding-right:7px}#lectureView .ptoolbar #saveNote>span:last-child{display:none}}
 .lmodebar{display:flex;gap:4px;border-bottom:1px solid var(--line);margin:0 0 10px}
 .lmodebar button{display:flex;align-items:center;gap:10px;background:none;border:0;border-bottom:2.5px solid transparent;margin-bottom:-1px;padding:8px 16px 9px 6px;cursor:pointer;color:var(--muted);text-align:left}
@@ -1070,6 +1071,27 @@ body.focus #lectureView.rmode .rnsolo .rnchips{--rnct:44px}
 .rngen{border-top:1px solid var(--line);padding-top:12px}
 .modal.nudge{animation:mnudge .32s ease}
 @keyframes mnudge{25%{transform:translateX(-6px)}50%{transform:translateX(5px)}75%{transform:translateX(-3px)}}
+.reader.digest{display:flex;flex-direction:column}
+.dghead{display:flex;align-items:flex-start;gap:6px;padding:12px 12px 10px 16px;border-bottom:1px solid var(--line)}
+.dgtitle{flex:1;display:flex;flex-direction:column;gap:2px}.dgtitle>b{display:flex;align-items:center;gap:6px;font-size:14.5px}.dgtitle>b .i{color:var(--accent)}.dgtitle .muted{font-size:12px}
+.dgcustom{padding:10px 16px;border-bottom:1px solid var(--line);background:var(--panel-2);display:flex;flex-direction:column;gap:8px}
+.dgrow{display:flex;flex-wrap:wrap;gap:4px 12px;align-items:center;font-size:12.5px}.dgrow .spl{font-weight:650;color:var(--muted);width:66px}
+.dgchk{display:inline-flex;align-items:center;gap:5px;cursor:pointer}
+.dgbody{flex:1;overflow:auto;padding:4px 16px 30px}
+.dgr{padding:12px 0;border-bottom:1px solid var(--line)}.dgr:last-child{border-bottom:0}
+.dgr h4{margin:2px 0 8px;font-size:15px;display:flex;flex-direction:column;gap:1px}.dgr h4 .muted{font-size:12px;font-weight:500}
+.dgs{margin:0 0 10px}.dgs h5{margin:0 0 4px;font-size:11.5px;font-weight:700;color:var(--muted);letter-spacing:.02em}
+.dgi{display:flex;gap:6px;align-items:flex-start;padding:5px 6px;border-radius:8px;margin:0 -6px}.dgi:hover{background:var(--panel-2)}
+.dgt{flex:1;display:flex;gap:7px;min-width:0}.dgt .rnb{margin-top:1px;min-width:24px;height:19px}
+.dgx{display:flex;flex-direction:column;gap:2px;font-size:13.5px;line-height:1.45;min-width:0}.dgx small{font-size:12px;color:var(--ink-2)}.dgx .warn{color:#b45309;font-style:normal}.dgx b.weak{color:#7e22ce}
+.dgd{display:flex;align-items:center;gap:4px;color:#0f766e!important;font-weight:600}.dgd .i{width:12px;height:12px}
+.dgi.gap .dgx>span{text-decoration:underline dashed #d97706}.dgi.lit .dgx>span{color:#6b21a8}.dgi.ins .dgx>span::before{content:'\2605 ';color:#ca8a04}
+.dga{display:flex;gap:2px;opacity:0;transition:opacity .12s}.dgi:hover .dga,.dgi:focus-within .dga{opacity:1}.dga .btn{padding:3px 7px;font-size:12px}
+.dggen{font-size:13.5px;line-height:1.55;color:var(--ink);border-left:3px solid var(--line);padding-left:10px}.dggen p{margin:0 0 6px}
+.dggen .mk-rn{border-bottom:2px solid var(--line-2)}
+.dgnone{font-size:12.5px;margin:4px 0}
+.rte blockquote.dgq{border-left:3px solid #7c5cff;background:color-mix(in srgb,#7c5cff 6%,transparent);margin:8px 0;padding:6px 10px;border-radius:0 6px 6px 0;font-size:.95em}
+@media (hover:none){.dga{opacity:1}}
 .rnsel{position:fixed;z-index:60;display:flex;flex-wrap:wrap;gap:3px;align-items:center;max-width:min(560px,94vw);background:var(--panel-solid,var(--panel));border:1px solid var(--line-2);border-radius:12px;padding:4px;box-shadow:0 10px 30px rgba(0,0,0,.16);animation:rnin .14s ease}
 .rnsel button{border:0;background:none;border-radius:8px;padding:5px 9px;font-size:12.5px;font-weight:600;color:var(--ink);cursor:pointer;display:inline-flex;align-items:center;gap:5px}
 .rnsel button::before{content:"";width:8px;height:8px;border-radius:2px;background:var(--mk)}.rnsel button.un::before{display:none}.rnsel button.un{color:var(--muted)}
@@ -6500,12 +6522,12 @@ function relateDialog(opts){
     if(item.startsWith('q:')&&kind==='answers'){const q=(l.questions||[]).find(z=>z.id===item.slice(2));if(q){q.status='answered';q.answeredAt=Date.now();if(!q.answer)q.answer=text}}
     if(/^[cp]:/.test(item)&&!$o('#rlOkW').hidden&&$o('#rlOk').checked){const c=rnOf(m)[item[0]==='c'?'concepts':'prereq'].find(x=>x.id===item.slice(2));if(c){c.ok=true;save(mat)}}
     if(opts.range){const span=document.createElement('span');span.className='mk-rel';span.dataset.rel=id;span.title='Related to '+(m.name||'a reading');try{span.appendChild(opts.range.extractContents());opts.range.insertNode(span)}catch(e){}}
-    save(V.lectureId); ov.remove(); if(opts.ed)lectureCommit(opts.ed); refreshLPanel(true); toast('Related to '+matShort(m));
+    save(V.lectureId); ov.remove(); if(opts.ed)lectureCommit(opts.ed); refreshLPanel(true); refreshDigest(); toast('Related to '+matShort(m));
   };
 }
 /* the readings, at hand while you take class notes */
 function fromReadingsHTML(l){
-  const rs=readingsOf(l.id).filter(m=>rnCount(m,l)); const rels=l.rels||[];
+  const rs=readingsOf(l.id||V.lectureId).filter(m=>rnCount(m,l)); const rels=l.rels||[];
   if(!rs.length&&!rels.length)return '';
   const LV2=LV.rdOpen=LV.rdOpen||{};
   const disc=(item)=>rels.some(r=>r.item===item);
@@ -6519,6 +6541,64 @@ function fromReadingsHTML(l){
     ${rels.length?`<div class="frrels">${rels.map(x=>{const m=S.docs[x.mat]||{};return `<div class="lmk rel"><b>${esc(relLabel(CLASS_REL,x.kind))}</b> ${esc(matShort(m))}: ${esc(x.text.length>120?x.text.slice(0,118)+'…':x.text)}<button class="btn sm ghost danger" data-reldel="${x.id}" aria-label="Remove">✕</button></div>`}).join('')}</div>`:''}
     <button class="link" data-act="relNew" style="margin-top:6px;font-size:13px">+ Relate something from the lecture</button></div>`;
 }
+/* ---------- reading notes beside class notes: a report you can shape, to relate and synthesise ---------- */
+const DG_SECS=[['general','General notes'],['rq','Reading questions'],['args','Claims'],['concepts','Concepts'],['prereq','Needed first'],['links','Other readings'],['questions','For class'],['insights','Insights'],['gaps','Gaps']];
+const DG=(()=>{let d={};try{d=JSON.parse(localStorage.getItem('litnotes.digest')||'{}')}catch(e){}return {secs:d.secs||['rq','args','concepts','insights','gaps','general'],hide:d.hide||[],open:false}})();
+function dgSave(){try{localStorage.setItem('litnotes.digest',JSON.stringify({secs:DG.secs,hide:DG.hide}))}catch(e){}}
+let dgRange=null;
+document.addEventListener('selectionchange',()=>{const s=getSelection();if(!s||!s.rangeCount)return;const n=s.anchorNode,e=n&&(n.nodeType===1?n:n.parentElement);if(e&&e.closest('.rte.lec')&&!e.closest('.rnmain'))dgRange=s.getRangeAt(0).cloneRange()});
+function digestHTML(l){
+  const rs=readingsOf(V.lectureId), rels=l.rels||[], on=k=>DG.secs.includes(k);
+  const disc=item=>rels.filter(r=>r.item===item);
+  const act=(mid,item,text)=>`<span class="dga"><button class="btn sm ghost" data-dgrel="${mid}" data-item="${item}" title="Relate the words you selected in your class notes to this (or write what the lecture said)">${ico('link2')}Relate</button><button class="btn sm ghost" data-dgins="${mid}" data-item="${item}" title="Put it into your class notes, with its reference">${ico('plus')}Insert</button></span>`;
+  const row=(mid,item,num,text,sub,cls)=>{const d=disc(item);return `<div class="dgi ${cls||''} ${d.length?'disc':''}" data-item="${item}"><div class="dgt">${num?`<span class="rnb">${num}</span>`:''}<div class="dgx"><span>${esc(text)}</span>${sub?`<small>${sub}</small>`:''}${d.length?`<small class="dgd">${ico('check')}Related in class: ${d.map(r=>esc(relLabel(CLASS_REL,r.kind))).join(', ')}</small>`:''}</div></div>${act(mid,item)}</div>`};
+  const block=m=>{const r=rnOf(m),qs=rnQuestions(l,m.id);let h='';
+    if(on('general')&&trim(r.text||''))h+=`<div class="dgs"><h5>General notes</h5><div class="dggen rte-like">${r.html||''}</div></div>`;
+    if(on('rq')&&r.rq.length)h+=`<div class="dgs"><h5>Reading questions</h5>${r.rq.map((q,i)=>row(m.id,'r:'+q.id,'Q'+(i+1),q.text,q.answer?esc(q.answer):'<i class="warn">answer not noted yet</i>')).join('')}</div>`;
+    if(on('args')&&r.args.length)h+=`<div class="dgs"><h5>Claims</h5>${r.args.map((a,i)=>row(m.id,'a:'+a.id,'C'+(i+1),a.text,a.sup||trim(a.ev||'')?`${a.sup?`<b class="${a.sup==='weak'?'weak':''}">${esc(supLabel(a.sup))}</b>${a.ev?': ':''}`:''}${esc(a.ev||'')}`:'<i class="warn">support not noted</i>',a.sup==='weak'?'weak':'')).join('')}</div>`;
+    if(on('concepts')&&r.concepts.length)h+=`<div class="dgs"><h5>Concepts</h5>${r.concepts.map(c=>row(m.id,'c:'+c.id,'',c.text,(c.def?esc(c.def):'')+(c.ok===false?' <i class="warn">not understood yet</i>':''),c.ok===false?'gap':'')).join('')}</div>`;
+    if(on('prereq')&&r.prereq.length)h+=`<div class="dgs"><h5>Needed first</h5>${r.prereq.map(c=>row(m.id,'p:'+c.id,'',c.text,c.ok===false?'<i class="warn">not understood yet</i>':'',c.ok===false?'gap':'')).join('')}</div>`;
+    if(on('links')&&r.links.length)h+=`<div class="dgs"><h5>Other readings</h5>${r.links.map(x=>`<div class="dgi"><div class="dgx"><span>This reading <b>${esc(relLabel(REL_KINDS,x.kind))}</b> ${esc(matShort(S.docs[x.to]||{}))}</span>${x.text?`<small>${esc(x.text)}</small>`:''}</div></div>`).join('')}</div>`;
+    if(on('questions')&&qs.length)h+=`<div class="dgs"><h5>For class</h5>${qs.map(q=>row(m.id,'q:'+q.id,'?',q.text,q.answer?esc(q.answer):q.status==='answered'?'':'<i class="warn">still open</i>',q.status!=='answered'?'open':'')).join('')}</div>`;
+    if(on('insights')&&r.insights.length)h+=`<div class="dgs"><h5>Insights</h5>${r.insights.map(x=>row(m.id,'i:'+x.id,'',x.text,'','ins')).join('')}</div>`;
+    if(on('gaps')&&r.gaps.length)h+=`<div class="dgs"><h5>Gaps</h5>${r.gaps.map(x=>row(m.id,'g:'+x.id,'',x.text,'','lit')).join('')}</div>`;
+    return h;
+  };
+  const shown=rs.filter(m=>!DG.hide.includes(m.id));
+  return `<div class="dghead"><div class="dgtitle"><b>${ico('readm')}Reading notes</b><span class="muted">Select words in your class notes, then <b>Relate</b> — or <b>Insert</b> an item with its reference.</span></div>
+      <button class="btn sm icon ghost" data-act="dgCustom" aria-expanded="${DG.open}" title="Choose the readings and sections to show">${ico('settings')}</button><button class="btn sm icon ghost" data-act="digest" title="Close" aria-label="Close reading notes">${ico('x')}</button></div>
+    ${DG.open?`<div class="dgcustom"><div class="dgrow"><span class="spl">Readings</span>${rs.map(m=>`<label class="dgchk"><input type="checkbox" data-dghide="${m.id}" ${DG.hide.includes(m.id)?'':'checked'}>${esc(matShort(m))}</label>`).join('')}</div>
+      <div class="dgrow"><span class="spl">Show</span>${DG_SECS.map(([k,t])=>`<label class="dgchk"><input type="checkbox" data-dgsec="${k}" ${on(k)?'checked':''}>${t}</label>`).join('')}</div></div>`:''}
+    <div class="dgbody">${shown.map(m=>{const b=block(m);return `<section class="dgr" data-cite-mat="${m.id}"><h4>${esc(matShort(m))}<span class="muted">${esc(m.name)}</span></h4>${b||`<p class="muted dgnone">${rnCount(m,l)?'Nothing in the sections you chose.':'No reading notes yet.'}</p>`}</section>`}).join('')||'<p class="muted dgnone">All readings are hidden — choose some with the settings button.</p>'}</div>`;
+}
+function dgItemText(m,item,l){const it=relItems(m,l).find(x=>x[0]===item);return it?it[1].replace(/^[ACQ]\d+ · /,'').replace(/ \((not understood yet|answered)\)$/,''):''}
+function bindDigest(){
+  const box=$('#digest'); if(!box)return; bindLGutter();
+  box.addEventListener('mousedown',e=>{if(e.target.closest('[data-dgrel],[data-dgins]'))e.preventDefault()});
+  box.addEventListener('change',e=>{const t=e.target;
+    if(t.dataset.dghide){DG.hide=DG.hide.filter(x=>x!==t.dataset.dghide);if(!t.checked)DG.hide.push(t.dataset.dghide)}
+    if(t.dataset.dgsec){DG.secs=DG.secs.filter(x=>x!==t.dataset.dgsec);if(t.checked)DG.secs.push(t.dataset.dgsec)}
+    dgSave();refreshDigest()});
+  box.addEventListener('click',e=>{
+    const l=S.docs[V.lectureId];
+    const r=e.target.closest('[data-dgrel]'); if(r){const ed=dgRange&&document.contains(dgRange.startContainer)?dgRange.startContainer.parentElement&&dgRange.startContainer.parentElement.closest('.rte.lec'):null;const txt=dgRange&&!dgRange.collapsed?dgRange.toString().trim():'';
+      relateDialog(txt&&ed?{text:txt,range:dgRange.cloneRange(),ed,mat:r.dataset.dgrel,item:r.dataset.item}:{mat:r.dataset.dgrel,item:r.dataset.item});return}
+    const i=e.target.closest('[data-dgins]'); if(i){const m=S.docs[i.dataset.dgins];const text=dgItemText(m,i.dataset.item,l);if(!text)return;
+      const kind={a:'Claim',c:'Concept',p:'Needed first',q:'Question',r:'Reading question',i:'Insight',g:'Gap'}[i.dataset.item[0]];
+      const ed=(dgRange&&document.contains(dgRange.startContainer)&&dgRange.startContainer.parentElement&&dgRange.startContainer.parentElement.closest('.rte.lec:not(.rnmain)'))||document.querySelector('.rte.lec.main'); if(!ed)return;
+      const q=document.createElement('p'); q.innerHTML=`<b>${esc(kind)} (reading):</b> ${esc(text)} <i>${esc(matCite(m))}</i>`;
+      let blk=dgRange&&ed.contains(dgRange.endContainer)?dgRange.endContainer:null; while(blk&&blk.parentNode!==ed)blk=blk.parentNode;
+      const isBlock=n=>n&&n.nodeType===1&&/^(P|DIV|H[1-6]|UL|OL|BLOCKQUOTE|TABLE|FIGURE|PRE|HR)$/.test(n.tagName);
+      if(blk&&!isBlock(blk)){ // a line of loose text: put it in a paragraph first
+        let a=blk,z=blk; while(a.previousSibling&&!isBlock(a.previousSibling))a=a.previousSibling; while(z.nextSibling&&!isBlock(z.nextSibling))z=z.nextSibling;
+        const pp=document.createElement('p'); a.before(pp); let n=a; while(n){const nx=n===z?null:n.nextSibling; pp.appendChild(n); n=nx} blk=pp }
+      if(blk)blk.after(q);else ed.appendChild(q);
+      const p=document.createElement('p'); p.innerHTML='<br>'; q.after(p);
+      const rg=document.createRange(); rg.setStart(p,0); rg.collapse(true); ed.focus({preventScroll:true}); const s=getSelection(); s.removeAllRanges(); s.addRange(rg); dgRange=rg.cloneRange();
+      q.scrollIntoView({block:'nearest',behavior:'smooth'}); lectureCommit(ed); toast('Inserted into your class notes'); return}
+  });
+}
+function refreshDigest(){const b=$('#digest');if(!b)return;const sc=b.querySelector('.dgbody');const top=sc?sc.scrollTop:0;b.innerHTML=digestHTML(S.docs[V.lectureId]);const n=b.querySelector('.dgbody');if(n)n.scrollTop=top}
 /* ---------- capture: assignments, dates and course information heard in class ---------- */
 function captureDialog(){
   const l=S.docs[V.lectureId]; if(!l)return;
@@ -6855,7 +6935,8 @@ function lectureView(){
     <span class="seg" role="group" aria-label="Layout"><button class="${cornell?'':'on'}" data-act="lLayout" data-v="standard" title="One notes area">Standard</button><button class="${cornell?'on':''}" data-act="lLayout" data-v="cornell" title="Cornell method: key words and questions on the left, notes on the right, summary at the bottom">Cornell</button></span>
     <span class="stkctl"><button class="btn sm" data-act="stickyNew" title="Pin a sticky note on top of your notes">${ico('sticky')}Sticky</button>${(l.stickies||[]).some(x=>x.hidden)?`<button class="btn sm ghost" data-act="stickyShow" title="Show your hidden sticky notes">${ico('eye')}${(l.stickies||[]).filter(x=>x.hidden).length} hidden</button>`:''}</span>
     <span class="markbar" role="group" aria-label="Mark the selected words">${MARKS.map(([k,e,lab])=>`<button class="mkb" data-act="mark" data-v="${k}" title="${k==='q'?'Select words in your notes, then write a reflection question that leads to them':'Mark the selected words: '+lab}">${ico(e)}<span>${k==='q'?'Ask':k==='imp'?'Key':'Review'}</span></button>`).join('')}<button class="mkb" data-act="mark" data-v="idea" title="Save the selected words (or a thought) as an idea">${ico('bulb')}<span>Idea</span></button><button class="mkb" data-act="mark" data-v="rel" title="Relate the selected words to a claim, concept or question from the readings">${ico('link2')}<span>Relate</span></button></span>
-    <button class="btn sm" data-act="capture" title="Capture an assignment, a date or deadline, or information about the course">${ico('flag')}Capture</button>
+    <button class="btn sm" data-act="capture" title="Capture an assignment, a date or deadline, or information about the course">${ico('flag')}<span class="bl">Capture</span></button>
+    ${nRead?`<button class="btn sm ${LV.digest&&!LV.mat?'on':''}" data-act="digest" aria-pressed="${!!(LV.digest&&!LV.mat)}" title="Open your reading notes beside your class notes, to relate and synthesise">${ico('readm')}<span class="bl">Reading notes</span></button>`:''}
     <button class="btn sm ${rec?'danger':''}" data-act="${rec?'recStop':'recStart'}" title="${rec?'Stop recording':'Record the lecture audio — every new paragraph gets a time stamp you can click to listen back'}">${ico('mic')}${rec?'<span id="recTime">Stop</span>':'Record'}</button>
     <span class="spacer"></span><span class="save" id="saveNote"></span>
     <button class="btn sm icon ${LV.panel?'on':''}" data-act="lPanel" title="${LV.panel?'Hide':'Show'} reflection questions, important ideas and flashcards" aria-label="Questions panel" aria-pressed="${LV.panel?'true':'false'}">${ico('menu')}</button>
@@ -6873,6 +6954,9 @@ function lectureView(){
     if(rn&&mat&&mat.id===rn.id)return `<div id="lectureView" class="rmode">${head}${toolbar}${fab}<div class="pe split lsplit two ${LV.anim?'opening':''}" id="pe" style="--nw:${lecNotesWidth()}%"><div class="notescol">${readingNotesHTML(rn,l)}</div><div class="gutter" id="gutter" role="separator" aria-orientation="vertical" aria-label="Drag to resize the notes" tabindex="0"></div>${readerHTML(mat)}</div>${LV.mcard?matCardHTML():''}</div>`;
     if(mat){LV.mat=null}
     return `<div id="lectureView" class="rmode">${LV.mcard?matCardHTML():''}${head}${toolbar}${fab}<div class="rnsolo">${rn?`${rn.pdf?`<div class="rnreopen"><button class="btn sm" data-act="matOpen" data-id="${rn.id}">${ico('doc')}Open the PDF beside these notes</button></div>`:''}${readingNotesHTML(rn,l)}`:readingHubHTML(l)}</div></div>`;
+  }
+  if(LV.digest&&!mat&&readingsOf(V.lectureId).length){
+    return `<div id="lectureView">${head}${toolbar}${fab}<div class="pe split lsplit two ${LV.anim?'opening':''}" id="pe" style="--nw:${lecNotesWidth()}%"><div class="notescol">${notes}</div><div class="gutter" id="gutter" role="separator" aria-orientation="vertical" aria-label="Drag to resize the notes" tabindex="0"></div><div class="reader digest" id="digest">${digestHTML(l)}</div></div>${LV.mcard?matCardHTML():''}</div>`;
   }
   if(mat){
     return `<div id="lectureView">${head}${toolbar}${fab}<div class="pe split lsplit two ${LV.anim?'opening':''}" id="pe" style="--nw:${lecNotesWidth()}%"><div class="notescol">${notes}</div><div class="gutter" id="gutter" role="separator" aria-orientation="vertical" aria-label="Drag to resize the notes" tabindex="0"></div>${readerHTML(mat)}</div>${LV.mcard?matCardHTML():''}</div>`;
@@ -7020,6 +7104,7 @@ function bindLecture(){
     ed.addEventListener('focus',()=>{try{document.execCommand('defaultParagraphSeparator',false,'p')}catch(e){}});
     ed.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey&&REC.rec&&REC.lectureId===V.lectureId&&ed.dataset.part==='html')setTimeout(()=>insertStamp(ed),0)});
   });
+  if($('#digest'))bindDigest();
   if(LV.mat){const m={id:LV.mat,...S.docs[LV.mat]};mountReader(m);bindAsk(m);bindLGutter();
     if(LV.anim){LV.anim=false;const rd=$('#reader'),fb=$('#matFab');if(rd&&fb){const r=fb.getBoundingClientRect(),q=rd.getBoundingClientRect();rd.style.transformOrigin=`${r.left+r.width/2-q.left}px ${r.top-q.top}px`;rd.classList.add('opening');setTimeout(()=>rd.classList.remove('opening'),480)}}}
   root.querySelectorAll('audio[data-rec]').forEach(a=>a.addEventListener('loadedmetadata',()=>{if(a.duration===Infinity){a.currentTime=1e101;a.ontimeupdate=()=>{a.ontimeupdate=null;a.currentTime=0}}}));
@@ -7870,6 +7955,8 @@ document.addEventListener('click',e=>{
     case 'rnLinkAdd': {const box=$('#rnotes'),m=S.docs[box.dataset.mid],l=S.docs[V.lectureId];const o=readingsOf(V.lectureId).find(x=>x.id!==box.dataset.mid)||docsOf('material',x=>x.courseId===l.courseId&&x.lectureId!==V.lectureId&&x.type!=='slides')[0];if(!o)break;rnOf(m).links.push({id:uid('rn'),to:o.id,kind:'supports',text:''});save(box.dataset.mid);refreshRN('.rnsec[data-s="links"] .rnit:last-child textarea');break}
     case 'rnAddNo': {const i=document.querySelector('.rnadd[data-sec="concepts"]');if(!i||!trim(i.value)){if(i)i.focus();break}rnDraft($('#rnotes').dataset.mid,'concepts','');rnAdd($('#rnotes').dataset.mid,'concepts',i.value,{ok:false});refreshRN('.rnadd[data-sec="concepts"]');break}
     case 'capture': captureDialog();break;
+    case 'dgCustom': DG.open=!DG.open;refreshDigest();break;
+    case 'digest': if(LV.digest&&!LV.mat){LV.digest=false;renderMain()}else{LV.digest=true;LV.mat=null;LV.anim=true;renderMain()}break;
     case 'relNew': relateDialog({});break;
     case 'imOpen': openInsightMap(id||V.lectureId);break;
     case 'crTab': IM.tab=b.dataset.v;IM.zset=false;renderMain();break;
