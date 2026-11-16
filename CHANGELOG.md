@@ -1,5 +1,11 @@
 # Changelog
 
+## [3.4.2] - 2026-11-16
+### Changed
+- Focus mode on a lecture now starts at the toolbar: the breadcrumbs, date and topic header are hidden. The lecture title stays at the left of the toolbar.
+- An empty subtopic line is hidden. It appears when you point at or edit the header.
+- In focus mode the Sketch and Materials buttons no longer cover End lecture and the ⋯ menu.
+
 ## [3.4.1]
 - **No more leaking at the top while you scroll.** The toolbar above your notes and writing, and the top search bar, now have solid backgrounds, so lines of text no longer show through as they scroll underneath. Sticky notes also slide under the toolbars instead of over them.
 
