@@ -1,5 +1,31 @@
 # Changelog
 
+## [3.10.0] - 2026-11-17
+### Added
+- **Organise course reports** like research project reports. *Organise by* has four options:
+  - **Lecture:** as before.
+  - **Reading:** each reading with everything you noted on it and what the lectures added.
+  - **Theme:** all readings together, section by section. It covers questions, claims and their support, a concept glossary showing which readings use each concept, how the readings relate, questions taken to class, insights, gaps, and what the lectures added.
+  - **Grid:** one table of readings against their questions, claims, support, concepts, insights and gaps.
+- **Course report buttons:** *Full screen* shows only the report (Esc to leave). *Copy text* copies the report.
+- **Reading notes panel in class notes, redesigned** (*From your readings*):
+  - **Reading switcher:** *All readings* or one reading at a time. With all readings, each item is labelled with its reading.
+  - **Tabs:** Everything, Notes, Questions, Claims, Concepts, Insights, Gaps, Links. For example, Insights with all readings shows the insights from every reading.
+  - **Search** across all your reading notes.
+  - **This lecture or Whole course:** bring in the readings of earlier lectures too.
+  - **Matches what you are writing:** as you type a paragraph, matching claims and concepts from the readings appear, ready to *Relate* or *Insert*.
+  - **PDF:** opens a reading's PDF in the same pane. The *Reading notes* button brings the notes back.
+
+### Changed
+- **Insight map rebuilt to give the overview first:**
+  - **Overview:** readings around the middle, with the concepts they share between them and arrows for how the readings relate. Each reading card shows its counts, its gaps and its main insights. Click **+** on a reading to open its questions, claims and support, class links, insights and gaps; *Open all* and *Close all* do this for every reading.
+  - **Moving around:** drag the background to move; scroll to pan; Ctrl + scroll or pinch to zoom; *Fit* shows the whole map.
+  - **Laptop screens:** the map fills the window. Gaps and the key open in panels over the map instead of taking space beside it.
+  - **Filters:** show or hide questions, claims, concepts, class links, insights and gaps. *Only gaps* dims everything that is not a gap.
+
+### Fixed
+- When the window was narrow (for example in split screen), the course report's side bar stayed fixed and the report scrolled underneath it. It now flows above the report.
+
 ## [3.9.0] - 2026-11-16
 ### Added
 - **Reading notes beside class notes.** A new *Reading notes* button in the class-notes toolbar opens a report of your reading notes on the right, while you take notes on the left. You can drag the divider to resize the two sides.

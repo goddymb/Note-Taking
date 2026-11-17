@@ -1035,7 +1035,7 @@ body.focus .lmodebar{margin-top:-4px}
 body.focus #lectureView.rmode .lmodebar,body.focus #lectureView.rmode .ptoolbar.rtool,body.focus #lectureView.rmode .rnhead{display:none}
 body.focus #lectureView.rmode .rnchips{padding-top:2px}
 body.focus #lectureView.rmode .split{margin-top:46px}body.focus #lectureView.rmode .rnsolo{padding-top:40px}
-.crlayout.map{grid-template-columns:1fr}.crlayout.map .crside{position:static;display:flex;flex-direction:row;flex-wrap:wrap;gap:10px;align-items:stretch}.crlayout.map .crtabs button{padding:6px 14px}
+.crlayout.map{grid-template-columns:minmax(0,1fr)}.crlayout.map>*{min-width:0}.imwrap{min-width:0;max-width:100%}.crlayout.map .crside{position:static;display:flex;flex-direction:row;flex-wrap:wrap;gap:10px;align-items:stretch}.crlayout.map .crtabs button{padding:6px 14px}
 .crlayout.map .crside>.crblock{margin:0}.crlayout.map .crside>.crblock:first-child{display:flex;gap:10px;flex:2 1 420px}.crlayout.map .crside>.crblock:first-child .field{flex:1;margin:0}
 .crlayout.map .crside>.crblock:nth-child(2){display:flex;align-items:center}.crlayout.map .crx,.crlayout.map .crside>.crblock:last-child{display:none}
 .seg.lmode button{display:inline-flex;align-items:center;gap:6px}.seg.lmode em{font-style:normal;font-size:11px;font-weight:700;background:var(--panel-2);color:var(--ink-2);border-radius:999px;padding:0 6px;line-height:17px}
@@ -1074,6 +1074,21 @@ body.focus #lectureView.rmode .rnsolo .rnchips{--rnct:44px}
 .reader.digest{display:flex;flex-direction:column}
 .dghead{display:flex;align-items:flex-start;gap:6px;padding:12px 12px 10px 16px;border-bottom:1px solid var(--line)}
 .dgtitle{flex:1;display:flex;flex-direction:column;gap:2px}.dgtitle>b{display:flex;align-items:center;gap:6px;font-size:14.5px}.dgtitle>b .i{color:var(--accent)}.dgtitle .muted{font-size:12px}
+.dgscope{flex:none}.dgscope button{font-size:12px;padding:4px 9px}
+.dgrds{display:flex;gap:4px;overflow-x:auto;padding:8px 12px 0 16px;scrollbar-width:thin}
+.dgrds button{flex:none;display:flex;flex-direction:column;align-items:flex-start;border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:5px 10px;font-size:12.5px;font-weight:600;color:var(--ink-2);cursor:pointer;line-height:1.2}
+.dgrds button small{font-size:10.5px;font-weight:500;color:var(--muted)}.dgrds button.on{border-color:#7c5cff;background:color-mix(in srgb,#7c5cff 10%,var(--panel));color:#5b3fd0}
+.dgtabs{display:flex;gap:2px;overflow-x:auto;padding:8px 12px 0 12px;border-bottom:1px solid var(--line);scrollbar-width:thin}
+.dgtabs button{flex:none;display:inline-flex;align-items:center;gap:5px;border:0;background:none;border-bottom:2px solid transparent;padding:6px 8px 8px;font-size:12.5px;font-weight:600;color:var(--muted);cursor:pointer}
+.dgtabs button em{font-style:normal;font-size:10.5px;background:var(--panel-2);border-radius:999px;padding:0 5px;line-height:15px;color:var(--ink-2)}
+.dgtabs button.on{color:var(--ink);border-bottom-color:var(--accent)}.dgtabs button:disabled{opacity:.4;cursor:default}
+.dgsearch{display:flex;align-items:center;gap:6px;padding:8px 16px;border-bottom:1px solid var(--line)}.dgsearch .i{color:var(--muted);width:15px;height:15px}.dgsearch .inp{border:0;background:none;padding:4px 2px;box-shadow:none}
+.dgsrc{color:var(--muted)!important;font-size:11px!important}
+.dgnote{font-size:12px;color:var(--muted);margin:10px 0 2px}
+.dgflat{padding-top:6px}
+.dgpdf{margin-top:4px;align-self:flex-start;padding:2px 8px;font-size:11.5px}
+.dgsug{margin:10px 0 6px;border:1px solid color-mix(in srgb,var(--accent) 35%,var(--line));background:color-mix(in srgb,var(--accent) 5%,var(--panel));border-radius:10px;padding:8px 10px;animation:rnin .2s ease}
+.dgsugh{display:flex;align-items:center;gap:5px;font-size:11.5px;font-weight:700;color:var(--accent);margin-bottom:2px}.dgsugh .i{width:13px;height:13px}
 .dgcustom{padding:10px 16px;border-bottom:1px solid var(--line);background:var(--panel-2);display:flex;flex-direction:column;gap:8px}
 .dgrow{display:flex;flex-wrap:wrap;gap:4px 12px;align-items:center;font-size:12.5px}.dgrow .spl{font-weight:650;color:var(--muted);width:66px}
 .dgchk{display:inline-flex;align-items:center;gap:5px;cursor:pointer}
@@ -1163,6 +1178,38 @@ textarea.rnin:hover{background:var(--panel-2)}textarea.rnin:focus{background:var
 .imbar .seg button{min-width:34px}
 .imbar .btn.on{background:color-mix(in srgb,var(--accent) 14%,var(--panel));border-color:var(--accent);color:var(--accent)}
 .imbody{display:grid;grid-template-columns:minmax(0,1fr) 270px;gap:10px;align-items:start}
+.imstage{position:relative}
+.imstage .imcanvas{height:calc(100vh - 160px);min-height:380px;overflow:hidden;cursor:grab;touch-action:none}
+.imstage .imcanvas.panning{cursor:grabbing}
+.imstage .imboard{position:absolute;left:0;top:0;width:1px;height:1px;transform-origin:0 0;min-width:0;min-height:0}
+.imstage .imedges{overflow:visible}
+.imfilters{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:12.5px}
+.imf{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--line);border-radius:999px;padding:3px 10px 3px 8px;cursor:pointer;background:var(--panel);color:var(--muted);font-weight:600}
+.imf input{position:absolute;opacity:0;pointer-events:none}.imf::before{content:"";width:8px;height:8px;border-radius:2px;background:var(--line-2)}
+.imf.on{color:var(--ink)}.imf.on::before{background:var(--mk,var(--accent))}.imf:focus-within{outline:2px solid var(--accent)}
+.imf.k-rq{--mk:#1d4ed8}.imf.k-arg{--mk:#1d4ed8}.imf.k-concept{--mk:#0f766e}.imf.k-class{--mk:#14b8a6}.imf.k-insight{--mk:#ca8a04}.imf.k-question{--mk:#2563eb}.imf.k-litgap{--mk:#9333ea}
+.imhint{margin-left:auto;font-size:11.5px}
+.imsep{width:1px;height:20px;background:var(--line)}
+.imbar{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}.imbar>*{flex:none}.imbar .imsum{flex:0 1 auto;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media(max-width:1250px){.imbar .imsum{display:none}}
+.crlayout.map .crtabs button{white-space:nowrap}
+.imbar .gapbtn{color:#b45309;border-color:color-mix(in srgb,#f59e0b 50%,var(--line))}
+.imdrawer{position:absolute;top:8px;right:8px;bottom:8px;width:min(300px,80%);overflow:auto;background:var(--panel-solid,var(--panel));border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);padding:10px 14px;z-index:5;font-size:13px;animation:rnin .16s ease}
+.imdh{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}.imdh b{font-size:14px}
+.imdrawer .imlegend{grid-template-columns:1fr}
+.imn.t-reading{width:240px}
+.imrh{display:flex;align-items:flex-start;gap:8px}.imrh .imt{flex:1}
+.imexp{flex:none;width:26px;height:26px;border-radius:8px;border:1px solid color-mix(in srgb,#7c5cff 45%,transparent);background:var(--panel);color:#5b3fd0;font:700 16px/1 var(--font);cursor:pointer;display:grid;place-items:center}
+.imexp:hover{background:color-mix(in srgb,#7c5cff 14%,var(--panel))}
+.imn.t-reading.open{box-shadow:inset 0 0 0 2px #7c5cff,0 6px 18px color-mix(in srgb,#7c5cff 22%,transparent)}
+.imstats{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px}.imstats span{font-size:11px;font-weight:700;color:#5b3fd0;background:var(--panel);border-radius:5px;padding:1px 6px}
+.imstats .gapc{color:#92400e;background:color-mix(in srgb,#f59e0b 20%,var(--panel))}
+.imtop{display:flex;flex-direction:column;gap:3px;margin-top:8px;font-size:12px;color:var(--ink-2);line-height:1.35}
+.imn.t-concept.shared{border-width:2.5px;font-size:13.5px;box-shadow:0 2px 8px color-mix(in srgb,#0f766e 18%,transparent)}
+.imn.t-concept,.imn.t-prereq{width:auto;max-width:220px}
+.lg.t-concept.shared{border-width:2.5px}.lg.lgline{border:0;height:0;border-top:2px solid #7c5cff;border-radius:0}.lg.lgline.gapl{border-top:2px dashed #d97706}
+.imcanvas.onlygaps .imn:not([class*=" g-"]):not(.t-reading){opacity:.18}.imcanvas.onlygaps .ime{opacity:.25}
+
 .imcanvas{position:relative;overflow:auto;height:calc(100vh - 230px);min-height:460px;border:1px solid var(--line);border-radius:12px;background-color:var(--bg);background-image:radial-gradient(color-mix(in srgb,var(--ink) 11%,transparent) 1px,transparent 1px);background-size:22px 22px}
 .imboard{position:relative}
 .imedges{position:absolute;left:0;top:0;pointer-events:none;overflow:visible;color:var(--muted)}
@@ -1225,7 +1272,7 @@ textarea.rnin:hover{background:var(--panel-2)}textarea.rnin:focus{background:var
   #imPrintHost .imboard{position:absolute;left:0;top:0;background:#fff}#imPrintHost .imn{box-shadow:none;cursor:default}}
 /* full screen: only the map */
 #imWrap.imfull{position:fixed;inset:0;z-index:300;background:var(--bg);padding:10px;gap:8px;overflow:hidden;min-height:0}
-#imWrap.imfull .imbody{grid-template-columns:1fr;height:calc(100vh - 74px)}
+#imWrap.imfull .imstage .imcanvas{height:calc(100vh - 100px)}
 #imWrap.imfull .imside{display:none}
 #imWrap.imfull .imcanvas{height:100%;max-height:none}
 body.imfullon{overflow:hidden}
@@ -1309,7 +1356,14 @@ body.focus .ptoolbar{background:var(--bg)}
 .prow>svg{width:15px;height:15px;color:var(--muted)}
 @media(max-width:800px){.prow{grid-template-columns:minmax(0,1fr) 16px}.prs,.prp{display:none}}
 .crlayout{display:grid;grid-template-columns:270px minmax(0,1fr);gap:24px;align-items:start}
-@media(max-width:1000px){.crlayout{grid-template-columns:1fr}}
+@media(max-width:1000px){.crlayout{grid-template-columns:1fr}.crside{position:static!important;display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px}.crview.crpage{padding:24px 20px}}
+.crview.crfull{position:fixed;inset:0;z-index:300;max-width:none;margin:0;border:0;border-radius:0;overflow:auto;padding:56px max(24px,calc((100vw - 820px)/2)) 80px;box-shadow:none}
+.crfullx{position:fixed;top:12px;right:16px;z-index:2;box-shadow:var(--shadow)}
+.crsrc{display:inline-block;font-size:.72em;font-weight:650;color:#6d4ee0;background:color-mix(in srgb,#7c5cff 10%,transparent);border-radius:4px;padding:0 6px;vertical-align:.1em;font-family:var(--font)}
+.crglo{margin:0 0 8px}.crweak{color:#7e22ce}
+.crgridw{overflow-x:auto;margin:10px 0}.crgrid{border-collapse:collapse;font-size:13px;line-height:1.45;min-width:900px}.crgrid th,.crgrid td{border:1px solid var(--line);padding:8px 10px;vertical-align:top;text-align:left}
+.crgrid th{background:var(--panel-2);font-size:12px}.crgrid ul{margin:0;padding-left:16px}.crgrid li{margin:0 0 4px}
+.crview.crpage:has(.crgrid){max-width:none}
 .crside{position:sticky;top:88px;display:flex;flex-direction:column;gap:12px}
 .crblock{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px}
 .crh{font-size:13px;font-weight:650;color:var(--ink-2);margin-bottom:8px}
@@ -1979,7 +2033,7 @@ const tpl=pid=>{if(S.docs[pid]&&S.docs[pid].kind==='project'&&(S.docs[pid]._qv||
 const V={view:'home',pid:null,paperId:null,lastPaper:null,tab:'lit',filter:'All',cmpQ:'q1',repLayout:'paper',showEmpty:false,openSec:{},openQ:{},lib:null,split:false,focus:false,swap:false};
 try{Object.assign(V,JSON.parse(localStorage.getItem('litnotes.view')||'{}'))}catch(e){}
 function persistView(){try{localStorage.setItem('litnotes.view',JSON.stringify({view:V.view,pid:V.pid,paperId:V.paperId,lastPaper:V.lastPaper,tab:V.tab,lib:V.lib,split:V.split,focus:V.focus,swap:V.swap,draftId:V.draftId,repLayout:V.repLayout,courseId:V.courseId,lectureId:V.lectureId,assignId:V.assignId,ctab:V.ctab,cstab:V.cstab,unitF:V.unitF,resTab:V.resTab,ws:V.ws}))}catch(e){}}
-function go(o){if(typeof IM!=='undefined'&&IM.full){IM.full=false;document.body.classList.remove('imfullon');if(document.fullscreenElement)document.exitFullscreen().catch(()=>{})}Object.assign(V,o);persistView();document.getElementById('side').classList.remove('show');closeSearch();const qi=document.getElementById('q');if(qi&&document.activeElement!==qi)qi.value='';render();window.scrollTo(0,0)}
+function go(o){if(typeof CR!=='undefined'&&CR.full){CR.full=false;document.body.classList.remove('imfullon')}if(typeof IM!=='undefined'&&IM.full){IM.full=false;document.body.classList.remove('imfullon');if(document.fullscreenElement)document.exitFullscreen().catch(()=>{})}Object.assign(V,o);persistView();document.getElementById('side').classList.remove('show');closeSearch();const qi=document.getElementById('q');if(qi&&document.activeElement!==qi)qi.value='';render();window.scrollTo(0,0)}
 
 function onData(){
   renderSide();
@@ -6016,7 +6070,7 @@ function lectureDocHTML(l,full){
     ${cardsOf(l).length?`<h3>Flashcards</h3><table><tr><th>Term</th><th>Meaning</th></tr>${cardsOf(l).map(k=>`<tr><td>${esc(k.front)}</td><td>${esc(k.back)}</td></tr>`).join('')}</table>`:''}`;
 }
 /* ---------- course report: read it, or export it ---------- */
-const CR={scope:'course',inc:{readings:true,captured:true,summary:true,notes:true,questions:true,important:true,cards:true,materials:true}};
+const CR={scope:'course',org:(()=>{try{return localStorage.getItem('litnotes.crorg')||'lecture'}catch(e){return 'lecture'}})(),full:false,inc:{readings:true,captured:true,summary:true,notes:true,questions:true,important:true,cards:true,materials:true}};
 try{Object.assign(CR.inc,JSON.parse(localStorage.getItem('litnotes.crinc')||'{}'))}catch(e){}
 const CR_PARTS=[['readings','Reading notes & links to class'],['captured','Captured in class'],['notes','Lecture notes'],['summary','Summaries'],['questions','Reflection questions & answers'],['important','Important ideas & reflections'],['cards','Flashcards'],['materials','Slides & readings list']];
 function reportView(){
@@ -6035,8 +6089,9 @@ function courseReportHTML(c,units){
   return `<div class="crlayout ${IM.tab==='map'?'map':''}"><aside class="crside">
     <div class="crblock"><div class="field"><label>Course</label><select class="inp" id="crCourse">${cs.map(x=>`<option value="${x.id}" ${x.id===c.id?'selected':''}>${esc(courseLabel(x))}</option>`).join('')}</select></div><div class="field" style="margin:0"><label>Report on</label><select class="inp" id="crScope">${opts}</select></div></div>
     <div class="crblock"><span class="seg crtabs" role="tablist"><button class="${IM.tab!=='map'?'on':''}" data-act="crTab" data-v="report">${ico('doc')}Report</button><button class="${IM.tab==='map'?'on':''}" data-act="crTab" data-v="map">${ico('map')}Insight map</button></span></div>
-    <div class="crblock" ${IM.tab==='map'?'hidden':''}><div class="crh">Include</div>${CR_PARTS.map(([k,lab])=>`<label class="crinc"><input type="checkbox" data-crinc="${k}" ${CR.inc[k]?'checked':''}><span>${lab}</span></label>`).join('')}</div>
-    <div class="crblock crx"><button class="btn" data-act="crExport" data-v="pdf">${ico('download')}Export PDF</button><button class="btn" data-act="crExport" data-v="doc">${ico('download')}Export Word</button><button class="btn ghost" data-act="crSave" title="Keep a copy under Saved reports">${ico('library')}Save a copy</button></div>
+    <div class="crblock" ${IM.tab==='map'?'hidden':''}><div class="field" style="margin:0"><label>Organise by</label><select class="inp" id="crOrg">${CR_ORGS.map(([v,t])=>`<option value="${v}" ${CR.org===v?'selected':''}>${t}</option>`).join('')}</select></div><p class="help" style="margin:6px 0 0">${esc((CR_ORGS.find(x=>x[0]===CR.org)||CR_ORGS[0])[2])}</p></div>
+    <div class="crblock" ${IM.tab==='map'||CR.org==='grid'?'hidden':''}><div class="crh">Include</div>${CR_PARTS.map(([k,lab])=>`<label class="crinc"><input type="checkbox" data-crinc="${k}" ${CR.inc[k]?'checked':''}><span>${lab}</span></label>`).join('')}</div>
+    <div class="crblock crx"><button class="btn" data-act="crFull" title="Read the report on the whole screen">${ico('maximize')}Full screen</button><button class="btn" data-act="crCopy" title="Copy the report as text">${ico('copy')}Copy text</button><button class="btn" data-act="crExport" data-v="pdf">${ico('download')}Export PDF</button><button class="btn" data-act="crExport" data-v="doc">${ico('download')}Export Word</button><button class="btn ghost" data-act="crSave" title="Keep a copy under Saved reports">${ico('library')}Save a copy</button></div>
     <div class="crblock"><div class="crh">Saved reports</div>${(()=>{const rs=reportsSaved();return rs.length?rs.map(r=>`<div class="crsaved"><button class="link" data-act="repOpen" data-id="${r.id}" title="${esc(r.title)}">${esc(r.title)}</button><span class="muted">${esc(new Date(r.createdAt).toLocaleDateString())}</span><button class="btn sm ghost icon" data-act="repExport" data-id="${r.id}" data-v="pdf" title="Export PDF" aria-label="Export PDF">${ico('download')}</button><button class="btn sm ghost icon danger" data-act="repDel" data-id="${r.id}" title="Delete" aria-label="Delete">${ico('trash')}</button></div>`).join(''):'<p class="muted" style="margin:0;font-size:13px">None yet. Save a copy to keep this version.</p>'})()}</div>
   </aside>
   <article class="crview ${IM.tab==='map'?'crmapv':'crpage'}" id="crView">${IM.tab==='map'?insightMapHTML(c):courseReportBody(c)}</article></div>`;
@@ -6047,7 +6102,48 @@ function courseReportScope(c){
   if(CR.scope.startsWith('u:')){const u=unitOf(CR.scope.slice(2));return {title:u?(u.code?u.code+' · ':'')+u.name:'Unit',ls:all.filter(l=>u&&l.unitId===u.id)}}
   return {title:'Whole course',ls:all};
 }
+const CR_ORGS=[['lecture','Lecture','Each lecture in turn: its reading notes, class notes, questions and flashcards.'],['reading','Reading','Each reading in turn, with everything you noted on it and what the lectures added.'],['theme','Theme','All readings together, section by section: questions, claims, a concept glossary, insights, gaps.'],['grid','Grid','One table: readings against their questions, claims, support, concepts, insights and gaps.']];
 function courseReportBody(c){
+  if(CR.org&&CR.org!=='lecture')return courseReportOrg(c);
+  return courseReportByLecture(c);
+}
+function crReadings(ls){const out=[];ls.forEach(l=>readingsOf(l.id).forEach(m=>out.push({m:{id:m.id,...S.docs[m.id]},l})));return out}
+function courseReportOrg(c){
+  const {title,ls}=courseReportScope(c), I=CR.inc, rs=crReadings(ls);
+  const src=(m)=>`<span class="crsrc">${esc(matShort(m))}</span>`;
+  let body=`<h1>${esc(courseLabel(c))}</h1><p class="meta">${esc(title)} · ${rs.length} reading${rs.length===1?'':'s'} · ${ls.length} lecture${ls.length===1?'':'s'} · made ${esc(longDate(todayISO()))}</p>`;
+  if(!rs.length)return body+`<p class="muted">No readings in ${esc(title.toLowerCase())} yet. Add readings to a lecture and take reading notes first.</p>`;
+  const lecOf=l=>`${esc(l.topic||'Untitled lecture')}, ${esc(shortDate(l.date))}`;
+  const relsFor=(l,mid)=>(l.rels||[]).filter(r=>r.mat===mid);
+  const relLine=(l,x)=>{const m=S.docs[x.mat]||{},it=relItems(m.rn?m:{...m,rn:{}},l).find(z=>z[0]===x.item);return `The lecture <b>${esc(relLabel(CLASS_REL,x.kind))}</b> ${it?`“${esc(it[1].replace(/^[ACQ]\d+ · /,''))}”`:'the reading'}: ${esc(x.text)}${x.note?` <i>— ${esc(x.note)}</i>`:''}`};
+  if(CR.org==='reading'){
+    body+=`<nav class="crtoc"><div class="crh">Readings</div><ol>${rs.map(({m,l})=>`<li><a href="#crr-${m.id}">${esc(matShort(m))}</a><span>${esc(shortDate(l.date))}</span></li>`).join('')}</ol></nav>`;
+    body+=rs.map(({m,l})=>{const rl=relsFor(l,m.id);return `<section class="crlec" id="crr-${m.id}"><h2>${esc(matShort(m))}</h2><p class="meta">For ${lecOf(l)}</p>${readingsReportHTML({...l,id:l.id},{...I,captured:false},m.id)}${rl.length&&I.readings!==false?`<h3>What the lecture added</h3><ul>${rl.map(x=>`<li>${relLine(l,x)}</li>`).join('')}</ul>`:''}</section>`}).join('');
+    return body;
+  }
+  if(CR.org==='theme'){
+    const sec=(t,items)=>items.length?`<h2>${t}</h2>${items.join('')}`:'';
+    const byR=(f)=>rs.map(({m,l})=>{const xs=f(m,l);return xs.length?`<h3>${esc(matShort(m))}</h3>${xs.join('')}`:''}).filter(Boolean);
+    const rq=byR((m)=>rnOf(m).rq.map(q=>`<p><b>${esc(q.text)}</b><br>${q.answer?esc(q.answer):'<span class="crgap">answer not noted yet</span>'}</p>`));
+    const cl=byR((m)=>{const a=rnOf(m).args;return a.length?[`<ol>${a.map(x=>`<li>${esc(x.text)}${x.page?` <span class="muted">(${esc(pageStr(x.page))})</span>`:''}<br><span class="a">${x.sup||trim(x.ev||'')?`<b${x.sup==='weak'?' class="crweak"':''}>${esc(supLabel(x.sup)||'Support')}</b>${x.ev?': '+esc(x.ev):''}`:'<span class="crgap">support not noted</span>'}</span></li>`).join('')}</ol>`]:[]});
+    const gl={}; rs.forEach(({m})=>{const r=rnOf(m);r.concepts.concat(r.prereq.map(p=>({...p,pre:true}))).forEach(x=>{const k=trim(x.text).toLowerCase();if(!k)return;const g=gl[k]=gl[k]||{t:trim(x.text),defs:[],src:[],no:false,pre:false};if(x.def)g.defs.push(x.def);if(!g.src.includes(m.id))g.src.push(m.id);if(x.ok===false)g.no=true;if(x.pre)g.pre=true})});
+    const glo=Object.values(gl).sort((a,b)=>a.t.localeCompare(b.t)).map(g=>`<p class="crglo"><b>${esc(g.t)}</b>${g.defs.length?' — '+esc([...new Set(g.defs)].join('; ')):''} ${g.src.map(id=>src(S.docs[id])).join(' ')}${g.pre?' <span class="muted">needed first</span>':''}${g.no?' <span class="crgap">not understood yet</span>':''}</p>`);
+    const lk=rs.flatMap(({m})=>rnOf(m).links.map(x=>`<p>${esc(matShort(m))} <b>${esc(relLabel(REL_KINDS,x.kind))}</b> ${esc(matShort(S.docs[x.to]||{}))}${x.text?': '+esc(x.text):''}</p>`));
+    const fq=rs.flatMap(({m,l})=>rnQuestions(l,m.id).map(q=>`<p>${esc(q.text)} ${src(m)}<br>${q.answer?`<span class="a">${esc(q.answer)}</span>`:q.status==='answered'?'':'<span class="crgap">still open</span>'}</p>`));
+    const ins=rs.flatMap(({m})=>rnOf(m).insights.map(x=>`<li>${esc(x.text)} ${src(m)}</li>`));
+    const gp=rs.flatMap(({m})=>rnOf(m).gaps.map(x=>`<li>${esc(x.text)} ${src(m)}</li>`));
+    const added=ls.flatMap(l=>(l.rels||[]).map(x=>`<li>${relLine(l,x)} ${src(S.docs[x.mat]||{})}</li>`));
+    const gen=rs.filter(({m})=>trim(rnOf(m).text||'')).map(({m})=>`<h3>${esc(matShort(m))}</h3><div class="crnotes">${floatsInline(rnOf(m).html||'')}</div>`);
+    body+=sec('Questions the readings ask',rq)+sec('Claims and how they are supported',cl)+sec('Concept glossary',glo)+sec('How the readings relate',lk)+sec('Questions taken to class',fq)+(ins.length?`<h2>Insights</h2><ul>${ins.join('')}</ul>`:'')+(gp.length?`<h2>Gaps and limits</h2><ul>${gp.join('')}</ul>`:'')+(added.length?`<h2>What the lectures added</h2><ul>${added.join('')}</ul>`:'')+(I.notes?sec('General notes',gen):'');
+    return body;
+  }
+  // grid
+  const cell=xs=>xs.length?`<ul>${xs.join('')}</ul>`:'<span class="muted">—</span>';
+  body+=`<div class="crgridw"><table class="crgrid"><thead><tr><th>Reading</th><th>Questions it asks</th><th>Claims</th><th>Support</th><th>Key concepts</th><th>Insights</th><th>Gaps and limits</th></tr></thead><tbody>${rs.map(({m,l})=>{const r=rnOf(m);
+    return `<tr><td><b>${esc(matShort(m))}</b><br><span class="muted">${esc(m.name)}</span></td><td>${cell(r.rq.map(q=>`<li>${esc(q.text)}${q.answer?`<br><i>${esc(q.answer)}</i>`:''}</li>`))}</td><td>${cell(r.args.map((a,i)=>`<li><b>C${i+1}</b> ${esc(a.text)}</li>`))}</td><td>${cell(r.args.map((a,i)=>`<li><b>C${i+1}</b> ${a.sup||trim(a.ev||'')?`${a.sup?`<span class="${a.sup==='weak'?'crweak':''}">${esc(supLabel(a.sup))}</span>`:''}${a.ev?(a.sup?': ':'')+esc(a.ev):''}`:'<span class="crgap">not noted</span>'}</li>`))}</td><td>${cell(r.concepts.map(x=>`<li>${esc(x.text)}${x.ok===false?' <span class="crgap">?</span>':''}</li>`))}</td><td>${cell(r.insights.map(x=>`<li>${esc(x.text)}</li>`))}</td><td>${cell(r.gaps.map(x=>`<li>${esc(x.text)}</li>`))}</td></tr>`}).join('')}</tbody></table></div>`;
+  return body;
+}
+function courseReportByLecture(c){
   const {title,ls}=courseReportScope(c), I=CR.inc;
   if(!ls.length)return `<p class="muted">No lecture notes here yet.</p>`;
   const lec=l=>{
@@ -6073,6 +6169,7 @@ function bindCourseReport(){
   const v=$('#crView'); if(!v)return; const c=courseOf(CR.cid);
   const cc=$('#crCourse'); if(cc)cc.onchange=()=>{CR.cid=cc.value;CR.scope='course';V.libR=V.libR||{course:'all',unit:'all'};V.libR.course=cc.value;V.libR.unit='all';renderMain()};
   const sc=$('#crScope'); if(sc)sc.onchange=()=>{CR.scope=sc.value;if(IM.tab==='map')bindInsightMap(true);else v.innerHTML=courseReportBody(c)};
+  const og=$('#crOrg'); if(og)og.onchange=()=>{CR.org=og.value;try{localStorage.setItem('litnotes.crorg',CR.org)}catch(e){}renderMain()};
   if(IM.tab==='map')requestAnimationFrame(()=>bindInsightMap(false));
   document.querySelectorAll('[data-crinc]').forEach(cb=>cb.onchange=()=>{CR.inc[cb.dataset.crinc]=cb.checked;try{localStorage.setItem('litnotes.crinc',JSON.stringify(CR.inc))}catch(e){}v.innerHTML=courseReportBody(c)});
 }
@@ -6197,6 +6294,7 @@ const readerId=()=>V.view==='paper'?V.paperId:V.view==='lecture'?LV.mat:V.view==
    course.imaps[scope] = {pos,hide,add,edges,gap}   (your edits to the insight map)
    ============================================================ */
 Object.assign(IC,{
+  search:'<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>',
   link2:'<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
   flag:'<path d="M5 21V4"/><path d="M5 4h11l-2 4 2 4H5"/>',
   map:'<circle cx="5" cy="6" r="2.2"/><circle cx="19" cy="6" r="2.2"/><circle cx="12" cy="18" r="2.2"/><path d="M7.2 6h9.6M6.2 8l4.6 8M17.8 8l-4.6 8"/>',
@@ -6501,6 +6599,7 @@ function relItems(m,l){
 }
 function relateDialog(opts){
   const l=S.docs[V.lectureId]; const rs=readingsOf(V.lectureId);
+  if(opts.mat&&!rs.some(m=>m.id===opts.mat)&&S.docs[opts.mat])rs.push({id:opts.mat,...S.docs[opts.mat]});
   if(!rs.length){toast('This lecture has no readings yet — add them with Materials');return}
   const m0=opts.mat||(rs.find(m=>rnCount(m,l))||rs[0]).id;
   const itemOpts=mid=>{const m=S.docs[mid];const its=relItems(m,l);let html=`<option value="">The reading as a whole</option>`,g='';its.forEach(([v,t,grp])=>{if(grp!==g){if(g)html+='</optgroup>';html+=`<optgroup label="${esc(grp)}">`;g=grp}html+=`<option value="${v}" ${opts.item===v?'selected':''}>${esc(t.length>90?t.slice(0,88)+'…':t)}</option>`});return html+(g?'</optgroup>':'')};
@@ -6542,62 +6641,118 @@ function fromReadingsHTML(l){
     <button class="link" data-act="relNew" style="margin-top:6px;font-size:13px">+ Relate something from the lecture</button></div>`;
 }
 /* ---------- reading notes beside class notes: a report you can shape, to relate and synthesise ---------- */
-const DG_SECS=[['general','General notes'],['rq','Reading questions'],['args','Claims'],['concepts','Concepts'],['prereq','Needed first'],['links','Other readings'],['questions','For class'],['insights','Insights'],['gaps','Gaps']];
-const DG=(()=>{let d={};try{d=JSON.parse(localStorage.getItem('litnotes.digest')||'{}')}catch(e){}return {secs:d.secs||['rq','args','concepts','insights','gaps','general'],hide:d.hide||[],open:false}})();
-function dgSave(){try{localStorage.setItem('litnotes.digest',JSON.stringify({secs:DG.secs,hide:DG.hide}))}catch(e){}}
+const DG_TABS=[['all','Everything'],['general','Notes'],['questions','Questions'],['args','Claims'],['concepts','Concepts'],['insights','Insights'],['gaps','Gaps'],['links','Links']];
+const DG=(()=>{let d={};try{d=JSON.parse(localStorage.getItem('litnotes.digest')||'{}')}catch(e){}return {tab:d.tab||'all',scope:d.scope||'lecture',rd:'all',q:'',sug:[]}})();
+function dgSave(){try{localStorage.setItem('litnotes.digest',JSON.stringify({tab:DG.tab,scope:DG.scope}))}catch(e){}}
 let dgRange=null;
 document.addEventListener('selectionchange',()=>{const s=getSelection();if(!s||!s.rangeCount)return;const n=s.anchorNode,e=n&&(n.nodeType===1?n:n.parentElement);if(e&&e.closest('.rte.lec')&&!e.closest('.rnmain'))dgRange=s.getRangeAt(0).cloneRange()});
+/* every reading available to this lecture: its own, or all of the course's */
+function courseHasReadings(l){return docsOf('material',x=>x.courseId===(l&&l.courseId)&&x.type!=='slides').length>0}
+function dgReadings(){
+  const l=S.docs[V.lectureId]; if(!l)return [];
+  const own=readingsOf(V.lectureId).map(m=>({m:{id:m.id,...S.docs[m.id]},l:{id:V.lectureId,...l}}));
+  if(DG.scope!=='course')return own;
+  const others=lecturesOf(l.courseId).filter(x=>x.id!==V.lectureId).slice().sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  return own.concat(others.flatMap(x=>readingsOf(x.id).map(m=>({m:{id:m.id,...S.docs[m.id]},l:x}))));
+}
+/* one flat list of everything noted on the readings */
+function dgItems(R){
+  const out=[];
+  R.forEach(({m,l})=>{const r=rnOf(m);
+    r.rq.forEach((q,i)=>out.push({tab:'questions',kind:'Reading question',item:'r:'+q.id,num:'Q'+(i+1),text:q.text,sub:q.answer?esc(q.answer):'<i class="warn">answer not noted yet</i>',m,l}));
+    rnQuestions(l,m.id).forEach(q=>out.push({tab:'questions',kind:'For class',item:'q:'+q.id,num:'?',text:q.text,sub:q.answer?esc(q.answer):q.status==='answered'?'':'<i class="warn">still open</i>',cls:q.status!=='answered'?'open':'',m,l}));
+    r.args.forEach((a,i)=>out.push({tab:'args',kind:'Claim',item:'a:'+a.id,num:'C'+(i+1),text:a.text,sub:a.sup||trim(a.ev||'')?`${a.sup?`<b class="${a.sup==='weak'?'weak':''}">${esc(supLabel(a.sup))}</b>${a.ev?': ':''}`:''}${esc(a.ev||'')}`:'<i class="warn">support not noted</i>',cls:a.sup==='weak'?'weak':'',m,l}));
+    r.concepts.forEach(c=>out.push({tab:'concepts',kind:'Concept',item:'c:'+c.id,text:c.text,sub:(c.def?esc(c.def):'')+(c.ok===false?' <i class="warn">not understood yet</i>':''),cls:c.ok===false?'gap':'',m,l}));
+    r.prereq.forEach(c=>out.push({tab:'concepts',kind:'Needed first',item:'p:'+c.id,text:c.text,sub:'<span class="muted">needed first</span>'+(c.ok===false?' <i class="warn">not understood yet</i>':''),cls:c.ok===false?'gap':'',m,l}));
+    r.insights.forEach(x=>out.push({tab:'insights',kind:'Insight',item:'i:'+x.id,text:x.text,cls:'ins',m,l}));
+    r.gaps.forEach(x=>out.push({tab:'gaps',kind:'Gap',item:'g:'+x.id,text:x.text,cls:'lit',m,l}));
+    r.links.forEach(x=>out.push({tab:'links',kind:'Link',text:`${relLabel(REL_KINDS,x.kind)} ${matShort(S.docs[x.to]||{})}`,sub:esc(x.text||''),noact:true,m,l}));
+  });
+  return out;
+}
+const dgTokens=t=>(String(t||'').toLowerCase().match(/[\p{L}][\p{L}'’-]{3,}/gu)||[]).filter(w=>!DG_STOP.has(w));
+const DG_STOP=new Set('that this with from have they their there which what when where were will would about also into than then them these those been being because while other some such more most very only just like over under after before between through does doing said says made make many much your yours ours shall could should might must here each every both either neither upon within without among against during the and for are but not you all any can had her his how its may new now old one our out see two who why use used using lecture lecturer reading readings state states'.split(' '));
+function dgRow(x,showSrc){
+  const rels=(S.docs[V.lectureId].rels||[]).filter(r=>r.item&&r.item===x.item);
+  return `<div class="dgi ${x.cls||''} ${rels.length?'disc':''}" data-item="${esc(x.item||'')}"><div class="dgt">${x.num?`<span class="rnb">${esc(x.num)}</span>`:''}<div class="dgx"><span>${esc(x.text)}</span>${x.sub?`<small>${x.sub}</small>`:''}${showSrc?`<small class="dgsrc">${esc(x.kind)} · ${esc(matShort(x.m))}${x.l.id!==V.lectureId?` · ${esc(shortDate(x.l.date))}`:''}</small>`:''}${rels.length?`<small class="dgd">${ico('check')}Related in class: ${rels.map(r=>esc(relLabel(CLASS_REL,r.kind))).join(', ')}</small>`:''}</div></div>${x.noact?'':`<span class="dga"><button class="btn sm ghost" data-dgrel="${x.m.id}" data-item="${esc(x.item)}" title="Relate the words you selected in your class notes to this (or write what the lecture said)">${ico('link2')}Relate</button><button class="btn sm ghost" data-dgins="${x.m.id}" data-item="${esc(x.item)}" title="Put it into your class notes, with its reference">${ico('plus')}Insert</button></span>`}</div>`;
+}
+function dgGeneral(m,q){
+  const html=rnOf(m).html||''; if(!trim(rnOf(m).text||''))return '';
+  if(!q)return `<div class="dggen">${html}</div>`;
+  const d=document.createElement('div'); d.innerHTML=html; const hits=[...d.querySelectorAll('p,li,h2,h3,h4')].filter(e=>e.textContent.toLowerCase().includes(q));
+  return hits.length?`<div class="dggen">${hits.map(e=>`<p>${e.innerHTML}</p>`).join('')}</div>`:'';
+}
 function digestHTML(l){
-  const rs=readingsOf(V.lectureId), rels=l.rels||[], on=k=>DG.secs.includes(k);
-  const disc=item=>rels.filter(r=>r.item===item);
-  const act=(mid,item,text)=>`<span class="dga"><button class="btn sm ghost" data-dgrel="${mid}" data-item="${item}" title="Relate the words you selected in your class notes to this (or write what the lecture said)">${ico('link2')}Relate</button><button class="btn sm ghost" data-dgins="${mid}" data-item="${item}" title="Put it into your class notes, with its reference">${ico('plus')}Insert</button></span>`;
-  const row=(mid,item,num,text,sub,cls)=>{const d=disc(item);return `<div class="dgi ${cls||''} ${d.length?'disc':''}" data-item="${item}"><div class="dgt">${num?`<span class="rnb">${num}</span>`:''}<div class="dgx"><span>${esc(text)}</span>${sub?`<small>${sub}</small>`:''}${d.length?`<small class="dgd">${ico('check')}Related in class: ${d.map(r=>esc(relLabel(CLASS_REL,r.kind))).join(', ')}</small>`:''}</div></div>${act(mid,item)}</div>`};
-  const block=m=>{const r=rnOf(m),qs=rnQuestions(l,m.id);let h='';
-    if(on('general')&&trim(r.text||''))h+=`<div class="dgs"><h5>General notes</h5><div class="dggen rte-like">${r.html||''}</div></div>`;
-    if(on('rq')&&r.rq.length)h+=`<div class="dgs"><h5>Reading questions</h5>${r.rq.map((q,i)=>row(m.id,'r:'+q.id,'Q'+(i+1),q.text,q.answer?esc(q.answer):'<i class="warn">answer not noted yet</i>')).join('')}</div>`;
-    if(on('args')&&r.args.length)h+=`<div class="dgs"><h5>Claims</h5>${r.args.map((a,i)=>row(m.id,'a:'+a.id,'C'+(i+1),a.text,a.sup||trim(a.ev||'')?`${a.sup?`<b class="${a.sup==='weak'?'weak':''}">${esc(supLabel(a.sup))}</b>${a.ev?': ':''}`:''}${esc(a.ev||'')}`:'<i class="warn">support not noted</i>',a.sup==='weak'?'weak':'')).join('')}</div>`;
-    if(on('concepts')&&r.concepts.length)h+=`<div class="dgs"><h5>Concepts</h5>${r.concepts.map(c=>row(m.id,'c:'+c.id,'',c.text,(c.def?esc(c.def):'')+(c.ok===false?' <i class="warn">not understood yet</i>':''),c.ok===false?'gap':'')).join('')}</div>`;
-    if(on('prereq')&&r.prereq.length)h+=`<div class="dgs"><h5>Needed first</h5>${r.prereq.map(c=>row(m.id,'p:'+c.id,'',c.text,c.ok===false?'<i class="warn">not understood yet</i>':'',c.ok===false?'gap':'')).join('')}</div>`;
-    if(on('links')&&r.links.length)h+=`<div class="dgs"><h5>Other readings</h5>${r.links.map(x=>`<div class="dgi"><div class="dgx"><span>This reading <b>${esc(relLabel(REL_KINDS,x.kind))}</b> ${esc(matShort(S.docs[x.to]||{}))}</span>${x.text?`<small>${esc(x.text)}</small>`:''}</div></div>`).join('')}</div>`;
-    if(on('questions')&&qs.length)h+=`<div class="dgs"><h5>For class</h5>${qs.map(q=>row(m.id,'q:'+q.id,'?',q.text,q.answer?esc(q.answer):q.status==='answered'?'':'<i class="warn">still open</i>',q.status!=='answered'?'open':'')).join('')}</div>`;
-    if(on('insights')&&r.insights.length)h+=`<div class="dgs"><h5>Insights</h5>${r.insights.map(x=>row(m.id,'i:'+x.id,'',x.text,'','ins')).join('')}</div>`;
-    if(on('gaps')&&r.gaps.length)h+=`<div class="dgs"><h5>Gaps</h5>${r.gaps.map(x=>row(m.id,'g:'+x.id,'',x.text,'','lit')).join('')}</div>`;
-    return h;
-  };
-  const shown=rs.filter(m=>!DG.hide.includes(m.id));
-  return `<div class="dghead"><div class="dgtitle"><b>${ico('readm')}Reading notes</b><span class="muted">Select words in your class notes, then <b>Relate</b> — or <b>Insert</b> an item with its reference.</span></div>
-      <button class="btn sm icon ghost" data-act="dgCustom" aria-expanded="${DG.open}" title="Choose the readings and sections to show">${ico('settings')}</button><button class="btn sm icon ghost" data-act="digest" title="Close" aria-label="Close reading notes">${ico('x')}</button></div>
-    ${DG.open?`<div class="dgcustom"><div class="dgrow"><span class="spl">Readings</span>${rs.map(m=>`<label class="dgchk"><input type="checkbox" data-dghide="${m.id}" ${DG.hide.includes(m.id)?'':'checked'}>${esc(matShort(m))}</label>`).join('')}</div>
-      <div class="dgrow"><span class="spl">Show</span>${DG_SECS.map(([k,t])=>`<label class="dgchk"><input type="checkbox" data-dgsec="${k}" ${on(k)?'checked':''}>${t}</label>`).join('')}</div></div>`:''}
-    <div class="dgbody">${shown.map(m=>{const b=block(m);return `<section class="dgr" data-cite-mat="${m.id}"><h4>${esc(matShort(m))}<span class="muted">${esc(m.name)}</span></h4>${b||`<p class="muted dgnone">${rnCount(m,l)?'Nothing in the sections you chose.':'No reading notes yet.'}</p>`}</section>`}).join('')||'<p class="muted dgnone">All readings are hidden — choose some with the settings button.</p>'}</div>`;
+  const R=dgReadings(), rds=R.map(x=>x.m.id), q=trim(DG.q).toLowerCase();
+  if(DG.rd!=='all'&&!rds.includes(DG.rd))DG.rd='all';
+  const RR=DG.rd==='all'?R:R.filter(x=>x.m.id===DG.rd);
+  let items=dgItems(RR); if(q)items=items.filter(x=>(x.text+' '+(x.sub||'').replace(/<[^>]+>/g,'')+' '+x.kind).toLowerCase().includes(q));
+  const cnt=t=>t==='all'?items.length+RR.filter(x=>dgGeneral(x.m,q)).length:t==='general'?RR.filter(x=>dgGeneral(x.m,q)).length:items.filter(x=>x.tab===t).length;
+  const tabs=DG_TABS.map(([k,t])=>{const n=cnt(k);return `<button class="${DG.tab===k?'on':''}" data-dgtab="${k}" ${!n&&k!=='all'&&DG.tab!==k?'disabled':''}>${t}${n&&k!=='all'?`<em>${n}</em>`:''}</button>`}).join('');
+  const rdBtns=`<button class="${DG.rd==='all'?'on':''}" data-dgrd="all">All readings</button>`+R.map(({m,l:L})=>`<button class="${DG.rd===m.id?'on':''}" data-dgrd="${m.id}" title="${esc(m.name)}${L.id!==V.lectureId?' — '+esc(L.topic||'')+', '+esc(shortDate(L.date)):''}">${esc(matShort(m))}${L.id!==V.lectureId?`<small>${esc(shortDate(L.date))}</small>`:''}</button>`).join('');
+  let body='';
+  const empty=`<p class="muted dgnone">${q?`Nothing matches “${esc(DG.q)}”.`:'Nothing here yet.'}</p>`;
+  if(DG.tab==='all'){
+    body=RR.map(({m,l:L})=>{const its=items.filter(x=>x.m.id===m.id);const g=dgGeneral(m,q);if(!its.length&&!g)return q?'':`<section class="dgr"><h4>${esc(matShort(m))}<span class="muted">${esc(m.name)}</span></h4><p class="muted dgnone">No reading notes yet.</p></section>`;
+      const grp=DG_TABS.filter(([k])=>k!=='all'&&k!=='general').map(([k,t])=>{const xs=its.filter(x=>x.tab===k);return xs.length?`<div class="dgs"><h5>${t}</h5>${xs.map(x=>dgRow(x,false)).join('')}</div>`:''}).join('');
+      return `<section class="dgr" data-cite-mat="${m.id}"><h4>${esc(matShort(m))}<span class="muted">${esc(m.name)}${L.id!==V.lectureId?' · '+esc(L.topic||'')+', '+esc(shortDate(L.date)):''}</span>${m.pdf?`<button class="btn sm ghost dgpdf" data-dgpdf="${m.id}" title="Open this reading’s PDF here">${ico('doc')}PDF</button>`:''}</h4>${g?`<div class="dgs"><h5>Notes</h5>${g}</div>`:''}${grp}</section>`}).join('')||empty;
+  }else if(DG.tab==='general'){
+    body=RR.map(({m})=>{const g=dgGeneral(m,q);return g?`<section class="dgr" data-cite-mat="${m.id}"><h4>${esc(matShort(m))}<span class="muted">${esc(m.name)}</span></h4>${g}</section>`:''}).join('')||empty;
+  }else{
+    const xs=items.filter(x=>x.tab===DG.tab);
+    body=xs.length?(DG.rd==='all'&&RR.length>1?`<p class="dgnote">${xs.length} from ${new Set(xs.map(x=>x.m.id)).size} reading${new Set(xs.map(x=>x.m.id)).size===1?'':'s'}</p>`:'')+`<div class="dgflat">${xs.map(x=>`<div data-cite-mat="${x.m.id}">${dgRow(x,DG.rd==='all')}</div>`).join('')}</div>`:empty;
+  }
+  return `<div class="dghead"><div class="dgtitle"><b>${ico('readm')}From your readings</b></div>
+      <span class="seg dgscope" title="Which readings to bring in"><button class="${DG.scope!=='course'?'on':''}" data-dgscope="lecture">This lecture</button><button class="${DG.scope==='course'?'on':''}" data-dgscope="course">Whole course</button></span>
+      <button class="btn sm icon ghost" data-act="digest" title="Close" aria-label="Close">${ico('x')}</button></div>
+    <div class="dgrds" role="tablist" aria-label="Readings">${rdBtns}</div>
+    <div class="dgtabs" role="tablist" aria-label="What to show">${tabs}</div>
+    <div class="dgsearch">${ico('search')}<input class="inp" id="dgQ" type="search" placeholder="Search your reading notes" value="${esc(DG.q)}" aria-label="Search your reading notes"></div>
+    <div class="dgbody"><div id="dgSug">${dgSugHTML()}</div>${body}</div>`;
+}
+/* suggestions: what in the readings matches the paragraph you are writing */
+function dgSugHTML(){
+  if(!DG.sug.length)return '';
+  return `<div class="dgsug"><div class="dgsugh">${ico('spark')}Matches what you are writing</div>${DG.sug.map(x=>`<div data-cite-mat="${x.m.id}">${dgRow(x,true)}</div>`).join('')}</div>`;
+}
+function dgSuggest(text){
+  const words=new Set(dgTokens(text)); if(words.size<2){DG.sug=[];return}
+  const low=' '+String(text).toLowerCase()+' ';
+  const scored=dgItems(dgReadings()).filter(x=>!x.noact).map(x=>{let sc=0;const tt=dgTokens(x.text);tt.forEach(w=>{if(words.has(w))sc+=1});if(x.tab==='concepts'&&low.includes(' '+x.text.toLowerCase().trim()))sc+=4;return {x,sc:sc/Math.sqrt(Math.max(3,tt.length))}}).filter(z=>z.sc>=0.6).sort((a,b)=>b.sc-a.sc).slice(0,3);
+  DG.sug=scored.map(z=>z.x);
 }
 function dgItemText(m,item,l){const it=relItems(m,l).find(x=>x[0]===item);return it?it[1].replace(/^[ACQ]\d+ · /,'').replace(/ \((not understood yet|answered)\)$/,''):''}
 function bindDigest(){
   const box=$('#digest'); if(!box)return; bindLGutter();
   box.addEventListener('mousedown',e=>{if(e.target.closest('[data-dgrel],[data-dgins]'))e.preventDefault()});
-  box.addEventListener('change',e=>{const t=e.target;
-    if(t.dataset.dghide){DG.hide=DG.hide.filter(x=>x!==t.dataset.dghide);if(!t.checked)DG.hide.push(t.dataset.dghide)}
-    if(t.dataset.dgsec){DG.secs=DG.secs.filter(x=>x!==t.dataset.dgsec);if(t.checked)DG.secs.push(t.dataset.dgsec)}
-    dgSave();refreshDigest()});
+  box.addEventListener('input',e=>{if(e.target.id==='dgQ'){DG.q=e.target.value;clearTimeout(bindDigest.t);bindDigest.t=setTimeout(()=>{refreshDigest();const i=$('#dgQ');if(i){i.focus();i.setSelectionRange(i.value.length,i.value.length)}},180)}});
   box.addEventListener('click',e=>{
     const l=S.docs[V.lectureId];
-    const r=e.target.closest('[data-dgrel]'); if(r){const ed=dgRange&&document.contains(dgRange.startContainer)?dgRange.startContainer.parentElement&&dgRange.startContainer.parentElement.closest('.rte.lec'):null;const txt=dgRange&&!dgRange.collapsed?dgRange.toString().trim():'';
-      relateDialog(txt&&ed?{text:txt,range:dgRange.cloneRange(),ed,mat:r.dataset.dgrel,item:r.dataset.item}:{mat:r.dataset.dgrel,item:r.dataset.item});return}
-    const i=e.target.closest('[data-dgins]'); if(i){const m=S.docs[i.dataset.dgins];const text=dgItemText(m,i.dataset.item,l);if(!text)return;
+    const tb=e.target.closest('[data-dgtab]'); if(tb){DG.tab=tb.dataset.dgtab;dgSave();refreshDigest();return}
+    const rd=e.target.closest('[data-dgrd]'); if(rd){DG.rd=rd.dataset.dgrd;refreshDigest();return}
+    const sc=e.target.closest('[data-dgscope]'); if(sc){DG.scope=sc.dataset.dgscope;DG.rd='all';dgSave();refreshDigest();return}
+    const pd=e.target.closest('[data-dgpdf]'); if(pd){LV.mat=pd.dataset.dgpdf;LV.anim=false;R.tab='pdf';renderMain();return}
+    const r=e.target.closest('[data-dgrel]'); if(r){const ed=dgRange&&document.contains(dgRange.startContainer)?dgRange.startContainer.parentElement&&dgRange.startContainer.parentElement.closest('.rte.lec'):null;let txt=dgRange&&!dgRange.collapsed?dgRange.toString().trim():'';
+      const sugText=!txt&&r.closest('.dgsug')?dgCurPara():'';
+      relateDialog(txt&&ed?{text:txt,range:dgRange.cloneRange(),ed,mat:r.dataset.dgrel,item:r.dataset.item}:sugText?{text:sugText,mat:r.dataset.dgrel,item:r.dataset.item}:{mat:r.dataset.dgrel,item:r.dataset.item});return}
+    const i=e.target.closest('[data-dgins]'); if(i){const m=S.docs[i.dataset.dgins];const L=dgReadings().find(x=>x.m.id===i.dataset.dgins);const text=dgItemText(m,i.dataset.item,L?L.l:l);if(!text)return;
       const kind={a:'Claim',c:'Concept',p:'Needed first',q:'Question',r:'Reading question',i:'Insight',g:'Gap'}[i.dataset.item[0]];
       const ed=(dgRange&&document.contains(dgRange.startContainer)&&dgRange.startContainer.parentElement&&dgRange.startContainer.parentElement.closest('.rte.lec:not(.rnmain)'))||document.querySelector('.rte.lec.main'); if(!ed)return;
       const q=document.createElement('p'); q.innerHTML=`<b>${esc(kind)} (reading):</b> ${esc(text)} <i>${esc(matCite(m))}</i>`;
       let blk=dgRange&&ed.contains(dgRange.endContainer)?dgRange.endContainer:null; while(blk&&blk.parentNode!==ed)blk=blk.parentNode;
       const isBlock=n=>n&&n.nodeType===1&&/^(P|DIV|H[1-6]|UL|OL|BLOCKQUOTE|TABLE|FIGURE|PRE|HR)$/.test(n.tagName);
-      if(blk&&!isBlock(blk)){ // a line of loose text: put it in a paragraph first
-        let a=blk,z=blk; while(a.previousSibling&&!isBlock(a.previousSibling))a=a.previousSibling; while(z.nextSibling&&!isBlock(z.nextSibling))z=z.nextSibling;
+      if(blk&&!isBlock(blk)){let a=blk,z=blk; while(a.previousSibling&&!isBlock(a.previousSibling))a=a.previousSibling; while(z.nextSibling&&!isBlock(z.nextSibling))z=z.nextSibling;
         const pp=document.createElement('p'); a.before(pp); let n=a; while(n){const nx=n===z?null:n.nextSibling; pp.appendChild(n); n=nx} blk=pp }
       if(blk)blk.after(q);else ed.appendChild(q);
       const p=document.createElement('p'); p.innerHTML='<br>'; q.after(p);
-      const rg=document.createRange(); rg.setStart(p,0); rg.collapse(true); ed.focus({preventScroll:true}); const s=getSelection(); s.removeAllRanges(); s.addRange(rg); dgRange=rg.cloneRange();
+      const rg=document.createRange(); rg.setStart(p,0); rg.collapse(true); ed.focus({preventScroll:true}); const sl=getSelection(); sl.removeAllRanges(); sl.addRange(rg); dgRange=rg.cloneRange();
       q.scrollIntoView({block:'nearest',behavior:'smooth'}); lectureCommit(ed); toast('Inserted into your class notes'); return}
   });
+  // suggestions follow the paragraph you are typing
+  const ed=document.querySelector('.rte.lec.main');
+  if(ed&&!ed._dg){ed._dg=true;ed.addEventListener('input',()=>{clearTimeout(ed._dgt);ed._dgt=setTimeout(()=>{if(!$('#digest'))return;const before=DG.sug.map(x=>x.item).join();dgSuggest(dgCurPara());if(DG.sug.map(x=>x.item).join()!==before){const s2=$('#dgSug');if(s2)s2.innerHTML=dgSugHTML()}},700)})}
 }
+function dgCurPara(){const s=getSelection();if(!s||!s.rangeCount)return '';let n=s.anchorNode;const ed=n&&(n.nodeType===1?n:n.parentElement)&&(n.nodeType===1?n:n.parentElement).closest('.rte.lec.main');if(!ed)return '';while(n&&n.parentNode!==ed)n=n.parentNode;return n?(n.textContent||'').trim().slice(0,600):''}
 function refreshDigest(){const b=$('#digest');if(!b)return;const sc=b.querySelector('.dgbody');const top=sc?sc.scrollTop:0;b.innerHTML=digestHTML(S.docs[V.lectureId]);const n=b.querySelector('.dgbody');if(n)n.scrollTop=top}
 /* ---------- capture: assignments, dates and course information heard in class ---------- */
 function captureDialog(){
@@ -6627,8 +6782,8 @@ function capturedHTML(l){
     return `<div class="lmk cap"><span class="captag k-${x.kind}">${x.kind==='assignment'?'Assignment':x.kind==='event'?esc(d.type||'Date'):'Info'}</span>${x.kind==='assignment'?`<button class="link" data-act="openAssign" data-id="${x.ref}">${esc(d.title||x.text)}</button>${d.due?` <span class="muted">· due ${esc(shortDate(d.due))}</span>`:''}`:x.kind==='event'?`${esc(d.title||x.text)} <span class="muted">· ${esc(shortDate(d.date))}${d.time?' '+esc(d.time):''}</span>`:esc(x.text)}<button class="btn sm ghost danger" data-capdel="${x.id}" aria-label="Remove from this list">✕</button></div>`}).join('')}</div>`;
 }
 /* ---------- the report: reading notes, class links and captures ---------- */
-function readingsReportHTML(l,I){
-  const rs=readingsOf(l.id).filter(m=>rnCount(m,l)); let h='';
+function readingsReportHTML(l,I,only){
+  const rs=readingsOf(l.id).filter(m=>(!only||m.id===only)&&(only||rnCount(m,l))); let h='';
   if(I.readings!==false&&rs.length){
     h+=`<h3>Reading notes</h3>`+rs.map(m=>{const r=rnOf(m),qs=rnQuestions(l,m.id);
       const li=(xs,f)=>xs.length?`<ul>${xs.map(f).join('')}</ul>`:'';
@@ -6643,7 +6798,7 @@ function readingsReportHTML(l,I){
         ${r.gaps.length?`<h4>Gaps and limits</h4>${li(r.gaps,x=>`<li>${esc(x.text)}</li>`)}`:''}
         ${trim(r.text||'')?`<h4>General notes</h4><div class="crnotes">${floatsInline(r.html||'')}</div>`:trim(r.free||'')?`<h4>General notes</h4><p>${esc(r.free).replace(/\n/g,'<br>')}</p>`:''}</div>`}).join('');
   }
-  if(I.readings!==false&&(l.rels||[]).length)h+=`<h3>What the lecture added to the readings</h3><ul>${l.rels.map(x=>{const m=S.docs[x.mat]||{},it=relItems(m.rn?m:{...m,rn:{}},l).find(z=>z[0]===x.item);return `<li>The lecture <b>${esc(relLabel(CLASS_REL,x.kind))}</b> ${it?`“${esc(it[1].replace(/^[ACQ]\d+ · /,''))}”`:'the reading'} (${esc(matShort(m))}): ${esc(x.text)}${x.note?` <i>— ${esc(x.note)}</i>`:''}</li>`}).join('')}</ul>`;
+  if(!only&&I.readings!==false&&(l.rels||[]).length)h+=`<h3>What the lecture added to the readings</h3><ul>${l.rels.map(x=>{const m=S.docs[x.mat]||{},it=relItems(m.rn?m:{...m,rn:{}},l).find(z=>z[0]===x.item);return `<li>The lecture <b>${esc(relLabel(CLASS_REL,x.kind))}</b> ${it?`“${esc(it[1].replace(/^[ACQ]\d+ · /,''))}”`:'the reading'} (${esc(matShort(m))}): ${esc(x.text)}${x.note?` <i>— ${esc(x.note)}</i>`:''}</li>`}).join('')}</ul>`;
   const cs=(l.captures||[]).filter(x=>x.kind==='info'||S.docs[x.ref]);
   if(I.captured!==false&&cs.length)h+=`<h3>Captured in class</h3><ul>${cs.map(x=>{const d=S.docs[x.ref]||{};return `<li>${x.kind==='assignment'?`<b>Assignment:</b> ${esc(d.title||x.text)}${d.due?', due '+esc(longDate(d.due)):''}`:x.kind==='event'?`<b>${esc(d.type||'Date')}:</b> ${esc(d.title||x.text)}, ${esc(longDate(d.date))}`:esc(x.text)}</li>`}).join('')}</ul>`;
   return h;
@@ -6652,7 +6807,7 @@ function readingsReportHTML(l,I){
 /* ============================================================
    INSIGHT MAP — built from your reading notes and class notes, then yours to arrange
    ============================================================ */
-const IM={tab:'report',sel:null,connect:null,zoom:1};
+const IM={tab:'report',sel:null,connect:null,zoom:1,tx:null,ty:null,drawer:'',only:false};
 const IM_COLS=[['Foundations','Concepts you need first'],['Concepts','Ideas the readings use'],['Readings',''],['Questions & claims','What the authors ask, claim and how they support it'],['In class','What the lecture added'],['Takeaways','Insights, questions and gaps']];
 const IM_W=220, IM_GX=60, IM_TOP=64;
 function imStore(cid,key){const c=S.docs[cid];c.imaps=c.imaps||{};const s=c.imaps[key]=c.imaps[key]||{};['pos','gap'].forEach(k=>s[k]=s[k]||{});['hide','add','edges'].forEach(k=>s[k]=s[k]||[]);return s}
@@ -6702,87 +6857,159 @@ function buildInsight(ls){
   return {nodes:[...N.values()],edges,order};
 }
 function imScopeLectures(c){return courseReportScope(c).ls}
-function insightMapHTML(c){
-  const ls=imScopeLectures(c), M=buildInsight(ls), st=imStore(c.id,CR.scope);
-  const user=st.add.map(u=>({id:u.id,t:'note',col:-1,label:u.text,user:true,gaps:st.gap[u.id]?[['me','Marked as a gap']]:[]}));
-  M.nodes.forEach(n=>{if(st.gap[n.id]&&!n.gaps.some(g=>g[0]==='me'))n.gaps.push(['me','Marked as a gap'])});
-  const hidden=new Set(st.hide), nodes=M.nodes.concat(user).filter(n=>!hidden.has(n.id));
-  if(!M.nodes.length)return `<div class="imempty"><div class="ic">${ico('map')}</div><div class="big">Nothing to map yet</div><p>The insight map is built from your reading notes (arguments, concepts, questions, insights, gaps) and from what you relate to the readings during class. Open a lecture, switch to <b>Reading</b>, and start with one reading.</p></div>`;
-  const gl={me:[],class:[],link:[],read:[],lit:[]}; nodes.forEach(n=>n.gaps.forEach(([k,t])=>gl[k].push(n)));
-  const cnt=t=>nodes.filter(n=>n.t===t).length;
-  const glist=(k,title,help)=>gl[k].length?`<div class="imgl"><h4><span class="imsw g-${k}"></span>${title}<span class="muted">${gl[k].length}</span></h4><p class="muted">${help}</p>${gl[k].map(n=>`<button class="imgi" data-imgo="${esc(n.id)}">${esc(n.label.length>70?n.label.slice(0,68)+'…':n.label)}</button>`).join('')}</div>`:'';
-  const totalGaps=Object.values(gl).reduce((a,b)=>a+b.length,0);
-  return `<div class="imwrap ${IM.full?'imfull':''}" id="imWrap">
-    <div class="imbar"><div class="imsum"><b>${cnt('reading')}</b> reading${cnt('reading')===1?'':'s'} · <b>${cnt('rq')}</b> reading questions · <b>${cnt('arg')}</b> claims · <b>${cnt('concept')+cnt('prereq')}</b> concepts · <b>${cnt('class')}</b> links from class · <b class="${totalGaps?'gapn':''}">${totalGaps}</b> gap${totalGaps===1?'':'s'}</div><span class="spacer"></span>
-      <button class="btn sm" data-act="imAdd" title="Add your own box: a link, a synthesis, a thought">${ico('plus')}Add box</button>
-      <button class="btn sm ${IM.connect?'on':''}" data-act="imConnect" title="Draw an arrow: click this, then two boxes">${ico('link2')}${IM.connect?'Pick two boxes…':'Connect'}</button>
-      <span class="seg"><button data-act="imZoom" data-v="-" aria-label="Zoom out">−</button><button data-act="imZoom" data-v="0" title="Fit">${Math.round(IM.zoom*100)}%</button><button data-act="imZoom" data-v="+" aria-label="Zoom in">+</button></span>
-      ${st.hide.length?`<button class="btn sm ghost" data-act="imShowAll">${ico('eye')}${st.hide.length} hidden</button>`:''}
-      <button class="btn sm ghost" data-act="imReset" title="Put every box back where the map placed it">Reset layout</button>
-      <button class="btn sm" data-act="imPrint" title="One landscape page with the whole map">${ico('download')}PDF</button>
-      <button class="btn sm imfs" data-act="imFull" title="${IM.full?'Exit full screen (Esc)':'Show only the map, on the whole screen'}">${ico(IM.full?'minimize':'maximize')}${IM.full?'Exit full screen':'Full screen'}</button></div>
-    <div class="imbody"><div class="imcanvas" id="imCanvas"><div class="imboard" id="imBoard" style="zoom:${IM.zoom}">
-      <svg class="imedges" id="imEdges"><defs><marker id="imArr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="currentColor"/></marker></defs></svg>
-      ${IM_COLS.map(([t,s],i)=>nodes.some(n=>n.col===i)?`<div class="imcol" data-col="${i}" style="left:${20+i*(IM_W+IM_GX)}px"><b>${t}</b>${s?`<span>${s}</span>`:''}</div>`:'').join('')}
-      ${nodes.map(n=>`<div class="imn t-${n.t} ${n.gaps.map(g=>'g-'+g[0]).join(' ')} ${n.user?'user':''} ${n.group==='additional'?'addl':''}" data-n="${esc(n.id)}" data-col="${n.col}" tabindex="0">
-        ${n.num?`<span class="imnum">${n.num}</span>`:''}<div class="imt">${esc(n.label||'')}</div>${n.sub&&n.t!=='reading'?`<div class="ims">${esc(n.sub)}</div>`:''}${n.t==='reading'?`<div class="ims">${esc(n.sub||'')}</div>`:''}
-        ${n.gaps.length?`<div class="imgaps">${n.gaps.map(([k,t])=>`<span class="imgb g-${k}">${esc(t)}</span>`).join('')}</div>`:''}</div>`).join('')}
-    </div></div>
-    <aside class="imside"><div class="imlegend"><h4>Shapes</h4>
-      <span><i class="lg t-reading"></i>Reading</span><span><i class="lg t-rq"></i>Question the reading asks</span><span><i class="lg t-arg"></i>Claim + support</span><span><i class="lg t-concept"></i>Concept</span><span><i class="lg t-prereq"></i>Needed first</span><span><i class="lg t-class"></i>From class</span><span><i class="lg t-insight"></i>Insight</span><span><i class="lg t-question"></i>Question</span><span><i class="lg t-litgap"></i>Gap in the literature</span><span><i class="lg t-note"></i>Your box</span></div>
-      <h4 style="margin-top:14px">Gaps</h4>${totalGaps?'':`<p class="muted">No gaps found. Mark concepts you don’t understand yet, keep questions open until answered, and relate the lecture to each argument — the map then shows what’s missing.</p>`}
-      ${glist('me','In my understanding','Concepts not understood yet, open questions, boxes you marked.')}
-      ${glist('class','Not covered in class','Claims nothing from the lecture was related to.')}
-      ${glist('link','Not connected','Readings you haven’t related to the others.')}
-      ${glist('lit','In the literature','What the readings leave unexplained.')}
-      ${glist('read','Still to read','Readings without notes.')}
-      <p class="muted imtip">Drag boxes to arrange them. Double-click a box to edit its text — your notes change too. Click a box for more.</p></aside></div></div>`;
+/* ---- the map: overview first (readings + the concepts they share), click a reading to open its detail ---- */
+const IM_TYPES=[['rq','Questions'],['arg','Claims'],['concept','Concepts'],['class','In class'],['insight','Insights'],['question','For class'],['litgap','Gaps']];
+function imState(st){st.exp=st.exp||[];st.flt=st.flt||IM_TYPES.map(x=>x[0]);return st}
+function imModel(c){
+  const ls=imScopeLectures(c), M=buildInsight(ls), st=imState(imStore(c.id,CR.scope));
+  const byId=new Map(M.nodes.map(n=>[n.id,n]));
+  // which reading(s) each node belongs to
+  const par=new Map(); const addP=(id,r)=>{if(!par.has(id))par.set(id,new Set());par.get(id).add(r)};
+  M.edges.forEach(e=>{if(e.a.startsWith('r:')&&e.k!=='rel')addP(e.b,e.a);if(e.b.startsWith('r:')&&e.k!=='rel')addP(e.a,e.b)});
+  for(let k=0;k<3;k++)M.edges.forEach(e=>{if(par.has(e.a)&&!e.b.startsWith('r:'))par.get(e.a).forEach(r=>addP(e.b,r));if(par.has(e.b)&&!e.a.startsWith('r:')&&(e.k==='needs'))par.get(e.b).forEach(r=>addP(e.a,r))});
+  M.nodes.forEach(n=>{n.par=[...(par.get(n.id)||[])];});
+  const hidden=new Set(st.hide), exp=new Set(st.exp), flt=new Set(st.flt);
+  const typeOn=n=>flt.has(n.t==='prereq'?'concept':n.t);
+  const vis=n=>{
+    if(hidden.has(n.id))return false;
+    if(n.t==='reading')return true;
+    if(!typeOn(n))return false;
+    const open=n.par.some(r=>exp.has(r));
+    if(n.t==='concept'||n.t==='prereq')return open||n.par.length>=2||n.gaps.length>0;
+    if(n.t==='class'){const tgt=M.edges.find(e=>e.b===n.id);return open||(tgt&&tgt.a.startsWith('r:'))}
+    return open;
+  };
+  M.nodes.forEach(n=>{n.vis=vis(n);n.shared=(n.t==='concept'||n.t==='prereq')&&n.par.length>=2});
+  // a closed reading summarises what is inside it
+  M.nodes.filter(n=>n.t==='reading').forEach(R=>{
+    const kids=M.nodes.filter(n=>n.par.includes(R.id)&&n.t!=='reading');
+    const cnt=t=>kids.filter(k=>k.t===t).length;
+    R.stats={rq:cnt('rq'),arg:cnt('arg'),concept:cnt('concept')+cnt('prereq'),insight:cnt('insight'),cls:cnt('class')};
+    R.kidGaps=kids.reduce((a,k)=>a+k.gaps.length,0)+R.gaps.length; R.open=exp.has(R.id);
+    R.top=kids.filter(k=>k.t==='insight').slice(0,2).map(k=>k.label);
+  });
+  return {M,st,byId};
 }
+function imNodeHTML(n,st){
+  const gaps=n.gaps.map(([k,t])=>`<span class="imgb g-${k}">${esc(t)}</span>`).join('');
+  if(n.t==='reading'){const s=n.stats||{};
+    return `<div class="imn t-reading ${n.open?'open':''} ${n.gaps.map(g=>'g-'+g[0]).join(' ')} ${n.group==='additional'?'addl':''}" data-n="${esc(n.id)}" tabindex="0">
+      <div class="imrh"><div class="imt">${esc(n.label)}</div><button class="imexp" data-imexp="${esc(n.id)}" title="${n.open?'Close':'Open'} this reading on the map" aria-expanded="${!!n.open}">${n.open?'−':'+'}</button></div>
+      <div class="ims">${esc(n.sub||'')}</div>
+      <div class="imstats">${s.rq?`<span title="Questions it asks">Q ${s.rq}</span>`:''}${s.arg?`<span title="Claims">C ${s.arg}</span>`:''}${s.concept?`<span title="Concepts">K ${s.concept}</span>`:''}${s.insight?`<span title="Insights">★ ${s.insight}</span>`:''}${s.cls?`<span title="Related in class">⇄ ${s.cls}</span>`:''}${n.kidGaps?`<span class="gapc" title="Gaps inside this reading">${n.kidGaps} gap${n.kidGaps===1?'':'s'}</span>`:''}</div>
+      ${!n.open&&n.top.length?`<div class="imtop">${n.top.map(t=>`<span>★ ${esc(t.length>90?t.slice(0,88)+'…':t)}</span>`).join('')}</div>`:''}</div>`;}
+  return `<div class="imn t-${n.t} ${n.gaps.map(g=>'g-'+g[0]).join(' ')} ${n.user?'user':''} ${n.shared?'shared':''}" data-n="${esc(n.id)}" tabindex="0">${n.num?`<span class="imnum">${n.num}</span>`:''}<div class="imt">${esc(n.label||'')}</div>${n.sub?`<div class="ims">${esc(n.sub)}</div>`:''}${gaps?`<div class="imgaps">${gaps}</div>`:''}</div>`;
+}
+function insightMapHTML(c){
+  const {M,st}=imModel(c);
+  if(!M.nodes.length)return `<div class="imempty"><div class="ic">${ico('map')}</div><div class="big">Nothing to map yet</div><p>The insight map is built from your reading notes (questions, claims, concepts, insights, gaps) and from what you relate to the readings during class. Open a lecture, switch to <b>Reading notes</b>, and start with one reading.</p></div>`;
+  const user=st.add.map(u=>({id:u.id,t:'note',label:u.text,user:true,vis:true,gaps:st.gap[u.id]?[['me','Marked as a gap']]:[]}));
+  M.nodes.forEach(n=>{if(st.gap[n.id]&&!n.gaps.some(g=>g[0]==='me'))n.gaps.push(['me','Marked as a gap'])});
+  const all=M.nodes.concat(user), shown=all.filter(n=>n.vis);
+  const gl={me:[],class:[],link:[],read:[],lit:[]}; all.filter(n=>!st.hide.includes(n.id)).forEach(n=>n.gaps.forEach(([k])=>gl[k].push(n)));
+  const totalGaps=Object.values(gl).reduce((a,b)=>a+b.length,0);
+  const R=M.nodes.filter(n=>n.t==='reading'), shared=M.nodes.filter(n=>n.shared), rel=M.edges.filter(e=>e.k==='rel');
+  const disagree=rel.filter(e=>/challenge|contrast/.test(e.label||'')).length;
+  const glist=(k,title)=>gl[k].length?`<div class="imgl"><h4><span class="imsw g-${k}"></span>${title}<span class="muted">${gl[k].length}</span></h4>${gl[k].map(n=>`<button class="imgi" data-imgo="${esc(n.id)}">${esc(n.label.length>70?n.label.slice(0,68)+'…':n.label)}</button>`).join('')}</div>`:'';
+  const flt=new Set(st.flt);
+  return `<div class="imwrap ${IM.full?'imfull':''}" id="imWrap">
+    <div class="imbar">
+      <div class="imsum" title="${R.length} readings · ${shared.length} concepts shared by more than one reading · ${rel.length} links between readings"><b>${R.length}</b> readings · <b>${shared.length}</b> shared concepts · <b>${rel.length}</b> links${disagree?` · <b>${disagree}</b> disagree`:''}</div><span class="spacer"></span>
+      <button class="btn sm ${IM.drawer==='gaps'?'on':''} ${totalGaps?'gapbtn':''}" data-act="imDrawer" data-v="gaps">${ico('help')}${totalGaps} gap${totalGaps===1?'':'s'}</button>
+      <button class="btn sm ${IM.only?'on':''}" data-act="imOnly" title="Dim everything that is not a gap">Only gaps</button>
+      <button class="btn sm" data-act="imExpAll" title="${st.exp.length?'Close all readings':'Open all readings'}">${st.exp.length?'Close all':'Open all'}</button>
+      <button class="btn sm ${IM.drawer==='key'?'on':''}" data-act="imDrawer" data-v="key" title="What the shapes mean">Key</button>
+      <span class="imsep"></span>
+      <button class="btn sm icon" data-act="imAdd" title="Add your own box" aria-label="Add box">${ico('plus')}</button>
+      <button class="btn sm icon ${IM.connect?'on':''}" data-act="imConnect" title="${IM.connect?'Click two boxes…':'Draw an arrow between two boxes'}" aria-label="Connect">${ico('link2')}</button>
+      <span class="seg"><button data-act="imZoom" data-v="-" aria-label="Zoom out">−</button><button data-act="imZoom" data-v="0" title="Fit the whole map">Fit</button><button data-act="imZoom" data-v="+" aria-label="Zoom in">+</button></span>
+      ${st.hide.length?`<button class="btn sm ghost" data-act="imShowAll" title="Show hidden boxes">${ico('eye')}${st.hide.length}</button>`:''}
+      <button class="btn sm ghost" data-act="imReset" title="Put every box back where the map placed it">Tidy</button>
+      <button class="btn sm" data-act="imPrint" title="The whole map on one landscape page">${ico('download')}PDF</button>
+      <button class="btn sm imfs" data-act="imFull" title="${IM.full?'Exit full screen (Esc)':'Show only the map, on the whole screen'}">${ico(IM.full?'minimize':'maximize')}</button></div>
+    <div class="imfilters" role="group" aria-label="Show on the map"><span class="muted">Show</span>${IM_TYPES.map(([k,t])=>`<label class="imf k-${k} ${flt.has(k)?'on':''}"><input type="checkbox" data-imflt="${k}" ${flt.has(k)?'checked':''}>${t}</label>`).join('')}</div>
+    <div class="imstage"><div class="imcanvas ${IM.only?'onlygaps':''}" id="imCanvas"><div class="imboard" id="imBoard">
+      <svg class="imedges" id="imEdges" width="1" height="1"><defs><marker id="imArr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="currentColor"/></marker></defs></svg>
+      ${shown.map(n=>imNodeHTML(n,st)).join('')}
+    </div></div>
+    ${IM.drawer==='gaps'?`<aside class="imdrawer"><div class="imdh"><b>Gaps</b><button class="btn sm icon ghost" data-act="imDrawer" data-v="" aria-label="Close">${ico('x')}</button></div>${totalGaps?'':`<p class="muted">No gaps found. Mark concepts you don’t understand yet, keep questions open until answered, and relate the lecture to each claim — the map then shows what’s missing.</p>`}
+      ${glist('me','In my understanding')}${glist('class','Not discussed in class')}${glist('link','Readings not connected')}${glist('lit','In the literature')}${glist('read','Still to read')}</aside>`:''}
+    ${IM.drawer==='key'?`<aside class="imdrawer"><div class="imdh"><b>Key</b><button class="btn sm icon ghost" data-act="imDrawer" data-v="" aria-label="Close">${ico('x')}</button></div><div class="imlegend">
+      <span><i class="lg t-reading"></i>Reading — + opens it</span><span><i class="lg t-concept shared"></i>Concept shared by readings</span><span><i class="lg t-concept"></i>Concept</span><span><i class="lg t-prereq"></i>Needed first</span><span><i class="lg t-rq"></i>Question the reading asks</span><span><i class="lg t-arg"></i>Claim + its support</span><span><i class="lg t-class"></i>From class</span><span><i class="lg t-insight"></i>Insight</span><span><i class="lg t-question"></i>Question for class</span><span><i class="lg t-litgap"></i>Gap in the literature</span><span><i class="lg t-note"></i>Your box</span>
+      <span><i class="lg lgline rel"></i>How readings relate</span><span><i class="lg lgline gapl"></i>Orange outline: a gap</span></div><p class="muted imtip">Click a reading’s <b>+</b> to open it. Drag the background to move around; scroll to pan, and Ctrl + scroll or pinch to zoom. Double-click a box to edit it — your notes change too. Click a box for more.</p></aside>`:''}
+    </div></div>`;
+}
+/* layout: readings around the middle, shared concepts between them, an open reading's detail fanned out away from the middle */
 function imLayout(c){
   const board=$('#imBoard'); if(!board)return;
-  const ls=imScopeLectures(c), M=buildInsight(ls), st=imStore(c.id,CR.scope);
+  const {M,st}=imModel(c); board._M=M;
   const el=id=>board.querySelector(`.imn[data-n="${CSS.escape(id)}"]`);
-  const P={}, colX=i=>20+i*(IM_W+IM_GX), placed=new Set(); let y0=IM_TOP;
-  const H=id=>{const e=el(id);return e?e.offsetHeight:0};
-  M.order.forEach(R=>{
-    if(!el(R.id))return;
-    const cols=[[],[],[],[],[],[]];
-    R.own.forEach(id=>{if(placed.has(id)||!el(id))return;const n=M.nodes.find(z=>z.id===id);if(!n)return;cols[n.col].push(id);placed.add(id)});
-    // class nodes sit beside the argument they relate to
-    const colH=cols.map(ids=>ids.reduce((a,id)=>a+H(id)+14,0));
-    const blockH=Math.max(H(R.id)+14,...colH);
-    cols.forEach((ids,i)=>{let y=y0+(blockH-colH[i])/2;ids.forEach(id=>{P[id]={x:colX(i),y};y+=H(id)+14})});
-    P[R.id]={x:colX(2),y:y0+(blockH-H(R.id))/2}; placed.add(R.id);
-    y0+=blockH+46;
+  const dim=id=>{const e=el(id);return e?{w:e.offsetWidth,h:e.offsetHeight}:{w:0,h:0}};
+  const P={}, Rs=M.nodes.filter(n=>n.t==='reading'), nR=Rs.length;
+  const exp=new Set(st.exp);
+  const rx=nR<=1?0:nR===2?330:300+nR*45, ry=nR<=2?0:220+nR*30;
+  Rs.forEach((R,i)=>{const a=nR===2?(i?0:Math.PI):-Math.PI/2+i*2*Math.PI/Math.max(1,nR);const d=dim(R.id);P[R.id]={x:Math.cos(a)*rx-d.w/2,y:Math.sin(a)*ry-d.h/2,a,cx:Math.cos(a)*rx,cy:Math.sin(a)*ry}});
+  const ctr=id=>{const p=P[id],d=dim(id);return {x:p.x+d.w/2,y:p.y+d.h/2}};
+  // concepts: between the readings that use them
+  M.nodes.filter(n=>n.vis&&(n.t==='concept'||n.t==='prereq')).forEach(n=>{
+    const ps=n.par.filter(r=>P[r]); if(!ps.length)return; const d=dim(n.id);
+    const m=ps.reduce((a,r)=>{const q=ctr(r);return {x:a.x+q.x/ps.length,y:a.y+q.y/ps.length}},{x:0,y:0});
+    const k=ps.length>=2?.35:(exp.has(ps[0])?1:.62); P[n.id]={x:m.x*k-d.w/2,y:m.y*k-d.h/2,soft:true};
   });
-  // anything left (user boxes, stray nodes)
-  let ux=colX(6)+20>1600?colX(5):colX(6), uy=IM_TOP;
-  board.querySelectorAll('.imn').forEach(e=>{const id=e.dataset.n;if(P[id])return;const col=+e.dataset.col;if(col>=0&&!placed.has(id)){P[id]={x:colX(col),y:y0};y0+=e.offsetHeight+14}else{const u=st.add.find(z=>z.id===id);P[id]=u&&u.x!=null?{x:u.x,y:u.y}:{x:ux,y:uy};uy+=e.offsetHeight+14}});
-  let W=0,Ht=0;
-  board.querySelectorAll('.imn').forEach(e=>{const id=e.dataset.n,p=st.pos[id]||P[id]||{x:0,y:0};e.style.left=p.x+'px';e.style.top=p.y+'px';W=Math.max(W,p.x+e.offsetWidth);Ht=Math.max(Ht,p.y+e.offsetHeight)});
-  board.style.width=(W+60)+'px'; board.style.height=(Ht+60)+'px';
-  board._M=M; imEdges(c);
+  // an open reading: its detail in a block on the outer side
+  Rs.filter(R=>exp.has(R.id)).forEach(R=>{
+    const order=['rq','arg','class','question','insight','litgap'];
+    const kids=M.nodes.filter(n=>n.vis&&n.par.includes(R.id)&&order.includes(n.t)).sort((a,b)=>order.indexOf(a.t)-order.indexOf(b.t));
+    // class links sit right after the claim they relate to
+    const seq=[]; kids.filter(k=>k.t!=='class').forEach(k=>{seq.push(k);M.edges.filter(e=>e.a===k.id&&e.k==='class').forEach(e=>{const cn=kids.find(z=>z.id===e.b);if(cn&&!seq.includes(cn))seq.push(cn)})}); kids.filter(k=>!seq.includes(k)).forEach(k=>seq.push(k));
+    const rc=ctr(R.id), rd=dim(R.id), horiz=nR<=1||Math.abs(Math.cos(P[R.id].a))>.45;
+    const dirx=nR<=1?1:Math.sign(Math.cos(P[R.id].a))||1, diry=Math.sign(Math.sin(P[R.id].a))||1;
+    const cols=Math.min(horiz?2:3,Math.max(1,Math.ceil(seq.length/4))), gap=14, cw=230;
+    let colH=new Array(cols).fill(0);
+    const place=[]; seq.forEach((k,i)=>{const d=dim(k.id);let ci=colH.indexOf(Math.min(...colH));place.push({k,ci,y:colH[ci],d});colH[ci]+=d.h+gap});
+    const blockH=Math.max(...colH)-gap, blockW=cols*cw-gap+((cols-1)*0);
+    let bx,by; if(horiz){bx=dirx>0?P[R.id].x+rd.w+70:P[R.id].x-70-blockW;by=rc.y-blockH/2}else{bx=rc.x-blockW/2;by=diry>0?P[R.id].y+rd.h+60:P[R.id].y-60-blockH}
+    place.forEach(({k,ci,y})=>{P[k.id]={x:bx+ci*cw,y:by+y}});
+  });
+  // your own boxes and anything not yet placed
+  st.add.forEach(u=>{P[u.id]=u.x!=null?{x:u.x,y:u.y}:{x:0,y:-ry-180}});
+  board.querySelectorAll('.imn').forEach(e=>{const id=e.dataset.n;if(!P[id])P[id]={x:0,y:0,soft:true}});
+  // saved positions win
+  Object.keys(P).forEach(id=>{if(st.pos[id])P[id]={x:st.pos[id].x,y:st.pos[id].y,pinned:true}});
+  // push apart anything that overlaps (soft boxes move first)
+  const ids=Object.keys(P).filter(id=>el(id)), D={}; ids.forEach(id=>D[id]=dim(id));
+  for(let it=0;it<80;it++){let moved=false;
+    for(let i=0;i<ids.length;i++)for(let j=i+1;j<ids.length;j++){const a=ids[i],b=ids[j],A=P[a],B=P[b],da=D[a],db=D[b];
+      const ox=Math.min(A.x+da.w,B.x+db.w)-Math.max(A.x,B.x)+18, oy=Math.min(A.y+da.h,B.y+db.h)-Math.max(A.y,B.y)+14;
+      if(ox>0&&oy>0){moved=true;const fa=A.pinned?0:(A.soft?1:.5)+(M.nodes.find(n=>n.id===a&&n.t==='reading')?-.4:0), fb=B.pinned?0:(B.soft?1:.5)+(M.nodes.find(n=>n.id===b&&n.t==='reading')?-.4:0); const tot=(fa+fb)||1;
+        if(ox<oy){const s=(A.x+da.w/2<B.x+db.w/2)?-1:1;A.x+=s*ox*fa/tot;B.x-=s*ox*fb/tot}else{const s=(A.y+da.h/2<B.y+db.h/2)?-1:1;A.y+=s*oy*fa/tot;B.y-=s*oy*fb/tot}}}
+    if(!moved)break}
+  ids.forEach(id=>{const e=el(id);e.style.left=Math.round(P[id].x)+'px';e.style.top=Math.round(P[id].y)+'px'});
+  imEdges(c);
 }
+function imBounds(){const board=$('#imBoard');let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;board.querySelectorAll('.imn').forEach(e=>{x0=Math.min(x0,e.offsetLeft);y0=Math.min(y0,e.offsetTop);x1=Math.max(x1,e.offsetLeft+e.offsetWidth);y1=Math.max(y1,e.offsetTop+e.offsetHeight)});return x0>x1?{x0:0,y0:0,x1:1,y1:1}:{x0,y0,x1,y1}}
+function imView(){const b=$('#imBoard');if(b)b.style.transform=`translate(${IM.tx}px,${IM.ty}px) scale(${IM.zoom})`}
+function imFit(){const cv=$('#imCanvas');if(!cv)return;const B=imBounds(),pad=40,w=B.x1-B.x0,h=B.y1-B.y0;IM.zoom=Math.max(.25,Math.min(1.15,(cv.clientWidth-pad*2)/w,(cv.clientHeight-pad*2)/h));IM.tx=cv.clientWidth/2-(B.x0+w/2)*IM.zoom;IM.ty=cv.clientHeight/2-(B.y0+h/2)*IM.zoom;imView()}
 function imEdges(c){
   const board=$('#imBoard'), svg=$('#imEdges'); if(!board||!svg)return;
   const st=imStore(c.id,CR.scope), M=board._M||{edges:[]};
-  svg.setAttribute('width',board.offsetWidth); svg.setAttribute('height',board.offsetHeight);
   const box=id=>{const e=board.querySelector(`.imn[data-n="${CSS.escape(id)}"]`);if(!e)return null;return {x:e.offsetLeft,y:e.offsetTop,w:e.offsetWidth,h:e.offsetHeight}};
+  const clip=(B,tx,ty)=>{const cx=B.x+B.w/2,cy=B.y+B.h/2,dx=tx-cx,dy=ty-cy;if(!dx&&!dy)return {x:cx,y:cy};const s=Math.min(Math.abs((B.w/2+3)/(dx||1e-6)),Math.abs((B.h/2+3)/(dy||1e-6)));return {x:cx+dx*s,y:cy+dy*s}};
   const all=M.edges.concat(st.edges.map(e=>({...e,k:'user'})));
   let out=svg.querySelector('defs').outerHTML;
   all.forEach(e=>{
     const A=box(e.a),B=box(e.b); if(!A||!B)return;
-    let d,mx,my;
-    if(e.k==='rel'){ // reading ↔ reading: arc out to the left of the readings column
-      const ax=A.x,ay=A.y+A.h/2,bx=B.x,by=B.y+B.h/2,bend=Math.min(140,40+Math.abs(by-ay)*.25);
-      d=`M${ax} ${ay} C${ax-bend} ${ay},${bx-bend} ${by},${bx} ${by}`; mx=Math.min(ax,bx)-bend*.75; my=(ay+by)/2;
-    }else{
-      const l2r=A.x+A.w/2<=B.x+B.w/2;
-      const ax=l2r?A.x+A.w:A.x, ay=A.y+A.h/2, bx=l2r?B.x:B.x+B.w, by=B.y+B.h/2, dx=Math.max(30,Math.abs(bx-ax)/2)*(l2r?1:-1);
-      if(Math.abs(A.x-B.x)<10){const sx=A.x+A.w/2,sy=A.y+(B.y>A.y?A.h:0),tx=B.x+B.w/2,ty=B.y+(B.y>A.y?0:B.h);d=`M${sx} ${sy} L${tx} ${ty}`;mx=(sx+tx)/2;my=(sy+ty)/2}
-      else{d=`M${ax} ${ay} C${ax+dx} ${ay},${bx-dx} ${by},${bx} ${by}`;mx=(ax+bx)/2;my=(ay+by)/2}
+    const ac={x:A.x+A.w/2,y:A.y+A.h/2}, bc={x:B.x+B.w/2,y:B.y+B.h/2};
+    const p1=clip(A,bc.x,bc.y), p2=clip(B,ac.x,ac.y);
+    const mx=(p1.x+p2.x)/2, my=(p1.y+p2.y)/2, bend=.08; let cx=mx-(p2.y-p1.y)*bend, cy=my+(p2.x-p1.x)*bend;
+    if(e.k==='rel'){ // arc over whatever lies between the two readings
+      const horiz=Math.abs(p2.x-p1.x)>=Math.abs(p2.y-p1.y), lo=horiz?Math.min(p1.x,p2.x):Math.min(p1.y,p2.y), hi=horiz?Math.max(p1.x,p2.x):Math.max(p1.y,p2.y);
+      let edge=horiz?Math.min(p1.y,p2.y):Math.min(p1.x,p2.x);
+      board.querySelectorAll('.imn').forEach(n=>{if(n.dataset.n===e.a||n.dataset.n===e.b)return;const c0=horiz?n.offsetLeft+n.offsetWidth/2:n.offsetTop+n.offsetHeight/2;if(c0>lo&&c0<hi)edge=Math.min(edge,horiz?n.offsetTop:n.offsetLeft)});
+      if(horiz){cx=mx;cy=2*(edge-40)-my}else{cy=my;cx=2*(edge-40)-mx}
     }
-    const lab=e.label?`<g class="iml k-${e.k||'has'}"><rect x="${mx-e.label.length*3.4-7}" y="${my-10}" width="${e.label.length*6.8+14}" height="20" rx="10"/><text x="${mx}" y="${my+4}" text-anchor="middle">${esc(e.label)}</text></g>`:'';
+    const d=`M${p1.x} ${p1.y} Q${cx} ${cy} ${p2.x} ${p2.y}`, lx=(p1.x+2*cx+p2.x)/4, ly=(p1.y+2*cy+p2.y)/4;
+    const lab=e.label?`<g class="iml k-${e.k||'has'}"><rect x="${lx-e.label.length*3.4-7}" y="${ly-10}" width="${e.label.length*6.8+14}" height="20" rx="10"/><text x="${lx}" y="${ly+4}" text-anchor="middle">${esc(e.label)}</text></g>`:'';
     out+=`<path class="ime k-${e.k||'has'}" d="${d}" ${e.k==='rel'||e.k==='user'||e.k==='needs'||e.k==='class'?'marker-end="url(#imArr)"':''} ${e.k==='user'?`data-ue="${e.id}"`:''}>${e.note?`<title>${esc(e.note)}</title>`:''}</path>${lab}`;
   });
   svg.innerHTML=out;
@@ -6803,76 +7030,94 @@ function imEditText(id){
   const board=$('#imBoard'), e=board&&board.querySelector(`.imn[data-n="${CSS.escape(id)}"] .imt`); if(!e)return;
   const c=courseOf(CR.cid), st=imStore(c.id,CR.scope), n=board._M.nodes.find(z=>z.id===id);
   e.contentEditable='true'; e.focus(); const r=document.createRange(); r.selectNodeContents(e); const s=getSelection(); s.removeAllRanges(); s.addRange(r);
-  const done=()=>{e.contentEditable='false';e.removeEventListener('blur',done);const t=trim(e.textContent);if(!t){bindInsightMap(true);return}
+  const done=()=>{e.contentEditable='false';e.removeEventListener('blur',done);const t=trim(e.textContent);if(!t){(IM.keep=true,bindInsightMap(true));return}
     if(!n){const u=st.add.find(z=>z.id===id);if(u)u.text=t;save(c.id)}
     else if(n.src){const m=S.docs[n.mat],r2=rnOf(m),x=(r2[n.src[0]]||[]).find(z=>z.id===n.src[1]);if(x){x.text=t;save(n.mat)}}
     else if(n.t==='question'){const l=S.docs[n.lec],q=(l.questions||[]).find(z=>z.id===n.qid);if(q){q.text=t;save(n.lec)}}
     else if(n.t==='class'){const l=S.docs[n.lec],x=(l.rels||[]).find(z=>z.id===n.rel);if(x){x.text=t;save(n.lec)}}
     else if(n.t==='reading'){toast('Change the reference of a reading from its reading notes');}
-    bindInsightMap(true)};
+    (IM.keep=true,bindInsightMap(true))};
   e.addEventListener('blur',done);
   e.addEventListener('keydown',ev=>{if(ev.key==='Enter'&&!ev.shiftKey){ev.preventDefault();e.blur()}if(ev.key==='Escape'){e.textContent=n?n.label:'';e.blur()}});
 }
 function bindInsightMap(rerender){
   const c=courseOf(CR.cid); if(!c)return;
-  if(rerender){const v=$('#crView');if(v){const sc=$('#imCanvas'),pos=sc?[sc.scrollLeft,sc.scrollTop]:null;v.innerHTML=insightMapHTML(c);const nc=$('#imCanvas');if(nc&&pos){nc.scrollLeft=pos[0];nc.scrollTop=pos[1]}}}
-  const board=$('#imBoard'); if(!board)return;
-  imLayout(c); const st=imStore(c.id,CR.scope);
-  if(!IM.zset){const cv=$('#imCanvas');if(cv&&board.offsetWidth>cv.clientWidth){IM.zoom=Math.max(.8,Math.floor(cv.clientWidth/board.offsetWidth*20)/20);board.style.zoom=IM.zoom;const zb=document.querySelector('[data-act="imZoom"][data-v="0"]');if(zb)zb.textContent=Math.round(IM.zoom*100)+'%'}IM.zset=true}
-  let drag=null;
-  board.addEventListener('pointerdown',e=>{
-    const n=e.target.closest('.imn'); if(!n||e.target.isContentEditable||e.button!==0)return;
-    if(IM.connect){if(IM.connect===true){IM.connect=n.dataset.n;n.classList.add('sel');toast('Now click the box to point to')}else if(IM.connect!==n.dataset.n){const a=IM.connect,b=n.dataset.n;IM.connect=null;const ov=modal(`<h3>Label the arrow</h3><div class="field"><input class="inp" id="imLab" placeholder="e.g. explains, is an example of, contradicts (optional)"></div><div class="mfoot"><button class="btn" data-x>Cancel</button><button class="btn pri" data-ok>Add arrow</button></div>`);const go2=ok=>{if(ok){st.edges.push({id:uid('ue'),a,b,label:trim(ov.querySelector('#imLab').value)});save(c.id)}ov.remove();bindInsightMap(true)};ov.querySelector('[data-x]').onclick=()=>go2(false);ov.querySelector('[data-ok]').onclick=()=>go2(true);ov.querySelector('#imLab').addEventListener('keydown',k=>{if(k.key==='Enter')go2(true)});setTimeout(()=>ov.querySelector('#imLab').focus(),30)}e.preventDefault();return}
-    const z=IM.zoom; drag={el:n,id:n.dataset.n,sx:e.clientX,sy:e.clientY,x:n.offsetLeft,y:n.offsetTop,moved:false,z};
-    n.setPointerCapture(e.pointerId);
+  if(rerender){const v=$('#crView');if(v)v.innerHTML=insightMapHTML(c)}
+  const board=$('#imBoard'), cv=$('#imCanvas'); if(!board||!cv)return;
+  // the map fills the window: scroll it to the top on first open, and size the canvas to what is left
+  const wrap=$('#imWrap');
+  if(wrap&&!IM.full){const tb=($('.top')||{}).offsetHeight||72;if(!rerender&&!IM.keep)window.scrollTo(0,wrap.getBoundingClientRect().top+scrollY-tb-10);const off=cv.getBoundingClientRect().top-wrap.getBoundingClientRect().top;cv.style.height=Math.max(380,innerHeight-tb-10-off-12)+'px'}
+  imLayout(c); const st=imState(imStore(c.id,CR.scope));
+  if(IM.keep&&IM.tx!=null){imView();IM.keep=false}else imFit();
+  // pan and zoom
+  cv.addEventListener('wheel',e=>{e.preventDefault();if(e.ctrlKey||e.metaKey){const r=cv.getBoundingClientRect(),px=e.clientX-r.left,py=e.clientY-r.top,z0=IM.zoom,z=Math.max(.25,Math.min(2.2,z0*Math.exp(-e.deltaY*.0025)));IM.tx=px-(px-IM.tx)*z/z0;IM.ty=py-(py-IM.ty)*z/z0;IM.zoom=z}else{IM.tx-=e.deltaX;IM.ty-=e.deltaY}imView()},{passive:false});
+  let pan=null, drag=null;
+  cv.addEventListener('pointerdown',e=>{
+    if(e.button!==0||e.target.closest('.impop,[data-imexp]'))return;
+    const n=e.target.closest('.imn');
+    if(!n){pan={sx:e.clientX,sy:e.clientY,tx:IM.tx,ty:IM.ty,moved:false};cv.setPointerCapture(e.pointerId);cv.classList.add('panning');return}
+    if(e.target.isContentEditable)return;
+    if(IM.connect){if(IM.connect===true){IM.connect=n.dataset.n;n.classList.add('sel');toast('Now click the box to point to')}else if(IM.connect!==n.dataset.n){const a=IM.connect,b=n.dataset.n;IM.connect=null;const ov=modal(`<h3>Label the arrow</h3><div class="field"><input class="inp" id="imLab" placeholder="e.g. explains, is an example of, contradicts (optional)"></div><div class="mfoot"><button class="btn" data-x>Cancel</button><button class="btn pri" data-ok>Add arrow</button></div>`);const go2=ok=>{if(ok){st.edges.push({id:uid('ue'),a,b,label:trim(ov.querySelector('#imLab').value)});save(c.id)}ov.remove();IM.keep=true;bindInsightMap(true)};ov.querySelector('[data-x]').onclick=()=>go2(false);ov.querySelector('[data-ok]').onclick=()=>go2(true);ov.querySelector('#imLab').addEventListener('keydown',k=>{if(k.key==='Enter')go2(true)});setTimeout(()=>ov.querySelector('#imLab').focus(),30)}e.preventDefault();return}
+    drag={el:n,id:n.dataset.n,sx:e.clientX,sy:e.clientY,x:n.offsetLeft,y:n.offsetTop,moved:false}; n.setPointerCapture(e.pointerId);
   });
-  board.addEventListener('pointermove',e=>{if(!drag)return;const dx=(e.clientX-drag.sx)/drag.z,dy=(e.clientY-drag.sy)/drag.z;if(!drag.moved&&Math.hypot(dx,dy)<4)return;if(!drag.moved){drag.moved=true;drag.el.classList.add('drag');const p=$('#imPop');if(p)p.remove()}drag.el.style.left=Math.max(0,drag.x+dx)+'px';drag.el.style.top=Math.max(IM_TOP-20,drag.y+dy)+'px';imEdges(c)});
-  board.addEventListener('pointerup',()=>{if(!drag)return;const d=drag;drag=null;d.el.classList.remove('drag');
-    if(d.moved){const p={x:d.el.offsetLeft,y:d.el.offsetTop};const u=st.add.find(z=>z.id===d.id);if(u){u.x=p.x;u.y=p.y}else st.pos[d.id]=p;save(c.id,400);
-      board.style.width=Math.max(board.offsetWidth,p.x+d.el.offsetWidth+60)+'px';board.style.height=Math.max(board.offsetHeight,p.y+d.el.offsetHeight+60)+'px';imEdges(c)}
+  cv.addEventListener('pointermove',e=>{
+    if(pan){const dx=e.clientX-pan.sx,dy=e.clientY-pan.sy;if(Math.hypot(dx,dy)>3)pan.moved=true;IM.tx=pan.tx+dx;IM.ty=pan.ty+dy;imView();return}
+    if(!drag)return;const dx=(e.clientX-drag.sx)/IM.zoom,dy=(e.clientY-drag.sy)/IM.zoom;if(!drag.moved&&Math.hypot(dx,dy)<4)return;
+    if(!drag.moved){drag.moved=true;drag.el.classList.add('drag');const p=$('#imPop');if(p)p.remove()}
+    drag.el.style.left=(drag.x+dx)+'px';drag.el.style.top=(drag.y+dy)+'px';imEdges(c)});
+  cv.addEventListener('pointerup',e=>{
+    if(pan){const was=pan.moved;pan=null;cv.classList.remove('panning');if(!was)imSelect(null);return}
+    if(!drag)return;const d=drag;drag=null;d.el.classList.remove('drag');
+    if(d.moved){const p={x:d.el.offsetLeft,y:d.el.offsetTop};const u=st.add.find(z=>z.id===d.id);if(u){u.x=p.x;u.y=p.y}else st.pos[d.id]=p;save(c.id,400);imEdges(c)}
     else imSelect(d.id)});
-  board.addEventListener('dblclick',e=>{const n=e.target.closest('.imn');if(n)imEditText(n.dataset.n)});
+  board.addEventListener('dblclick',e=>{const n=e.target.closest('.imn');if(n&&!e.target.closest('[data-imexp]'))imEditText(n.dataset.n)});
   board.addEventListener('click',e=>{
-    const b=e.target.closest('[data-imp]'); if(b){const id=IM.sel,n=board._M.nodes.find(z=>z.id===id),a=b.dataset.imp;
-      if(a==='edit')imEditText(id);
-      if(a==='gap'){if(n&&n.notok&&n.src){const m=S.docs[n.mat],x=rnOf(m)[n.src[0]].find(z=>z.id===n.src[1]);if(x){x.ok=true;save(n.mat)}}else if(n&&(n.t==='concept'||n.t==='prereq')&&n.src&&!st.gap[id]){const m=S.docs[n.mat],x=rnOf(m)[n.src[0]].find(z=>z.id===n.src[1]);if(x){x.ok=false;save(n.mat)}}else{if(st.gap[id])delete st.gap[id];else st.gap[id]=true;save(c.id)}bindInsightMap(true)}
-      if(a==='conn'){IM.connect=id;toast('Now click the box to point to')}
-      if(a==='hide'){st.hide.push(id);save(c.id);bindInsightMap(true)}
-      if(a==='del'){st.add=st.add.filter(z=>z.id!==id);st.edges=st.edges.filter(z=>z.a!==id&&z.b!==id);delete st.gap[id];save(c.id);bindInsightMap(true)}
-      if(a==='open'&&n){const lid=n.lec||(S.docs[n.mat]||{}).lectureId;if(n.mat&&S.docs[n.mat].type!=='slides'){LV.modes[lid]='read';LV.rn=n.mat;const m=S.docs[n.mat];LV.mat=m.pdf?n.mat:null}else{LV.modes[lid]='class';LV.mat=null}go({view:'lecture',lectureId:lid})}
-      return}
-    if(!e.target.closest('.imn')){imSelect(null);if(IM.connect&&IM.connect!==true){}}
+    const x=e.target.closest('[data-imexp]'); if(x){const id=x.dataset.imexp;st.exp=st.exp.includes(id)?st.exp.filter(z=>z!==id):st.exp.concat(id);save(c.id);bindInsightMap(true);return}
+    const b=e.target.closest('[data-imp]'); if(!b)return; const id=IM.sel,n=board._M.nodes.find(z=>z.id===id),a=b.dataset.imp;
+    if(a==='edit')imEditText(id);
+    if(a==='gap'){if(n&&n.notok&&n.src){const m=S.docs[n.mat],x=rnOf(m)[n.src[0]].find(z=>z.id===n.src[1]);if(x){x.ok=true;save(n.mat)}}else if(n&&(n.t==='concept'||n.t==='prereq')&&n.src&&!st.gap[id]){const m=S.docs[n.mat],x=rnOf(m)[n.src[0]].find(z=>z.id===n.src[1]);if(x){x.ok=false;save(n.mat)}}else{if(st.gap[id])delete st.gap[id];else st.gap[id]=true;save(c.id)}IM.keep=true;bindInsightMap(true)}
+    if(a==='conn'){IM.connect=id;toast('Now click the box to point to')}
+    if(a==='hide'){st.hide.push(id);save(c.id);IM.keep=true;bindInsightMap(true)}
+    if(a==='del'){st.add=st.add.filter(z=>z.id!==id);st.edges=st.edges.filter(z=>z.a!==id&&z.b!==id);delete st.gap[id];save(c.id);IM.keep=true;bindInsightMap(true)}
+    if(a==='open'&&n){const lid=n.lec||(S.docs[n.mat]||{}).lectureId;if(n.mat&&S.docs[n.mat].type!=='slides'){LV.modes[lid]='read';LV.rn=n.mat;const m=S.docs[n.mat];LV.mat=m.pdf?n.mat:null}else{LV.modes[lid]='class';LV.mat=null}go({view:'lecture',lectureId:lid})}
   });
-  const sv=$('#imEdges'); if(sv)sv.addEventListener('click',e=>{const p=e.target.closest('[data-ue]');if(p&&confirm('Remove this arrow?')){st.edges=st.edges.filter(z=>z.id!==p.dataset.ue);save(c.id);bindInsightMap(true)}});
-  document.querySelectorAll('[data-imgo]').forEach(b=>b.onclick=()=>{const e=board.querySelector(`.imn[data-n="${CSS.escape(b.dataset.imgo)}"]`);if(!e)return;const cv=$('#imCanvas');cv.scrollTo({left:Math.max(0,e.offsetLeft*IM.zoom-cv.clientWidth/3),top:Math.max(0,e.offsetTop*IM.zoom-cv.clientHeight/3),behavior:'smooth'});e.classList.remove('pulse');void e.offsetWidth;e.classList.add('pulse');imSelect(b.dataset.imgo)});
+  const sv=$('#imEdges'); if(sv)sv.addEventListener('click',e=>{const p=e.target.closest('[data-ue]');if(p&&confirm('Remove this arrow?')){st.edges=st.edges.filter(z=>z.id!==p.dataset.ue);save(c.id);IM.keep=true;bindInsightMap(true)}});
+  document.querySelectorAll('[data-imflt]').forEach(i=>i.onchange=()=>{const k=i.dataset.imflt;st.flt=i.checked?[...new Set(st.flt.concat(k))]:st.flt.filter(z=>z!==k);save(c.id);bindInsightMap(true)});
+  document.querySelectorAll('[data-imgo]').forEach(b=>b.onclick=()=>{
+    const id=b.dataset.imgo; let e=board.querySelector(`.imn[data-n="${CSS.escape(id)}"]`);
+    if(!e){const n=board._M.nodes.find(z=>z.id===id);if(n&&n.par&&n.par[0]){if(!st.exp.includes(n.par[0]))st.exp.push(n.par[0]);const k=n.t==='prereq'?'concept':n.t;if(!st.flt.includes(k))st.flt.push(k);save(c.id);bindInsightMap(true);setTimeout(()=>{const b2=document.querySelector(`[data-imgo="${CSS.escape(id)}"]`);if(b2)b2.click()},60)}return}
+    const cvr=cv.getBoundingClientRect(); IM.tx=cvr.width/2-(e.offsetLeft+e.offsetWidth/2)*IM.zoom; IM.ty=cvr.height/2-(e.offsetTop+e.offsetHeight/2)*IM.zoom; board.style.transition='transform .35s ease'; imView(); setTimeout(()=>board.style.transition='',380);
+    e.classList.remove('pulse');void e.offsetWidth;e.classList.add('pulse');imSelect(id)});
 }
 function imAct(a,b){
-  const c=courseOf(CR.cid); if(!c)return; const st=imStore(c.id,CR.scope);
-  if(a==='imAdd'){const cv=$('#imCanvas'),id=uid('u:');st.add.push({id,text:'New box',x:Math.round((cv.scrollLeft+cv.clientWidth/2)/IM.zoom-110),y:Math.round((cv.scrollTop+80)/IM.zoom)});save(c.id);bindInsightMap(true);setTimeout(()=>imEditText(id),30)}
-  if(a==='imConnect'){IM.connect=IM.connect?null:true;bindInsightMap(true)}
-  if(a==='imZoom'){IM.zset=true;const v=b.dataset.v;IM.zoom=v==='+'?Math.min(1.6,IM.zoom+.1):v==='-'?Math.max(.4,IM.zoom-.1):1;IM.zoom=Math.round(IM.zoom*10)/10;bindInsightMap(true)}
+  const c=courseOf(CR.cid); if(!c)return; const st=imState(imStore(c.id,CR.scope));
+  if(a==='imAdd'){const cv=$('#imCanvas'),id=uid('u:');st.add.push({id,text:'New box',x:Math.round((cv.clientWidth/2-IM.tx)/IM.zoom-100),y:Math.round((cv.clientHeight/3-IM.ty)/IM.zoom)});save(c.id);IM.keep=true;bindInsightMap(true);setTimeout(()=>imEditText(id),30)}
+  if(a==='imConnect'){IM.connect=IM.connect?null:true;IM.keep=true;bindInsightMap(true)}
+  if(a==='imZoom'){const v=b.dataset.v;if(v==='0'){imFit();return}const cv=$('#imCanvas'),px=cv.clientWidth/2,py=cv.clientHeight/2,z0=IM.zoom,z=Math.max(.25,Math.min(2.2,z0*(v==='+'?1.2:1/1.2)));IM.tx=px-(px-IM.tx)*z/z0;IM.ty=py-(py-IM.ty)*z/z0;IM.zoom=z;imView()}
   if(a==='imShowAll'){st.hide=[];save(c.id);bindInsightMap(true)}
-  if(a==='imReset'){if(!confirm('Put every box back where the map placed it? Your own boxes stay.'))return;st.pos={};save(c.id);bindInsightMap(true)}
+  if(a==='imReset'){st.pos={};save(c.id);bindInsightMap(true)}
+  if(a==='imExpAll'){st.exp=st.exp.length?[]:buildInsight(imScopeLectures(c)).nodes.filter(n=>n.t==='reading').map(n=>n.id);save(c.id);bindInsightMap(true)}
+  if(a==='imOnly'){IM.only=!IM.only;const cv=$('#imCanvas');if(cv)cv.classList.toggle('onlygaps',IM.only);b.classList.toggle('on',IM.only)}
+  if(a==='imDrawer'){IM.drawer=IM.drawer===b.dataset.v?'':b.dataset.v;IM.keep=true;bindInsightMap(true)}
   if(a==='imPrint')imPrint();
-  if(a==='imFull')imFull(!IM.full);
+  if(a==='imFull'){imFull(!IM.full);setTimeout(imFit,120)}
 }
-/* the whole map on one landscape page: the map is copied into a print-only host and scaled to fit */
+/* the whole map on one landscape page */
 function imPrint(){
   const board=$('#imBoard'); if(!board)return;
-  const W=board.scrollWidth||board.offsetWidth, H=board.scrollHeight||board.offsetHeight;
-  // fit A4 and US Letter landscape (the smaller of the two), 8 mm margins, a line for the title
+  const B=imBounds(), pad=20, W=B.x1-B.x0+pad*2, H=B.y1-B.y0+pad*2;
   const pw=1020, ph=690, z=Math.min(1,pw/W,ph/H);
   const scopeSel=$('#crScope'), c=courseOf(CR.cid);
   const title=`Insight map — ${scopeSel&&scopeSel.selectedOptions[0]?scopeSel.selectedOptions[0].textContent.trim():(c&&c.name)||''}`;
   const host=document.createElement('div'); host.id='imPrintHost';
   host.innerHTML=`<div class="imph">${esc(title)}<span>${esc(longDate(todayISO()))}</span></div><div class="imppage" style="width:${Math.ceil(W*z)}px;height:${Math.ceil(H*z)}px"></div>`;
-  const clone=board.cloneNode(true); clone.removeAttribute('id'); clone.style.zoom=z; clone.style.width=W+'px'; clone.style.height=H+'px';
+  const clone=board.cloneNode(true); clone.removeAttribute('id'); clone.style.transform=`scale(${z}) translate(${pad-B.x0}px,${pad-B.y0}px)`; clone.style.transformOrigin='0 0';
   clone.querySelectorAll('.impop').forEach(x=>x.remove()); clone.querySelectorAll('.sel').forEach(x=>x.classList.remove('sel'));
   const svg=clone.querySelector('svg'); if(svg){svg.removeAttribute('id');svg.querySelectorAll('marker').forEach(m=>m.id='imArrP');svg.querySelectorAll('[marker-end]').forEach(p=>p.setAttribute('marker-end','url(#imArrP)'))}
   host.querySelector('.imppage').appendChild(clone);
-  const st=document.createElement('style'); st.id='imPrintPage'; st.textContent='@page{size:landscape;margin:8mm}';
-  document.head.appendChild(st); document.body.appendChild(host); document.body.classList.add('printmap');
-  const done=()=>{document.body.classList.remove('printmap');host.remove();st.remove();window.removeEventListener('afterprint',done)};
+  const stl=document.createElement('style'); stl.id='imPrintPage'; stl.textContent='@page{size:landscape;margin:8mm}';
+  document.head.appendChild(stl); document.body.appendChild(host); document.body.classList.add('printmap');
+  const done=()=>{document.body.classList.remove('printmap');host.remove();stl.remove();window.removeEventListener('afterprint',done)};
   window.addEventListener('afterprint',done);
   setTimeout(()=>{window.print();setTimeout(()=>{if(document.body.contains(host))done()},500)},60);
 }
@@ -6886,6 +7131,16 @@ function imFull(on){
 }
 document.addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement&&IM.full)imFull(false)});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&IM.full&&!e.target.isContentEditable){e.stopPropagation();imFull(false)}},true);
+/* the report on the whole screen, for reading */
+function crFull(on){
+  CR.full=on; const v=$('#crView'); if(!v)return;
+  v.classList.toggle('crfull',on); document.body.classList.toggle('imfullon',on);
+  let x=$('#crFullX'); if(on&&!x){v.insertAdjacentHTML('afterbegin',`<button class="btn sm crfullx" id="crFullX" data-act="crFull" title="Exit full screen (Esc)">${ico('minimize')}Exit full screen</button>`)}else if(!on&&x)x.remove();
+  try{if(on&&!document.fullscreenElement&&v.requestFullscreen)v.requestFullscreen().catch(()=>{});else if(!on&&document.fullscreenElement)document.exitFullscreen().catch(()=>{})}catch(e){}
+  if(on)v.scrollTop=0;
+}
+document.addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement&&CR.full)crFull(false)});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&CR.full){e.stopPropagation();crFull(false)}},true);
 function openInsightMap(lid){
   IM.full=false; document.body.classList.remove('imfullon');
   const l=S.docs[lid]; if(!l)return;
@@ -6936,7 +7191,7 @@ function lectureView(){
     <span class="stkctl"><button class="btn sm" data-act="stickyNew" title="Pin a sticky note on top of your notes">${ico('sticky')}Sticky</button>${(l.stickies||[]).some(x=>x.hidden)?`<button class="btn sm ghost" data-act="stickyShow" title="Show your hidden sticky notes">${ico('eye')}${(l.stickies||[]).filter(x=>x.hidden).length} hidden</button>`:''}</span>
     <span class="markbar" role="group" aria-label="Mark the selected words">${MARKS.map(([k,e,lab])=>`<button class="mkb" data-act="mark" data-v="${k}" title="${k==='q'?'Select words in your notes, then write a reflection question that leads to them':'Mark the selected words: '+lab}">${ico(e)}<span>${k==='q'?'Ask':k==='imp'?'Key':'Review'}</span></button>`).join('')}<button class="mkb" data-act="mark" data-v="idea" title="Save the selected words (or a thought) as an idea">${ico('bulb')}<span>Idea</span></button><button class="mkb" data-act="mark" data-v="rel" title="Relate the selected words to a claim, concept or question from the readings">${ico('link2')}<span>Relate</span></button></span>
     <button class="btn sm" data-act="capture" title="Capture an assignment, a date or deadline, or information about the course">${ico('flag')}<span class="bl">Capture</span></button>
-    ${nRead?`<button class="btn sm ${LV.digest&&!LV.mat?'on':''}" data-act="digest" aria-pressed="${!!(LV.digest&&!LV.mat)}" title="Open your reading notes beside your class notes, to relate and synthesise">${ico('readm')}<span class="bl">Reading notes</span></button>`:''}
+    ${nRead||courseHasReadings(l)?`<button class="btn sm ${LV.digest&&!LV.mat?'on':''}" data-act="digest" aria-pressed="${!!(LV.digest&&!LV.mat)}" title="Open your reading notes beside your class notes, to relate and synthesise">${ico('readm')}<span class="bl">Reading notes</span></button>`:''}
     <button class="btn sm ${rec?'danger':''}" data-act="${rec?'recStop':'recStart'}" title="${rec?'Stop recording':'Record the lecture audio — every new paragraph gets a time stamp you can click to listen back'}">${ico('mic')}${rec?'<span id="recTime">Stop</span>':'Record'}</button>
     <span class="spacer"></span><span class="save" id="saveNote"></span>
     <button class="btn sm icon ${LV.panel?'on':''}" data-act="lPanel" title="${LV.panel?'Hide':'Show'} reflection questions, important ideas and flashcards" aria-label="Questions panel" aria-pressed="${LV.panel?'true':'false'}">${ico('menu')}</button>
@@ -6955,7 +7210,7 @@ function lectureView(){
     if(mat){LV.mat=null}
     return `<div id="lectureView" class="rmode">${LV.mcard?matCardHTML():''}${head}${toolbar}${fab}<div class="rnsolo">${rn?`${rn.pdf?`<div class="rnreopen"><button class="btn sm" data-act="matOpen" data-id="${rn.id}">${ico('doc')}Open the PDF beside these notes</button></div>`:''}${readingNotesHTML(rn,l)}`:readingHubHTML(l)}</div></div>`;
   }
-  if(LV.digest&&!mat&&readingsOf(V.lectureId).length){
+  if(LV.digest&&!mat&&(readingsOf(V.lectureId).length||courseHasReadings(l))){if(!readingsOf(V.lectureId).length)DG.scope='course';
     return `<div id="lectureView">${head}${toolbar}${fab}<div class="pe split lsplit two ${LV.anim?'opening':''}" id="pe" style="--nw:${lecNotesWidth()}%"><div class="notescol">${notes}</div><div class="gutter" id="gutter" role="separator" aria-orientation="vertical" aria-label="Drag to resize the notes" tabindex="0"></div><div class="reader digest" id="digest">${digestHTML(l)}</div></div>${LV.mcard?matCardHTML():''}</div>`;
   }
   if(mat){
@@ -7955,12 +8210,13 @@ document.addEventListener('click',e=>{
     case 'rnLinkAdd': {const box=$('#rnotes'),m=S.docs[box.dataset.mid],l=S.docs[V.lectureId];const o=readingsOf(V.lectureId).find(x=>x.id!==box.dataset.mid)||docsOf('material',x=>x.courseId===l.courseId&&x.lectureId!==V.lectureId&&x.type!=='slides')[0];if(!o)break;rnOf(m).links.push({id:uid('rn'),to:o.id,kind:'supports',text:''});save(box.dataset.mid);refreshRN('.rnsec[data-s="links"] .rnit:last-child textarea');break}
     case 'rnAddNo': {const i=document.querySelector('.rnadd[data-sec="concepts"]');if(!i||!trim(i.value)){if(i)i.focus();break}rnDraft($('#rnotes').dataset.mid,'concepts','');rnAdd($('#rnotes').dataset.mid,'concepts',i.value,{ok:false});refreshRN('.rnadd[data-sec="concepts"]');break}
     case 'capture': captureDialog();break;
-    case 'dgCustom': DG.open=!DG.open;refreshDigest();break;
     case 'digest': if(LV.digest&&!LV.mat){LV.digest=false;renderMain()}else{LV.digest=true;LV.mat=null;LV.anim=true;renderMain()}break;
     case 'relNew': relateDialog({});break;
     case 'imOpen': openInsightMap(id||V.lectureId);break;
     case 'crTab': IM.tab=b.dataset.v;IM.zset=false;renderMain();break;
-    case 'imAdd': case 'imConnect': case 'imZoom': case 'imShowAll': case 'imReset': case 'imPrint': case 'imFull': imAct(b.dataset.act,b);break;
+    case 'crCopy': {const v=$('#crView');if(v)copyText(v.innerText);break}
+    case 'crFull': crFull(!CR.full);break;
+    case 'imAdd': case 'imConnect': case 'imZoom': case 'imShowAll': case 'imReset': case 'imPrint': case 'imFull': case 'imExpAll': case 'imOnly': case 'imDrawer': imAct(b.dataset.act,b);break;
     case 'deleteAssign': {const a=S.docs[V.assignId];if(!a||!confirm('Delete this assignment and the document you wrote for it?'))break;if(a.draftId)remove(a.draftId);if(a.briefPdf)getAssets().then(x=>x&&x.delete(a.briefPdf.id).catch(()=>{}));const cid=a.courseId;remove(V.assignId);go({view:'course',courseId:cid,ctab:'assign'});break}
     case 'aRadd': {const a=S.docs[V.assignId],i=$('#aRnew');const v=trim(i.value);if(!v)break;a.rubric=a.rubric||[];a.rubric.push({id:uid('r'),text:v,done:false});save(V.assignId);renderMain();const n=$('#aRnew');if(n)n.focus();break}
     case 'aWrite': assignWrite();break;
