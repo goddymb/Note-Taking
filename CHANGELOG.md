@@ -1,5 +1,11 @@
 # Changelog
 
+## [3.10.1] - 2026-11-17
+### Changed
+- The reading notes panel is easier to find:
+  - The class-notes toolbar button now always shows its label, **Readings**. Sticky and Record become icon-only on smaller screens, so the toolbar stays on one line.
+  - The *From the readings* side panel has an **Open all my reading notes** button.
+
 ## [3.10.0] - 2026-11-17
 ### Added
 - **Organise course reports** like research project reports. *Organise by* has four options:

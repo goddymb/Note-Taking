@@ -1156,6 +1156,7 @@ textarea.rnin:hover{background:var(--panel-2)}textarea.rnin:focus{background:var
 .rte .mk-rel::before{content:'\21C4';display:inline-block;font-size:.72em;font-weight:800;margin-right:3px;color:#7c5cff;vertical-align:.12em;font-family:var(--font)}
 .crview .mk-rel{background:none;border:0}.crview .mk-rel::before{display:none}
 .lqfrom.rd{display:flex;gap:4px;align-items:center;color:#7c5cff}.lqfrom.rd .i{width:12px;height:12px}
+.frall{width:100%;justify-content:center;margin:2px 0 8px}
 .fr{border-top:1px solid var(--line);padding:4px 0}.fr:first-of-type{border-top:0}
 .frh{display:flex;gap:6px;align-items:center;width:100%;background:none;border:0;padding:4px 0;font-weight:600;font-size:13px;color:var(--ink);cursor:pointer;text-align:left}
 .frh .i{width:12px;height:12px;transition:transform .15s}.fr.open .frh .i{transform:rotate(90deg)}
@@ -6631,6 +6632,7 @@ function fromReadingsHTML(l){
   const LV2=LV.rdOpen=LV.rdOpen||{};
   const disc=(item)=>rels.some(r=>r.item===item);
   return `<div class="lpsec"><div class="lph"><b>${ico('readm')}From the readings</b><span class="muted">${rels.length} related</span></div>
+    <button class="btn sm frall" data-act="digest" title="Questions, notes, claims, concepts, insights and gaps — one reading or all together, with search">${ico('readm')}Open all my reading notes</button>
     ${rs.map(m=>{const r=rnOf(m),open=LV2[m.id]!==false,nu=r.concepts.concat(r.prereq).filter(c=>c.ok===false);
       return `<div class="fr ${open?'open':''}"><button class="frh" data-frtog="${m.id}" aria-expanded="${open}">${ico('chev')}<span>${esc(matShort(m))}</span></button>${open?`<div class="frb">
         ${r.args.map((a,i)=>`<div class="fri ${disc('a:'+a.id)?'disc':''}"><span class="rnb">C${i+1}</span><span class="frt">${esc(a.text)}${a.ev?`<span class="frev">${esc(a.ev)}</span>`:''}</span><button class="btn sm ghost" data-frrel="${m.id}" data-item="a:${a.id}" title="Relate something from the lecture to this claim">${disc('a:'+a.id)?ico('check'):ico('link2')}</button></div>`).join('')}
@@ -7188,11 +7190,11 @@ function lectureView(){
   :`<div class="ptoolbar"><span class="ftitle"><span>${esc(l.topic||'Lecture')}</span></span>
     ${focusBtn}
     <span class="seg" role="group" aria-label="Layout"><button class="${cornell?'':'on'}" data-act="lLayout" data-v="standard" title="One notes area">Standard</button><button class="${cornell?'on':''}" data-act="lLayout" data-v="cornell" title="Cornell method: key words and questions on the left, notes on the right, summary at the bottom">Cornell</button></span>
-    <span class="stkctl"><button class="btn sm" data-act="stickyNew" title="Pin a sticky note on top of your notes">${ico('sticky')}Sticky</button>${(l.stickies||[]).some(x=>x.hidden)?`<button class="btn sm ghost" data-act="stickyShow" title="Show your hidden sticky notes">${ico('eye')}${(l.stickies||[]).filter(x=>x.hidden).length} hidden</button>`:''}</span>
+    <span class="stkctl"><button class="btn sm" data-act="stickyNew" title="Pin a sticky note on top of your notes">${ico('sticky')}<span class="bl">Sticky</span></button>${(l.stickies||[]).some(x=>x.hidden)?`<button class="btn sm ghost" data-act="stickyShow" title="Show your hidden sticky notes">${ico('eye')}${(l.stickies||[]).filter(x=>x.hidden).length} hidden</button>`:''}</span>
     <span class="markbar" role="group" aria-label="Mark the selected words">${MARKS.map(([k,e,lab])=>`<button class="mkb" data-act="mark" data-v="${k}" title="${k==='q'?'Select words in your notes, then write a reflection question that leads to them':'Mark the selected words: '+lab}">${ico(e)}<span>${k==='q'?'Ask':k==='imp'?'Key':'Review'}</span></button>`).join('')}<button class="mkb" data-act="mark" data-v="idea" title="Save the selected words (or a thought) as an idea">${ico('bulb')}<span>Idea</span></button><button class="mkb" data-act="mark" data-v="rel" title="Relate the selected words to a claim, concept or question from the readings">${ico('link2')}<span>Relate</span></button></span>
     <button class="btn sm" data-act="capture" title="Capture an assignment, a date or deadline, or information about the course">${ico('flag')}<span class="bl">Capture</span></button>
-    ${nRead||courseHasReadings(l)?`<button class="btn sm ${LV.digest&&!LV.mat?'on':''}" data-act="digest" aria-pressed="${!!(LV.digest&&!LV.mat)}" title="Open your reading notes beside your class notes, to relate and synthesise">${ico('readm')}<span class="bl">Reading notes</span></button>`:''}
-    <button class="btn sm ${rec?'danger':''}" data-act="${rec?'recStop':'recStart'}" title="${rec?'Stop recording':'Record the lecture audio — every new paragraph gets a time stamp you can click to listen back'}">${ico('mic')}${rec?'<span id="recTime">Stop</span>':'Record'}</button>
+    ${nRead||courseHasReadings(l)?`<button class="btn sm ${LV.digest&&!LV.mat?'on':''}" data-act="digest" aria-pressed="${!!(LV.digest&&!LV.mat)}" title="Open your reading notes beside your class notes, to relate and synthesise">${ico('readm')}<span>Readings</span></button>`:''}
+    <button class="btn sm ${rec?'danger':''}" data-act="${rec?'recStop':'recStart'}" title="${rec?'Stop recording':'Record the lecture audio — every new paragraph gets a time stamp you can click to listen back'}">${ico('mic')}${rec?'<span id="recTime">Stop</span>':'<span class="bl">Record</span>'}</button>
     <span class="spacer"></span><span class="save" id="saveNote"></span>
     <button class="btn sm icon ${LV.panel?'on':''}" data-act="lPanel" title="${LV.panel?'Hide':'Show'} reflection questions, important ideas and flashcards" aria-label="Questions panel" aria-pressed="${LV.panel?'true':'false'}">${ico('menu')}</button>
     <button class="btn sm" data-act="lEnd" title="Write the summary and finish today's notes">${ico('check')}End lecture</button>
