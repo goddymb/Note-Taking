@@ -1572,7 +1572,7 @@ function defaultTemplate(){return {sections:JSON.parse(JSON.stringify(DEFAULT_SE
 const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
 const REF_TYPES={
   journal:{label:'Journal article',fields:['journal','volume','issue','pages','articleNo','doi','url'],req:['journal','volume'],date:'year'},
-  book:{label:'Book (whole book)',fields:['edition','publisher','doi','url'],req:['publisher'],date:'year'},
+  book:{label:'Book (whole book)',fields:['editors','edition','publisher','doi','url'],req:['publisher'],date:'year'},
   chapter:{label:'Chapter in an edited book',fields:['editors','bookTitle','edition','pages','publisher','doi','url'],req:['editors','bookTitle','pages','publisher'],date:'year'},
   report:{label:'Report (government, NGO, organisation)',fields:['reportNo','publisher','doi','url'],req:['url'],date:'full'},
   conference:{label:'Conference paper / presentation',fields:['presType','conference','location','url'],req:['conference','location'],date:'range'},
@@ -1644,7 +1644,8 @@ function link(r){const d=doiUrl(r.doi);if(d)return H(d);return trim(r.url)?H(tri
 function apaHTML(r){
   if(!r)return '';
   const t=REF_TYPES[r.type]?r.type:'journal';
-  const auth=authorList(r.authors);
+  const edOnly=t==='book'&&!validPeople(r.authors).length&&validPeople(r.editors).length;
+  const auth=edOnly?authorList(r.editors)+` (${validPeople(r.editors).length>1?'Eds.':'Ed.'})`:authorList(r.authors);
   const date=`(${H(refDate(r))}).`;
   const italicTitle=['book','report','conference','thesis','web'].includes(t);
   let titlePart='';
@@ -1700,7 +1701,7 @@ const apaMd=r=>apaHTML(r).replace(/<i>(.*?)<\/i>/g,'*$1*').replace(/<[^>]+>/g,''
 function shortTitle(r){const w=trim(r.title).split(/\s+/);return w.slice(0,4).join(' ')+(w.length>4?'…':'')}
 function inText(r){
   if(!r)return {paren:'',narr:''};
-  const a=validPeople(r.authors), y=trim(r.year)||'n.d.';
+  const a=validPeople(r.authors).length||r.type!=='book'?validPeople(r.authors):validPeople(r.editors), y=trim(r.year)||'n.d.';
   let p,n;
   if(!a.length){const st=shortTitle(r);const q=['journal','chapter'].includes(r.type)?`"${st}"`:`<i>${esc(st)}</i>`;p=n=q}
   else if(a.length===1){p=n=esc(trim(a[0].family))}
@@ -1710,7 +1711,7 @@ function inText(r){
 }
 function missingFields(r){
   const miss=[];
-  if(!validPeople(r.authors).length) miss.push('author (or leave empty only if there truly is none)');
+  if(!validPeople(r.authors).length&&!(r.type==='book'&&validPeople(r.editors).length)) miss.push('author (or leave empty only if there truly is none)');
   validPeople(r.authors).concat(validPeople(r.editors)).filter(a=>!a.org&&!trim(a.given)).forEach(a=>miss.push('first name(s) of '+trim(a.family)));
   if(!trim(r.year)) miss.push('year (otherwise shown as n.d.)');
   if(!trim(r.title)) miss.push('title');
@@ -3098,14 +3099,15 @@ async function pdfHead(src){
   const data=src.file?await src.file.arrayBuffer():await (await fetch(src.url)).arrayBuffer();
   const doc=await lib.getDocument({data,isEvalSupported:false,...PDFJS_EXTRA}).promise;
   let text='';
-  for(let i=1;i<=Math.min(2,doc.numPages);i++){
+  for(let i=1;i<=Math.min(4,doc.numPages);i++){
     const pg=await doc.getPage(i); const tc=await pg.getTextContent();
     text+=`\n[page ${i}]\n`+tc.items.map(it=>it.str+(it.hasEOL?'\n':' ')).join('');
   }
   let info={}; try{info=(await doc.getMetadata()).info||{}}catch(e){}
   doc.destroy&&doc.destroy();
   const m=(text+' '+(info.Subject||'')+' '+(info.Keywords||'')).match(DOI_RE);
-  return {text:text.replace(/[ \t]+/g,' ').trim(),info,doi:cleanDoi(m&&m[1])};
+  const isbn=(text.match(/ISBN(?:-1[03])?:?\s*((?:97[89][\s-]?)?(?:\d[\s-]?){9}[\dXx])/)||[])[1];
+  return {text:text.replace(/[ \t]+/g,' ').trim(),info,doi:cleanDoi(m&&m[1]),isbn:isbn?isbn.replace(/[\s-]/g,'').toUpperCase():''};
 }
 function normRef(o){
   const r={};
@@ -3121,13 +3123,42 @@ function normRef(o){
   if(r.doi) delete r.url;
   return r;
 }
+/* read a book's front matter: title lines, "by …" or "Edited by …", "First published 2005 by Pluto Press", "© 2005" */
+function bookFromText(text){
+  const lines=String(text||'').split('\n').map(x=>x.replace(/\s+/g,' ').trim()).filter(x=>x&&!/^\[page \d+\]$/.test(x));
+  if(lines.length<3)return null;
+  const tc=w=>w.replace(/\b([A-Z])([A-Z'’-]+)\b/g,(m,a,b)=>a+b.toLowerCase()).replace(/-([a-z])/g,(m,c)=>'-'+c.toUpperCase());
+  const fix=x=>/[a-z]/.test(x)?x:tc(x);
+  const people=str=>str.replace(/\(.*?\)/g,'').split(/\s*(?:,|&|\band\b)\s*/i).map(n=>trim(fix(n)).replace(/\.$/,'')).filter(n=>/^[A-Z][\p{L}.'’-]*(\s+[A-Z][\p{L}.'’-]*)+$/u.test(n)).map(n=>{const w=n.split(/\s+/);return {family:w.pop(),given:w.join(' '),org:false}});
+  let ed=null, by=null, ei=lines.findIndex(x=>/^edited by\b/i.test(x)), bi=-1;
+  if(ei>=0){let names=lines[ei].replace(/^edited by\s*/i,'');let k=ei+1;while(k<lines.length&&k<ei+3&&!/^(foreword|preface|introduction|with|translated|series|press|london|new york|oxford)/i.test(lines[k])&&/^(and\s+)?[A-Z][A-Za-z.'’ -]+$/.test(lines[k])){names+=' '+lines[k];k++}ed=people(names)}
+  else{bi=lines.findIndex((x,i)=>i<12&&/^by\s+[A-Z]/i.test(x));if(bi>=0)by=people(lines[bi].replace(/^by\s+/i,''))}
+  const stop=ei>=0?ei:bi>=0?bi:-1; if(stop<1)return null;
+  const tl=lines.slice(Math.max(0,stop-3),stop).filter(x=>x.length<120&&!/^(isbn|copyright|©)/i.test(x));
+  if(!tl.length)return null;
+  const title=tl.map(fix).map((x,i)=>i===0?x:x).join(': ').replace(/:\s*:/g,':');
+  const all=lines.join(' ');
+  const fp=all.match(/first published (?:in )?((?:19|20)\d{2})(?: by ([A-Z][^,.;\n]+?(?:Press|Publishers|Publishing|Books|University|Ltd|Inc\.?)))?/i);
+  const cp=all.match(/(?:©|copyright)\s*(?:[^0-9]{0,80})?((?:19|20)\d{2})/i);
+  const year=fp?fp[1]:cp?cp[1]:'';
+  let publisher=fp&&fp[2]?trim(fp[2]):''; if(!publisher){const pl=lines.slice(stop,stop+8).find(x=>/\b(Press|Publishers|Publishing|Books)\b/.test(x)&&x.length<60);if(pl)publisher=pl.replace(/^(published by|by)\s+/i,'')}
+  const r={type:'book',title,year,publisher};
+  if(ed&&ed.length){r.editors=ed;r.authors=[]}else if(by&&by.length)r.authors=by; else return null;
+  return r;
+}
 async function autofillRef(src){
   const head=await pdfHead(src);
   // 1) CrossRef through the self-hosted server
   if(head.doi){
     try{const patch=await doiLookup(head.doi);if(patch&&patch.title)return {patch,source:'crossref',doi:head.doi}}catch(e){}
   }
-  // 2) AI reads the first page
+  // 2) a book's title page and copyright page ("Edited by …", "First published 2005 by …")
+  const fm=bookFromText(head.text);
+  if(fm&&fm.title&&fm.year&&(fm.authors||fm.editors))return {patch:fm,source:'frontmatter'};
+  // 3) the ISBN, looked up in Open Library through the self-hosted server
+  if(head.isbn&&LOCAL&&LOCAL.lookup){try{const r=await fetch('/api/isbn?isbn='+encodeURIComponent(head.isbn));const j=await r.json().catch(()=>({}));if(r.ok&&j.ref&&j.ref.title){const patch=normRef(j.ref);if(fm){if(fm.editors&&!(patch.authors||[]).length){patch.editors=fm.editors}}return {patch:{...(fm||{}),...patch},source:'isbn'}}}catch(e){}}
+  if(fm&&fm.title&&(fm.authors||fm.editors))return {patch:fm,source:'frontmatter'};
+  // 4) AI reads the first page
   const sample=await getSample();
   if(sample&&head.text.length>80){
     const prompt=`Extract the bibliographic reference of this document from the text of its first pages, for an APA 7 reference.
@@ -3168,7 +3199,7 @@ function fillNoteHTML(f){
   if(!f)return '';
   if(f.state==='busy')return `<div class="fillnote"><span class="spin"></span><span>Reading the PDF to fill in the details…</span></div>`;
   if(f.state==='fail')return `<div class="fillnote warn">${ico('warn')}<span>${esc(f.msg||'Could not find the reference details automatically — please fill them in below.')}</span></div>`;
-  const src=f.source==='crossref'?`from CrossRef using the DOI <b>${esc(f.doi)}</b>`:f.source==='ai'?`by ${esc(AIN)} from the PDF's first page`:'from the PDF file\'s built-in information (often incomplete)';
+  const src=f.source==='crossref'?`from CrossRef using the DOI <b>${esc(f.doi)}</b>`:f.source==='frontmatter'?'from the book\'s title and copyright pages':f.source==='isbn'?'from Open Library using the book\'s ISBN':f.source==='ai'?`by ${esc(AIN)} from the PDF's first page`:'from the PDF file\'s built-in information (often incomplete)';
   return `<div class="fillnote ok">${ico('check')}<span>Details filled ${src}. <b>Check every field</b> against the paper before saving${f.source==='crossref'?'':' — especially names and page numbers'}.</span></div>`;
 }
 
@@ -6399,7 +6430,7 @@ const readingsOf=lid=>materialsOf(lid).filter(m=>m.type!=='slides');
 const rnQuestions=(l,mid)=>(l.questions||[]).filter(q=>q.readingId===mid);
 function rnCount(m,l){const r=rnOf(m);return r.rq.length+r.args.length+r.concepts.length+r.prereq.length+r.links.length+r.insights.length+r.gaps.length+(trim(r.text||r.free||'')?1:0)+(l?rnQuestions(l,m.id).length:0)}
 const htmlText=s=>{const d=document.createElement('textarea');d.innerHTML=String(s||'').replace(/<[^>]+>/g,'');return d.value};
-function hasRef(m){const r=m&&m.ref;return !!(r&&(validPeople(r.authors).length||trim(r.title)))}
+function hasRef(m){const r=m&&m.ref;return !!(r&&(validPeople(r.authors).length||validPeople(r.editors).length||trim(r.title)))}
 /* APA in-text citation of a lecture material: (Leftwich, 2000, p. 12) — falls back to its name */
 function matCite(m,page){
   const core=hasRef(m)?htmlText(inText(m.ref).paren).slice(1,-1):(m.name||'Reading');
@@ -6652,7 +6683,8 @@ async function autofillMat(id,file){
   try{
     const res=await autofillRef({file}); const m=S.docs[id]; if(!res||!m||hasRef(m))return;
     if(res.source==='pdf'&&!validPeople(res.patch.authors||[]).length)return;
-    m.ref={...newRef(),...res.patch}; if(!validPeople(m.ref.authors).length)m.ref.authors=[{family:'',given:'',org:false}];
+    m.ref={...newRef(),...res.patch}; if(!validPeople(m.ref.authors).length&&!validPeople(m.ref.editors).length)m.ref.authors=[{family:'',given:'',org:false}];
+    if(res.patch.title&&/[_]|\.pdf$|\d{4}/.test(m.name||''))m.name=res.patch.title.slice(0,120);
     save(id);
     if(V.view==='lecture'){if($('#rnotes')&&$('#rnotes').dataset.mid===id)refreshRN();else if($('.rnhub'))renderMain()}
     toast(`Reference filled in${res.patch.title?': '+res.patch.title.slice(0,60):''} — check it under Add reference`);

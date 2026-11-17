@@ -1,5 +1,14 @@
 # Changelog
 
+## [3.11.1] - 2026-11-17
+### Fixed
+- **Book references are found.** A book without a DOI, such as *State Formation: Anthropological Perspectives* (2005), got no reference details. The app now reads up to four first pages and recognises:
+  - the title page: "Edited by …" or "by …";
+  - the copyright page: "First published 2005 by Pluto Press", or the © year.
+  When that is not enough, the self-hosted app looks the book's ISBN up in Open Library (new `/api/isbn` endpoint). This only works with internet access.
+- **Edited books follow APA 7:** the editors take the author position, for example "Krohn-Hansen, C., & Nustad, K. G. (Eds.). (2005). *State Formation: Anthropological Perspectives*. Pluto Press." The in-text citation is (Krohn-Hansen & Nustad, 2005). The *Book* reference form now has an Editors field.
+- **Reading names:** a reading whose reference is found is renamed to its title instead of the file name.
+
 ## [3.11.0] - 2026-11-17
 ### Added
 - **Write assignments from your reading notes.** The notes panel beside an assignment now has a **Readings** source, next to Lectures and Project.

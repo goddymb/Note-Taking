@@ -355,6 +355,38 @@ async function handleLookup(url, res) {
   } finally { clearTimeout(timer); }
 }
 
+/* ---------------------------------------------------------------- Open Library lookup (ISBN → reference), for books */
+const isbnCache = new Map();
+const OPENLIBRARY_URL = env('OPENLIBRARY_URL', 'https://openlibrary.org').replace(/\/$/, '');
+function splitName(n) { n = String(n || '').trim(); if (!n) return null; if (n.includes(',')) { const [f, ...g] = n.split(','); return { family: f.trim(), given: g.join(',').trim(), org: false }; } const w = n.split(/\s+/); if (w.length === 1) return { family: w[0], given: '', org: true }; return { family: w.pop(), given: w.join(' '), org: false }; }
+async function handleIsbn(url, res) {
+  if (!CROSSREF_ENABLED) return fail(res, 404, 'not_found', 'Lookup disabled');
+  const isbn = (url.searchParams.get('isbn') || '').replace(/[\s-]/g, '').toUpperCase();
+  if (!/^(97[89])?\d{9}[\dX]$/.test(isbn)) return fail(res, 400, 'invalid_request', 'Not an ISBN');
+  if (isbnCache.has(isbn)) return send(res, 200, { ref: isbnCache.get(isbn) });
+  const ctl = new AbortController(); const timer = setTimeout(() => ctl.abort(), 8000);
+  try {
+    const r = await fetch(`${OPENLIBRARY_URL}/api/books?bibkeys=ISBN:${isbn}&format=json&jscmd=data`, { signal: ctl.signal, headers: { 'User-Agent': 'LiteratureNotes/1.0 (self-hosted)' } });
+    if (!r.ok) return fail(res, 502, 'not_found', 'Open Library did not answer');
+    const j = await r.json(); const b = j['ISBN:' + isbn];
+    if (!b || !b.title) return fail(res, 404, 'not_found', 'ISBN not found in Open Library');
+    const by = String(b.by_statement || '');
+    const people = (b.authors || []).map((a) => splitName(a.name)).filter(Boolean);
+    const edited = /\bedit(ed|ors?)\b/i.test(by);
+    const ref = {
+      type: 'book', title: b.title + (b.subtitle ? ': ' + b.subtitle : ''),
+      year: ((b.publish_date || '').match(/(1[5-9]|20)\d{2}/) || [''])[0],
+      publisher: ((b.publishers || [])[0] || {}).name || '',
+      authors: edited ? [] : people, editors: edited ? people : [],
+    };
+    if (isbnCache.size > 500) isbnCache.clear();
+    isbnCache.set(isbn, ref);
+    return send(res, 200, { ref });
+  } catch (e) {
+    return fail(res, 502, 'unavailable', 'Open Library could not be reached (offline?)');
+  } finally { clearTimeout(timer); }
+}
+
 /* ---------------------------------------------------------------- fetch a web page or PDF by link (for reference details and the web reader) */
 const WEB_FETCH = env('WEB_FETCH', 'on') !== 'off';
 const WEB_FETCH_PRIVATE = env('WEB_FETCH_ALLOW_PRIVATE', '') === '1';   // for testing only
@@ -633,6 +665,7 @@ async function handle(req, res) {
   if (p === '/api/ocr' && req.method === 'POST') return handleOcr(req, res);
   if (p === '/api/fetchurl' && req.method === 'GET') return handleFetchUrl(url, res);
   if (p === '/api/lookup' && req.method === 'GET') return handleLookup(url, res);
+  if (p === '/api/isbn' && req.method === 'GET') return handleIsbn(url, res);
   if (p === '/api/version' && req.method === 'GET') return handleVersion(url, res);
   if (p === '/api/backups' && req.method === 'GET') {
     const list = await listSnapshots();
