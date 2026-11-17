@@ -1156,6 +1156,17 @@ textarea.rnin:hover{background:var(--panel-2)}textarea.rnin:focus{background:var
 .rte .mk-rel::before{content:'\21C4';display:inline-block;font-size:.72em;font-weight:800;margin-right:3px;color:#7c5cff;vertical-align:.12em;font-family:var(--font)}
 .crview .mk-rel{background:none;border:0}.crview .mk-rel::before{display:none}
 .lqfrom.rd{display:flex;gap:4px;align-items:center;color:#7c5cff}.lqfrom.rd .i{width:12px;height:12px}
+.brtabs{display:flex;gap:2px;overflow-x:auto;margin:6px 0;border-bottom:1px solid var(--line);scrollbar-width:thin}
+.brtabs button{flex:none;border:0;background:none;border-bottom:2px solid transparent;padding:5px 7px 7px;font-size:12.5px;font-weight:600;color:var(--muted);cursor:pointer}.brtabs button.on{color:var(--ink);border-bottom-color:var(--accent)}
+.nsub{margin-top:4px;font-size:12.5px;color:var(--ink-2)}.nsub .warn{color:#b45309;font-style:normal}.nsub b.weak{color:#7e22ce}
+.ncited{font-size:11px;font-weight:700;color:#0f766e;margin-left:auto;align-self:center}
+.brnew{color:var(--accent);margin:4px 0}
+.nrw{color:#b45309}
+.apg .aplist{display:flex;flex-direction:column;gap:2px;max-height:360px;overflow:auto}
+.apr{display:flex;align-items:center;gap:10px;padding:6px 4px;border-radius:8px}.apr:hover{background:var(--panel-2)}.apr.future{opacity:.6}
+.aprd{flex:none;width:38px;height:40px;border-radius:8px;background:var(--panel-2);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:10.5px;color:var(--muted);line-height:1.1}.aprd b{font-size:15px;color:var(--ink)}
+.aprb{flex:1;min-width:0;display:flex;flex-direction:column}.aprb .link{text-align:left;font-weight:600}.aprm{font-size:12px;color:var(--muted)}
+.aprnew{font-size:10.5px;font-weight:800;color:#fff;background:var(--accent);border-radius:999px;padding:1px 7px}
 .frall{width:100%;justify-content:center;margin:2px 0 8px}
 .fr{border-top:1px solid var(--line);padding:4px 0}.fr:first-of-type{border-top:0}
 .frh{display:flex;gap:6px;align-items:center;width:100%;background:none;border:0;padding:4px 0;font-weight:600;font-size:13px;color:var(--ink);cursor:pointer;text-align:left}
@@ -3864,17 +3875,21 @@ function newDraftDialog(){
 }
 /* papers cited in a draft: inserted via the browser, or whose in-text citation appears in the text */
 function citedPapers(d){
-  const set=new Set(d.cites||[]), text=d.text||'';
-  papersOf(d.projectId).forEach(x=>{const a=validPeople((x.ref||{}).authors);const y=trim((x.ref||{}).year)||'n.d.';if(!a.length)return;const fam=trim(a[0].family);if(fam&&text.includes(fam)&&text.includes(y))set.add(x.id)});
-  return [...set].filter(id=>S.docs[id]);
+  const set=new Set(d.cites||[]), text=d.text||'', a=d.assignmentId&&S.docs[d.assignmentId];
+  const pool=papersOf(d.projectId).concat(a?docsOf('material',m=>m.courseId===a.courseId&&m.type!=='slides'&&hasRef(m)):[]);
+  pool.forEach(x=>{const a=validPeople((x.ref||{}).authors);const y=trim((x.ref||{}).year)||'n.d.';if(!a.length)return;const fam=trim(a[0].family);if(fam&&text.includes(fam)&&text.includes(y))set.add(x.id)});
+  return [...set].filter(id=>S.docs[id]&&(S.docs[id].kind!=='material'||hasRef(S.docs[id])));
 }
+function citedNoRef(d){return (d.cites||[]).filter(id=>S.docs[id]&&S.docs[id].kind==='material'&&!hasRef(S.docs[id]))}
 function refListHTML(d){
   const xs=sortedRefs(citedPapers(d).map(id=>({id,...S.docs[id]})));
-  return xs.length?xs.map(x=>`<p class="apa">${apaHTML(x.ref)}</p>`).join(''):'<p class="na">Papers you cite appear here automatically, in APA 7 format.</p>';
+  const nr=citedNoRef(d);
+  return (xs.length?xs.map(x=>`<p class="apa">${apaHTML(x.ref)}</p>`).join(''):`<p class="na">${d.assignmentId?'Readings and papers':'Papers'} you cite appear here automatically, in APA 7 format.</p>`)
+    +(nr.length?`<p class="na nrw">${nr.length===1?'One reading you cited has':nr.length+' readings you cited have'} no reference details yet: ${nr.map(id=>`<button class="link" data-act="rnRef" data-id="${id}">${esc(S.docs[id].name)}</button>`).join(', ')}. Add them and ${nr.length===1?'it appears':'they appear'} here.</p>`:'');
 }
 const BR={mode:'question',item:null,q:''};
 function draftView(){
-  if(WV.draft!==V.draftId){WV.draft=V.draftId;WV.doc=null}
+  if(WV.draft!==V.draftId){WV.draft=V.draftId;WV.doc=null;const d0=S.docs[V.draftId],a0=d0&&d0.assignmentId&&S.docs[d0.assignmentId];if(a0){WV.prevSeen=a0.seenAt||0;a0.seenAt=Date.now();save(d0.assignmentId)}else WV.prevSeen=0}
   const d=S.docs[V.draftId], p=S.docs[d.projectId], asg=d.assignmentId&&S.docs[d.assignmentId];
   const crumbs=asg?`<button data-act="nav" data-v="courses">Courses</button>${ico('chev')}<button data-act="openCourse" data-id="${asg.courseId}" data-tab="assign">${esc((S.docs[asg.courseId]||{}).code||(S.docs[asg.courseId]||{}).name||'Course')}</button>${ico('chev')}<button data-act="openAssign" data-id="${d.assignmentId}">${esc(asg.title||'Assignment')}</button>${ico('chev')}<span>Writing</span>`
     :`<button data-act="nav" data-v="projects">Projects</button>${ico('chev')}<button data-act="openProject" data-id="${d.projectId}">${esc(p?p.name:'Project')}</button>${ico('chev')}<button data-act="tab" data-v="write" data-pid="${d.projectId}">Write</button>${ico('chev')}<span>Document</span>`;
@@ -3963,7 +3978,7 @@ function draftQuote(x,text,page){
   const where=page?', '+pageStr(page):'';
   const c=x.kind==='material'?matCite(x,page):`(${citeCore(x)}${where})`;
   insertIntoDraft(ed,`“${text.replace(/\s+/g,' ')}” ${c} `);
-  if(x.kind!=='material')d.cites=[...new Set([...(d.cites||[]),x.id])];
+  if(x.kind!=='material'||x.type!=='slides')d.cites=[...new Set([...(d.cites||[]),x.id])];
   draftCommit(ed); toast('Quote added to your writing with its citation');
 }
 function writerWidth(){let v=60;try{v=parseFloat(localStorage.getItem('litnotes.ww'))||60}catch(e){}return Math.min(80,Math.max(30,v))}
@@ -4001,11 +4016,36 @@ function courseBrowserHTML(d,a){
     <select class="inp" id="brCMode" aria-label="Browse lecture notes by">${modes.map(([v,lab])=>`<option value="${v}" ${BR.cmode===v?'selected':''}>${lab}</option>`).join('')}</select>
     ${pick}<div class="nlist">${list||(ls.length?(BR.cmode==='search'?'<p class="help">Type at least two letters.</p>':'<p class="help">Nothing here yet.</p>'):`<p class="help">No lecture notes in ${esc(scopeU&&u?(u.code||u.name):(c.code||c.name||'this course'))} yet.</p>`)}</div>`;
 }
+/* your reading notes, to build an assignment from: insert with the in-text citation; the reading joins the reference list */
+function assignReadingsHTML(d,a){
+  const u=unitOf(a.unitId), scopeU=BR.cscope!=='course'&&a.unitId;
+  const ls=lecturesOf(a.courseId,scopeU?a.unitId:undefined).slice().sort((x,y)=>(x.date||'').localeCompare(y.date||''));
+  const R=ls.flatMap(l=>readingsOf(l.id).map(m=>({m:{id:m.id,...S.docs[m.id]},l})));
+  if(!R.some(x=>x.m.id===BR.rrd))BR.rrd='all';
+  if(!BR.rtab)BR.rtab='all';
+  const RR=BR.rrd==='all'?R:R.filter(x=>x.m.id===BR.rrd), q=trim(BR.rq||'').toLowerCase();
+  let items=dgItems(RR).filter(x=>!x.noact); if(q)items=items.filter(x=>(x.text+' '+(x.sub||'').replace(/<[^>]+>/g,'')).toLowerCase().includes(q));
+  const since=WV.prevSeen||0, isNew=m=>since&&(m.updatedAt||0)>since;
+  const card=x=>{const cited=(d.cites||[]).includes(x.m.id);return `<div class="ncard"><div class="nh"><b>${esc(x.kind)}${x.num?' '+esc(x.num):''}</b><span>${esc(matShort(x.m))}</span></div><div class="nb">${esc(x.text)}${x.sub?`<div class="nsub">${x.sub}</div>`:''}</div><div class="na-row"><button class="btn sm" data-rins="${x.m.id}" data-item="${esc(x.item)}" title="Insert it with its in-text citation">${ico('plus')}Insert</button><button class="btn sm ghost" data-rcite="${x.m.id}" title="Insert only the citation">Cite</button>${cited?'<span class="ncited" title="Already in your reference list">cited</span>':''}</div></div>`};
+  const gens=RR.filter(({m})=>BR.rtab==='all'||BR.rtab==='general').flatMap(({m})=>{const box=document.createElement('div');box.innerHTML=rnOf(m).html||'';return [...box.querySelectorAll('p,li,h3,h4')].map(e=>trim(e.textContent)).filter(t=>t.length>2&&(!q||t.toLowerCase().includes(q))).map(t=>({m,t}))});
+  const genCard=({m,t})=>`<div class="ncard"><div class="nh"><b>Note</b><span>${esc(matShort(m))}</span></div><div class="nb">${esc(t)}</div><div class="na-row"><button class="btn sm" data-rgen="${m.id}" data-txt="${esc(t)}">${ico('plus')}Insert</button><button class="btn sm ghost" data-rcite="${m.id}">Cite</button></div></div>`;
+  const xs=BR.rtab==='all'?items:items.filter(x=>x.tab===BR.rtab);
+  const list=(BR.rtab==='all'||BR.rtab==='general'?gens.map(genCard).join(''):'')+(BR.rtab==='general'?'':xs.map(card).join(''));
+  return `${a.unitId?`<div class="seg brscope" role="group" aria-label="Which readings"><button class="${scopeU?'on':''}" data-brscope="unit">${esc(u?(u.code||u.name):'This unit')}</button><button class="${scopeU?'':'on'}" data-brscope="course">Whole course</button></div>`:''}
+    ${R.length?`<select class="inp" id="brRd" aria-label="Reading"><option value="all">All readings (${R.length})</option>${R.map(({m,l})=>`<option value="${m.id}" ${BR.rrd===m.id?'selected':''}>${isNew(m)?'● ':''}${esc(matShort(m))} — ${esc(shortDate(l.date))}</option>`).join('')}</select>
+    <div class="brtabs" role="tablist">${DG_TABS.filter(([k])=>k!=='links').map(([k,t])=>`<button class="${BR.rtab===k?'on':''}" data-brtab="${k}">${t}</button>`).join('')}</div>
+    <input class="inp" id="brRq" type="search" placeholder="Search your reading notes" value="${esc(BR.rq||'')}">
+    ${BR.rrd!=='all'&&S.docs[BR.rrd]&&(S.docs[BR.rrd].pdf||S.docs[BR.rrd].url)?`<button class="btn sm" data-docopen2="${BR.rrd}" style="margin:2px 0 6px">${ico('doc')}Open this reading</button>`:''}
+    ${since&&R.some(x=>isNew(x.m))?`<p class="help brnew">● ${R.filter(x=>isNew(x.m)).length} reading${R.filter(x=>isNew(x.m)).length===1?' has':'s have'} new notes since you last worked on this.</p>`:''}
+    <div class="nlist">${list||'<p class="help">Nothing here yet.</p>'}</div>`
+    :`<p class="help">No readings ${scopeU?'in this unit':'in this course'} yet. Add readings to a lecture and take reading notes — they appear here, ready to insert with their citations.</p>`}`;
+}
 function browserHTML(){
   const d0=S.docs[V.draftId], a0=d0.assignmentId&&S.docs[d0.assignmentId];
   if(a0){
-    if(!BR.src)BR.src='lectures';
-    const sw=`<div class="nbhead"><b>Your notes</b><div class="seg" role="group" aria-label="Notes from"><button class="${BR.src==='lectures'?'on':''}" data-brsrc="lectures">Lectures</button><button class="${BR.src==='project'?'on':''}" data-brsrc="project">Research project</button></div></div>`;
+    if(!BR.src||!['readings','lectures','project'].includes(BR.src))BR.src='readings';
+    const sw=`<div class="nbhead"><b>Your notes</b><div class="seg" role="group" aria-label="Notes from"><button class="${BR.src==='readings'?'on':''}" data-brsrc="readings">Readings</button><button class="${BR.src==='lectures'?'on':''}" data-brsrc="lectures">Lectures</button><button class="${BR.src==='project'?'on':''}" data-brsrc="project">Project</button></div></div>`;
+    if(BR.src==='readings')return sw+assignReadingsHTML(d0,a0);
     if(BR.src==='lectures')return sw+courseBrowserHTML(d0,a0);
     return sw+projectBrowserHTML();
   }
@@ -4053,12 +4093,29 @@ function bindDraft(){
   nb.addEventListener('change',e=>{
     if(e.target.id==='brCMode'){BR.cmode=e.target.value;nb.innerHTML=browserHTML();return}
     if(e.target.id==='brLec'){BR.clec=e.target.value;nb.innerHTML=browserHTML();return}
+    if(e.target.id==='brRd'){BR.rrd=e.target.value;nb.innerHTML=browserHTML();return}
     if(e.target.id==='brLink'&&e.target.value){d.projectId=e.target.value;save(V.draftId);const a=d.assignmentId&&S.docs[d.assignmentId];if(a){a.projectId=d.projectId;save(d.assignmentId)}nb.innerHTML=browserHTML();return}if(e.target.id==='brMode'){BR.mode=e.target.value;BR.item=null;nb.innerHTML=browserHTML()}if(e.target.id==='brItem'){BR.item=e.target.value;nb.innerHTML=browserHTML()}});
-  nb.addEventListener('input',e=>{if(e.target.id==='brQ'){BR.q=e.target.value;const pos=e.target.selectionStart;nb.innerHTML=browserHTML();const q=$('#brQ');q.focus();q.setSelectionRange(pos,pos)}});
+  nb.addEventListener('input',e=>{if(e.target.id==='brRq'){BR.rq=e.target.value;const pos=e.target.selectionStart;clearTimeout(nb._rq);nb._rq=setTimeout(()=>{nb.innerHTML=browserHTML();const q=$('#brRq');if(q){q.focus();q.setSelectionRange(pos,pos)}},200);return}if(e.target.id==='brQ'){BR.q=e.target.value;const pos=e.target.selectionStart;nb.innerHTML=browserHTML();const q=$('#brQ');q.focus();q.setSelectionRange(pos,pos)}});
   nb.addEventListener('mousedown',e=>{if(e.target.closest('[data-ins],[data-cite],[data-idea]'))e.preventDefault()});
-  nb.addEventListener('mousedown',e=>{if(e.target.closest('[data-lins]'))e.preventDefault()});
+  nb.addEventListener('mousedown',e=>{if(e.target.closest('[data-lins],[data-rins],[data-rcite],[data-rgen]'))e.preventDefault()});
   nb.addEventListener('click',e=>{
     const sw=e.target.closest('[data-brsrc]');if(sw){BR.src=sw.dataset.brsrc;nb.innerHTML=browserHTML();return}
+    const bt=e.target.closest('[data-brtab]');if(bt){BR.rtab=bt.dataset.brtab;nb.innerHTML=browserHTML();return}
+    const dop=e.target.closest('[data-docopen2]');if(dop){openDocPane(dop.dataset.docopen2);return}
+    const ri=e.target.closest('[data-rins],[data-rcite],[data-rgen]');
+    if(ri){const mid=ri.dataset.rins||ri.dataset.rcite||ri.dataset.rgen, m=S.docs[mid]; if(!m)return;
+      let txt;
+      if(ri.dataset.rcite)txt=' '+matCite(m)+' ';
+      else if(ri.dataset.rgen)txt=' '+ri.dataset.txt.trim()+' '+matCite(m)+' ';
+      else{const r=rnOf(m),k=ri.dataset.item,id=k.slice(2);
+        if(k[0]==='a'){const x=r.args.find(z=>z.id===id);txt=x?`${x.text.replace(/[.\s]+$/,'')}${x.ev?` (${x.sup&&x.sup!=='weak'?supLabel(x.sup).toLowerCase()+': ':'evidence: '}${x.ev.replace(/[.\s]+$/,'')})`:''} ${matCite(m,x.page)}. `:''}
+        else if(k[0]==='c'||k[0]==='p'){const x=(k[0]==='c'?r.concepts:r.prereq).find(z=>z.id===id);txt=x?(x.def?`${x.text}: ${x.def.replace(/[.\s]+$/,'')} ${matCite(m)}. `:`${x.text} ${matCite(m)} `):''}
+        else if(k[0]==='r'){const x=r.rq.find(z=>z.id===id);txt=x?`${x.text}${x.answer?' '+x.answer.replace(/[.\s]+$/,''):''} ${matCite(m)}. `:''}
+        else{txt=(dgItemText(m,k,(lecturesOf(m.courseId).find(l=>l.id===m.lectureId))||S.docs[m.lectureId]||{})||'').replace(/[.\s]+$/,'')+' '+matCite(m)+'. '}
+      }
+      if(!trim(txt||''))return;
+      insertIntoDraft(ed,txt); d.cites=[...new Set([...(d.cites||[]),mid])]; draftCommit(ed);
+      toast(ri.dataset.rcite?'Citation inserted — the reading is in your reference list':'Inserted with its citation — now put it in your own words');return}
     const sc=e.target.closest('[data-brscope]');if(sc){BR.cscope=sc.dataset.brscope;nb.innerHTML=browserHTML();return}
     const li=e.target.closest('[data-lins]');if(li){insertIntoDraft(ed,' '+li.dataset.txt.trim()+' ');draftCommit(ed);toast('Inserted. Now put it in your own words');return}
     const bi=e.target.closest('[data-idea]');
@@ -5941,7 +5998,8 @@ function assignmentView(){
       </div>
     </div>
     <div>
-      <div class="card"><h2 style="margin-bottom:10px">Details</h2>
+      ${assignProgressHTML(a)}
+      <div class="card" style="margin-top:14px"><h2 style="margin-bottom:10px">Details</h2>
         <div class="field"><label>Course</label><select class="inp" data-af="courseId">${coursesAll().map(x=>`<option value="${x.id}" ${x.id===a.courseId?'selected':''}>${esc(courseLabel(x))}</option>`).join('')}</select></div>
         ${units.length?`<div class="field"><label>Unit</label><select class="inp" data-af="unitId"><option value="">—</option>${units.map(u=>`<option value="${u.id}" ${u.id===a.unitId?'selected':''}>${esc(u.code||u.name)}</option>`).join('')}</select></div>`:''}
         <div class="grid2"><div class="field"><label>Due date</label><input class="inp" type="date" data-af="due" value="${esc(a.due||'')}"></div><div class="field"><label>Time</label><input class="inp" type="time" data-af="dueTime" value="${esc(a.dueTime||'')}"></div></div>
@@ -5952,6 +6010,20 @@ function assignmentView(){
       </div>
     </div>
   </div>`;
+}
+/* the course so far, against this assignment: what you can already draw on, and what is new since you last worked on it */
+function assignProgressHTML(a){
+  const ls=lecturesOf(a.courseId,a.unitId||undefined).filter(l=>!l.missed).slice().sort((x,y)=>(x.date||'').localeCompare(y.date||''));
+  if(!ls.length)return `<div class="card apg"><h2 style="margin-bottom:6px">Build it as the course goes</h2><p class="help" style="margin:0">As lectures happen and you take reading and class notes, they appear here, ready to use in this assignment.</p></div>`;
+  const seen=a.seenAt||0, today=todayISO();
+  const row=l=>{const rs=readingsOf(l.id),withNotes=rs.filter(m=>rnCount(m,l)).length,done=l.date<=today&&!l.planned,cl=trim(l.text||'').length>0;
+    const nw=seen&&((l.updatedAt||0)>seen||rs.some(m=>(S.docs[m.id].updatedAt||0)>seen));
+    return `<div class="apr ${done?'':'future'}"><span class="aprd"><b>${new Date(l.date+'T12:00:00').getDate()}</b>${esc(new Date(l.date+'T12:00:00').toLocaleDateString(undefined,{month:'short'}))}</span><div class="aprb"><button class="link" data-act="openLecture" data-id="${l.id}">${esc(l.topic||'Untitled lecture')}</button>
+      <span class="aprm">${rs.length?`${withNotes}/${rs.length} reading${rs.length===1?'':'s'} with notes`:'no readings'}${cl?' · class notes':done?' · no class notes':''}</span></div>${nw?'<span class="aprnew" title="New notes since you last worked on this assignment">new</span>':''}${!done?'<span class="muted" style="font-size:12px">coming</span>':''}</div>`};
+  const nNew=seen?ls.filter(l=>(l.updatedAt||0)>seen||readingsOf(l.id).some(m=>(S.docs[m.id].updatedAt||0)>seen)).length:0;
+  const due=a.due?ls.filter(l=>l.date<=a.due):ls;
+  return `<div class="card apg"><h2 style="margin-bottom:4px">Build it as the course goes</h2><p class="help" style="margin:0 0 10px">${nNew?`<b>${nNew} lecture${nNew===1?' has':'s have'} new notes</b> since you last worked on this.`:'Each lecture adds readings and notes you can use. Open your work to insert them with their citations.'}</p>
+    <div class="aplist">${due.map(row).join('')}</div>${a.draftId?`<button class="btn pri" data-act="aWrite" style="margin-top:10px">${ico('edit')}${nNew?'Use the new notes':'Continue writing'}</button>`:''}</div>`;
 }
 function bindAssignment(){
   const a=S.docs[V.assignId]; if(!a)return;

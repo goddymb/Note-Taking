@@ -1,5 +1,14 @@
 # Changelog
 
+## [3.11.0] - 2026-11-17
+### Added
+- **Write assignments from your reading notes.** The notes panel beside an assignment now has a **Readings** source, next to Lectures and Project.
+  - **What you can browse:** your notes on the course's readings, by unit or for the whole course. Pick one reading or all of them, use the tabs (Everything, Notes, Questions, Claims, Concepts, Insights, Gaps) or search.
+  - **Insert** puts a claim, concept, insight, question or note into your document with its APA in-text citation. A claim keeps its support, for example "Development is a political process (case study: Botswana, Korea) (Leftwich, 2011, p. 225)." **Cite** inserts only the citation.
+  - **Reference list:** every reading you insert, quote from or cite is added to the APA reference list automatically. This includes text pasted with its citation. A cited reading without reference details is flagged, with a link to add them.
+  - **Open this reading** shows the reading's PDF beside your document. Quotes taken from it carry their citation.
+- **Build it as the course goes.** The assignment page lists the lectures so far (and coming ones) for its unit or course, showing how many readings have notes and whether you took class notes. Lectures with new notes since you last worked on the assignment are marked **new**. In the document, readings with new notes are marked ● in the reading list.
+
 ## [3.10.1] - 2026-11-17
 ### Changed
 - The reading notes panel is easier to find:
