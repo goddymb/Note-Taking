@@ -1054,6 +1054,16 @@ body.focus #lectureView.rmode .split{margin-top:46px}body.focus #lectureView.rmo
 .rngo{flex:none;font-size:13px;font-weight:600;color:var(--accent)}
 .rncard.fresh .rngo{background:var(--accent);color:#fff;border-radius:999px;padding:6px 12px}
 .rnhfoot{margin-top:16px}
+.rncw2{position:relative;margin-bottom:8px}.rncw2 .rncard{margin-bottom:0}.rncw2.chap{margin-left:34px}.rncw2.chap::before{content:"";position:absolute;left:-18px;top:-8px;bottom:50%;width:12px;border-left:2px solid var(--line);border-bottom:2px solid var(--line);border-bottom-left-radius:8px}
+.rnchap{margin:4px 0 0 60px;font-size:12.5px}
+.rnpart{font-size:12.5px;color:var(--muted);align-self:center}
+.modal.chmodal{width:min(880px,96vw);max-width:880px}
+.chload{display:flex;align-items:center;gap:10px;padding:18px 4px;color:var(--ink-2)}.chload progress{flex:1}
+.chlist{display:flex;flex-direction:column;gap:8px;max-height:56vh;overflow:auto;padding-right:4px}
+.chrow{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:10px;padding:8px 10px}.chrow .chk{margin-top:10px}
+.chf{flex:1;display:flex;flex-direction:column;gap:4px;min-width:0}.cht{font-weight:600}.cha{font-size:13px}
+.chp{display:flex;align-items:center;gap:4px;flex:none}.chp label{font-size:12px;color:var(--muted)}.chp .inp{width:58px;padding:6px}
+.chhave{font-size:11.5px;color:var(--muted);align-self:center}
 /* guided reading notes */
 .rnotes{padding:2px 2px 40px}
 .rnhead{display:flex;gap:10px;align-items:flex-start;border-bottom:1px solid var(--line);padding:4px 0 12px;margin-bottom:6px;flex-wrap:wrap}
@@ -2813,7 +2823,7 @@ function readPosSave(id,box){
     const d=S.docs[id]; if(d&&(!d.readPos||d.readPos.n!==RPOS[id].n)){d.readPos={n:RPOS[id].n,off:RPOS[id].off};save(id,3000)}},500);
 }
 function readPosRestore(id,box){
-  const p=RPOS[id]||(S.docs[id]&&S.docs[id].readPos); if(!p||!box)return false;
+  const p=RPOS[id]||(S.docs[id]&&S.docs[id].readPos)||(S.docs[id]&&S.docs[id].pdfStart?{n:S.docs[id].pdfStart,off:0}:null); if(!p||!box)return false;
   const el=box.querySelector(`.pg[data-n="${p.n}"]`); if(!el)return false;
   box.scrollTop=el.offsetTop+(p.off||0)*el.offsetHeight-4;
   const g=$('#pgn'); if(g&&R.doc)g.textContent=`${p.n} / ${R.doc.numPages}`; return true;
@@ -2843,7 +2853,8 @@ async function mountReader(x){
   bindViewerGestures(box); bindQuotes(box); bindArea(box); drawHighlights(); updateHlBar(); updateScanHint();
   if(R.gotoPage){const n=R.gotoPage;R.gotoPage=null;setTimeout(()=>{const el=box.querySelector(`.pg[data-n="${n}"]`);if(el)box.scrollTop=el.offsetTop-8},120)}
   else if(x.id){readPosRestore(x.id,box);requestAnimationFrame(()=>readPosRestore(x.id,box))}
-  if(x.id){let restoring=true;setTimeout(()=>restoring=false,400);box.addEventListener('scroll',()=>{if(!restoring&&token===R.token)readPosSave(x.id,box)},{passive:true})}
+  if(x.id&&!R.gotoPage){let touched=false;['wheel','pointerdown','keydown','touchstart'].forEach(ev=>box.addEventListener(ev,()=>{touched=true},{once:true,passive:true}));[350,1000,2000].forEach(t=>setTimeout(()=>{if(!touched&&token===R.token)readPosRestore(x.id,box)},t))}
+  if(x.id){let restoring=true;setTimeout(()=>restoring=false,2100);box.addEventListener('scroll',()=>{if(!restoring&&token===R.token)readPosSave(x.id,box)},{passive:true})}
   if(R.tool==='hand'){let seen=false;try{seen=localStorage.getItem('litnotes.quoteTip')}catch(e){}if(!seen){toast('Tip: pick the Text tool (I) to highlight or quote text — or the Area tool for scanned pages');try{localStorage.setItem('litnotes.quoteTip','1')}catch(e){}}}
 }
 function fitScale(mode){
@@ -4793,6 +4804,7 @@ const quoteText=(x,text,pg)=>`“${text}” (${citeCore(x)}${String(pg||'').trim
 
 /* printed page number: the PDF's own page labels, else the first page in the reference */
 function printedPage(x,n){
+  if(x&&x.pageOffset!=null&&n-x.pageOffset>=1)return String(n-x.pageOffset);
   const lab=R.labels&&R.labels[n-1];
   if(lab&&/^[0-9ivxlcdm]+$/i.test(lab.trim()))return lab.trim();
   const m=String((x.ref||{}).pages||'').match(/(\d+)\s*[-–]\s*(\d+)/);
@@ -6426,7 +6438,7 @@ function rnOf(m){
   if(typeof r.free!=='string')r.free='';
   return r;
 }
-const readingsOf=lid=>materialsOf(lid).filter(m=>m.type!=='slides');
+const readingsOf=lid=>orderChapters(materialsOf(lid).filter(m=>m.type!=='slides'));
 const rnQuestions=(l,mid)=>(l.questions||[]).filter(q=>q.readingId===mid);
 function rnCount(m,l){const r=rnOf(m);return r.rq.length+r.args.length+r.concepts.length+r.prereq.length+r.links.length+r.insights.length+r.gaps.length+(trim(r.text||r.free||'')?1:0)+(l?rnQuestions(l,m.id).length:0)}
 const htmlText=s=>{const d=document.createElement('textarea');d.innerHTML=String(s||'').replace(/<[^>]+>/g,'');return d.value};
@@ -6457,17 +6469,102 @@ function curRN(){
   if(LV.rn&&!rs.some(m=>m.id===LV.rn))LV.rn=null;
   return LV.rn?{id:LV.rn,...S.docs[LV.rn]}:null;
 }
+/* ---------- chapters: one book PDF, separate notes and references per chapter ---------- */
+const isChapter=m=>!!(m&&m.parentId);
+function chaptersOf(bookId){return docsOf('material',x=>x.parentId===bookId).sort((a,b)=>(a.pdfStart||0)-(b.pdfStart||0))}
+/* readings in order, each book followed by its chapters */
+function orderChapters(rs){const out=[],ids=new Set(rs.map(m=>m.id));rs.filter(m=>!isChapter(m)||!ids.has(m.parentId)).forEach(m=>{out.push(m);rs.filter(c=>c.parentId===m.id).sort((a,b)=>(a.pdfStart||0)-(b.pdfStart||0)).forEach(c=>out.push(c))});return out}
+const CH_NAME=/^(?:[A-Z][\p{L}'’.-]*\.?)(?:\s+(?:[A-Z][\p{L}'’.-]*\.?|de|van|von|da|du|del|la|le|bin|al-[\p{L}]+))+$/u;
+function chPeople(str){return String(str||'').split(/\s*(?:,|&|\band\b)\s*/).map(n=>trim(n)).filter(n=>CH_NAME.test(n)).map(n=>{const w=n.split(/\s+/);return {family:w.pop(),given:w.join(' '),org:false}})}
+/* read the whole PDF once: the contents list, where each chapter starts, and how PDF pages map to printed page numbers */
+async function findChapters(m,onProgress){
+  const lib=await loadPdfjs(); const data=await (await fetch(pdfUrl(m.pdf))).arrayBuffer();
+  const doc=await lib.getDocument({data,isEvalSupported:false,...PDFJS_EXTRA}).promise;
+  const N=doc.numPages, pages=[];
+  for(let i=1;i<=N;i++){const pg=await doc.getPage(i);const tc=await pg.getTextContent();pages.push(tc.items.map(it=>it.str+(it.hasEOL?'\n':' ')).join(''));if(onProgress&&i%10===0)onProgress(i,N)}
+  doc.destroy&&doc.destroy();
+  const lines=t=>t.split('\n').map(x=>x.replace(/\s+/g,' ').trim()).filter(Boolean);
+  // printed page numbers: a short number line near the top or bottom of the page
+  const offs={}; pages.forEach((t,i)=>{const L=lines(t);[...L.slice(0,3),...L.slice(-3)].forEach(x=>{const mm=x.match(/^(\d{1,4})$|^(\d{1,4})\s{0,3}\S.{0,60}$|^.{0,60}\S\s{0,3}(\d{1,4})$/);const v=mm&&+(mm[1]||mm[2]||mm[3]);if(v&&v<=N&&i+1-v>=0)offs[i+1-v]=(offs[i+1-v]||0)+1})});
+  const best=Object.entries(offs).sort((a,b)=>b[1]-a[1])[0]; const offset=best&&best[1]>=Math.max(4,N*0.15)?+best[0]:null;
+  // the contents list
+  const ti=pages.findIndex((t,i)=>i<30&&/^\s*(table of )?contents\b/im.test(t));
+  const entries=[];
+  if(ti>=0){
+    let L=[];for(let i=ti;i<Math.min(ti+4,N);i++){const ls=lines(pages[i]);if(i>ti&&!ls.some(x=>/^\d{1,2}\.\s+\S/.test(x)))break;L=L.concat(ls)}
+    let cur=null;
+    const push=()=>{if(!cur)return;const ls=cur.lines;let k=-1;for(let q=ls.length-1;q>=0;q--){const x=ls[q].replace(/\s+\d{1,4}$/,'');if(chPeople(x).length&&x.split(/\s+/).length<=12&&!/[:?‘’“”]/.test(x)&&!/\b(of|the|in|and the|for|from|on|to|a)\s/.test(' '+x.toLowerCase().replace(/\band\b/g,'')+' ')){k=q;break}}
+      const tl=k>=0?ls.slice(0,k):ls; cur.authors=k>=0?chPeople(ls[k].replace(/\s+\d{1,4}$/,'')):[];
+      cur.title=[cur.title].concat(tl).join(' ').replace(/\s+/g,' ').replace(/\s+([ivxlc]+|\d{1,4})$/i,'').replace(/[\s.]+$/,'').trim(); delete cur.lines;
+      if(cur.title)entries.push(cur); cur=null};
+    for(const x of L){
+      if(/^(table of )?contents$/i.test(x)||/^part\s+[ivxlc\d]+\b/i.test(x)||/^[ivxlc]+$/i.test(x)||/^\d{1,4}$/.test(x)||/^[A-Z][A-Z ,'’-]{6,}$/.test(x)||/\d{1,2}\/\d{1,2}\/\d{2}/.test(x)||/\bpre\s+[ivxlc]+$/i.test(x)){continue}
+      const num=x.match(/^(\d{1,2})\.?\s+(\S.*)$/), named=x.match(/^(Introduction|Foreword|Preface|Conclusion|Afterword|Epilogue|Prologue|Acknowledgements|Contributors|Index)\b:?\s*(.*)$/i);
+      if(num||named){push();cur={num:num?+num[1]:null,title:(num?num[2]:x).replace(/\s+\d{1,4}$/,''),lines:[],front:!!named&&!/^(introduction|conclusion|epilogue|afterword|prologue)/i.test(x)};continue}
+      if(cur&&x.length<160)cur.lines.push(x);
+    }
+    push();
+  }
+  // where each chapter starts: the first page after the contents whose top carries the title
+  const norm=t=>t.toLowerCase().replace(/[^\p{L}\d ]+/gu,' ').replace(/\s+/g,' ').trim();
+  let from=Math.max(ti+1,1);
+  entries.forEach(e=>{
+    const key=norm(e.title).split(' ').slice(0,5).join(' ');
+    for(let i=from;i<N;i++){const top=norm(lines(pages[i]).slice(0,8).join(' '));if(key&&top.includes(key)){e.pdfStart=i+1;from=i+1;break}}
+  });
+  const found=entries.filter(e=>e.pdfStart);
+  found.forEach((e,k)=>{const nx=found[k+1];e.pdfEnd=nx?nx.pdfStart-1:(()=>{for(let i=e.pdfStart;i<N;i++){if(/^\s*(contributors|notes on contributors|index|bibliography)\s*$/im.test(lines(pages[i]).slice(0,3).join('\n')))return i}return N})();
+    if(offset!=null&&e.pdfStart-offset>=1){e.from=e.pdfStart-offset;e.to=e.pdfEnd-offset}});
+  return {entries:found.concat(entries.filter(e=>!e.pdfStart)),offset,N};
+}
+function chaptersDialog(bookId){
+  const bk=S.docs[bookId]; if(!bk||!bk.pdf)return;
+  const have=chaptersOf(bookId);
+  const ov=modal(`<h3>Chapters of this book</h3><p class="help" style="margin-top:-4px">Each chapter you keep becomes its own reading: separate notes, its own authors and an APA chapter reference. They share this PDF and open at their first page.</p>
+    <div id="chBody"><div class="chload">${ico('book')}<span>Reading the book to find its chapters…</span><progress id="chProg" max="100" value="0"></progress></div></div>
+    <div class="mfoot"><button class="btn" data-x>Cancel</button><button class="btn pri" data-ok disabled>Create chapters</button></div>`);
+  ov.querySelector('.modal').classList.add('chmodal');
+  const $o=s=>ov.querySelector(s); $o('[data-x]').onclick=()=>ov.remove();
+  let rows=[], offset=null;
+  const row=(e,i)=>`<div class="chrow" data-i="${i}"><input type="checkbox" class="chk" ${e.keep?'checked':''} ${e.exists?'disabled':''} aria-label="Create this chapter">
+    <div class="chf"><input class="inp cht" value="${esc(e.title||'')}" placeholder="Chapter title" aria-label="Title"><input class="inp cha" value="${esc((e.authors||[]).map(a=>(a.given?a.given+' ':'')+a.family).join(' and '))}" placeholder="Authors, e.g. Helga Baitenmann and Iver B. Neumann" aria-label="Authors"></div>
+    <div class="chp"><label>pp.</label><input class="inp chfrom" value="${esc(e.from??'')}" inputmode="numeric" aria-label="First page"><span>–</span><input class="inp chto" value="${esc(e.to??'')}" inputmode="numeric" aria-label="Last page"></div>${e.exists?'<span class="chhave">already a reading</span>':''}</div>`;
+  const draw=(msg)=>{$o('#chBody').innerHTML=`${msg?`<p class="help">${msg}</p>`:''}<div class="chlist">${rows.map(row).join('')}</div><button class="btn sm" id="chAdd" style="margin-top:8px">${ico('plus')}Add a chapter by hand</button>`;
+    $o('#chAdd').onclick=()=>{sync();rows.push({title:'',authors:[],keep:true});draw(msg);const t=[...ov.querySelectorAll('.cht')].pop();if(t)t.focus()};
+    $o('[data-ok]').disabled=false};
+  const sync=()=>ov.querySelectorAll('.chrow').forEach(r=>{const e=rows[+r.dataset.i];e.keep=r.querySelector('.chk').checked;e.title=trim(r.querySelector('.cht').value);e.authors=chPeople(r.querySelector('.cha').value);if(!e.authors.length&&trim(r.querySelector('.cha').value))e.authors=[{family:trim(r.querySelector('.cha').value),given:'',org:true}];const f=parseInt(r.querySelector('.chfrom').value,10),t=parseInt(r.querySelector('.chto').value,10);e.from=isNaN(f)?null:f;e.to=isNaN(t)?null:t});
+  findChapters(bk,(i,n)=>{const p=$o('#chProg');if(p)p.value=Math.round(i/n*100)}).then(res=>{
+    offset=res.offset; const names=new Set(have.map(c=>trim(c.name).toLowerCase()));
+    rows=res.entries.filter(e=>!(e.front&&/^(contributors|index|acknowledgements)/i.test(e.title))).map(e=>({...e,exists:names.has(trim(e.title).toLowerCase()),keep:false}));
+    draw(rows.length?`Found ${rows.length} chapter${rows.length===1?'':'s'} in the contents. Tick the ones your lecture asks you to read, and check the authors and pages.`:'No contents list was found in this PDF. Add the chapters by hand: title, authors and the printed page numbers.');
+    if(!rows.length){rows.push({title:'',authors:[],keep:true});draw('No contents list was found in this PDF. Add the chapters by hand: title, authors and the printed page numbers.')}
+  }).catch(()=>{rows=[{title:'',authors:[],keep:true}];draw('The PDF could not be read to find chapters. Add them by hand: title, authors and the printed page numbers.')});
+  $o('[data-ok]').onclick=()=>{
+    sync(); const keep=rows.filter(e=>e.keep&&!e.exists&&e.title); if(!keep.length){toast('Tick at least one chapter, with its title');return}
+    const br=bk.ref||{}, eds=validPeople(br.editors).length?br.editors:validPeople(br.authors);
+    if(offset!=null&&bk.pageOffset==null){bk.pageOffset=offset;save(bookId)}
+    keep.forEach((e,k)=>{
+      const id=uid('mat_'); const pdfStart=e.pdfStart||(e.from&&offset!=null?e.from+offset:e.from)||1, pdfEnd=e.pdfEnd||(e.to&&offset!=null?e.to+offset:e.to)||null;
+      S.docs[id]={kind:'material',lectureId:bk.lectureId,courseId:bk.courseId,unitId:bk.unitId||null,type:'reading',group:bk.group||'compulsory',name:e.title.slice(0,160),pdf:bk.pdf,parentId:bookId,pdfStart,pdfEnd,pageOffset:offset!=null?offset:(e.from&&e.pdfStart?e.pdfStart-e.from:null),createdAt:(bk.createdAt||Date.now())+k+1,
+        ref:{...newRef(),type:'chapter',authors:e.authors&&e.authors.length?e.authors:[{family:'',given:'',org:false}],year:br.year||'',title:e.title,editors:eds||[],bookTitle:br.title||bk.name||'',publisher:br.publisher||'',edition:br.edition||'',pages:e.from&&e.to?`${e.from}–${e.to}`:''}};
+      save(id);
+    });
+    ov.remove(); toast(`${keep.length} chapter${keep.length===1?'':'s'} added as readings`); renderMain();
+  };
+}
+
 /* ---------- the reading hub (reading mode, no reading open yet) ---------- */
 function readingHubHTML(l){
   const rs=readingsOf(V.lectureId);
   if(!rs.length)return `<div class="rnhub"><div class="empty" style="margin:0"><div class="ic">${ico('readm')}</div><div class="big">No readings for this lecture yet</div><p>Upload the compulsory and additional readings with <b>Materials</b> (top right). Each reading gets its own guided notes: the questions it asks, its claims and their support, concepts, questions for class and insights.</p><button class="btn pri" data-act="matAdd" data-v="reading" data-g="compulsory">${ico('upload')}Upload a reading</button></div></div>`;
   const card=m=>{const r=rnOf(m),n=rnCount(m,l),nu=r.concepts.concat(r.prereq).filter(c=>c.ok===false).length,oq=rnQuestions(l,m.id).filter(q=>q.status!=='answered').length;
-    return `<button class="rncard ${n?'':'fresh'}" data-act="rnOpen" data-id="${m.id}">
+    const chs=!isChapter(m)&&m.pdf?chaptersOf(m.id):[];
+    return `<div class="rncw2 ${isChapter(m)?'chap':''}"><button class="rncard ${n?'':'fresh'}" data-act="rnOpen" data-id="${m.id}">
       <span class="rnci">${ico(m.url&&!m.pdf?'link2':'book')}</span>
       <span class="rncb"><b>${esc(m.name)}</b><span class="rncref">${hasRef(m)?esc(htmlText(apaHTML(m.ref))):'<i>Reference details not filled in yet</i>'}</span>
       <span class="rnstats">${n?`<span>${r.args.length} claim${r.args.length===1?'':'s'}</span><span>${r.concepts.length} concept${r.concepts.length===1?'':'s'}</span>${nu?`<span class="warn">${nu} not understood yet</span>`:''}${oq?`<span>${oq} question${oq===1?'':'s'} for class</span>`:''}${r.links.length?`<span>${r.links.length} link${r.links.length===1?'':'s'} to other readings</span>`:''}`:'<span>Not started</span>'}</span></span>
-      <span class="rngo">${n?'Continue':'Start reading'}</span></button>`};
-  const comp=rs.filter(m=>matGroup(m)!=='additional'), add=rs.filter(m=>matGroup(m)==='additional');
+      <span class="rngo">${n?'Continue':'Start reading'}</span></button>${!isChapter(m)&&m.pdf?`<button class="btn sm ghost rnchap" data-act="chapters" data-id="${m.id}" title="Take notes on chapters separately — each with its own authors and reference">${ico('book')}${chs.length?`Chapters (${chs.length})`:'Split into chapters'}</button>`:''}</div>`};
+  const ord=orderChapters(rs), comp=ord.filter(m=>matGroup(m)!=='additional'), add=ord.filter(m=>matGroup(m)==='additional');
   return `<div class="rnhub"><p class="rnlede">Read before class. For each reading, note the questions it asks, its claims and how they are supported, the concepts, what you need to understand first, how it relates to the other readings and what to ask in class.</p>
     ${comp.length?`<div class="rnhgrp"><h3>Compulsory and linked readings</h3>${comp.map(card).join('')}</div>`:''}
     ${add.length?`<div class="rnhgrp"><h3>Additional readings</h3>${add.map(card).join('')}</div>`:''}
@@ -6499,7 +6596,7 @@ function readingNotesHTML(m,l){
   return `<div class="rnotes" id="rnotes" data-cite-mat="${m.id}" data-mid="${m.id}">
     <div class="rnhead"><button class="btn sm ghost" data-act="rnBack" title="All readings for this lecture">‹ Readings</button>
       <div class="rnref"><b>${esc(m.name)}</b><span>${hasRef(m)?apaHTML(m.ref):'<i>No reference details yet — fill them in so quotes and copied notes carry the citation.</i>'}</span></div>
-      <button class="btn sm" data-act="rnRef" data-id="${m.id}">${ico('edit')}${hasRef(m)?'Edit':'Add'} reference</button>${m.url&&!m.pdf?`<a class="btn sm" href="${esc(m.url)}" target="_blank" rel="noopener">${ico('external')}Open link</a>`:''}</div>
+      <button class="btn sm" data-act="rnRef" data-id="${m.id}">${ico('edit')}${hasRef(m)?'Edit':'Add'} reference</button>${isChapter(m)&&S.docs[m.parentId]?`<span class="rnpart" title="Pages ${esc(m.ref&&m.ref.pages||'')}">Chapter of <b>${esc(matShort(S.docs[m.parentId]))}</b>${m.ref&&m.ref.pages?`, pp. ${esc(m.ref.pages)}`:''}</span>`:m.pdf?`<button class="btn sm ghost" data-act="chapters" data-id="${m.id}">${ico('book')}Chapters</button>`:''}${m.url&&!m.pdf?`<a class="btn sm" href="${esc(m.url)}" target="_blank" rel="noopener">${ico('external')}Open link</a>`:''}</div>
     <div id="rnTop">${rnTopHTML(m,l,sec)}</div>
     <div class="rngen"><div class="rngh"><b>General notes</b><span class="muted">Ideas from the reading, in your own words. Open a section above when you come across a claim, a concept or a question.</span></div>
       ${ribbonHTML(l,{lecture:true})}
@@ -7578,7 +7675,8 @@ function addMaterialLink(lid){
 }
 async function deleteMaterial(id){
   const m=S.docs[id]; if(!m)return; if(!confirm(`Remove “${m.name}” from this lecture?`))return;
-  if(m.pdf){const a=await getAssets();if(a){try{await a.delete(m.pdf.id)}catch(e){}if(m.pdfOrig){try{await a.delete(m.pdfOrig.id)}catch(e){}}}}
+  const shared=m.pdf&&docsOf('material',x=>x.id!==id&&x.pdf&&x.pdf.id===m.pdf.id).length;
+  if(m.pdf&&!shared){const a=await getAssets();if(a){try{await a.delete(m.pdf.id)}catch(e){}if(m.pdfOrig){try{await a.delete(m.pdfOrig.id)}catch(e){}}}}
   remove(id); if(LV.mat===id)LV.mat=null; renderMain();
 }
 function endLecture(){
@@ -8316,6 +8414,7 @@ document.addEventListener('click',e=>{
     case 'rnLinkAdd': {const box=$('#rnotes'),m=S.docs[box.dataset.mid],l=S.docs[V.lectureId];const o=readingsOf(V.lectureId).find(x=>x.id!==box.dataset.mid)||docsOf('material',x=>x.courseId===l.courseId&&x.lectureId!==V.lectureId&&x.type!=='slides')[0];if(!o)break;rnOf(m).links.push({id:uid('rn'),to:o.id,kind:'supports',text:''});save(box.dataset.mid);refreshRN('.rnsec[data-s="links"] .rnit:last-child textarea');break}
     case 'rnAddNo': {const i=document.querySelector('.rnadd[data-sec="concepts"]');if(!i||!trim(i.value)){if(i)i.focus();break}rnDraft($('#rnotes').dataset.mid,'concepts','');rnAdd($('#rnotes').dataset.mid,'concepts',i.value,{ok:false});refreshRN('.rnadd[data-sec="concepts"]');break}
     case 'capture': captureDialog();break;
+    case 'chapters': chaptersDialog(id);break;
     case 'digest': if(LV.digest&&!LV.mat){LV.digest=false;renderMain()}else{LV.digest=true;LV.mat=null;LV.anim=true;renderMain()}break;
     case 'relNew': relateDialog({});break;
     case 'imOpen': openInsightMap(id||V.lectureId);break;

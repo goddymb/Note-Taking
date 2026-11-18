@@ -1,5 +1,15 @@
 # Changelog
 
+## [3.12.0] - 2026-11-18
+### Added
+- **Chapters of a book as separate readings.** A reading with a PDF has a **Split into chapters** button, in the reading list and in its reading notes.
+  - **Finding the chapters:** the app reads the book's contents list and finds each chapter's title and authors. It works out where each chapter starts in the PDF and its printed page numbers. You tick the chapters your lecture asks you to read, and can correct any title, author or page, or add a chapter by hand.
+  - **Each chapter becomes its own reading,** listed under its book. It has its own notes, insight-map node, report section and APA chapter reference, built from the book's details. For example: "Baitenmann, H. (2005). Counting on State Subjects… In C. Krohn-Hansen & K. G. Nustad (Eds.), *State Formation: Anthropological Perspectives* (pp. 171–194). Pluto Press." Quotes are cited (Baitenmann, 2005, p. 175).
+  - **One PDF:** the chapters share the book's PDF, and each opens at its own first page. Page numbers in quotes use the book's printed numbers.
+
+### Fixed
+- Removing a reading no longer deletes a PDF that another reading (a chapter, or its book) still uses.
+
 ## [3.11.1] - 2026-11-17
 ### Fixed
 - **Book references are found.** A book without a DOI, such as *State Formation: Anthropological Perspectives* (2005), got no reference details. The app now reads up to four first pages and recognises:
