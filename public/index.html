@@ -3659,14 +3659,54 @@ function refreshRteState(){
   const bar=document.querySelector(`.rtebar[data-for="${ed.dataset.ans}"]`); if(!bar)return;
   ['bold','italic','underline','insertUnorderedList','insertOrderedList'].forEach(c=>{const b=bar.querySelector(`[data-fmt="${c}"]`);let on=false;try{on=document.queryCommandState(c)}catch(e){}if(b)b.classList.toggle('on',on)});
 }
+/* paste from Word, Excel, Google Docs, PDFs and web pages: keep the structure, store the pictures */
+async function insertPastedImages(ed,files,range){
+  toast(files.length>1?`Adding ${files.length} pictures…`:'Adding the picture…');
+  const ids=[]; for(const f of files){if(!/^image\/(png|jpeg|gif|webp)$/.test(f.type)){toast('Only PNG, JPG, GIF or WebP pictures can be pasted.');continue}const id=await uploadImageBlob(f);if(id)ids.push(id)}
+  if(!ids.length)return;
+  ed.focus(); if(range){const s=getSelection();s.removeAllRanges();s.addRange(range)}
+  document.execCommand('insertHTML',false,ids.map(id=>`<p class="al-center"><img src="/_blob/${id}" class="img-m" alt="pasted picture"></p>`).join('')+'<p><br></p>');
+  rteCommit(ed); toast(ids.length>1?`${ids.length} pictures added`:'Picture added — click it to resize or move it');
+}
+async function richPaste(ed,e){
+  const cd=e.clipboardData||window.clipboardData; if(!cd)return;
+  const plain=ed._plain; ed._plain=false;
+  const html=cd.getData('text/html'), text=cd.getData('text/plain');
+  const files=[...(cd.items||[])].filter(i=>i.kind==='file'&&/^image\//.test(i.type)).map(i=>i.getAsFile()).filter(Boolean);
+  e.preventDefault();
+  if(plain||(!html&&!files.length)){document.execCommand('insertText',false,text);return}
+  const sel=getSelection(), range=sel.rangeCount?sel.getRangeAt(0).cloneRange():null;
+  const tmp=document.createElement('div'); tmp.innerHTML=html||'';
+  tmp.querySelectorAll('style,meta,link,script,title,xml').forEach(x=>x.remove());
+  [...tmp.getElementsByTagName('*')].filter(x=>x.tagName.includes(':')&&!/^v:imagedata$/i.test(x.tagName)).forEach(x=>{if(!x.querySelector('img'))x.replaceWith(...x.childNodes)});
+  const imgs=[...tmp.querySelectorAll('img')], textLen=trim(tmp.textContent||'').length;
+  // a picture or a shape on its own (a Word shape, a chart, a screenshot, an image from a page)
+  if(files.length&&(!html||(textLen<3&&!tmp.querySelector('table')))){await insertPastedImages(ed,files,range);return}
+  let lost=0;
+  if(imgs.length)toast('Adding the pictures…');
+  for(const im of imgs){
+    const src=im.getAttribute('src')||''; if(BLOB_RE.test(src))continue;
+    let blob=null;
+    try{if(/^data:image\//.test(src))blob=await (await fetch(src)).blob();else if(/^https?:/.test(src)){const r=await fetch(src);if(r.ok)blob=await r.blob()}}catch(err){}
+    if(!blob&&files.length===1&&imgs.length===1)blob=files[0]; // Word gives the picture separately from its text
+    if(blob&&/^image\/(png|jpeg|gif|webp)/.test(blob.type)){const id=await uploadImageBlob(blob);if(id){im.setAttribute('src','/_blob/'+id);im.className='img-m';continue}}
+    lost++; im.remove();
+  }
+  const clean=cleanRich(tmp.innerHTML);
+  ed.focus(); if(range){const s=getSelection();s.removeAllRanges();s.addRange(range)}
+  if(trim(clean.replace(/<[^>]+>/g,''))||/<img|<table/.test(clean))document.execCommand('insertHTML',false,clean);else document.execCommand('insertText',false,text);
+  rteCommit(ed);
+  if(lost)toast(`${lost===1?'One picture or shape':lost+' pictures or shapes'} could not come along. Copy ${lost===1?'it':'each one'} on its own and paste it.`);
+}
 function bindRte(root){
   root.querySelectorAll('.rte').forEach(ed=>{
     ed.addEventListener('input',()=>rteCommit(ed));
-    ed.addEventListener('paste',e=>{ // paste as plain text so notes stay clean
-      e.preventDefault(); const t=(e.clipboardData||window.clipboardData).getData('text/plain');
-      document.execCommand('insertText',false,t);
-    });
-    ed.addEventListener('drop',e=>{const t=e.dataTransfer&&e.dataTransfer.getData('text/plain');if(t){e.preventDefault();ed.focus();document.execCommand('insertText',false,t)}});
+    // Ctrl+Shift+V pastes plain text; a normal paste keeps tables, lists, headings, bold, pictures and shapes
+    ed.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.shiftKey&&(e.key==='v'||e.key==='V'))ed._plain=true},true);
+    ed.addEventListener('paste',e=>richPaste(ed,e));
+    ed.addEventListener('drop',e=>{const dt=e.dataTransfer;if(!dt)return;const fs=[...dt.files||[]].filter(f=>/^image\//.test(f.type));
+      if(fs.length){e.preventDefault();const r=document.caretRangeFromPoint?document.caretRangeFromPoint(e.clientX,e.clientY):null;if(r){const s=getSelection();s.removeAllRanges();s.addRange(r)}insertPastedImages(ed,fs);return}
+      const t=dt.getData('text/plain');if(t){e.preventDefault();ed.focus();document.execCommand('insertText',false,t)}});
     ed.addEventListener('keydown',e=>{
       if(undoAutoCap(ed,e)){rteCommit(ed);return}
       if(e.key.length===1||e.key==='Enter'||e.key==='Delete'||e.key.startsWith('Arrow'))lastAuto=lastAuto&&e.key.length===1?lastAuto:null;

@@ -1,5 +1,13 @@
 # Changelog
 
+## [3.12.1] - 2026-11-18
+### Changed
+- **Paste keeps tables, pictures and shapes.** Pasting into notes, reading notes, assignments and project writing used to turn everything into plain text. A paste from Word, Excel, Google Docs, PDFs or web pages now keeps headings, bold and italic, lists and tables, and stores pictures with the notes.
+  - A picture or shape copied on its own is added as a picture you can resize and move: a Word shape or chart, a screenshot, or an image from a web page.
+  - If a picture inside a larger selection cannot be copied (Word sometimes keeps it out of reach), the app says so. Copy that picture on its own and paste it.
+  - **Ctrl+Shift+V** still pastes plain text.
+- **Drag pictures in.** You can drag picture files into a writing area.
+
 ## [3.12.0] - 2026-11-18
 ### Added
 - **Chapters of a book as separate readings.** A reading with a PDF has a **Split into chapters** button, in the reading list and in its reading notes.
