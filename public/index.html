@@ -1379,7 +1379,9 @@ body.focus .ptoolbar{background:var(--bg)}
 @media(max-width:800px){.prow{grid-template-columns:minmax(0,1fr) 16px}.prs,.prp{display:none}}
 .crlayout{display:grid;grid-template-columns:270px minmax(0,1fr);gap:24px;align-items:start}
 @media(max-width:1000px){.crlayout{grid-template-columns:1fr}.crside{position:static!important;display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px}.crview.crpage{padding:24px 20px}}
-.crview.crfull{position:fixed;inset:0;z-index:300;max-width:none;margin:0;border:0;border-radius:0;overflow:auto;padding:56px max(24px,calc((100vw - 820px)/2)) 80px;box-shadow:none}
+.crview.crfull,.crview.crpage.crfull{position:fixed;inset:0;z-index:300;max-width:none;margin:0;border:0;border-radius:0;overflow:auto;padding:64px max(24px,calc((100vw - 820px)/2)) 80px!important;box-shadow:none}
+.crmain{position:relative;min-width:0}
+.crfocus{position:sticky;top:84px;float:right;margin:12px 12px -46px 0;z-index:3;box-shadow:var(--shadow)}
 .crfullx{position:fixed;top:12px;right:16px;z-index:2;box-shadow:var(--shadow)}
 .crsrc{display:inline-block;font-size:.72em;font-weight:650;color:#6d4ee0;background:color-mix(in srgb,#7c5cff 10%,transparent);border-radius:4px;padding:0 6px;vertical-align:.1em;font-family:var(--font)}
 .crglo{margin:0 0 8px}.crweak{color:#7e22ce}
@@ -6247,10 +6249,10 @@ function courseReportHTML(c,units){
     <div class="crblock"><span class="seg crtabs" role="tablist"><button class="${IM.tab!=='map'?'on':''}" data-act="crTab" data-v="report">${ico('doc')}Report</button><button class="${IM.tab==='map'?'on':''}" data-act="crTab" data-v="map">${ico('map')}Insight map</button></span></div>
     <div class="crblock" ${IM.tab==='map'?'hidden':''}><div class="field" style="margin:0"><label>Organise by</label><select class="inp" id="crOrg">${CR_ORGS.map(([v,t])=>`<option value="${v}" ${CR.org===v?'selected':''}>${t}</option>`).join('')}</select></div><p class="help" style="margin:6px 0 0">${esc((CR_ORGS.find(x=>x[0]===CR.org)||CR_ORGS[0])[2])}</p></div>
     <div class="crblock" ${IM.tab==='map'||CR.org==='grid'?'hidden':''}><div class="crh">Include</div>${CR_PARTS.map(([k,lab])=>`<label class="crinc"><input type="checkbox" data-crinc="${k}" ${CR.inc[k]?'checked':''}><span>${lab}</span></label>`).join('')}</div>
-    <div class="crblock crx"><button class="btn" data-act="crFull" title="Read the report on the whole screen">${ico('maximize')}Full screen</button><button class="btn" data-act="crCopy" title="Copy the report as text">${ico('copy')}Copy text</button><button class="btn" data-act="crExport" data-v="pdf">${ico('download')}Export PDF</button><button class="btn" data-act="crExport" data-v="doc">${ico('download')}Export Word</button><button class="btn ghost" data-act="crSave" title="Keep a copy under Saved reports">${ico('library')}Save a copy</button></div>
+    <div class="crblock crx"><button class="btn" data-act="crFull" title="Read the report on the whole screen">${ico('maximize')}Focus mode</button><button class="btn" data-act="crCopy" title="Copy the report as text">${ico('copy')}Copy text</button><button class="btn" data-act="crExport" data-v="pdf">${ico('download')}Export PDF</button><button class="btn" data-act="crExport" data-v="doc">${ico('download')}Export Word</button><button class="btn ghost" data-act="crSave" title="Keep a copy under Saved reports">${ico('library')}Save a copy</button></div>
     <div class="crblock"><div class="crh">Saved reports</div>${(()=>{const rs=reportsSaved();return rs.length?rs.map(r=>`<div class="crsaved"><button class="link" data-act="repOpen" data-id="${r.id}" title="${esc(r.title)}">${esc(r.title)}</button><span class="muted">${esc(new Date(r.createdAt).toLocaleDateString())}</span><button class="btn sm ghost icon" data-act="repExport" data-id="${r.id}" data-v="pdf" title="Export PDF" aria-label="Export PDF">${ico('download')}</button><button class="btn sm ghost icon danger" data-act="repDel" data-id="${r.id}" title="Delete" aria-label="Delete">${ico('trash')}</button></div>`).join(''):'<p class="muted" style="margin:0;font-size:13px">None yet. Save a copy to keep this version.</p>'})()}</div>
   </aside>
-  <article class="crview ${IM.tab==='map'?'crmapv':'crpage'}" id="crView">${IM.tab==='map'?insightMapHTML(c):courseReportBody(c)}</article></div>`;
+  <div class="crmain">${IM.tab==='map'?'':`<button class="btn sm crfocus" data-act="crFull" title="Focus mode: read the report on the whole screen (Esc to leave)">${ico('maximize')}Focus</button>`}<article class="crview ${IM.tab==='map'?'crmapv':'crpage'}" id="crView">${IM.tab==='map'?insightMapHTML(c):courseReportBody(c)}</article></div></div>`;
 }
 function courseReportScope(c){
   const all=lecturesOf(c.id).filter(l=>!l.missed).slice().reverse();
@@ -7378,7 +7380,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&IM.full&&!e.target.
 function crFull(on){
   CR.full=on; const v=$('#crView'); if(!v)return;
   v.classList.toggle('crfull',on); document.body.classList.toggle('imfullon',on);
-  let x=$('#crFullX'); if(on&&!x){v.insertAdjacentHTML('afterbegin',`<button class="btn sm crfullx" id="crFullX" data-act="crFull" title="Exit full screen (Esc)">${ico('minimize')}Exit full screen</button>`)}else if(!on&&x)x.remove();
+  let x=$('#crFullX'); if(on&&!x){v.insertAdjacentHTML('afterbegin',`<button class="btn sm crfullx" id="crFullX" data-act="crFull" title="Leave focus mode (Esc)">${ico('minimize')}Exit focus</button>`)}else if(!on&&x)x.remove();
   try{if(on&&!document.fullscreenElement&&v.requestFullscreen)v.requestFullscreen().catch(()=>{});else if(!on&&document.fullscreenElement)document.exitFullscreen().catch(()=>{})}catch(e){}
   if(on)v.scrollTop=0;
 }

@@ -1,5 +1,9 @@
 # Changelog
 
+## [3.12.2] - 2026-11-22
+### Fixed
+- **Course report focus mode is easy to find.** The button was at the bottom of the side column, below the fold on a laptop. A **Focus** button now sits at the top right of the report and stays there while you scroll. It shows only the report, in a centred reading column. *Exit focus* or Esc leaves it.
+
 ## [3.12.1] - 2026-11-18
 ### Changed
 - **Paste keeps tables, pictures and shapes.** Pasting into notes, reading notes, assignments and project writing used to turn everything into plain text. A paste from Word, Excel, Google Docs, PDFs or web pages now keeps headings, bold and italic, lists and tables, and stores pictures with the notes.
